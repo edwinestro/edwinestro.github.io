@@ -5,7 +5,6 @@ body {
     display: grid;
     place-items: center;
   }
-
 .identificadorUnico {
     font-family: system-ui;
     background: linear-gradient(to bottom, darkorchid, #6b238f);
@@ -14,8 +13,6 @@ body {
     padding: 40px;
     margin: 10px;
   }
-
-
   .grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -27,8 +24,7 @@ body {
     height: 600px;
     background: rgb(44, 0, 93);
     border-radius: 25px;
-  }
-  
+  }  
   @media (max-width: 400px) {
     .grid {
       grid-template-columns: 1fr;
