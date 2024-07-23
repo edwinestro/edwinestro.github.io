@@ -6,6 +6,7 @@
   --main-gray: #303841;
 }
 
+
 /* Base reset */
 * {
   margin: 0;
@@ -102,6 +103,7 @@ h2 {
   font-family: 'Raleway', sans-serif;
   font-weight: 700;
   text-align: center;
+  font-size: 3rem;
 }
 
 h1 {
@@ -109,7 +111,7 @@ h1 {
 }
 
 h2 {
-  font-size: 4.2rem;
+  font-size: 3rem;
 }
 
 ul {
@@ -123,6 +125,13 @@ a {
 
 img {
   height: auto;
+  display: flex;
+  position: relative;
+  padding: 2px;
+  height: 300px;
+  justify-content: center;
+  border-radius: 18%;
+  border: 1px;
 }
 
 /* nav */
@@ -137,6 +146,9 @@ img {
   background: var(--main-red);
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.4);
   z-index: 10;
+  border-bottom-left-radius: 18px;
+  border-bottom-right-radius: 18px;
+
 }
 
 .nav-list {
@@ -164,9 +176,9 @@ img {
   background: var(--main-blue);
 }
 
-/* Welcome section */
+/* Welcomeed section */
 .equallydistributed {
-
+  content: "Hello Salesforce";
 }
 .welcome-section {
   display: flex;
@@ -177,35 +189,31 @@ img {
   height: 100vh;
   background-color: #000;
   background-image: linear-gradient(62deg, #3a3d40 0%, #181719 100%);
+  border-bottom-left-radius: 18px;
+  border-bottom-right-radius: 18px;
 }
-
 .welcome-section > p {
   font-size: 3rem;
   font-weight: 200;
   font-style: italic;
   color: var(--main-red);
 }
-
 /* Projects section */
-
 .projects-section {
   text-align: center;
   padding: 10rem 2rem;
   background: var(--main-blue);
 }
-
 .projects-section-header {
   max-width: 640px;
   margin: 0 auto 6rem auto;
   border-bottom: 0.2rem solid var(--main-white);
 }
-
 @media (max-width: 28.75em) {
   .projects-section-header {
     font-size: 4rem;
   }
 }
-
 /* "Automagic" image grid using no media queries */
 .projects-grid {
   display: grid;
@@ -217,71 +225,58 @@ img {
   margin-bottom: 6rem;
   background-color: rgb(127, 136, 143);
 }
-
 @media (max-width: 30.625em) {
   .projects-section {
     padding: 6rem 1rem;
   }
-
   .projects-grid {
     grid-template-columns: 1fr;
   }
 }
-
 .project {
   background: var(--main-gray);
   box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
   border-radius: 2px;
 }
-
 .code {
   color: var(--main-gray);
   transition: color 0.3s ease-out;
 }
-
 .project:hover .code {
   color: #ff7f50;
 }
-
 .project-image {
-  height: calc(100% - 6.8rem);
+  height: 100%;
   width: 100%;
   object-fit: cover;
-}
 
+}
 .project-title {
   font-size: 2rem;
   padding: 2rem 0.5rem;
 }
-
 .btn {
   display: inline-block;
   padding: 1rem 2rem;
   border-radius: 2px;
 }
-
 .btn-show-all {
   font-size: 2rem;
   background: var(--main-gray);
   transition: background 0.3s ease-out;
 }
-
 .btn-show-all:hover {
   background: var(--main-red);
 }
-
 .btn-show-all:hover > i {
   transform: translateX(2px);
 }
-
 .btn-show-all > i {
   margin-left: 10px;
   transform: translateX(0);
   transition: transform 0.3s ease-out;
 }
-
 /* Contact section */
-
 .contact-section {
   display: flex;
   flex-direction: column;
@@ -293,21 +288,17 @@ img {
   padding: 0 2rem;
   background: var(--main-gray);
 }
-
 .contact-section-header > h2 {
   font-size: 6rem;
 }
-
 @media (max-width: 28.75em) {
   .contact-section-header > h2 {
     font-size: 4rem;
   }
 }
-
 .contact-section-header > p {
   font-style: italic;
 }
-
 .contact-links {
   display: flex;
   justify-content: center;
@@ -316,19 +307,15 @@ img {
   margin-top: 4rem;
   flex-wrap: wrap;
 }
-
 .contact-details {
   font-size: 2.4rem;
   text-shadow: 2px 2px 1px #1f1f1f;
   transition: transform 0.3s ease-out;
 }
-
 .contact-details:hover {
   transform: translateY(8px);
 }
-
 /* Footer */
-
 footer {
   font-weight: 300;
   display: flex;
@@ -337,27 +324,21 @@ footer {
   background: var(--main-gray);
   border-top: 4px solid var(--main-red);
 }
-
 footer > p {
   margin: 2rem;
 }
-
 footer i {
   vertical-align: middle;
 }
-
 @media (max-width: 28.75em) {
   footer {
     flex-direction: column;
     text-align: center;
   }
 }
-
-
 body {
   background-color: #eee;
 }
-
 article {
   max-width: 800px;
   margin: 0 auto;
@@ -367,54 +348,51 @@ article {
   font-size: 135%;
   
 }
-
 article h2 {
-  font-size: 4rem;
+  font-size: 3rem;
   margin-top: 0;
   margin-bottom: 20px;
   text-align: center;
   color: #fff;
 }
-
 article p {
-  font-size: 2rem;
+  font-size: 5rem;
   line-height: 1.6;
   margin-bottom: 20px;
   color: #fff;
 }
-
 article ul {
   margin-bottom: 20px;
   list-style: disc;
   margin-left: 40px;
 }
-
 article li {
   font-size: 1.1rem;
   line-height: 1.6;
   margin-bottom: 5px;
   color: #fff;
 }
-
 article a {
   color: #fff;
   text-decoration: underline;
 }
-
 article a:hover {
   color: #eee;
 }
-
 @media screen and (max-width: 768px) {
   article {
     padding: 10px;
   }
   
   article h2 {
-    font-size: 2rem;
+    font-size: 3rem;
   }
   
   article p {
     font-size: 1rem;
+    font-size: 3rem;
   }
+}
+.relationshipDesign::after{
+  content:"hello astro";
 }
