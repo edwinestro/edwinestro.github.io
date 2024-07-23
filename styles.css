@@ -365,7 +365,7 @@ article h2 {
   color: #fff;
 }
 article p {
-  font-size: 5rem;
+  font-size: 2rem;
   line-height: 1.6;
   margin-bottom: 20px;
   color: #fff;
@@ -392,15 +392,12 @@ article a:hover {
   article {
     padding: 10px;
   }
-  
   article h2 {
-    font-size: 3rem;
+    font-size: 2rem;
   }
-  
   article p {
-    font-size: 1rem;
-    font-size: 3rem;
-  }
+    font-size: 2rem;
+    }
 }
 .relationshipDesign::after{
   content:"hello astro";
