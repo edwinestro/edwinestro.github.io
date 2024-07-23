@@ -137,6 +137,8 @@ img {
 /* nav */
 
 .nav {
+  border-bottom-left-radius: 18px;
+  border-bottom-right-radius: 18px;
   display: flex;
   justify-content: flex-end;
   position: fixed;
