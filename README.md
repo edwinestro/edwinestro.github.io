@@ -1,5 +1,5 @@
 - 👋 Hi, I’m @edwinestro.
-- 👀 I’m interested in Artificial Intelligence and Cybersecurity.
-- 🌱 I’m currently learning Artificial Intelligence.
+- 👀 I’m a Salesforce Service Cloud Developer.
+- 🌱 I’m currently learning Salesforce Einstein Cloud.
 - 💞️ I’m looking to collaborate on future projects that benefit humanity as a whole.
-- 📫 Send me an email to edwin.estro@me.com or edwin.estro@outlook.com
+- 📫 Send me an email to: "edwin.estro@me.com"
