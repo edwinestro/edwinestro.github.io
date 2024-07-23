@@ -176,6 +176,10 @@ img {
 .nav-list a:hover {
   background: var(--main-blue);
 }
+.thirdcircle{
+  display:flex;
+  justify-content: center;
+}
 
 /* Welcomeed section */
 .equallydistributed {
@@ -187,10 +191,10 @@ img {
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: 110vh;
   border-bottom-left-radius: 18px;
   border-bottom-right-radius: 18px;
   color: rgb(3, 45, 96);
+  padding: 18px;
 }
 .welcome-section > p {
   font-size: 3rem;
