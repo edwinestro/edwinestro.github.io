@@ -34,10 +34,7 @@ html {
 div{
   position:inherit;
   font-size: 400%;
-
 }
-
-
 #second{
   right: 200px;
 }
@@ -399,6 +396,9 @@ article a:hover {
     font-size: 2rem;
     }
 }
-.relationshipDesign::after{
+.relationshipDesign{
+  background-image: linear-gradient(to right, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+  -webkit-background-clip: text;
+  color: transparent;
   content:"hello astro";
 }
