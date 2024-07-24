@@ -400,5 +400,5 @@ article a:hover {
   background-image: linear-gradient(to right, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
   -webkit-background-clip: text;
   color: transparent;
-  content:"hello astro";
+  content:"hello astro";  
 }
