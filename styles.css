@@ -51,9 +51,10 @@ div{
  * The calculation is the following
  * screen size divided by browser base font size
  * As an example: a breakpoint at 980px
- * 980px / 16px = 61.25em
 */
 /* 1200px / 16px = 75em */
+* 980px / 16px = 61.25em
+
 @media (max-width: 75em) {
   html {
     font-size: 60%;
@@ -101,11 +102,11 @@ a {
 }
 
 img {
-  height: auto;
+  width: 51%;
   display: flex;
   position: relative;
   padding: 2px;
-  height: 300px;
+  height: auto;
   justify-content: center;
   border-radius: 18%;
   border: 1px;
