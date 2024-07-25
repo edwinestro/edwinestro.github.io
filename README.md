@@ -1,5 +1,5 @@
 - 👋 Hi, I’m @edwinestro.
 - 👀 I’m a Salesforce Service Cloud Developer.
 - 🌱 I’m currently learning Salesforce Einstein Cloud.
-- 💞️ I’m looking to collaborate on future projects that benefit humanity as a whole.
+- 💞️ I’m looking to collaborate on future technology projects that benefit humanity as a whole.
 - 📫 Send me an email to: "edwin.estro@me.com"
