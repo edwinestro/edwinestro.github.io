@@ -150,7 +150,7 @@ img {
 
 .nav-list {
   display: flex;
-  font-size: 23.2rem;
+  font-size: 4.2rem;
   margin-right: 2rem;
 }
 
@@ -392,6 +392,9 @@ article a:hover {
   article p {
     font-size: 2rem;
     }
+}
+.article-image{
+  background-image: url(connections.png);
 }
 .relationshipDesign{
   background-image: linear-gradient(to right, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
