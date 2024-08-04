@@ -2,25 +2,30 @@
 .title, .nav-list {
   color:rgb(3, 45, 96);
 }
+.title {
+  justify-self: right;
+  width: 50%;
+}
 .salesforceLogo{
   width:42px;
   background-image:url("beautifulSalesforceLogo.svg");
 }
 
 .astro{
-  content:"Hello, Astro.";
+  margin:4.2rem;
+  border-radius:5%;
 }
 
 .hero{
   display:grid;
   background-image: url('autumn.png');
   background-repeat:no-repeat;
-  background-size:cover;
+  background-size:contain;
   background-position: center;
-  border-radius:5%;
+  border-radius:42%;
   border:10px;
   padding:10%;
-}
+  margin:4.2rem;}
 /* Base reset */
 * {
   margin: 0;
@@ -104,7 +109,7 @@ h2 {
   font-size: 3rem;
 }
 h1 {
-  font-size: 6rem;
+  font-size: 4rem;
 }
 h2 {
   font-size: 3rem;
@@ -144,6 +149,7 @@ img {
   background: var(--main-red);
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.4);
   z-index: 10;
+  height: fit-content;
 }
 
 .nav-list {
