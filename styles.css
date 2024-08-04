@@ -4,7 +4,7 @@
 }
 .title {
   color:white;
-  background-color:
+  
 }
 .salesforceLogo{
   width:42px;
@@ -136,11 +136,13 @@ img {
 /* nav */
 
 .nav {
+  font-size:large;
   display: flex;
   justify-content: flex-end;
   top: 0;
   left: 0;
   width: 100%;
+  height:7vw;
   background: var(--main-red);
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.4);
   z-index: 10;
@@ -148,6 +150,7 @@ img {
 
 .nav-list {
   display: flex;
+  font-size: 23.2rem;
   margin-right: 2rem;
 }
 
@@ -161,14 +164,8 @@ img {
   }
 }
 
-.nav-list a {
-  display: block;
-  font-size: 2.2rem;
-  padding: 2rem;
-}
-
 .nav-list a:hover {
-  background: var(--main-blue);
+  color: #00bfff;
 }
 .thirdcircle{
   display:flex;

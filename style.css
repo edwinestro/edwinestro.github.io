@@ -5,6 +5,7 @@ body {
     display: grid;
     place-items: center;
   }
+
 .identificadorUnico {
     font-family: system-ui;
     background: linear-gradient(to bottom, darkorchid, #6b238f);
@@ -12,17 +13,20 @@ body {
     place-items: center;
     padding: 40px;
     margin: 10px;
+    width: 69vw;
+    flex-direction: column;
   }
   .grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: 1fr 1fr 1fr;
   }
-  .grid section {
-    width: 600px;
+  .grid {
     height: 600px;
     background: rgb(44, 0, 93);
     border-radius: 25px;
+    display: flex;
+    flex-direction: column;
   }
   @media (max-width: 400px) {
     .grid {
