@@ -1,9 +1,6 @@
 /* Custom properties/variables  */
-:root {
-  --main-white: #f0f0f0;
-  --main-red: #1eb2cc;
-  --main-blue: #45567d;
-  --main-gray: #303841;
+.title {
+  color:blue;
 }
 /* Base reset */
 * {
@@ -181,6 +178,8 @@ img {
 }
 /* Projects section */
 .projects-section {
+  border-color:blue;
+  border:1px;
   text-align: center;
   padding: 10rem 2rem;
   background: var(--main-blue);
