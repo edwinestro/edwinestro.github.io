@@ -2,9 +2,20 @@
 .title, .nav-list {
   color:rgb(3, 45, 96);
 }
+.title {
+}
+
+.astro{
+  content:"Hello, Astro.";
+}
+
 .hero{
+  display:flex;
   padding-left:25%;
   padding-right:25%;
+  background-image: url('autumn.png');
+
+  background-size: cover;  
 }
 /* Base reset */
 * {
