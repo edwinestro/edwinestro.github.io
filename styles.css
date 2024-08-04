@@ -1,6 +1,6 @@
 /* Custom properties/variables  */
-.title {
-  color:blue;
+.title, .nav-list {
+  color:rgb(3, 45, 96);
 }
 /* Base reset */
 * {
