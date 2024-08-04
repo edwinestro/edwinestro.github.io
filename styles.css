@@ -3,6 +3,12 @@
   color:rgb(3, 45, 96);
 }
 .title {
+  color:white;
+  background-color:
+}
+.salesforceLogo{
+  width:42px;
+  background-image:url("beautifulSalesforceLogo.svg");
 }
 
 .astro{
@@ -10,12 +16,12 @@
 }
 
 .hero{
-  display:flex;
-  padding-left:25%;
-  padding-right:25%;
+  display:grid;
   background-image: url('autumn.png');
-
-  background-size: cover;  
+  background-repeat:no-repeat;
+  background-size:cover;
+  background-position: center;
+  border-radius:5%;
 }
 /* Base reset */
 * {
