@@ -2,6 +2,10 @@
 .title, .nav-list {
   color:rgb(3, 45, 96);
 }
+.hero{
+  padding-left:25%;
+  padding-right:25%;
+}
 /* Base reset */
 * {
   margin: 0;
