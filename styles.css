@@ -2,10 +2,6 @@
 .title, .nav-list {
   color:rgb(3, 45, 96);
 }
-.title {
-  color:white;
-  
-}
 .salesforceLogo{
   width:42px;
   background-image:url("beautifulSalesforceLogo.svg");
@@ -22,6 +18,8 @@
   background-size:cover;
   background-position: center;
   border-radius:5%;
+  border:10px;
+  padding:10%;
 }
 /* Base reset */
 * {
@@ -150,7 +148,7 @@ img {
 
 .nav-list {
   display: flex;
-  font-size: 23.2rem;
+  font-size: 4.2rem;
   margin-right: 2rem;
 }
 
@@ -398,4 +396,8 @@ article a:hover {
   -webkit-background-clip: text;
   color: transparent;
   content:"hello astro";  
+}
+
+.article-image{
+  background-image: url(connections.png);
 }
