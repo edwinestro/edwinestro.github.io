@@ -1,0 +1,61 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    overflow: auto; /* Allows scrolling */
+    cursor: none; /* Hide default cursor globally */
+    z-index: 1001; /* Ensures rocket is above the smoke */
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    background: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 1;
+    cursor: auto; /* Restore default cursor inside the profile section */
+}
+
+.profile {
+    text-align: center;
+}
+
+.profile img {
+    width: 50%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.section {
+    margin-top: 20px;
+}
+
+h2 {
+    color: #333;
+}
+
+ul {
+    padding-left: 20px;
+}
+
+.trail {
+    position: fixed;
+    width: 20px;
+    height: 20px;
+    background: radial-gradient(circle, rgba(128, 128, 128, 0.6) 30%, rgba(128, 128, 128, 0) 80%);
+    border-radius: 50%;
+    opacity: 1;
+    transition: opacity 5s ease-out;
+    z-index: -1; /* Ensures rocket is above the smoke */
+}
+
+
+.cursor {
+    position: fixed;
+    font-size: 26px;
+    pointer-events: none;
+    z-index: 0; /* Ensures rocket is above the smoke */
+}
