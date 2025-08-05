@@ -1,57 +1,131 @@
-<!DOCTYPE html>
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#000000">
     <title>Edwin - CV</title>
     <link rel="stylesheet" href="styles.css">
-        <link rel="manifest" href="manifest.json">
-        <link rel="icon" href="icon.png">
-
-
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icon.png">
     <style>
         .game-section {
             margin-top: 20px;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         #game-container {
             display: grid;
             grid-template-columns: repeat(3, 80px);
             grid-gap: 8px;
             margin: 20px auto;
+            justify-content: center;
         }
         .tile {
             width: 80px;
             height: 80px;
-            background-color: #d3d3d3;
             border-radius: 8px;
+            cursor: pointer;
+            transition: opacity 0.3s, background-color 0.3s;
+        }
+        .tile.active {
+            opacity: 0.7;
+        }
+        .tile.difficulty1 {
+            background-color: #d3d3d3;
+        }
+        
+        .tile.difficulty1.active {
+            background-color: #4caf50 !important;
+            opacity: 1 !important;
+        }
+        #led {
+            width: 264px; /* 3 tiles (80px each) + 2 gaps (8px each) */
+            height: 40px;
+            margin: 10px auto;
+            background-color: #2196f3;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
             cursor: pointer;
             transition: background-color 0.3s;
         }
-        .tile.active {
-            background-color: #4caf50;
+        #led:hover {
+            background-color: #1976d2;
         }
+        /* No need for .hidden class; LED visibility is managed in JavaScript */
+
         #game-message {
             font-size: 18px;
             margin-bottom: 15px;
             color: #333;
         }
-        #start-button {
-            padding: 8px 16px;
+        #difficulty-selector {
+            margin-bottom: 10px;
+        }
+        #difficulty-selector select {
+            padding: 8px;
             font-size: 16px;
-            cursor: pointer;
+            border-radius: 4px;
             background-color: #2196f3;
             color: white;
             border: none;
-            border-radius: 4px;
+            cursor: pointer;
         }
-        #start-button:hover {
+        #difficulty-selector select:hover {
             background-color: #1976d2;
         }
+        @media (max-width: 600px) {
+            #game-container, #led {
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
     </style>
-
-    
-
 </head>
 <body>
     <div class="container">
@@ -59,23 +133,27 @@
             <img src="Edwini.jpeg" alt="Edwin's Profile Picture">
             <h1>Edwin Isaac Estrada Rodriguez</h1>
             <p>Software Developer | Technical Support Engineer | Salesforce Expert</p>
-            <p>📧 edwin.estro@me.com | 📞 +52 914 132 0191</p>
+            <p>📧 edwin.estro@me.com | 📞 +52 914 132 0191 | <a href="https://www.linkedin.com/in/edwinestro">LinkedIn</a></p>
         </div>
 
         <div class="section">
             <h2>Summary</h2>
-            <p>Software Developer with 3 years of experience delivering innovative solutions. Strong expertise in digital transformation and AI-driven technologies.</p>
+            <p>Salesforce Developer with 3 years of experience delivering innovative solutions. Proven ability to bridge the gap between business needs and technical implementation, with a deep understanding of the digital transformation landscape and the potential of AI. Seeking a challenging Software Developer role to leverage my expertise and certifications in designing and implementing transformative Salesforce solutions.</p>
         </div>
 
         <div class="section">
             <h2>Experience</h2>
             
-            <h3>Technical Support Engineer - Salesforce (2024 - 2025)</h3>
-            <p>Providing expert technical support, troubleshooting and resolving complex issues across various Salesforce clouds. Ensuring timely resolutions and customer satisfaction.</p>
+            <h3>Salesforce Developer - CBQA Solutions Inc. | Remote | May 2025 - Present</h3>
+            <p>Developed and tested Salesforce applications for a Testing as a Service (TaaS) QA project, ensuring high-quality CRM functionality. Conducted manual and automated testing to validate Sales, Service, and Experience Cloud features, improving system reliability and performance. Collaborated with cross-functional teams to implement test automation frameworks and optimize CI/CD pipelines.</p>
+            <p><strong>Skills:</strong> Apex, JavaScript, Test Automation, Selenium, QA Testing, Git, DevOps, Jira, Agile Methodology.</p>
+
+            <h3>Technical Support Engineer - Salesforce | Mexico City, MX | August 2024 - May 2025</h3>
+            <p>Top performer providing expert technical support, troubleshooting and resolving complex issues across Sales, Service, and Experience Clouds. Analyzed and diagnosed technical problems, escalated critical issues, and documented solutions for knowledge base articles. Maintained 100% SLA compliance and achieved a 4.96/5 customer satisfaction score with 150% productivity.</p>
             <p><strong>Skills:</strong> Apex, JavaScript, Splunk, DevOps, Git, Scrum, SAML.</p>
 
-            <h3>Salesforce Developer Analyst - Deloitte (2022 - 2024)</h3>
-            <p>Led Salesforce Service Cloud enhancements for Fintech projects, ensuring accurate SLA tracking and automation of key business workflows. Developed and deployed custom applications and integrations while implementing CI/CD practices.</p>
+            <h3>Salesforce Developer Analyst - Deloitte | Mexico City, MX | 2022 - 2024</h3>
+            <p>Led Salesforce Service Cloud enhancements for Fintech projects, ensuring accurate SLA tracking and automation of key business workflows. Developed and deployed custom applications and integrations while implementing CI/CD practices. Eliminated deprecated functionalities, freeing 20% of Apex Character Utilization, and achieved 100% code coverage on scoped Apex Classes through test class fixes.</p>
             <p><strong>Skills:</strong> Apex, JavaScript, HTML, CSS, Java, Python, Git, DevOps, Agile Methodology, Jira.</p>
         </div>
 
@@ -90,20 +168,17 @@
                 <li>Salesforce Certified App Builder</li>
                 <li>Salesforce Certified Service Cloud Consultant</li>
                 <li>Copado Fundamentals I</li>
+                <li>Udemy Test Driven Development</li>
+                <li>Udemy Java Design Patterns</li>
+                <li>CSP I Service Ready</li>
             </ul>
         </div>
 
         <div class="section">
             <h2>Education</h2>
-            <p><strong>University of the People</strong> - Bachelor’s Degree in Computer Science (2025 - Present)</p>
-            <ul>
-                <li>UNAM</li>
-                <li>UV</li>
-                <li>IVES</li>
-                <li>ITSX</li>
-                <li>UMA</li>
-                <li>UoPeople</li>
-            </ul>
+            <p><strong>University of the People</strong> - Bachelor’s Degree in Computer Science | 2025 - Present</p>
+            <p><strong>Universidad de Málaga</strong> - Computer Engineering (Incomplete) | 2019 - 2020</p>
+            <p><strong>Universidad Nacional Autónoma de México</strong> - Computer Science (Incomplete) | 2010 - 2015</p>
         </div>
 
         <div class="section">
@@ -111,69 +186,121 @@
             <p>🇪🇸 Spanish (Native) | 🇬🇧 English (C2 CEFR) | 🇫🇷 French (Advanced) | 🇧🇷 Portuguese (Intermediate)</p>
         </div>
 
-
-
         <div class="section game-section">
             <h2>Interactive Project: Memory Sequence Game</h2>
-            <p>Test your memory with this interactive game built with JavaScript. Click "Start" and repeat the sequence of highlighted tiles. Each level adds a new tile to the sequence.</p>
-            <div id="game-message">Press Start to Begin</div>
+            <p>Test your memory with this interactive game built with JavaScript. Choose a difficulty, click the LED to start, then follow the sequence. Difficulty 1: Tiles light up. Difficulty 2: Match the LED's color to the tiles. Each level adds a new step to the sequence.</p>
+            <div id="difficulty-selector">
+                <select id="difficulty">
+                    <option value="1">Difficulty 1</option>
+                    <option value="2">Difficulty 2</option>
+                </select>
+            </div>
+            <div id="game-message">Select Difficulty and Click the LED to Begin</div>
             <div id="game-container"></div>
-            <button id="start-button">Start</button>
+            <div id="led">Start</div>
         </div>
     </div>
-    <script src="cursorEffect.js"></script>
 
+    <script src="cursorEffect.js"></script>
     <script>
+        const tileColors = [
+            '#ff4d4d', // Red
+            '#4d79ff', // Blue
+            '#4dff4d', // Green
+            '#ffff4d', // Yellow
+            '#ff4dff', // Magenta
+            '#4dffff', // Cyan
+            '#ff944d', // Orange
+            '#b84dff', // Purple
+            '#ff4d94'  // Pink
+        ];
         const tiles = [];
         let sequence = [];
         let playerSequence = [];
         let level = 1;
         let isPlayerTurn = false;
         let isGameStarted = false;
+        let difficulty = '1';
 
         const gameContainer = document.getElementById('game-container');
+        const led = document.getElementById('led');
         const message = document.getElementById('game-message');
-        const startButton = document.getElementById('start-button');
+        const difficultySelector = document.getElementById('difficulty');
 
         // Initialize 3x3 grid
         for (let i = 0; i < 9; i++) {
             const tile = document.createElement('div');
-            tile.classList.add('tile');
+            tile.classList.add('tile', 'difficulty1');
             tile.dataset.index = i;
             tile.addEventListener('click', () => handleTileClick(i));
             gameContainer.appendChild(tile);
             tiles.push(tile);
         }
 
-        startButton.addEventListener('click', startGame);
+        difficultySelector.addEventListener('change', (e) => {
+            difficulty = e.target.value;
+            resetGame();
+            updateTileColors();
+        });
 
-        function startGame() {
-            if (isGameStarted) return;
-            isGameStarted = true;
-            sequence = [];
-            playerSequence = [];
-            level = 1;
-            message.textContent = `Level ${level}`;
-            startButton.disabled = true;
-            generateSequence();
-            playSequence();
-        }
+        led.addEventListener('click', startGame);
+
+function updateTileColors() {
+    tiles.forEach((tile, index) => {
+        tile.classList.remove('difficulty1', 'difficulty2');
+        tile.classList.add(`difficulty${difficulty}`);
+        tile.style.backgroundColor = difficulty === '2' ? tileColors[index] : '#d3d3d3';
+    });
+    // Ensure LED is visible with "Start" styling when game is not started
+    if (!isGameStarted) {
+        led.textContent = 'Start';
+        led.style.backgroundColor = '#2196f3';
+        led.style.cursor = 'pointer';
+    }
+}
+async function startGame() {
+    if (isGameStarted) return;
+    isGameStarted = true;
+    sequence = [];
+    playerSequence = [];
+    level = 1;
+    led.textContent = '';
+    led.style.backgroundColor = '#d3d3d3';
+    led.style.cursor = 'default';
+    if (difficulty === '1') {
+        led.style.display = 'none'; // Hide LED for Difficulty 1
+    }
+    difficultySelector.disabled = true;
+
+    // Countdown timer
+    for (let i = 3; i > 0; i--) {
+        message.textContent = `Starting in ${i}...`;
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+    message.textContent = `Level ${level}`;
+    generateSequence();
+    playSequence();
+}
 
         function generateSequence() {
             const randomIndex = Math.floor(Math.random() * 9);
             sequence.push(randomIndex);
         }
 
-        async function playSequence() {
-            isPlayerTurn = false;
-            message.textContent = `Level ${level}: Watch the sequence`;
-            for (const index of sequence) {
-                await lightUpTile(index);
-            }
-            isPlayerTurn = true;
-            playerSequence = [];
-            message.textContent = `Level ${level}: Your turn`;
+     async function playSequence() {
+    isPlayerTurn = false;
+    message.textContent = `Level ${level}: Watch the ${difficulty === '1' ? 'tile' : 'LED'} sequence`;
+    for (const index of sequence) {
+        if (difficulty === '1') {
+            await lightUpTile(index);
+        } else {
+            await lightUpLED(index);
         }
+    }
+    isPlayerTurn = true;
+    playerSequence = [];
+    message.textContent = `Level ${level}: Your turn`;
+}
 
         function lightUpTile(index) {
             return new Promise(resolve => {
@@ -185,17 +312,28 @@
             });
         }
 
+        function lightUpLED(index) {
+            return new Promise(resolve => {
+                led.style.backgroundColor = tileColors[index];
+                setTimeout(() => {
+                    led.style.backgroundColor = '#d3d3d3';
+                    setTimeout(resolve, 300);
+                }, 500);
+            });
+        }
+
         function handleTileClick(index) {
             if (!isPlayerTurn || !isGameStarted) return;
             playerSequence.push(index);
-            lightUpTile(index);
+            tiles[index].classList.add('active');
+            setTimeout(() => tiles[index].classList.remove('active'), 200);
             checkPlayerSequence();
         }
 
         function checkPlayerSequence() {
             for (let i = 0; i < playerSequence.length; i++) {
                 if (playerSequence[i] !== sequence[i]) {
-                    message.textContent = 'Game Over! Press Start to try again';
+                    message.textContent = 'Game Over! Select Difficulty and Click the LED to try again';
                     resetGame();
                     return;
                 }
@@ -209,14 +347,21 @@
                 }, 1000);
             }
         }
+function resetGame() {
+    isGameStarted = false;
+    led.textContent = 'Start';
+    led.style.backgroundColor = '#2196f3';
+    led.style.cursor = 'pointer';
+    led.style.display = 'flex'; // Ensure LED is visible on reset
+    difficultySelector.disabled = false;
+    sequence = [];
+    playerSequence = [];
+    level = 1;
+    updateTileColors();
+}
 
-        function resetGame() {
-            isGameStarted = false;
-            startButton.disabled = false;
-            sequence = [];
-            playerSequence = [];
-            level = 1;
-        }
+        // Initialize tile colors based on default difficulty
+        updateTileColors();
 
         // Service Worker Registration for PWA
         if ('serviceWorker' in navigator) {
