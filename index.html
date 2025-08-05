@@ -5,6 +5,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edwin - CV</title>
     <link rel="stylesheet" href="styles.css">
+        <link rel="manifest" href="manifest.json">
+        <link rel="icon" href="icon.png">
+
+
+    <style>
+        .game-section {
+            margin-top: 20px;
+            text-align: center;
+        }
+        #game-container {
+            display: grid;
+            grid-template-columns: repeat(3, 80px);
+            grid-gap: 8px;
+            margin: 20px auto;
+        }
+        .tile {
+            width: 80px;
+            height: 80px;
+            background-color: #d3d3d3;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .tile.active {
+            background-color: #4caf50;
+        }
+        #game-message {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        #start-button {
+            padding: 8px 16px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        #start-button:hover {
+            background-color: #1976d2;
+        }
+    </style>
+
+    
+
 </head>
 <body>
     <div class="container">
@@ -63,7 +110,122 @@
             <h2>Languages</h2>
             <p>🇪🇸 Spanish (Native) | 🇬🇧 English (C2 CEFR) | 🇫🇷 French (Advanced) | 🇧🇷 Portuguese (Intermediate)</p>
         </div>
+
+
+
+        <div class="section game-section">
+            <h2>Interactive Project: Memory Sequence Game</h2>
+            <p>Test your memory with this interactive game built with JavaScript. Click "Start" and repeat the sequence of highlighted tiles. Each level adds a new tile to the sequence.</p>
+            <div id="game-message">Press Start to Begin</div>
+            <div id="game-container"></div>
+            <button id="start-button">Start</button>
+        </div>
     </div>
     <script src="cursorEffect.js"></script>
+
+    <script>
+        const tiles = [];
+        let sequence = [];
+        let playerSequence = [];
+        let level = 1;
+        let isPlayerTurn = false;
+        let isGameStarted = false;
+
+        const gameContainer = document.getElementById('game-container');
+        const message = document.getElementById('game-message');
+        const startButton = document.getElementById('start-button');
+
+        // Initialize 3x3 grid
+        for (let i = 0; i < 9; i++) {
+            const tile = document.createElement('div');
+            tile.classList.add('tile');
+            tile.dataset.index = i;
+            tile.addEventListener('click', () => handleTileClick(i));
+            gameContainer.appendChild(tile);
+            tiles.push(tile);
+        }
+
+        startButton.addEventListener('click', startGame);
+
+        function startGame() {
+            if (isGameStarted) return;
+            isGameStarted = true;
+            sequence = [];
+            playerSequence = [];
+            level = 1;
+            message.textContent = `Level ${level}`;
+            startButton.disabled = true;
+            generateSequence();
+            playSequence();
+        }
+
+        function generateSequence() {
+            const randomIndex = Math.floor(Math.random() * 9);
+            sequence.push(randomIndex);
+        }
+
+        async function playSequence() {
+            isPlayerTurn = false;
+            message.textContent = `Level ${level}: Watch the sequence`;
+            for (const index of sequence) {
+                await lightUpTile(index);
+            }
+            isPlayerTurn = true;
+            playerSequence = [];
+            message.textContent = `Level ${level}: Your turn`;
+        }
+
+        function lightUpTile(index) {
+            return new Promise(resolve => {
+                tiles[index].classList.add('active');
+                setTimeout(() => {
+                    tiles[index].classList.remove('active');
+                    setTimeout(resolve, 300);
+                }, 500);
+            });
+        }
+
+        function handleTileClick(index) {
+            if (!isPlayerTurn || !isGameStarted) return;
+            playerSequence.push(index);
+            lightUpTile(index);
+            checkPlayerSequence();
+        }
+
+        function checkPlayerSequence() {
+            for (let i = 0; i < playerSequence.length; i++) {
+                if (playerSequence[i] !== sequence[i]) {
+                    message.textContent = 'Game Over! Press Start to try again';
+                    resetGame();
+                    return;
+                }
+            }
+            if (playerSequence.length === sequence.length) {
+                level++;
+                message.textContent = `Level ${level}`;
+                setTimeout(() => {
+                    generateSequence();
+                    playSequence();
+                }, 1000);
+            }
+        }
+
+        function resetGame() {
+            isGameStarted = false;
+            startButton.disabled = false;
+            sequence = [];
+            playerSequence = [];
+            level = 1;
+        }
+
+        // Service Worker Registration for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker registered'))
+                    .catch(err => console.log('Service Worker registration failed:', err));
+            });
+        }
+    </script>
 </body>
 </html>
