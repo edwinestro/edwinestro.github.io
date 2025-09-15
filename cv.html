@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Edwin Estrada – Curriculum Vitae</title>
+  <meta name="description" content="Curriculum Vitae of Edwin Estrada – Salesforce Developer & Technical Support Engineer." />
+  <style>
+    :root { --bg:#0b111b; --panel:#121b29; --soft:#16263a; --text:#e6edf3; --muted:#92a3b7; --accent:#22d3ee; --focus:#2563eb; --radius:18px; --mono: "SFMono-Regular",ui-monospace,monospace; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:system-ui,-apple-system,Inter,Segoe UI,Roboto,sans-serif;background:linear-gradient(180deg,#0a121c,#091018);color:var(--text);line-height:1.4;-webkit-font-smoothing:antialiased;padding:34px 20px 80px;}
+    header{max-width:1100px;margin:0 auto 34px;display:flex;flex-direction:column;gap:20px}
+    h1{font-size:clamp(1.9rem,2.4vw,2.6rem);line-height:1.05;font-weight:650;letter-spacing:.5px}
+    .contact{display:flex;flex-wrap:wrap;gap:14px;font-size:.82rem;color:var(--muted)}
+    .contact a{color:var(--accent);text-decoration:none}
+    nav{display:flex;gap:14px;font-size:.75rem}
+    nav a{color:var(--muted);text-decoration:none;padding:6px 10px;border-radius:8px;background:#111b27;border:1px solid #1f2c3a}
+    nav a:hover{color:#fff;border-color:#2d3f52}
+    main{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 320px;gap:46px;align-items:start}
+    section{margin-bottom:40px}
+    h2{font-size:1.05rem;letter-spacing:.6px;text-transform:uppercase;font-weight:600;margin:0 0 14px;color:var(--accent)}
+    h3{font-size:.95rem;margin:0 0 4px;font-weight:600}
+    .role-meta{font-size:.7rem;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+    p{font-size:.87rem;margin:0 0 10px;max-width:72ch}
+    ul{list-style:disc;padding-left:18px;margin:6px 0 14px}
+    li{margin-bottom:4px;font-size:.83rem}
+    .panel{background:var(--panel);border:1px solid #1f2e41;padding:22px 24px 26px;border-radius:var(--radius);position:relative}
+    .stack{display:flex;flex-direction:column;gap:10px;margin:0 0 4px}
+    .tag-cloud{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{background:#142131;border:1px solid #1f3145;padding:6px 10px;border-radius:999px;font-size:.65rem;letter-spacing:.4px;font-weight:500;color:var(--muted)}
+    .languages li{list-style:none;padding:6px 10px;background:#142131;border:1px solid #1f3145;border-radius:10px;display:flex;justify-content:space-between;gap:10px}
+    .languages{display:flex;flex-direction:column;gap:8px;padding-left:0;margin:0}
+    .sidebar section{margin-bottom:34px}
+    .summary-panel p{font-size:.9rem}
+    .achievements-title{font-size:.7rem;letter-spacing:.6px;color:var(--accent);text-transform:uppercase;margin:8px 0 4px}
+    footer{max-width:1100px;margin:60px auto 0;text-align:center;font-size:.65rem;color:var(--muted)}
+    a{outline:none}
+    a:focus-visible{box-shadow:0 0 0 3px var(--focus);border-radius:6px}
+    .print-btn{position:fixed;bottom:20px;right:20px;background:#142131;color:#fff;border:1px solid #1f3145;font-size:.7rem;letter-spacing:.5px;padding:10px 14px;border-radius:14px;cursor:pointer}
+    .print-btn:hover{background:#193047}
+    .lang-switch{display:flex;align-items:center;gap:6px;margin-top:8px}
+    .lang-btn{background:#142131;border:1px solid #1f3145;width:40px;height:26px;border-radius:6px;cursor:pointer;display:grid;place-items:center;font-size:.65rem;font-weight:600;color:#92a3b7;transition:.35s}
+    .lang-btn[aria-pressed="true"]{background:linear-gradient(90deg,#22d3ee,#2563eb);color:#061826}
+    .footer-license{margin-top:20px;font-size:.6rem;opacity:.7;line-height:1.3}
+    @media (max-width:980px){main{grid-template-columns:1fr} .sidebar{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:24px}}
+    @media print {body{background:#fff;color:#000;padding:10px} header,nav,.print-btn{display:none} main{grid-template-columns:1fr} .panel{background:#fff;border:1px solid #999} a{color:#000} footer{display:none}}
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Edwin Estrada</h1>
+      <div class="contact">
+        <span>+52 914 132 0191</span>
+        <span><a href="mailto:edwin.estro@me.com">edwin.estro@me.com</a></span>
+        <span><a href="https://www.linkedin.com/in/edwinestro" target="_blank" rel="noopener">linkedin.com/in/edwinestro</a></span>
+        <span><a href="index.html">Home</a></span>
+        <span><a href="games.html">Games</a></span>
+      </div>
+    </div>
+    <nav aria-label="Quick links">
+      <a href="#summary">Summary</a>
+      <a href="#experience">Experience</a>
+      <a href="#certifications">Certifications</a>
+      <a href="#education">Education</a>
+      <a href="#skills">Skills</a>
+      <a href="#languages">Languages</a>
+    </nav>
+    <div class="lang-switch" aria-label="Language selector">
+      <button class="lang-btn" id="cvLangEn" aria-pressed="true" aria-label="English">US</button>
+      <button class="lang-btn" id="cvLangEs" aria-pressed="false" aria-label="Español México">MX</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="content">
+      <section id="summary" class="panel summary-panel" aria-labelledby="summary-title">
+        <h2 id="summary-title">Summary</h2>
+        <p>Salesforce Developer with 3 years of experience delivering innovative solutions. Proven ability to bridge the gap between business needs and technical implementation, with a deep understanding of the digital transformation landscape and the potential of AI. Seeking a challenging Software Developer role to leverage my expertise and certifications in designing and implementing transformative Salesforce solutions.</p>
+      </section>
+
+      <section id="experience" class="panel" aria-labelledby="experience-title">
+        <h2 id="experience-title">Experience</h2>
+        <article>
+          <h3>Salesforce México – Technical Support Engineer</h3>
+          <div class="role-meta">Mexico City, MX | August, 2024 – May, 2025</div>
+          <ul>
+            <li>Top performer. Provided expert technical support to Salesforce customers, troubleshooting and resolving complex issues across Sales, Service, and Experience Clouds.</li>
+            <li>Analyze and diagnose technical problems, identifying root causes and implementing effective solutions.</li>
+            <li>Escalate critical issues to product teams, ensuring timely resolution and customer satisfaction.</li>
+            <li>Documented solutions and contributed to knowledge base articles, enabling self-service support and improving team efficiency.</li>
+            <li>Developed strong communication and problem-solving skills while assisting customers with diverse technical challenges.</li>
+          </ul>
+          <div class="achievements-title">Achievements</div>
+          <ul>
+            <li>Maintained 100% SLA compliance</li>
+            <li>Excellent Customer Satisfaction Score of 4.96/5</li>
+            <li>Exceptional productivity of 150%</li>
+          </ul>
+        </article>
+        <article>
+          <h3>Deloitte – Salesforce Developer Analyst</h3>
+          <div class="role-meta">Querétaro, Mexico | August, 2022 – August, 2024</div>
+          <ul>
+            <li>Led the analysis, design, and implementation of enhancements to entitlements and milestones for Salesforce Service Cloud within a Fintech project, ensuring accurate SLA tracking and timely notifications.</li>
+            <li>Developed and deployed custom Salesforce applications and integrations, automating key processes and improving data management across Sales, Service, and Experience Clouds.</li>
+            <li>Collaborated with business analysts and stakeholders to gather and analyze requirements, translating them into technical specifications and solutions that optimized business workflows.</li>
+            <li>Implemented DevOps practices, including continuous integration and continuous delivery (CI/CD), to streamline development and deployment processes, utilizing tools like Jira for project management and issue tracking.</li>
+          </ul>
+          <div class="achievements-title">Achievements</div>
+          <ul>
+            <li>Worked on eliminating deprecated functionalities that resulted in releasing 20% of Apex Character Utilization.</li>
+            <li>Implemented best practices in test classes fixes to achieve 100% code coverage on scoped Apex Classes.</li>
+          </ul>
+        </article>
+      </section>
+
+      <section id="education" class="panel" aria-labelledby="education-title">
+        <h2 id="education-title">Education</h2>
+        <ul>
+          <li><strong>University of the People</strong> – Computer Science (2025 – Present)</li>
+          <li><strong>Universidad de Málaga (incomplete)</strong> – Computer engineering (2019–2020)</li>
+          <li><strong>Universidad Nacional Autónoma de México (incomplete)</strong> (2010–2015)</li>
+        </ul>
+      </section>
+
+    </div>
+
+    <aside class="sidebar" aria-label="Complementary information">
+      <section id="certifications" class="panel" aria-labelledby="certifications-title">
+        <h2 id="certifications-title">Certifications</h2>
+        <ul>
+          <li>Salesforce Certified Associate</li>
+          <li>Salesforce Certified AI Associate</li>
+          <li>Salesforce Certified Administrator</li>
+          <li>Salesforce Certified Developer I</li>
+          <li>Salesforce Certified Agentforce Specialist</li>
+          <li>Salesforce Certified App Builder</li>
+          <li>Salesforce Certified Service Cloud Consultant</li>
+          <li>Copado Fundamentals I</li>
+          <li>Udemy Test Driven Development</li>
+          <li>Udemy Java Design Patterns</li>
+          <li>CSP I Service Ready</li>
+        </ul>
+      </section>
+
+      <section id="skills" class="panel" aria-labelledby="skills-title">
+        <h2 id="skills-title">Skills</h2>
+        <div class="tag-cloud" aria-label="Skill tags">
+          <span class="chip">Apex</span>
+          <span class="chip">Modern Modular JavaScript</span>
+            <span class="chip">Splunk</span>
+            <span class="chip">JavaScript</span>
+            <span class="chip">HTML</span>
+            <span class="chip">CSS</span>
+            <span class="chip">Java</span>
+            <span class="chip">Python</span>
+            <span class="chip">Git</span>
+            <span class="chip">DevOps</span>
+            <span class="chip">Jira</span>
+            <span class="chip">SAML</span>
+            <span class="chip">Agile Methodology</span>
+            <span class="chip">Scrum</span>
+        </div>
+      </section>
+
+      <section id="languages" class="panel" aria-labelledby="languages-title">
+        <h2 id="languages-title">Spoken Languages</h2>
+        <ul class="languages">
+          <li><span>English</span><span>C2 CEFR</span></li>
+          <li><span>Spanish</span><span>Native</span></li>
+          <li><span>French</span><span>Advanced</span></li>
+          <li><span>Portuguese</span><span>Intermediate</span></li>
+        </ul>
+      </section>
+    </aside>
+  </main>
+
+  <footer>
+    © 2025 Edwin Estrada · <a href="index.html">Home</a> · <a href="https://www.linkedin.com/in/edwinestro" target="_blank" rel="noopener">LinkedIn</a>
+    <div class="footer-license" id="cvLicense">MIT Licensed · Created with GitHub Copilot assistance.</div>
+  </footer>
+
+  <button class="print-btn" onclick="window.print()" aria-label="Print or Save as PDF">Print / PDF</button>
+  <script>
+    const cvTranslations={
+      en:{summary:'Salesforce Developer with 3 years of experience delivering innovative solutions. Proven ability to bridge the gap between business needs and technical implementation, with a deep understanding of the digital transformation landscape and the potential of AI. Seeking a challenging Software Developer role to leverage my expertise and certifications in designing and implementing transformative Salesforce solutions.',certTitle:'Certifications',skillsTitle:'Skills',langTitle:'Spoken Languages',expTitle:'Experience',eduTitle:'Education',summaryTitle:'Summary',license:'MIT Licensed · Created with GitHub Copilot assistance.'},
+      es:{summary:'Desarrollador Salesforce con 3 años de experiencia entregando soluciones innovadoras. Capacidad comprobada para conectar necesidades de negocio con implementación técnica, con profundo entendimiento de la transformación digital y el potencial de la IA. Busco un rol desafiante de Desarrollador de Software para aprovechar mi experiencia y certificaciones en el diseño e implementación de soluciones Salesforce transformadoras.',certTitle:'Certificaciones',skillsTitle:'Habilidades',langTitle:'Idiomas',expTitle:'Experiencia',eduTitle:'Educación',summaryTitle:'Resumen',license:'Licencia MIT · Creado con asistencia de GitHub Copilot.'}
+    };
+    const cvBtns={en:document.getElementById('cvLangEn'),es:document.getElementById('cvLangEs')};
+    function setCvLang(code){
+      const t=cvTranslations[code]; if(!t) return; document.documentElement.setAttribute('data-lang',code);
+      document.getElementById('summary-title').textContent=t.summaryTitle;
+      const sumPanel=document.querySelector('#summary p'); if(sumPanel) sumPanel.textContent=t.summary;
+      document.getElementById('experience-title').textContent=t.expTitle;
+      const certH=document.getElementById('certifications-title'); if(certH) certH.textContent=t.certTitle;
+      const skillsH=document.getElementById('skills-title'); if(skillsH) skillsH.textContent=t.skillsTitle;
+      const langH=document.getElementById('languages-title'); if(langH) langH.textContent=t.langTitle;
+      const eduH=document.getElementById('education-title'); if(eduH) eduH.textContent=t.eduTitle;
+      document.getElementById('cvLicense').textContent=t.license;
+      Object.entries(cvBtns).forEach(([k,b])=> b.setAttribute('aria-pressed',k===code?'true':'false'));
+    }
+    cvBtns.en.addEventListener('click',()=> setCvLang('en'));
+    cvBtns.es.addEventListener('click',()=> setCvLang('es'));
+  </script>
+</body>
+</html>

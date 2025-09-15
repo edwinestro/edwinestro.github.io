@@ -1,777 +1,587 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#000000" />
-    <title>Edwin--CV</title>
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="icon.png" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Edwin Estrada – Multi‑Disciplinary Profile</title>
+  <meta name="description" content="Cloud Architect, Technical Drawing & Construction, Professional Chef, Esports & Games Creator." />
+  <link rel="preload" as="image" href="assets/images/hero-coder.jpg" />
+  <link rel="preload" as="image" href="assets/images/hero-chef.jpg" />
+  <link rel="preload" as="image" href="business owner.jpg" />
+  <link rel="preload" as="image" href="agentblazer.jpg" />
+  <link rel="preload" as="image" href="gamer.jpeg" />
+  <!-- chefcito.jpg used as chef cover image -->
   <style>
-    body {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 20%, #f093fb 40%, #f5576c 60%, #4facfe 80%, #00f2fe 100%);
-      background-size: 400% 400%;
-      animation: magicalGradient 15s ease infinite;
-      color: #333;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      position: relative;
-      overflow-x: hidden;
-    }
-
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
-      pointer-events: none;
-      z-index: -1;
-    }
-
-    .magic-sparkles-body {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      overflow: hidden;
-      z-index: -1;
-    }
-
-    .sparkle-body {
-      position: absolute;
-      font-size: 1rem;
-      color: rgba(255, 255, 255, 0.6);
-      animation: sparkleFloat 8s ease-in-out infinite;
-    }
-
-    .sparkle-body-1 { top: 10%; left: 10%; animation-delay: 0s; }
-    .sparkle-body-2 { top: 20%; right: 15%; animation-delay: 2s; }
-    .sparkle-body-3 { bottom: 15%; left: 20%; animation-delay: 4s; }
-    .sparkle-body-4 { bottom: 25%; right: 10%; animation-delay: 1s; }
-    .sparkle-body-5 { top: 40%; left: 50%; animation-delay: 3s; }
-    .sparkle-body-6 { top: 60%; right: 30%; animation-delay: 5s; }
-    .sparkle-body-7 { bottom: 40%; left: 30%; animation-delay: 6s; }
-    .sparkle-body-8 { top: 80%; right: 50%; animation-delay: 7s; }
-
-    .banner-container {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      margin-bottom: 20px;
-    }
-
-    .top-banner {
-      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-      padding: 12px 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      display: flex;
-      justify-content: center;
-      gap: 30px;
-    }
-
-    .top-banner a {
-      color: #ffffff;
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 0.95rem;
-      padding: 8px 16px;
-      border-radius: 6px;
-      transition: all 0.3s ease;
-      border: 1px solid transparent;
-    }
-
-    .top-banner a:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.3);
-      transform: translateY(-1px);
-    }
-
-    .new-clinical-banner {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 12px 30px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-      border-radius: 50px;
-      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
-      max-width: 800px;
-      width: 100%;
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      transition: all 0.3s ease;
-      cursor: pointer;
-      align-self: center;
-    }
-
-    .new-clinical-banner:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
-      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
-    }
-
-    .new-clinical-banner::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-      animation: shimmer 4s infinite;
-      border-radius: 50px;
-    }
-
-    @keyframes shimmer {
-      0% { left: -100%; }
-      100% { left: 100%; }
-    }
-
-    .new-clinical-banner h3 {
-      margin: 0 0 6px 0;
-      font-size: 1.2rem;
-      font-weight: 600;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      position: relative;
-      z-index: 2;
-    }
-
-    .new-clinical-banner p {
-      margin: 0;
-      font-size: 0.9rem;
-      opacity: 0.95;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-      position: relative;
-      z-index: 2;
-    }
-
-    .new-badge {
-      background: linear-gradient(45deg, #ff6b6b, #ff4757);
-      color: white;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 0.65rem;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      animation: pulse 2s infinite;
-      box-shadow: 0 2px 8px rgba(255, 107, 107, 0.4);
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.08); }
-    }
-
-    .clinical-link {
-      display: inline-block;
-      background: rgba(255, 255, 255, 0.25);
-      color: white;
-      padding: 6px 16px;
-      border-radius: 25px;
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 0.85rem;
-      margin-top: 8px;
-      transition: all 0.3s ease;
-      border: 1px solid rgba(255, 255, 255, 0.4);
-      backdrop-filter: blur(5px);
-      position: relative;
-      z-index: 2;
-    }
-
-    .clinical-link:hover {
-      background: rgba(255, 255, 255, 0.35);
-      transform: translateY(-1px) scale(1.05);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    }
-
-    @media (max-width: 768px) {
-      .banner-container {
-        gap: 12px;
-        margin-bottom: 15px;
-      }
-
-      .top-banner {
-        padding: 10px 15px;
-        gap: 20px;
-      }
-
-      .top-banner a {
-        font-size: 0.9rem;
-        padding: 6px 12px;
-      }
-
-      .new-clinical-banner {
-        padding: 10px 20px;
-        width: 95%;
-      }
-
-      .new-clinical-banner h3 {
-        font-size: 1.1rem;
-        flex-direction: column;
-        gap: 5px;
-      }
-
-      .new-clinical-banner p {
-        font-size: 0.85rem;
-      }
-
-      .clinical-link {
-        padding: 5px 14px;
-        font-size: 0.8rem;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .banner-container {
-        gap: 10px;
-      }
-
-      .top-banner {
-        flex-direction: column;
-        gap: 10px;
-        text-align: center;
-      }
-
-      .new-clinical-banner {
-        padding: 8px 15px;
-        width: 98%;
-      }
-
-      .new-clinical-banner h3 {
-        font-size: 1rem;
-      }
-
-      .new-clinical-banner p {
-        font-size: 0.8rem;
-      }
-    }
-
-    /* Magical Clinical Banner Styles */
-    .magical-clinical-banner {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 20%, #f093fb 40%, #f5576c 60%, #4facfe 80%, #00f2fe 100%);
-      background-size: 400% 400%;
-      animation: magicalGradient 8s ease infinite;
-      color: white;
-      padding: 25px 30px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-      border-radius: 25px;
-      box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
-      margin: 25px 0;
-      backdrop-filter: blur(15px);
-      border: 2px solid rgba(255, 255, 255, 0.3);
-    }
-
-    @keyframes magicalGradient {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    .magic-sparkles {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      overflow: hidden;
-    }
-
-    .sparkle {
-      position: absolute;
-      font-size: 1.5rem;
-      animation: sparkleFloat 6s ease-in-out infinite;
-      opacity: 0.8;
-    }
-
-    .sparkle-1 {
-      top: 10%;
-      left: 10%;
-      animation-delay: 0s;
-      animation-duration: 8s;
-    }
-
-    .sparkle-2 {
-      top: 20%;
-      right: 15%;
-      animation-delay: 2s;
-      animation-duration: 7s;
-    }
-
-    .sparkle-3 {
-      bottom: 15%;
-      left: 20%;
-      animation-delay: 4s;
-      animation-duration: 9s;
-    }
-
-    .sparkle-4 {
-      bottom: 25%;
-      right: 10%;
-      animation-delay: 1s;
-      animation-duration: 6s;
-    }
-
-    .sparkle-5 {
-      top: 40%;
-      left: 50%;
-      animation-delay: 3s;
-      animation-duration: 10s;
-    }
-
-    @keyframes sparkleFloat {
-      0%, 100% {
-        transform: translateY(0px) rotate(0deg);
-        opacity: 0.3;
-      }
-      25% {
-        transform: translateY(-20px) rotate(90deg);
-        opacity: 0.8;
-      }
-      50% {
-        transform: translateY(-10px) rotate(180deg);
-        opacity: 1;
-      }
-      75% {
-        transform: translateY(-25px) rotate(270deg);
-        opacity: 0.6;
-      }
-    }
-
-    .magic-content {
-      position: relative;
-      z-index: 2;
-    }
-
-    .magical-clinical-banner h3 {
-      margin: 0 0 12px 0;
-      font-size: 1.4rem;
-      font-weight: 700;
-      text-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
-      background: linear-gradient(45deg, #ffffff, #e0f7ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .magical-clinical-banner p {
-      margin: 0 0 20px 0;
-      font-size: 1rem;
-      opacity: 0.95;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-      line-height: 1.6;
-      max-width: 500px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .magic-stats {
-      display: flex;
-      justify-content: center;
-      gap: 30px;
-      margin-bottom: 20px;
-    }
-
-    .stat {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .stat-number {
-      font-size: 1.8rem;
-      font-weight: bold;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-      animation: statGlow 3s ease-in-out infinite alternate;
-    }
-
-    @keyframes statGlow {
-      from { text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }
-      to { text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 255, 255, 0.5); }
-    }
-
-    .stat-label {
-      font-size: 0.8rem;
-      opacity: 0.9;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      font-weight: 600;
-    }
-
-    .magic-portal {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: rgba(255, 255, 255, 0.25);
-      color: white;
-      padding: 12px 24px;
-      border-radius: 30px;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 0.9rem;
-      transition: all 0.4s ease;
-      border: 2px solid rgba(255, 255, 255, 0.4);
-      backdrop-filter: blur(10px);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .magic-portal::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-      transition: left 0.5s ease;
-    }
-
-    .magic-portal:hover::before {
-      left: 100%;
-    }
-
-    .magic-portal:hover {
-      background: rgba(255, 255, 255, 0.35);
-      transform: translateY(-3px) scale(1.05);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-      border-color: rgba(255, 255, 255, 0.6);
-    }
-
-    .portal-text {
-      position: relative;
-      z-index: 2;
-    }
-
-    .portal-arrow {
-      position: relative;
-      z-index: 2;
-      font-size: 1.1rem;
-      animation: arrowPulse 2s ease-in-out infinite;
-    }
-
-    @keyframes arrowPulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.2); }
-    }
-
-    .magic-orb {
-      position: absolute;
-      bottom: -20px;
-      right: -20px;
-      width: 60px;
-      height: 60px;
-      background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 70%);
-      border-radius: 50%;
-      animation: orbFloat 4s ease-in-out infinite;
-    }
-
-    @keyframes orbFloat {
-      0%, 100% { transform: translateY(0px) scale(1); }
-      50% { transform: translateY(-10px) scale(1.1); }
-    }
-
-    @media (max-width: 768px) {
-      .magical-clinical-banner {
-        padding: 20px 25px;
-        margin: 20px 0;
-      }
-
-      .magical-clinical-banner h3 {
-        font-size: 1.2rem;
-      }
-
-      .magical-clinical-banner p {
-        font-size: 0.9rem;
-      }
-
-      .magic-stats {
-        gap: 20px;
-      }
-
-      .stat-number {
-        font-size: 1.5rem;
-      }
-
-      .magic-portal {
-        padding: 10px 20px;
-        font-size: 0.85rem;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .magical-clinical-banner {
-        padding: 15px 20px;
-        margin: 15px 0;
-      }
-
-      .magic-stats {
-        flex-direction: column;
-        gap: 15px;
-      }
-
-      .magical-clinical-banner h3 {
-        font-size: 1.1rem;
-      }
-
-      .magical-clinical-banner p {
-        font-size: 0.85rem;
-      }
-    }
-
-    /* Contact Form Styles */
-    .contact-section {
-      margin: 40px 0;
-      padding: 30px;
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-    }
-
-    .contact-section h2 {
-      color: #2e7d32;
-      font-size: 2.2rem;
-      margin-bottom: 15px;
-      text-align: center;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .contact-section > p {
-      text-align: center;
-      color: #666;
-      font-size: 1.1rem;
-      margin-bottom: 30px;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .contact-form-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 40px;
-      align-items: start;
-    }
-
-    .contact-form {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .form-group label {
-      font-weight: 600;
-      color: #333;
-      margin-bottom: 8px;
-      font-size: 0.95rem;
-    }
-
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-      padding: 12px 16px;
-      border: 2px solid #e0e0e0;
-      border-radius: 10px;
-      font-size: 1rem;
-      font-family: inherit;
-      transition: all 0.3s ease;
-      background: rgba(255, 255, 255, 0.9);
-    }
-
-    .form-group input:focus,
-    .form-group select:focus,
-    .form-group textarea:focus {
-      outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-      background: rgba(255, 255, 255, 1);
-    }
-
-    .form-group textarea {
-      resize: vertical;
-      min-height: 120px;
-    }
-
-    .contact-submit {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      padding: 15px 30px;
-      border-radius: 50px;
-      font-size: 1.1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 10px;
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-    }
-
-    .contact-submit:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
-    }
-
-    .contact-submit:active {
-      transform: translateY(0);
-    }
-
-    .contact-info {
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-      padding: 25px;
-      border-radius: 15px;
-      border: 1px solid rgba(102, 126, 234, 0.2);
-    }
-
-    .contact-info h3 {
-      color: #333;
-      margin-bottom: 20px;
-      font-size: 1.4rem;
-    }
-
-    .contact-methods {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    .contact-method {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      padding: 10px;
-      border-radius: 10px;
-      transition: background-color 0.3s ease;
-    }
-
-    .contact-method:hover {
-      background: rgba(255, 255, 255, 0.5);
-    }
-
-    .method-icon {
-      font-size: 1.5rem;
-      width: 40px;
-      text-align: center;
-    }
-
-    .contact-method a {
-      color: #667eea;
-      text-decoration: none;
-      font-weight: 500;
-    }
-
-    .contact-method a:hover {
-      text-decoration: underline;
-    }
-
-    .submit-text {
-      font-weight: 600;
-    }
-
-    .submit-icon {
-      font-size: 1.2rem;
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.7; }
-    }
-
-    @media (max-width: 768px) {
-      .contact-form-container {
-        grid-template-columns: 1fr;
-        gap: 30px;
-      }
-
-      .contact-section {
-        margin: 20px 0;
-        padding: 20px;
-      }
-
-      .contact-section h2 {
-        font-size: 1.8rem;
-      }
-
-      .contact-info {
-        padding: 20px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .contact-section h2 {
-        font-size: 1.6rem;
-      }
-
-      .contact-form-container {
-        gap: 20px;
-      }
-
-      .contact-submit {
-        padding: 12px 24px;
-        font-size: 1rem;
-      }
-
-      .contact-method {
-        flex-direction: column;
-        text-align: center;
-        gap: 8px;
-      }
-    }
+    :root { --bg:#0b111b; --panel:#121b29; --text:#e5eaf1; --muted:#92a3b7; --accent:#22d3ee; --focus:#2563eb; --radius:20px; --transition:.55s cubic-bezier(.4,0,.2,1); }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family: system-ui,-apple-system,Inter,Segoe UI,Roboto,sans-serif;background: radial-gradient(1000px 600px at 20% -10%, #16263a, transparent 70%),linear-gradient(180deg,#09121e,#080d14);color:var(--text);min-height:100vh;}
+    a{color:var(--accent);text-decoration:none}
+    header{padding:20px 30px;display:flex;justify-content:space-between;align-items:center}
+    nav a{margin-left:18px;color:var(--muted);font-size:.9rem}
+    nav a:hover{color:#fff}
+
+    .hero-roles{display:flex;gap:14px;padding:40px 30px 10px;min-height:70vh;align-items:stretch;--active-scale:1.04;--inactive-scale:.94}
+    .role-tile{position:relative;flex:1 1 0;display:flex;flex-direction:column;justify-content:flex-end;border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:transform .65s var(--transition),flex-grow .65s var(--transition),filter .65s var(--transition);isolation:isolate;min-width:0;background:#0d1622;border:1px solid #1d2b3b;transform:scale(var(--inactive-scale));}
+    .role-tile.is-active{flex-grow:1.1;transform:scale(var(--active-scale));box-shadow:0 12px 40px -10px rgba(34,211,238,.25),0 0 0 1px rgba(34,211,238,.35)}
+    .role-tile::after{content:"";position:absolute;inset:0;padding:1px;border-radius:var(--radius);background:conic-gradient(from 0deg,#22d3ee,#2563eb,#22d3ee);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;animation:spin 7s linear infinite;transition:.7s}
+    .role-tile.is-active::after{opacity:.55}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .role-tile:is(:hover,:focus-visible){transform:scale(1.02)}
+    .role-tile img{position:absolute;inset:0;width:100%;height:100%;will-change:transform;transition:transform .9s var(--transition),filter .9s var(--transition),opacity .6s ease;object-fit:cover;object-position:center}
+    .role-meta{position:relative;z-index:2;padding:26px 24px 24px;display:flex;flex-direction:column;gap:10px;}
+    .role-meta h2{font-size:clamp(1.3rem,1.6vw,1.9rem);line-height:1.1;font-weight:650;}
+    .tagline{font-size:.78rem;letter-spacing:.5px;font-weight:500;color:var(--accent);text-transform:uppercase;}
+    .summary{font-size:.85rem;line-height:1.45;color:var(--muted);max-width:320px;opacity:0;transform:translateY(8px);transition:var(--transition);}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;opacity:0;transform:translateY(12px);transition:var(--transition);}    
+    .btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(6px);padding:8px 14px;border-radius:12px;font-size:.75rem;letter-spacing:.4px;color:#fff;display:inline-flex;align-items:center;gap:6px;transition:.3s}
+    .btn:hover{background:rgba(255,255,255,.16)}
+    .role-tile:is(:hover,:focus-visible,.is-active) .summary,.role-tile:is(:hover,:focus-visible,.is-active) .actions{opacity:1;transform:translateY(0)}
+    .role-tile:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+
+    .details-panel{max-width:1100px;margin:0 auto 50px;padding:0 30px 10px}
+    .details-shell{background:var(--panel);border:1px solid #1e3042;border-radius:24px;padding:28px 30px 34px;display:grid;grid-template-columns:1fr 1fr;gap:40px;position:relative;overflow:hidden}
+    .details-shell::before{content:"";position:absolute;inset:0;background:radial-gradient(600px 300px at 90% 10%,rgba(34,211,238,.08),transparent 70%);pointer-events:none}
+    .details-block h3{margin:0 0 12px;font-size:1rem;letter-spacing:.5px;font-weight:600;color:var(--accent)}
+    .details-block ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px;font-size:.85rem;color:var(--muted)}
+    .divider{height:1px;background:linear-gradient(90deg,transparent,#22384d,transparent);grid-column:1/-1;margin:6px 0 2px}
+    .role-heading{font-size:1.6rem;margin:0 0 6px;font-weight:600;}
+    .role-sub{color:var(--muted);font-size:.9rem;margin:0 0 16px;max-width:620px;}
+
+    footer{padding:38px 30px 50px;text-align:center;font-size:.75rem;color:var(--muted);}
+    footer a{color:var(--accent);}
+
+    .lang-switch{position:fixed;top:14px;right:14px;background:rgba(15,24,36,.75);backdrop-filter:blur(8px);padding:6px 8px;border:1px solid rgba(255,255,255,.12);border-radius:14px;display:flex;align-items:center;gap:6px;z-index:260;box-shadow:0 4px 18px -4px rgba(0,0,0,.55)}
+    .lang-btn{width:40px;height:26px;font-size:.65rem;font-weight:600;}
+    .lang-btn span{font-size:.65rem}
+
+    /* Floating WhatsApp Nudge */
+    .wa-nudge{position:fixed;bottom:90px;right:18px;width:240px;background:linear-gradient(135deg,#0f2233,#12354d);border:1px solid #1d445c;padding:14px 14px 50px;border-radius:20px;box-shadow:0 14px 40px -10px rgba(0,0,0,.6),0 0 0 1px rgba(34,211,238,.3);color:#d9e6ef;font-size:.7rem;line-height:1.35;transform:translateY(40px) scale(.9);opacity:0;pointer-events:none;transition:.55s var(--transition);z-index:250;overflow:hidden}
+    .wa-nudge.active{transform:translateY(0) scale(1);opacity:1;pointer-events:auto}
+    .wa-nudge::after{content:"";position:absolute;inset:0;background:radial-gradient(380px 220px at 85% 15%,rgba(34,211,238,.20),transparent 70%);pointer-events:none;mix-blend-mode:screen}
+    .wa-nudge-close{position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:9px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;cursor:pointer;font-size:.65rem;display:grid;place-items:center}
+    .wa-nudge-action{position:absolute;left:12px;right:12px;bottom:10px;background:linear-gradient(90deg,#22d3ee,#2563eb);border:none;color:#041019;font-weight:600;font-size:.68rem;border-radius:14px;padding:8px 10px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;animation:floatPulse 4s ease-in-out infinite}
+    @keyframes floatPulse{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+
+    /* Clickable contact cards */
+    .contact-card.is-clickable{cursor:pointer;}
+    .contact-card.is-clickable:focus-within,.contact-card.is-clickable:focus{outline:2px solid var(--accent);outline-offset:2px}
+
+    /* Games CTA Section */
+    .games-cta{margin:90px auto 60px;max-width:1180px;padding:0 30px}
+    .games-cta-shell{position:relative;overflow:hidden;border-radius:34px;padding:60px 50px;background:linear-gradient(135deg,#0f1824,#132b3c 55%,#144b5a);border:1px solid #1d4254;box-shadow:0 20px 60px -18px rgba(0,0,0,.65),0 0 0 1px rgba(34,211,238,.35)}
+    .games-cta-shell::before{content:"";position:absolute;inset:0;background:radial-gradient(600px 320px at 80% 20%,rgba(34,211,238,.25),transparent 70%);mix-blend-mode:screen;animation:ctaGlow 8s linear infinite}
+    @keyframes ctaGlow{0%{opacity:.55}50%{opacity:.9}100%{opacity:.55}}
+    .games-cta h2{margin:0 0 14px;font-size:clamp(1.6rem,2.8vw,2.4rem);line-height:1.05;background:linear-gradient(90deg,#22d3ee,#8bd5ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .games-cta p{margin:0 0 28px;color:var(--muted);max-width:640px;font-size:.9rem;line-height:1.5}
+    .games-cta-btn{display:inline-flex;align-items:center;gap:10px;padding:16px 30px;border-radius:18px;font-size:.82rem;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:#041019;position:relative;overflow:hidden;background:linear-gradient(90deg,#22d3ee,#2563eb);box-shadow:0 6px 18px -6px rgba(34,211,238,.55),0 0 0 1px rgba(34,211,238,.4);transition:.45s}
+    .games-cta-btn::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,rgba(255,255,255,.35),rgba(255,255,255,0) 55%);mix-blend-mode:overlay;opacity:.0;transition:.55s}
+    .games-cta-btn:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 10px 28px -10px rgba(34,211,238,.75),0 0 0 1px rgba(34,211,238,.55)}
+    .games-cta-btn:hover::after{opacity:.5}
+    .games-cta-btn span.icon{font-size:1.1rem;animation:btnFloat 3s ease-in-out infinite}
+    @keyframes btnFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+
+    /* Education Section (restored & enhanced) */
+    .education-section{max-width:1200px;margin:40px auto 90px;padding:0 30px}
+    .education-shell{background:var(--panel);border:1px solid #1e3042;border-radius:32px;padding:56px 56px 60px;position:relative;overflow:hidden}
+    .education-shell::before{content:"";position:absolute;inset:0;background:radial-gradient(620px 340px at 85% 18%,rgba(34,211,238,.12),transparent 72%);pointer-events:none}
+    .education-header h2{margin:0 0 14px;font-size:clamp(1.45rem,2.4vw,2.1rem);font-weight:620;letter-spacing:.5px;background:linear-gradient(90deg,#22d3ee,#7fd8ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .education-header p{margin:0 0 36px;color:var(--muted);font-size:.92rem;line-height:1.55;max-width:760px}
+    .edu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:30px}
+    .edu-card{background:#0f1824;border:1px solid #1e3144;border-radius:22px;padding:20px 22px 22px;display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden;transition:.55s var(--transition)}
+    .edu-card::after{content:"";position:absolute;inset:0;background:linear-gradient(140deg,rgba(34,211,238,.16),transparent 60%);opacity:0;transition:.6s}
+    .edu-card:hover{transform:translateY(-4px);box-shadow:0 12px 34px -14px rgba(0,0,0,.65),0 0 0 1px rgba(34,211,238,.25)}
+    .edu-card:hover::after{opacity:1}
+    .edu-card h3{margin:0;font-size:.72rem;letter-spacing:.65px;font-weight:600;color:var(--accent);text-transform:uppercase;opacity:.9}
+    .edu-card h4{margin:0;font-size:.98rem;font-weight:600;line-height:1.18}
+    .edu-card p{margin:0;font-size:.70rem;line-height:1.45;color:var(--muted)}
+    .edu-meta{margin-top:auto;font-size:.58rem;letter-spacing:.6px;opacity:.65}
+    @media (max-width:860px){.education-shell{padding:48px 42px 54px}.edu-grid{gap:24px}}
+    @media (max-width:640px){.education-shell{padding:44px 32px 50px}.edu-grid{grid-template-columns:1fr}}
+
+    /* Contact Section (restored & refined) */
+    .contact-section{max-width:1200px;margin:40px auto 110px;padding:0 30px}
+    .contact-grid{display:grid;grid-template-columns:1fr 400px;gap:54px;background:var(--panel);border:1px solid #1e3042;border-radius:36px;padding:60px 58px 66px;position:relative;overflow:hidden}
+    .contact-grid::before{content:"";position:absolute;inset:0;background:radial-gradient(680px 360px at 88% 14%,rgba(34,211,238,.14),transparent 70%);pointer-events:none}
+    .lead{font-size:.78rem;line-height:1.55;color:var(--muted);max-width:580px;margin:12px 0 10px}
+    .contact-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:20px;margin:26px 0 10px}
+    .contact-form .full{grid-column:1/-1}
+    .contact-form label{display:block;font-size:.60rem;letter-spacing:.55px;font-weight:600;margin:0 0 6px;color:var(--accent);text-transform:uppercase}
+    .contact-form input,.contact-form select,.contact-form textarea{width:100%;background:#0f1824;border:1px solid #233245;border-radius:14px;padding:11px 13px;font-size:.72rem;color:#e5edf4;font-family:inherit;transition:.35s}
+    .contact-form textarea{resize:vertical;min-height:150px}
+    .contact-form input:focus,.contact-form select:focus,.contact-form textarea:focus{outline:none;border-color:#22d3ee;box-shadow:0 0 0 1px #22d3ee,0 0 0 4px rgba(34,211,238,.25)}
+    #cfSubmit{grid-column:1/-1;margin-top:6px;background:linear-gradient(90deg,#22d3ee,#2563eb);border:none;color:#041019;font-weight:600;letter-spacing:.75px;font-size:.70rem;padding:14px 22px;border-radius:16px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:.4s}
+    #cfSubmit:disabled{opacity:.55;cursor:not-allowed;filter:grayscale(.4)}
+    #cfSubmit:hover:not(:disabled){filter:brightness(1.06);transform:translateY(-2px)}
+    .whatsapp-cta{margin-top:4px}
+    .whatsapp-btn{background:#1d4434;border:1px solid #25694f;color:#d6fbea;padding:10px 16px;font-size:.70rem;font-weight:600;border-radius:14px;cursor:pointer;letter-spacing:.5px;display:inline-flex;align-items:center;gap:6px;transition:.4s}
+    .whatsapp-btn:hover{background:#25694f}
+    .contact-side{display:flex;flex-direction:column;gap:18px}
+    .contact-cards{display:flex;flex-direction:column;gap:16px}
+    .contact-card{display:flex;gap:16px;align-items:flex-start;background:#0f1824;border:1px solid #1e3042;padding:16px 18px;border-radius:18px;font-size:.66rem;line-height:1.4;position:relative;overflow:hidden;transition:.5s}
+    .contact-card::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,rgba(34,211,238,.15),transparent 60%);opacity:0;transition:.55s}
+    .contact-card:hover{transform:translateY(-3px);box-shadow:0 10px 28px -12px rgba(0,0,0,.55),0 0 0 1px rgba(34,211,238,.25)}
+    .contact-card:hover::after{opacity:1}
+    .contact-card .icon{font-size:1.1rem;line-height:1}
+    .contact-card a{color:var(--accent);font-weight:500}
+    @media (max-width:1060px){.contact-grid{grid-template-columns:1fr;padding:56px 50px 62px}.contact-side{flex-direction:row;flex-wrap:wrap}.contact-card{flex:1 1 240px}}
+    @media (max-width:680px){.contact-grid{padding:50px 40px 56px}.contact-form{grid-template-columns:1fr}.contact-card{flex:1 1 100%}}
   </style>
 </head>
 <body>
-  <!-- El banner se inyecta dinámicamente desde banner.js -->
+  <header>
+    <div style="font-weight:600;letter-spacing:.5px;">Edwin Estrada</div>
+    <nav>
+      <a href="cv.html">CV</a>
+      <a href="https://comuniwasd.github.io" target="_blank" rel="noopener">ComuniWASD</a>
+      <a href="mailto:edwin.estro@me.com">Contacto</a>
+      <div class="lang-switch" aria-label="Language selector">
+        <button class="lang-btn" id="langEn" aria-pressed="true" aria-label="English"><span>US</span></button>
+        <button class="lang-btn" id="langEs" aria-pressed="false" aria-label="Español México"><span>MX</span></button>
+      </div>
+    </nav>
+  </header>
 
-  <div class="magic-sparkles-body">
-    <div class="sparkle-body sparkle-body-1">✨</div>
-    <div class="sparkle-body sparkle-body-2">⭐</div>
-    <div class="sparkle-body sparkle-body-3">🌟</div>
-    <div class="sparkle-body sparkle-body-4">💫</div>
-    <div class="sparkle-body sparkle-body-5">✨</div>
-    <div class="sparkle-body sparkle-body-6">⭐</div>
-    <div class="sparkle-body sparkle-body-7">🌟</div>
-    <div class="sparkle-body sparkle-body-8">💫</div>
-  </div>
+  <main>
+    <section class="hero-roles" id="heroRoles" aria-label="Selector de roles profesionales">
+      <article class="role-tile is-active" data-role="coder" tabindex="0" aria-expanded="true">
+        <img src="agentblazer.jpg" alt="Edwin en un entorno de arquitectura y plataforma" />
+        <div class="role-meta">
+          <span class="tagline">Cloud / Software Architect</span>
+          <h2>Arquitectura & Plataforma</h2>
+          <p class="summary">10 años liderando soporte técnico / 5 años en arquitectura Salesforce / 4 años desarrollo Salesforce con pruebas.</p>
+          <div class="actions">
+            <a class="btn" href="cv.html">Ver CV</a>
+            <a class="btn" href="#details">Detalles</a>
+          </div>
+        </div>
+      </article>
+      <article class="role-tile" data-role="esports" tabindex="0" aria-expanded="false">
+        <img id="esportsRotatingImg" src="business owner.jpg" alt="Edwin liderando una comunidad de esports" />
+        <div class="role-meta">
+          <span class="tagline">Esports & Juegos</span>
+          <h2>Liderazgo y Creación</h2>
+          <p class="summary">Organización comunitaria, creación de mini‑juegos y experiencias interactivas, enfoque en UX y motivación de equipo.</p>
+          <div class="actions">
+            <a class="btn" href="games.html">Games</a>
+            <a class="btn" href="https://comuniwasd.github.io" target="_blank" rel="noopener">ComuniWASD</a>
+            <a class="btn" href="https://www.facebook.com/XalapaWok/" target="_blank" rel="noopener">Xalapa Wok</a>
+          </div>
+        </div>
+      </article>
+    </section>
 
-  <main class="container">
-    <div id="cv-content"></div>
-    <div id="game-section"></div>
-    <div id="contact-section"></div>
-    <div class="bottom-space"></div>
+    <section class="details-panel" id="details" aria-live="polite">
+      <div class="details-shell" id="detailsShell">
+        <div class="header-stack" style="grid-column:1/-1">
+          <h1 class="role-heading" id="roleHeading">Arquitectura & Plataforma</h1>
+          <p class="role-sub" id="roleSub">4 años como desarrollador Salesforce con experiencia en pruebas. Desarrollo de soluciones Salesforce, soporte avanzado (7 años), integraciones resilientes y optimización operacional.</p>
+        </div>
+        <div class="details-block">
+          <h3>Fortalezas Clave</h3>
+          <ul id="strengthsList">
+            <li>Integraciones & API Patterns</li>
+            <li>Gestión de Incidentes Críticos</li>
+            <li>Observabilidad y Mejora Continua</li>
+          </ul>
+        </div>
+        <div class="details-block">
+          <h3>Enfoque Actual</h3>
+          <ul id="focusList">
+            <li>Arquitectura Escalable</li>
+            <li>Fiabilidad & SLAs/SLOs</li>
+            <li>Automatización y DX</li>
+          </ul>
+        </div>
+        <div class="divider"></div>
+      </div>
+    </section>
+    <!-- Education Section -->
+    <section class="education-section" id="education" aria-labelledby="eduTitle">
+      <div class="education-shell">
+        <div class="education-header">
+          <h2 id="eduTitle">Education & Continuous Learning</h2>
+          <p>Formal foundations blended with self‑directed specialization in Salesforce development, integration patterns, observability tooling and rapid web gameplay prototyping.</p>
+        </div>
+        <div class="edu-grid">
+          <div class="edu-card">
+            <h3>Formal</h3>
+            <h4>UNAM – Architecture Track</h4>
+            <p>5 years exposure: budgeting, structural planning, technical drafting discipline and systems thinking applied later to software architecture.</p>
+            <div class="edu-meta">Design · Planning · Analytical Rigor</div>
+          </div>
+          <div class="edu-card">
+            <h3>Salesforce</h3>
+            <h4>Platform & Apex</h4>
+            <p>3 years: Apex patterns, Lightning performance tuning, Flow orchestration, resilient async + API integrations.</p>
+            <div class="edu-meta">Apex · Lightning · Integrations</div>
+          </div>
+          <div class="edu-card">
+            <h3>Self‑Directed</h3>
+            <h4>Mini‑Game Prototyping</h4>
+            <p>Iterative JS micro‑engines emphasizing accessibility, cognitive load balance and feedback loops for learning & engagement.</p>
+            <div class="edu-meta">UX Loops · Accessibility · Fast Iteration</div>
+          </div>
+          <div class="edu-card">
+            <h3>Tooling</h3>
+              <h4>DevOps & Observability</h4>
+              <p>Tracing, log correlation, automated quality gates and SLO thinking applied to front/back integrations & platform reliability.</p>
+              <div class="edu-meta">SLOs · Pipelines · Telemetry</div>
+          </div>
+          <div class="edu-card">
+            <h3>AI Augmentation</h3>
+            <h4>Prompt & Pattern Use</h4>
+            <p>Leveraging AI assistants for refactors, test scaffolds and content localization while enforcing human review & guardrails.</p>
+            <div class="edu-meta">Prompting · Refactors · Localization</div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="games-cta" id="gamesInvite" aria-labelledby="gamesCtaTitle">
+      <div class="games-cta-shell">
+        <h2 id="gamesCtaTitle">Play Experimental Cognitive Mini‑Games</h2>
+        <p id="gamesCtaDesc">Train memory, sequencing and focus with lightweight browser mini‑games engineered for fast feedback and fun.</p>
+        <a href="games.html" class="games-cta-btn" id="gamesCtaBtn"><span class="icon">🕹️</span><span id="gamesCtaBtnLabel">Go to Games</span></a>
+      </div>
+    </section>
   </main>
 
-  <script type="module" src="main.js"></script>
+  <!-- Enhanced Contact Section -->
+  <section id="contact" class="contact-section" aria-labelledby="contactTitle">
+    <div class="contact-grid">
+      <div>
+        <h2 id="contactTitle">Get in Touch</h2>
+        <p class="lead">Have a Salesforce challenge, need rapid prototyping, or want a community‑driven mini‑game experience? Send details and I will respond within 24h.</p>
+        <form id="contactForm" class="contact-form" action="https://formspree.io/f/mblaagwa" method="POST" novalidate>
+          <div>
+            <label for="cfName">Name *</label>
+            <input id="cfName" name="name" required autocomplete="name" />
+          </div>
+          <div>
+            <label for="cfEmail">Email *</label>
+            <input id="cfEmail" type="email" name="email" required autocomplete="email" />
+          </div>
+          <div>
+            <label for="cfCompany">Company</label>
+            <input id="cfCompany" name="company" autocomplete="organization" />
+          </div>
+          <div>
+            <label for="cfService">Focus</label>
+            <select id="cfService" name="focus">
+              <option value="">Select…</option>
+              <option>Salesforce Dev</option>
+              <option>Architecture Advice</option>
+              <option>Mini‑Game / Gamification</option>
+              <option>Automation / Integration</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="full">
+            <label for="cfMessage">Project Details *</label>
+            <textarea id="cfMessage" name="message" required rows="5" placeholder="Describe goals, timeline, tech context…"></textarea>
+          </div>
+          <div class="full">
+            <label for="cfBudget">Estimated Budget (optional)</label>
+            <input id="cfBudget" name="budget" placeholder="$2k – $5k" />
+          </div>
+          <button type="submit" id="cfSubmit"><span class="label-default">Send Message</span><span class="label-sending" style="display:none">Sending…</span><span class="label-done" style="display:none">Sent ✔</span></button>
+          <div class="whatsapp-cta">
+            <button type="button" id="cfWhatsApp" class="whatsapp-btn" aria-label="Open WhatsApp chat">📱 WhatsApp</button>
+          </div>
+        </form>
+        <div id="cfFeedback" class="form-feedback" aria-live="polite"></div>
+      </div>
+      <div class="contact-side" aria-label="Direct contact options">
+        <div class="contact-cards">
+          <div class="contact-card"><span class="icon">📧</span><div><strong>Email</strong><br><a href="mailto:edwin.estro@me.com">edwin.estro@me.com</a></div></div>
+          <div class="contact-card"><span class="icon">💬</span><div><strong>WhatsApp</strong><br><a href="https://wa.me/5219141320191" target="_blank" rel="noopener">+52 914 132 0191</a></div></div>
+          <div class="contact-card"><span class="icon">🕹️</span><div><strong>WASD Gaming</strong><br><a href="https://www.facebook.com/WASD.Gaming/" target="_blank" rel="noopener">Community Page</a></div></div>
+          <div class="contact-card"><span class="icon">🍜</span><div><strong>Xalapa Wok</strong><br><a href="https://www.facebook.com/XalapaWok/" target="_blank" rel="noopener">Restaurant Page</a></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Subscribe Modal -->
+  <div class="subscribe-modal" id="subscribeModal" hidden>
+    <div class="subscribe-shell" role="dialog" aria-modal="true" aria-labelledby="subscribeTitle">
+      <button class="subscribe-close" id="subscribeClose" aria-label="Close">✕</button>
+      <h2 id="subscribeTitle">Stay in the Loop</h2>
+      <p>Weekly digest: mini‑game experiments, Salesforce tips, AI‑generated insights. No spam – unsubscribe anytime.</p>
+      <form id="subscribeForm" class="subscribe-form" novalidate>
+        <input type="email" id="subEmail" name="email" placeholder="you@example.com" required />
+        <button type="submit">Subscribe</button>
+      </form>
+      <div id="subscribeFeedback" style="margin-top:12px;font-size:.7rem;color:var(--muted)"></div>
+    </div>
+  </div>
+  <div class="subscribe-backdrop" id="subscribeBackdrop" hidden></div>
+  
+  <!-- Added Footer (previously missing, causing JS null errors) -->
+  <footer class="site-footer">
+    <canvas id="twinkleFooter" class="footer-canvas" aria-hidden="true"></canvas>
+    <div class="footer-primary" id="licenseNote">Code: MIT License · Content © 2025 Edwin Estrada – All rights reserved.</div>
+    <div class="footer-secondary">© 2025 Edwin Estrada.</div>
+    <nav class="footer-links" aria-label="Footer links">
+      <a href="cv.html">CV</a>
+      <a href="#education">Education</a>
+      <a href="#contact">Contact</a>
+      <a href="games.html">Games</a>
+      <a href="https://comuniwasd.github.io" target="_blank" rel="noopener">ComuniWASD</a>
+    </nav>
+    <div id="scrollProgress" class="scroll-progress" aria-hidden="true"></div>
+  </footer>
+
+  <div class="wa-nudge" id="waNudge" hidden>
+    <button class="wa-nudge-close" id="waNudgeClose" aria-label="Close WhatsApp prompt">✕</button>
+    <div class="wa-nudge-text" id="waNudgeText">Need something fast? Ping me on WhatsApp.</div>
+    <button class="wa-nudge-action" id="waNudgeAction">Open WhatsApp</button>
+  </div>
+
+  <script>
+    const i18n = {
+      en: {
+        coder: {
+          tagline: 'Senior Salesforce Developer',
+          heading: 'Senior Salesforce Developer',
+          summary: '4 years as Salesforce developer with testing experience, All Star Ranger, 10 years leading technical support.',
+          btnCv: 'View CV',
+          btnDetails: 'Details',
+          sub: '4 years as Salesforce developer with testing experience. All Star Ranger. Development of Salesforce solutions, resilient integrations and operational optimization.',
+          strengths: ['Apex Development', 'Lightning Components', 'Data Modeling'],
+          focus: ['Custom Development', 'Performance Optimization', 'Integration Solutions'],
+          education: ['UNAM (5 years) – Budgeting, design, planeation'],
+          links: [['ComuniWASD', 'https://comuniwasd.github.io'], ['Xalapa Wok', 'https://www.facebook.com/XalapaWok/']]
+        },
+        esports: {
+          tagline: 'Esports & Games',
+          heading: 'Leadership and Creation',
+          summary: 'Esports team manager & player; mini-games, light SaaS & network shaping, cheerful continuous improvement.',
+          btnCv: 'Games',
+          btnDetails: 'ComuniWASD',
+          sub: 'Player-coach leadership: managing squads, technical support, lightweight network & SaaS configuration, maintenance and steady iteration.',
+          strengths: ['Team Management', 'Tech Support', 'Network & SaaS Design'],
+          focus: ['Continuous Improvement', 'Squad Coordination', 'SaaS Configuration'],
+          education: ['Continuous practice in JS prototypes', 'Cross-learning from architecture'],
+          links: [['WASD Gaming', 'https://www.facebook.com/WASD.Gaming/'], ['ComuniWASD', 'https://comuniwasd.github.io']]
+        },
+        strengthsTitle: 'Core Strengths',
+        focusTitle: 'Current Focus',
+        educationTitle: 'Education',
+        refsTitle: 'References',
+        license: 'Code: MIT License · Content © 2025 Edwin Estrada – All rights reserved.',
+        gamesCta: { title: 'Play Experimental Cognitive Mini‑Games', desc: 'Train memory, sequencing and focus with lightweight browser mini‑games engineered for fast feedback and fun.', btn: 'Go to Games' },
+        waNudge: { text: 'Need something fast? Ping me on WhatsApp.', btn: 'Open WhatsApp' }
+      },
+      es: {
+        coder: {
+          tagline: 'Desarrollador Senior Salesforce',
+          heading: 'Desarrollador Senior Salesforce',
+          summary: '4 años como desarrollador Salesforce con experiencia en pruebas, All Star Ranger, 10 años liderando soporte técnico.',
+          btnCv: 'Ver CV',
+          btnDetails: 'Detalles',
+          sub: '4 años como desarrollador Salesforce con experiencia en pruebas. All Star Ranger. Desarrollo de soluciones Salesforce, integraciones resilientes y optimización operacional.',
+          strengths: ['Desarrollo Apex', 'Componentes Lightning', 'Modelado de Datos'],
+          focus: ['Desarrollo Personalizado', 'Optimización de Rendimiento', 'Soluciones de Integración'],
+          education: ['UNAM (5 años) – Presupuestación, diseño, planeación'],
+          links: [['ComuniWASD', 'https://comuniwasd.github.io'], ['Xalapa Wok', 'https://www.facebook.com/XalapaWok/']]
+        },
+        esports: {
+          tagline: 'Esports & Juegos',
+          heading: 'Liderazgo y Creación',
+          summary: 'Manager y jugador de equipo esports; mini-juegos, SaaS ligero y redes, mejora continua alegre.',
+            btnCv: 'Ver CV',
+            btnDetails: 'Detalles',
+            sub: 'Liderazgo jugador-coach: gestión de escuadras, soporte técnico, configuración ligera de red y SaaS, mantenimiento e iteración constante.',
+            strengths: ['Gestión de Equipo', 'Soporte Técnico', 'Diseño Red & SaaS'],
+            focus: ['Mejora Continua', 'Coordinación de Equipo', 'Configuración SaaS'],
+            education: ['Práctica continua en prototipos JS', 'Aprendizaje transversal desde arquitectura'],
+            links: [['WASD Gaming', 'https://www.facebook.com/WASD.Gaming/'], ['ComuniWASD', 'https://comuniwasd.github.io']]
+        },
+        strengthsTitle: 'Fortalezas Clave',
+        focusTitle: 'Enfoque Actual',
+        educationTitle: 'Formación',
+        refsTitle: 'Referencias',
+        license: 'Código: Licencia MIT · Contenido © 2025 Edwin Estrada – Todos los derechos reservados.',
+        gamesCta: { title: 'Juega Mini‑Juegos Cognitivos Experimentales', desc: 'Entrena memoria, secuencias y enfoque con mini‑juegos ligeros de respuesta rápida.', btn: 'Ir a Juegos' },
+        waNudge: { text: '¿Necesitas algo rápido? Escríbeme por WhatsApp.', btn: 'Abrir WhatsApp' }
+      }
+    };
+
+    const langButtons = { en: document.getElementById('langEn'), es: document.getElementById('langEs') };
+    const root = document.documentElement;
+    const tiles = document.querySelectorAll('.role-tile');
+    const headingEl = document.getElementById('roleHeading');
+    const subEl = document.getElementById('roleSub');
+    const strengthsList = document.getElementById('strengthsList');
+    const focusList = document.getElementById('focusList');
+    const licenseNote = document.getElementById('licenseNote');
+    let currentLang = 'en';
+
+    function setLang(code) {
+      if (!i18n[code]) return;
+      currentLang = code;
+      root.setAttribute('data-lang', code);
+      if (licenseNote) licenseNote.innerHTML = i18n[code].license;
+      document.querySelectorAll('.details-block h3').forEach(h => {
+        if (h.textContent.includes('Fortalezas') || h.textContent.includes('Core')) h.textContent = i18n[code].strengthsTitle;
+        else if (h.textContent.includes('Enfoque') || h.textContent.includes('Focus')) h.textContent = i18n[code].focusTitle;
+      });
+      Object.entries(langButtons).forEach(([k, btn]) => btn.setAttribute('aria-pressed', k === code ? 'true' : 'false'));
+      updateTiles();
+      updatePanel(document.querySelector('.role-tile.is-active').dataset.role);
+      updateGamesCta();
+      updateWaNudgeText();
+    }
+
+    function updateTiles() {
+      tiles.forEach(tile => {
+        const role = tile.dataset.role;
+        const data = i18n[currentLang][role];
+        tile.querySelector('.tagline').textContent = data.tagline;
+        tile.querySelector('h2').textContent = data.heading;
+        tile.querySelector('.summary').textContent = data.summary;
+        const btns = tile.querySelectorAll('.actions .btn');
+        if(btns[0]) btns[0].textContent = data.btnCv;
+        if(btns[1]) btns[1].textContent = data.btnDetails; // leave any additional buttons (e.g. Xalapa Wok) unchanged
+      });
+    }
+
+    function updatePanel(role) {
+      const data = i18n[currentLang][role];
+      headingEl.textContent = data.heading;
+      subEl.textContent = data.sub;
+      strengthsList.innerHTML = data.strengths.map(i => `<li>${i}</li>`).join('');
+      focusList.innerHTML = data.focus.map(i => `<li>${i}</li>`).join('');
+    }
+
+    function updateGamesCta(){
+      const t=i18n[currentLang].gamesCta; if(!t) return;
+      const h=document.getElementById('gamesCtaTitle'); const d=document.getElementById('gamesCtaDesc'); const b=document.getElementById('gamesCtaBtnLabel');
+      if(h) h.textContent=t.title; if(d) d.textContent=t.desc; if(b) b.textContent=t.btn;
+    }
+    function updateWaNudgeText(){
+      const n=i18n[currentLang].waNudge; if(!n) return;
+      const t=document.getElementById('waNudgeText'); const a=document.getElementById('waNudgeAction');
+      if(t) t.textContent=n.text; if(a) a.textContent=n.btn;
+    }
+
+    function activate(tile) {
+      tiles.forEach(t => {
+        const active = t === tile;
+        t.classList.toggle('is-active', active);
+        t.setAttribute('aria-expanded', active);
+      });
+      updatePanel(tile.dataset.role);
+    }
+
+    tiles.forEach(t => {
+      t.addEventListener('mouseenter', () => activate(t));
+      t.addEventListener('focus', () => activate(t));
+      t.addEventListener('click', () => activate(t));
+      t.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(t); } });
+      t.addEventListener('mousemove', e => {
+        if (!t.classList.contains('is-active')) return;
+        const rect = t.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width;
+        const y = (e.clientY - rect.top) / rect.height;
+        t.querySelector('img').style.transform = `scale(1.06) translate(${x * 10 - 5}px, ${y * 10 - 5}px)`;
+      });
+      t.addEventListener('mouseleave', () => {
+        t.querySelector('img').style.transform = '';
+      });
+    });
+
+    langButtons.en.addEventListener('click', () => setLang('en'));
+    langButtons.es.addEventListener('click', () => setLang('es'));
+
+    // Initialize
+    setLang('en');
+
+    // Replace previous esports image iteration with fade between business owner and gamer
+    (function(){
+      const img = document.getElementById('esportsRotatingImg');
+      if(!img) return;
+      const images = ['business owner.jpg','gamer.jpeg'];
+      let idx = 0;
+      setInterval(()=>{
+        idx = (idx + 1) % images.length;
+        img.style.opacity='0';
+        setTimeout(()=>{ img.src = images[idx]; img.style.opacity='1'; },300);
+      },4000);
+    })();
+
+    // Contact form logic
+    const cf = document.getElementById('contactForm');
+    const cfFeedback = document.getElementById('cfFeedback');
+    const waBtn = document.getElementById('cfWhatsApp');
+    if(waBtn){
+      waBtn.addEventListener('click',()=>{
+        const base='https://wa.me/5219141320191';
+        const preset=currentLang==='es'? 'Hola Edwin, me gustaría hablar sobre un posible proyecto.': 'Hi Edwin, I would like to discuss a potential project.';
+        const url= base + '?text=' + encodeURIComponent(preset);
+        window.open(url,'_blank','noopener');
+      });
+    }
+    if(cf){
+      function setFeedback(msg,type){ if(!cfFeedback) return; cfFeedback.textContent=msg||''; cfFeedback.className='form-feedback'+(type?(' '+type):''); }
+      cf.addEventListener('submit', async e=>{
+        e.preventDefault();
+        const btn=document.getElementById('cfSubmit');
+        const def=btn.querySelector('.label-default');
+        const send=btn.querySelector('.label-sending');
+        const done=btn.querySelector('.label-done');
+        const name=cf.querySelector('#cfName').value.trim();
+        const email=cf.querySelector('#cfEmail').value.trim();
+        const message=cf.querySelector('#cfMessage').value.trim();
+        if(!name||!email||!message){ setFeedback(currentLang==='es'?'Completa los campos requeridos.':'Please fill required fields.', 'error'); return; }
+        if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ setFeedback(currentLang==='es'?'Correo inválido.':'Invalid email address.', 'error'); return; }
+        setFeedback('', '');
+        def.style.display='none'; send.style.display='inline'; btn.disabled=true;
+        try{
+          const fd=new FormData(cf);
+          const res= await fetch(cf.action, { method:'POST', body:fd, headers:{'Accept':'application/json'} });
+          if(!res.ok){ throw new Error('bad'); }
+          send.style.display='none'; done.style.display='inline';
+          setFeedback(currentLang==='es'?'Enviado correctamente.':'Message sent successfully.','success');
+          setTimeout(()=>{ done.style.display='none'; def.style.display='inline'; btn.disabled=false; cf.reset(); setFeedback('', ''); }, 2600);
+        }catch(err){
+          send.style.display='none'; def.style.display='inline'; btn.disabled=false;
+          setFeedback(currentLang==='es'?'Error al enviar. Intenta de nuevo.':'Error sending. Please try again.','error');
+        }
+      });
+    }
+
+    // Subscribe modal logic
+    const subModal=document.getElementById('subscribeModal');
+    const subBackdrop=document.getElementById('subscribeBackdrop');
+    const subForm=document.getElementById('subscribeForm');
+    const subClose=document.getElementById('subscribeClose');
+    const subFb=document.getElementById('subscribeFeedback');
+    function openSub(){subModal.hidden=false; subBackdrop.hidden=false; requestAnimationFrame(()=>{subModal.classList.add('active');});}
+    function closeSub(){subModal.classList.remove('active'); setTimeout(()=>{subModal.hidden=true; subBackdrop.hidden=true;},400); localStorage.setItem('subHide','1');}
+    if(!localStorage.getItem('subHide')){setTimeout(openSub, 2600);} 
+    subClose.addEventListener('click', closeSub);
+    subBackdrop.addEventListener('click', closeSub);
+
+    // Make contact cards fully clickable
+    document.querySelectorAll('.contact-card').forEach(card=>{const link=card.querySelector('a'); if(link){card.classList.add('is-clickable'); card.tabIndex=0; card.addEventListener('click',()=>{link.click();}); card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault(); link.click();}});}});
+
+    // WhatsApp flying nudge logic
+    (function(){
+      const nudge=document.getElementById('waNudge'); if(!nudge) return;
+      const closeBtn=document.getElementById('waNudgeClose');
+      const action=document.getElementById('waNudgeAction');
+      let shown=false;
+      function open(){ if(shown||localStorage.getItem('waDismiss')) return; nudge.hidden=false; requestAnimationFrame(()=> nudge.classList.add('active')); shown=true; }
+      function close(){ nudge.classList.remove('active'); localStorage.setItem('waDismiss','1'); setTimeout(()=>{nudge.hidden=true;},500); }
+      window.addEventListener('scroll',()=>{ const max=document.documentElement.scrollHeight-window.innerHeight; const pct=max? (window.scrollY/max):0; if(pct>0.28) open(); },{passive:true});
+      closeBtn.addEventListener('click', close);
+      action.addEventListener('click',()=>{ const base='https://wa.me/5219141320191'; const preset=currentLang==='es'? 'Hola Edwin, necesito apoyo rápido.': 'Hi Edwin, I need quick help.'; window.open(base+'?text='+encodeURIComponent(preset),'_blank','noopener'); close(); });
+      updateWaNudgeText();
+    })();
+
+    // Update new UI on language switch if user toggles later
+    updateGamesCta();
+    updateWaNudgeText();
+  </script>
 </body>
 </html>
