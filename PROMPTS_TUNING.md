@@ -137,4 +137,33 @@ When updating any template:
 Add game-specific prompt templates for difficulty scaling, accessibility hints, and tutorial copy once more games are added.
 
 ---
+## 12. The Unsupervised Game Prompt Policy
+This hybrid title combines mechanics (sequence recall + spatial mapping + timed reaction pulses). Any future improvement to another game (visual effect, scoring tweak, accessibility enhancement) should trigger an evaluation for mirrored or adapted integration here.
+
+When adding a new mechanic:
+EN Prompt Template:
+```
+Describe in <=18 words an additional hybrid mechanic merging <existing mechanic A> with <new mechanic B> emphasizing cognitive variety without overload.
+```
+ES Prompt Template:
+```
+Describe en <=18 palabras una mecánica híbrida que combine <mecánica A> con <mecánica B> enfatizando variedad cognitiva sin sobrecarga.
+```
+Acceptance Checklist:
+```
+[ ] Mechanic adds a distinct cognitive demand (timing / memory / spatial / inhibition)
+[ ] Clear minimal instruction (< 110 chars EN & ES)
+[ ] Difficulty scales (time window, sequence length, distractor speed)
+[ ] Accessible fallback (reduced motion or alternative cue)
+[ ] i18n keys updated (en + es)
+```
+Scoring Extension Pattern:
+```
+Base points = sequenceLength * 2
+Bonus pulse = +2 (adjustable)
+Streak multiplier (optional future): 1 + floor(consecutivePerfect / 5)*0.2
+```
+Do not add RNG-heavy penalties; focus on rewarding precision & adaptive speed.
+---
+
 Keep this guide current; small, disciplined updates reduce churn in conversational requests.

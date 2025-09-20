@@ -241,4 +241,36 @@ Process:
 5. Add or adjust feature using patterns above
 
 ---
+## 22. The Unsupervised Game (Hybrid Evolution Anchor)
+Purpose: Acts as a synthesis sandbox combining mechanics from other mini‑games (sequence recall, spatial mapping, timed reaction pulses, adaptive pacing). Serves as a continuous improvement target: any enhancement to any other game should inspire an iterate‑and‑merge pass here.
+
+Core Principles:
+- Hybridization: incorporate at least 2 distinct mechanic families (e.g., sequence + timed pulse) per iteration.
+- Adaptive Difficulty: dynamic timing windows / sequence growth tied to accuracy streak.
+- Non‑Blocking Feedback: positive reinforcement flashes & subtle error states; avoid hard resets unless repeated failure.
+- Minimal State Coupling: preserves own state machine; imports only generic helpers (future `utils/helpers.js`).
+
+Iteration Policy:
+Whenever another game is modified (new effect, pacing adjustment, accessibility improvement, scoring model), perform a scoped evaluation:
+1. Can this mechanic enrich Unsupervised without cognitive overload?
+2. If yes, add behind a level threshold or adaptive trigger.
+3. Update BEST_PRACTICES section 22 with summary of the merged enhancement.
+4. Keep code self‑documented (inline comments for new mechanic blocks).
+
+Internationalization:
+- All new labels added to both languages immediately.
+- Keep instruction text concise (< 140 chars per language if possible).
+
+Telemetry Ideas (future):
+- Track average decision latency between sequence tiles.
+- Count bonus pulse click rate vs spawns.
+
+Accessibility Considerations:
+- ARIA labels for pulse element (`aria-label="Pulse bonus"`).
+- Color + motion alternatives (add reduced motion path later).
+
+Refactor Targets:
+- Extract sequence generator & pulse spawner into reusable utilities for potential cross‑game reuse.
+
+---
 Use this as a living guide. Update immediately after structural or i18n-affecting changes.
