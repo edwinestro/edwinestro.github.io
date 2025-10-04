@@ -727,6 +727,16 @@
       // Draw hydrogen fountain
       renderHydrogenFountain();
 
+      // Render 3D hydrogen mini-view in info panel (if present)
+      renderHydrogen3D();
+
+      // Auto-show element panel for nearest station when within 4 units
+      if(stations && stations.length){
+        let nearest = null; let nd = Infinity;
+        for(const s of stations){ const dx = s.x - state.px, dy = s.y - state.py; const d = Math.sqrt(dx*dx + dy*dy); if(d < nd){ nd = d; nearest = s; } }
+        if(nearest && nd < 4){ showHydrogenPanel(nd); } else { hideHydrogenPanel(); }
+      }
+
       // Draw minimap
       renderMinimap();
 
@@ -883,10 +893,11 @@
       
       running=true; state.lastTime=performance.now(); state.fpsTime=0; state.frames=0; 
       toast('WASD • Mouse look • ESC pause • Helmet HUD active');
+      // request pointer lock synchronously (gesture chain) then enter fullscreen
+      try { canvas.requestPointerLock && canvas.requestPointerLock(); } catch(e){}
       try { await enterFullscreen(); } catch(e) { console.warn('Fullscreen denied',e); }
       resizeForDPR();
       render(); console.log('[first-frame] rendered OK, canvas size', canvas.width, canvas.height, 'state.dir', state.dir);
-      lockPointer();
       loop();
     }
     function stopGame(){

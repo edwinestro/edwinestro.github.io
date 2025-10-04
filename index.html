@@ -251,9 +251,23 @@
       </div>
     </div>
   </header>
+  <style>
+    /* Layout for main + right chatter sidebar */
+    .main-with-sidebar{display:grid;grid-template-columns:1fr 320px;gap:22px;max-width:1200px;margin:0 auto;padding:16px 24px 40px}
+    .main-with-sidebar .main-column{min-width:0}
+    .right-chatter .chatter-shell{position:sticky;top:96px}
+    @media (max-width:980px){
+      .main-with-sidebar{grid-template-columns:1fr;padding:12px 16px}
+      .right-chatter{width:100%}
+      .right-chatter .chatter-shell{position:relative;top:auto;max-height:none}
+      #chatterList{max-height:36vh}
+    }
+  </style>
   <!-- Removed old standalone header; rest of body content continues -->
   <main>
-    <section class="hero-roles" id="heroRoles" aria-label="Selector de roles profesionales">
+    <div class="main-with-sidebar" style="display:grid;grid-template-columns:1fr 320px;gap:22px;max-width:1200px;margin:0 auto;padding:16px 24px 40px;">
+      <div class="main-column">
+        <section class="hero-roles" id="heroRoles" aria-label="Selector de roles profesionales">
       <!-- New Azure Developer tile (first & active) -->
       <article class="role-tile is-active" data-role="azure" tabindex="0" aria-expanded="true">
         <img src="Blazor.png" alt="Blazor / Azure Developer - cloud native apps in C#" />
@@ -369,12 +383,15 @@
       <div class="games-cta-shell">
         <h2 id="gamesCtaTitle">Play Experimental Cognitive Mini‑Games</h2>
         <p id="gamesCtaDesc">Train memory, sequencing and focus with lightweight browser mini‑games engineered for fast feedback and fun.</p>
-        <a href="games.html" class="games-cta-btn" id="gamesCtaBtn"><span class="icon">🕹️</span><span id="gamesCtaBtnLabel">Go to Games</span></a>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <a href="games.html" class="games-cta-btn" id="gamesCtaBtn"><span class="icon">🕹️</span><span id="gamesCtaBtnLabel">Go to Games</span></a>
+          <a href="games.html#unsupervised-3d" class="games-cta-btn" id="unsup3dBtn" style="background:linear-gradient(90deg,#7be0d6,#8bd5ff);color:#041019">🎯 Play Unsupervised 3D</a>
+        </div>
       </div>
     </section>
 
     <!-- Blog feed (chronological, infinite-scroll + likes/subscription) -->
-    <section id="blogFeed" class="details-panel" aria-label="Blog feed" style="max-width:1100px;margin:28px auto;padding:0 30px 40px;">
+    <section id="blogFeed" class="details-panel" aria-label="Blog feed" style="max-width:1100px;margin:28px 0 40px;padding:0 30px 40px;">
       <div class="details-shell" style="display:block;padding:18px;">
         <h2 style="margin:0 0 12px;font-size:1.2rem;">Latest Research & Experiments</h2>
         <p style="margin:0 0 14px;color:var(--muted);">Chronological feed of prototypes, notes and code. Sign in to subscribe and like posts.</p>
@@ -382,6 +399,20 @@
         <div style="display:flex;justify-content:center;margin-top:14px"><button id="loadMoreBtn" class="btn">Load older posts</button></div>
       </div>
     </section>
+      </div>
+      <!-- Right sidebar: chatter-style latest activity -->
+      <aside class="right-chatter" id="rightChatter" aria-label="Latest updates" style="width:320px;">
+        <div class="chatter-shell" style="position:sticky;top:96px;padding:14px;background:linear-gradient(180deg,#071323,#06121a);border:1px solid rgba(255,255,255,.04);border-radius:12px;box-shadow:0 10px 30px -12px rgba(0,0,0,.6);">
+          <h3 style="margin:0 0 8px;font-size:1rem;">Latest</h3>
+          <p style="margin:0 0 12px;color:var(--muted);font-size:.85rem;">Newest posts and notes — scroll to view more.</p>
+          <div id="chatterList" style="display:flex;flex-direction:column;gap:10px;max-height:56vh;overflow:auto;padding-right:6px;"></div>
+          <div style="display:flex;gap:8px;justify-content:space-between;margin-top:12px;align-items:center;">
+            <button id="chatterRefresh" class="btn" style="flex:1">Refresh</button>
+            <a href="#blogFeed" class="btn" style="padding:6px 10px;font-size:.85rem;">Full feed</a>
+          </div>
+        </div>
+      </aside>
+    </div>
   </main>
 
   <!-- Enhanced Contact Section -->
@@ -822,6 +853,17 @@
       }
 
       function getLikeCount(postId){ if(useApi) return 0; const agg = JSON.parse(localStorage.getItem('likes_all')||'{}'); return agg[postId]||0; }
+
+  // Populate right-hand chatter sidebar with newest posts (titles + date)
+  const chatterList = document.getElementById('chatterList');
+  function renderChatter(list){ if(!chatterList) return; chatterList.innerHTML=''; list.slice(0,6).forEach(p=>{ const el = document.createElement('div'); el.style.padding='8px'; el.style.borderRadius='8px'; el.style.background='linear-gradient(180deg, rgba(255,255,255,0.02), transparent)'; el.style.fontSize='.9rem'; el.innerHTML = `<div style="font-weight:700;margin-bottom:4px">${p.title}</div><div style="font-size:.78rem;color:var(--muted)">${p.date}</div>`; el.addEventListener('click', ()=>{ location.hash='blogFeed'; document.getElementById('blogList').querySelectorAll('.edu-card').forEach(c=>{}); window.scrollTo({top: document.getElementById('blogFeed').offsetTop - 80, behavior:'smooth'}); }); chatterList.appendChild(el); }); }
+
+  // Refresh button wiring
+  const chatterRefresh = document.getElementById('chatterRefresh'); if(chatterRefresh){ chatterRefresh.addEventListener('click', async ()=>{ chatterRefresh.disabled=true; await loadInitial(); renderChatter(posts); setTimeout(()=> chatterRefresh.disabled=false,600); }); }
+
+  // Initial render for chatter when posts are loaded
+  const originalLoadInitial = loadInitial;
+  loadInitial = async function(){ await originalLoadInitial(); renderChatter(posts); };
       function toggleLikeLocal(postId){ const uid = getUserId(); const key='likes_'+uid; const set=new Set(JSON.parse(localStorage.getItem(key)||'[]')); const agg=JSON.parse(localStorage.getItem('likes_all')||'{}'); if(set.has(postId)){ set.delete(postId); agg[postId]=Math.max(0,(agg[postId]||0)-1); } else { set.add(postId); agg[postId]=(agg[postId]||0)+1; } localStorage.setItem(key, JSON.stringify([...set])); localStorage.setItem('likes_all', JSON.stringify(agg)); }
 
       loadMoreBtn.addEventListener('click', ()=>{ alert('Load more — use server for full archive'); });
