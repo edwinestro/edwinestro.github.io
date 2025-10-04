@@ -17,7 +17,7 @@
     body.playing canvas{width:100vw!important;height:100vh!important;border-radius:0;border:none;box-shadow:none;max-width:none;}
 
     header{padding:14px clamp(16px,4vw,40px);display:flex;justify-content:space-between;align-items:center;gap:20px;background:rgba(8,16,26,.7);backdrop-filter:blur(14px) saturate(160%);border-bottom:1px solid #163044;position:sticky;top:0;z-index:50}
-    header h1{font-size:clamp(1.05rem,2.6vw,1.45rem);line-height:1.1;margin:0;background:linear-gradient(90deg,#22d3ee,#6bc8ff);-webkit-background-clip:text;color:transparent;font-weight:650;letter-spacing:.5px}
+  header h1{font-size:clamp(1.05rem,2.6vw,1.45rem);line-height:1.1;margin:0;background:linear-gradient(90deg,#22d3ee,#6bc8ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:650;letter-spacing:.5px}
     header nav a{color:var(--accent);font-size:.7rem;font-weight:600;letter-spacing:.7px;text-transform:uppercase;text-decoration:none;display:inline-flex;align-items:center;gap:6px;padding:10px 14px;border:1px solid rgba(255,255,255,.14);border-radius:14px;background:rgba(255,255,255,.04);transition:.45s}
     header nav a:hover{background:rgba(255,255,255,.12)}
 
@@ -59,7 +59,7 @@
     .overlay.hidden-force{display:none !important;opacity:0 !important;filter:none !important}
     @keyframes fadeIn{from{opacity:0}to{opacity:1}}
     .menu{display:flex;flex-direction:column;align-items:center;gap:18px;max-width:340px;text-align:center}
-    .menu h2{margin:0;font-size:1.25rem;letter-spacing:.5px;font-weight:620;background:linear-gradient(90deg,#22d3ee,#76d6ff);-webkit-background-clip:text;color:transparent}
+  .menu h2{margin:0;font-size:1.25rem;letter-spacing:.5px;font-weight:620;background:linear-gradient(90deg,#22d3ee,#76d6ff);-webkit-background-clip:text;background-clip:text;color:transparent}
     .menu p{margin:0 0 4px;font-size:.72rem;line-height:1.45;color:#9eb5c6}
     .menu .btn-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
     .btn{--grad:linear-gradient(90deg,#22d3ee,#2563eb);background:var(--grad);color:#041019;border:none;font-size:.62rem;font-weight:600;letter-spacing:.8px;text-transform:uppercase;padding:12px 20px;border-radius:16px;display:inline-flex;align-items:center;gap:6px;cursor:pointer;position:relative;overflow:hidden;transition:.45s;box-shadow:0 6px 20px -8px rgba(34,211,238,.55),0 0 0 1px rgba(34,211,238,.4)}
@@ -572,7 +572,12 @@
       const now=performance.now();
       const dt=(now-state.lastTime)/1000; state.lastTime=now;
       state.frames++; state.fpsTime += dt; // accumulate real elapsed seconds
-      if(state.fpsTime >= 1){ hudPerf.textContent='FPS: '+state.frames; state.frames=0; state.fpsTime=0; }
+      if(state.fpsTime >= 1){ hudPerf.textContent='FPS: '+state.frames; // adaptive pixelStep: if FPS low -> increase pixelStep, if high -> decrease
+        const measured = state.frames; state.frames=0; state.fpsTime=0;
+        // simple moving decision: increase if <45, decrease if >55
+        if(measured < 42 && state.pixelStep < 3){ state.pixelStep++; resizeForDPR(); toast('Auto: lower res'); }
+        else if(measured > 55 && state.pixelStep > 1){ state.pixelStep--; resizeForDPR(); toast('Auto: higher res'); }
+      }
       // --- Movement ---
       const moveDir=state.keys.w ? 1 : state.keys.s ? -1 : 0;
       const strafeDir=state.keys.d ? 1 : state.keys.a ? -1 : 0;

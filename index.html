@@ -9,6 +9,7 @@
   <link rel="preload" as="image" href="assets/images/hero-chef.jpg" />
   <link rel="preload" as="image" href="business owner.jpg" />
   <link rel="preload" as="image" href="agentblazer.jpg" />
+  <link rel="preload" as="image" href="Blazor.png" />
   <link rel="preload" as="image" href="gamer.jpeg" />
   <!-- chefcito.jpg used as chef cover image -->
   <style>
@@ -45,7 +46,8 @@
     .hot-close{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#9ca8b6;cursor:pointer;width:28px;height:28px;border-radius:10px;font-size:.7rem;display:grid;place-items:center;transition:.3s;}
     .hot-close:hover{background:rgba(255,255,255,.15);color:#fff;}
 
-    .hero-roles{display:flex;gap:14px;padding:40px 30px 10px;min-height:70vh;align-items:stretch;--active-scale:1.04;--inactive-scale:.94}
+  .hero-roles{display:flex;gap:14px;padding:40px 30px 10px;min-height:70vh;align-items:stretch;--active-scale:1.04;--inactive-scale:.94}
+  .cert-badge{display:inline-block;padding:6px 8px;background:linear-gradient(90deg,#2563eb,#22d3ee);color:#041019;font-weight:700;border-radius:10px;font-size:.64rem}
     .role-tile{position:relative;flex:1 1 0;display:flex;flex-direction:column;justify-content:flex-end;border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:transform .65s var(--transition),flex-grow .65s var(--transition),filter .65s var(--transition);isolation:isolate;min-width:0;background:#0d1622;border:1px solid #1d2b3b;transform:scale(var(--inactive-scale));}
     .role-tile.is-active{flex-grow:1.1;transform:scale(var(--active-scale));box-shadow:0 12px 40px -10px rgba(34,211,238,.25),0 0 0 1px rgba(34,211,238,.35)}
     .role-tile::after{content:"";position:absolute;inset:0;padding:1px;border-radius:var(--radius);background:conic-gradient(from 0deg,#22d3ee,#2563eb,#22d3ee);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;animation:spin 7s linear infinite;transition:.7s}
@@ -252,7 +254,24 @@
   <!-- Removed old standalone header; rest of body content continues -->
   <main>
     <section class="hero-roles" id="heroRoles" aria-label="Selector de roles profesionales">
-      <article class="role-tile is-active" data-role="coder" tabindex="0" aria-expanded="true">
+      <!-- New Azure Developer tile (first & active) -->
+      <article class="role-tile is-active" data-role="azure" tabindex="0" aria-expanded="true">
+        <img src="Blazor.png" alt="Blazor / Azure Developer - cloud native apps in C#" />
+        <div class="role-meta">
+          <span class="tagline">Azure Developer</span>
+          <h2>Azure Developer</h2>
+          <p class="summary">Microsoft Certified Azure Developer – focus on cloud‑native C# applications and resilient services. C# certified.</p>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <div class="cert-badge">C# Certified</div>
+          </div>
+          <div class="actions">
+            <a class="btn" href="cv.html">View CV</a>
+            <a class="btn" href="#details">Details</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="role-tile" data-role="coder" tabindex="0" aria-expanded="false">
         <img src="agentblazer.jpg" alt="Edwin en un entorno de arquitectura y plataforma" />
         <div class="role-meta">
           <span class="tagline">Cloud / Software Architect</span>
@@ -264,6 +283,7 @@
           </div>
         </div>
       </article>
+
       <article class="role-tile" data-role="esports" tabindex="0" aria-expanded="false">
         <img id="esportsRotatingImg" src="business owner.jpg" alt="Edwin liderando una comunidad de esports" />
         <div class="role-meta">
@@ -350,6 +370,16 @@
         <h2 id="gamesCtaTitle">Play Experimental Cognitive Mini‑Games</h2>
         <p id="gamesCtaDesc">Train memory, sequencing and focus with lightweight browser mini‑games engineered for fast feedback and fun.</p>
         <a href="games.html" class="games-cta-btn" id="gamesCtaBtn"><span class="icon">🕹️</span><span id="gamesCtaBtnLabel">Go to Games</span></a>
+      </div>
+    </section>
+
+    <!-- Blog feed (chronological, infinite-scroll + likes/subscription) -->
+    <section id="blogFeed" class="details-panel" aria-label="Blog feed" style="max-width:1100px;margin:28px auto;padding:0 30px 40px;">
+      <div class="details-shell" style="display:block;padding:18px;">
+        <h2 style="margin:0 0 12px;font-size:1.2rem;">Latest Research & Experiments</h2>
+        <p style="margin:0 0 14px;color:var(--muted);">Chronological feed of prototypes, notes and code. Sign in to subscribe and like posts.</p>
+        <div id="blogList" style="display:flex;flex-direction:column;gap:12px;margin-top:14px"></div>
+        <div style="display:flex;justify-content:center;margin-top:14px"><button id="loadMoreBtn" class="btn">Load older posts</button></div>
       </div>
     </section>
   </main>
@@ -448,7 +478,19 @@
   <script>
     const i18n = {
       en: {
-        coder: {
+          azure: {
+            tagline: 'Azure Developer',
+            heading: 'Azure Developer',
+            summary: 'Microsoft Certified Azure Developer focused on cloud-native C# applications and resilient services.',
+            btnCv: 'View CV',
+            btnDetails: 'Details',
+            sub: 'Microsoft Certified Azure Developer. Certified in C# and experienced building cloud native APIs and resilient services.' ,
+            strengths: ['C# · .NET', 'Azure Functions', 'Serverless & Containers'],
+            focus: ['Cloud‑native C#', 'Resilient APIs', 'Observability'],
+            education: ['Microsoft Learn & Certified tracks'],
+            links: []
+          },
+          coder: {
           tagline: 'Senior Salesforce Developer',
           heading: 'Senior Salesforce Developer',
           summary: '4 years as Salesforce developer with testing experience, All Star Ranger, 10 years leading technical support.',
@@ -481,6 +523,18 @@
         waNudge: { text: 'Need something fast? Ping me on WhatsApp.', btn: 'Open WhatsApp' }
       },
       es: {
+        azure: {
+          tagline: 'Desarrollador Azure',
+          heading: 'Desarrollador Azure',
+          summary: 'Desarrollador Azure certificado por Microsoft, especializado en aplicaciones C# cloud‑native y servicios resilientes.',
+          btnCv: 'Ver CV',
+          btnDetails: 'Detalles',
+          sub: 'Desarrollador Azure certificado. Certificado en C# con experiencia en APIs cloud‑native y servicios resilientes.',
+          strengths: ['C# · .NET', 'Azure Functions', 'Serverless & Contenedores'],
+          focus: ['C# cloud‑native', 'APIs resilientes', 'Observabilidad'],
+          education: ['Microsoft Learn & Certificaciones'],
+          links: []
+        },
         coder: {
           tagline: 'Desarrollador Senior Salesforce',
           heading: 'Desarrollador Senior Salesforce',
@@ -651,8 +705,11 @@
     langButtons.en.addEventListener('click', () => setLang('en'));
     langButtons.es.addEventListener('click', () => setLang('es'));
 
-    // Initialize
-    setLang('en');
+  // Initialize (default to Azure role)
+  setLang('en');
+  // Ensure Azure panel is selected by default
+  const initialTile = document.querySelector('.role-tile[data-role="azure"]');
+  if(initialTile){ initialTile.classList.add('is-active'); initialTile.setAttribute('aria-expanded','true'); activate(initialTile); }
 
     // Replace previous esports image iteration with fade between business owner and gamer
     (function(){
@@ -740,6 +797,36 @@
     // Update new UI on language switch if user toggles later
     updateGamesCta();
     updateWaNudgeText();
+
+    /* ----------------- Blog client (API-aware) ----------------- */
+    (function(){
+      const apiBase = (location.hostname==='localhost' || location.hostname==='127.0.0.1') ? (location.origin.replace(/:8080/,':3000')+'/api') : '/api';
+      let useApi = false;
+      async function checkApi(){ try{ const r=await fetch(apiBase+'/ping'); const j=await r.json(); if(j.ok) { useApi=true; console.log('Using API backend', apiBase); } }catch(e){ console.log('API not available, falling back to local storage'); } }
+      const blogList = document.getElementById('blogList'); const loadMoreBtn=document.getElementById('loadMoreBtn');
+      let posts = [];
+      async function loadInitial(){ await checkApi(); if(useApi){ posts = await (await fetch(apiBase+'/posts')).json(); } else { posts = [
+        { id:'p2025-09-28-maze', title:'Raycast Maze v4 — Experimental HUD & Physics', date:'2025-09-28', excerpt:'Improved FPS scaling and projectiles.'},
+        { id:'p2025-09-14-unsup3d', title:'Unsupervised 3D — Memory Room Prototype', date:'2025-09-14', excerpt:'Single-room 3D + Mahjong-like memory task.'},
+        { id:'p2025-08-03-csharp', title:'.NET on the Edge — C# for Web Research Tools', date:'2025-08-03', excerpt:'How C# certification shaped my approach to typed systems.'}
+      ]; }
+        renderPosts(posts);
+      }
+
+      function renderPosts(list){ blogList.innerHTML=''; list.forEach(p=>{ const card=document.createElement('div'); card.className='edu-card'; card.style.display='flex'; card.style.justifyContent='space-between'; card.style.alignItems='center'; card.style.padding='12px';
+        card.innerHTML = `<div style="flex:1"><strong>${p.title}</strong><div style="font-size:.85rem;color:var(--muted)">${p.date}</div><div style="margin-top:6px;color:var(--muted)">${p.excerpt}</div></div><div style="display:flex;flex-direction:column;gap:8px;margin-left:12px"><button class='btn like-btn' data-id='${p.id}'>❤ <span class='count'>${getLikeCount(p.id)}</span></button><a class='btn' href='posts/${p.id}.html'>Read</a></div>`;
+        blogList.appendChild(card);
+      });
+      // attach like handlers
+      document.querySelectorAll('.like-btn').forEach(b=> b.addEventListener('click', async ()=>{ const id=b.dataset.id; if(!currentUser || !currentUser.subscribed){ alert('Please sign in and subscribe to like posts.'); return; } if(useApi){ const res = await fetch(apiBase+'/like',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({postId:id,userId:currentUser.id})}); const j=await res.json(); if(j.ok) b.querySelector('.count').textContent=j.count; } else { toggleLikeLocal(id); b.querySelector('.count').textContent=getLikeCount(id); } }));
+      }
+
+      function getLikeCount(postId){ if(useApi) return 0; const agg = JSON.parse(localStorage.getItem('likes_all')||'{}'); return agg[postId]||0; }
+      function toggleLikeLocal(postId){ const uid = getUserId(); const key='likes_'+uid; const set=new Set(JSON.parse(localStorage.getItem(key)||'[]')); const agg=JSON.parse(localStorage.getItem('likes_all')||'{}'); if(set.has(postId)){ set.delete(postId); agg[postId]=Math.max(0,(agg[postId]||0)-1); } else { set.add(postId); agg[postId]=(agg[postId]||0)+1; } localStorage.setItem(key, JSON.stringify([...set])); localStorage.setItem('likes_all', JSON.stringify(agg)); }
+
+      loadMoreBtn.addEventListener('click', ()=>{ alert('Load more — use server for full archive'); });
+      loadInitial();
+    })();
 
     // Ensure banner adjusts after language init
     (function(){

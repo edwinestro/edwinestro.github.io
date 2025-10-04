@@ -140,6 +140,7 @@
   import { createMemorySequenceGame } from './Games/game-memory-sequence.js';
   import { createMemoryMappingGame } from './Games/game-memory-mapping.js';
   import { createAlzJaimeGame } from './Games/game-alz-jaime.js';
+  import { createUnsupervised3DGame } from './Games/game-unsupervised-3d.js';
 
   /* --------------------------------------------------
      Utility helpers (shared)
@@ -672,6 +673,7 @@
     'memory-sequence': { version:'v1', title:'Memory Sequence', desc:{ en:'Follow and replicate an expanding color pattern. Focus & reaction.', es:'Sigue y replica un patrón de colores en expansión. Enfoque y reacción.' }, factory:createMemorySequenceGame },
     'memory-mapping': { version:'v1', title:'Memory Mapping', desc:{ en:'Pattern flashes then disappears. Rebuild by position.', es:'El patrón aparece y desaparece. Reconstrúyelo por posición.' }, factory:createMemoryMappingGame },
     'alz-jaime': { version:'v1', title:'Alz‑Jaime', desc:{ en:'Gentle progressive sequence with optional persistent hints.', es:'Secuencia progresiva suave con pistas persistentes opcionales.' }, factory:createAlzJaimeGame },
+  'unsupervised-3d': { version:'v1', title:'Unsupervised 3D', desc:{ en:'Single-room 3D + Mahjong-like memory task (research mode).', es:'Sala única 3D + juego de memoria tipo Mahjong (modo investigación).' }, factory:createUnsupervised3DGame },
     'focus-pulse': { version:'v2', title:'Focus Pulse', desc:{ en:'Track shrinking pulse targets. Improves timing & attention.', es:'Sigue pulsos encogiendo. Mejora tiempo y atención.' }, factory: createFocusPulseGame },
     'ant-path': { version:'v3', title:'Ant Path', desc:{ en:'Guide the ant; collect apples, avoid chickens.', es:'Guía la hormiga; recoge manzanas evita gallinas.' }, factory:createAntPathGame },
     'unsupervised': { version:'v9', title:'The Unsupervised Game', desc:{ en:'Hybrid memory, mapping & reaction challenge. Agentic AI only.', es:'Reto híbrido memoria, mapeo y reacción. Solo IA agente.' }, factory:createUnsupervisedGame },
