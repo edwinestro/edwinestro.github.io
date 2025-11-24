@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Thermal Drift — Prototype</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="game-shell">
+    <header>
+      <h1>Thermal Drift</h1>
+      <p>Prototype racing: speed increases frost. Use arrow keys to steer and accelerate.</p>
+      <div class="controls">Controls: <strong>Up</strong> accelerate, <strong>Left/Right</strong> steer, <strong>R</strong> restart</div>
+      <div class="hud">
+        <div id="speed">Speed: 0</div>
+        <div id="distance">Distance: 0 m</div>
+        <div id="highscore">Best: 0 m</div>
+      </div>
+    </header>
+
+    <canvas id="game"></canvas>
+    <div class="mobile-controls" aria-hidden="true">
+      <button id="left-btn" class="mc">◀</button>
+      <button id="gas-btn" class="mc">▲</button>
+      <button id="right-btn" class="mc">▶</button>
+    </div>
+    <div class="game-ui">
+      <button id="restart-btn">Restart (R)</button>
+      <button id="pause-btn">Pause</button>
+    </div>
+
+    <footer>
+      <a href="../../index.html">Back to site</a>
+      <div class="credits">Prototype by Edwin Estro</div>
+    </footer>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

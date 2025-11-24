@@ -6,9 +6,9 @@
   justify-self: right;
   width: 50%;
 }
-.salesforceLogo{
+.azureLogo{
   width:42px;
-  background-image:url("beautifulSalesforceLogo.svg");
+  background-image:url("beautifulAzureLogo.svg");
 }
 
 .astro{
@@ -178,7 +178,7 @@ img {
 
 /* Welcomeed section */
 .equallydistributed {
-  content: "Hello Salesforce";
+  content: "Hello Azure Development";
 }
 .welcome-section {
   display: flex;
