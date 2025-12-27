@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Posts – Edwin Estrada</title>
+  <meta name="description" content="Latest posts from the tech blog: game development, Salesforce, and interactive web." />
+  <style>
+    :root{--bg:#0b111b;--panel:#111a27;--text:#e5eaf1;--muted:#92a3b7;--accent:#22d3ee}
+    body{font-family:system-ui,-apple-system,Inter,Segoe UI,Roboto,sans-serif;background:linear-gradient(180deg,#09121e,#080d14);color:var(--text);margin:0}
+    header{position:sticky;top:0;z-index:20;background:rgba(8,14,24,.9);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.08);}
+    header .wrap{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;max-width:1100px;margin:0 auto}
+    header a{color:var(--accent);text-decoration:none;font-weight:600}
+    main{max-width:1100px;margin:0 auto;padding:20px}
+    .list{display:grid;grid-template-columns:1fr;gap:14px}
+    .post{display:flex;gap:12px;background:var(--panel);border:1px solid #1e3042;border-radius:14px;padding:14px}
+    .post img{width:140px;height:90px;object-fit:cover;border-radius:10px;border:1px solid rgba(255,255,255,.08)}
+    .meta{color:var(--muted);font-size:.8rem}
+    h2{margin:4px 0 6px;font-size:1.1rem}
+    a{color:var(--accent);text-decoration:none}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <a href="/index.html">← Home</a>
+      <div>Posts</div>
+    </div>
+  </header>
+  <main>
+    <div class="list">
+      <article class="post">
+        <a href="/posts/p2025-10-10-hydrogen.html"><img src="../assets/images/3d-maze-hero.jpg" alt="Hydrogen lab" loading="lazy"></a>
+        <div>
+          <div class="meta">October 10, 2025</div>
+          <h2><a href="/posts/p2025-10-10-hydrogen.html">Interactive Chemistry: Enhanced Element Discovery in 3D</a></h2>
+          <div class="meta">Educational Games</div>
+        </div>
+      </article>
+    </div>
+  </main>
+</body>
+</html>

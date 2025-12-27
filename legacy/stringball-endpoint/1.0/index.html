@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#000000" />
+    <title>Edwin--CV</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon.png" />
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 20%, #f093fb 40%, #f5576c 60%, #4facfe 80%, #00f2fe 100%);
+      background-size: 400% 400%;
+      animation: magicalGradient 15s ease infinite;
+      color: #333;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .magic-sparkles-body {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: -1;
+    }
+
+    .sparkle-body {
+      position: absolute;
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.6);
+      animation: sparkleFloat 8s ease-in-out infinite;
+    }
+
+    .sparkle-body-1 { top: 10%; left: 10%; animation-delay: 0s; }
+    .sparkle-body-2 { top: 20%; right: 15%; animation-delay: 2s; }
+    .sparkle-body-3 { bottom: 15%; left: 20%; animation-delay: 4s; }
+    .sparkle-body-4 { bottom: 25%; right: 10%; animation-delay: 1s; }
+    .sparkle-body-5 { top: 40%; left: 50%; animation-delay: 3s; }
+    .sparkle-body-6 { top: 60%; right: 30%; animation-delay: 5s; }
+    .sparkle-body-7 { bottom: 40%; left: 30%; animation-delay: 6s; }
+    .sparkle-body-8 { top: 80%; right: 50%; animation-delay: 7s; }
+
+    .banner-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .top-banner {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+    }
+
+    .top-banner a {
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      padding: 8px 16px;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+      border: 1px solid transparent;
+    }
+
+    .top-banner a:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .new-clinical-banner {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 12px 30px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      border-radius: 50px;
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+      max-width: 800px;
+      width: 100%;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      align-self: center;
+    }
+
+    .new-clinical-banner:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
+      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+    }
+
+    .new-clinical-banner::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      animation: shimmer 4s infinite;
+      border-radius: 50px;
+    }
+
+    @keyframes shimmer {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    .new-clinical-banner h3 {
+      margin: 0 0 6px 0;
+      font-size: 1.2rem;
+      font-weight: 600;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .new-clinical-banner p {
+      margin: 0;
+      font-size: 0.9rem;
+      opacity: 0.95;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      position: relative;
+      z-index: 2;
+    }
+
+    .new-badge {
+      background: linear-gradient(45deg, #ff6b6b, #ff4757);
+      color: white;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.65rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      animation: pulse 2s infinite;
+      box-shadow: 0 2px 8px rgba(255, 107, 107, 0.4);
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+
+    .clinical-link {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.25);
+      color: white;
+      padding: 6px 16px;
+      border-radius: 25px;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.85rem;
+      margin-top: 8px;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(5px);
+      position: relative;
+      z-index: 2;
+    }
+
+    .clinical-link:hover {
+      background: rgba(255, 255, 255, 0.35);
+      transform: translateY(-1px) scale(1.05);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    @media (max-width: 768px) {
+      .banner-container {
+        gap: 12px;
+        margin-bottom: 15px;
+      }
+
+      .top-banner {
+        padding: 10px 15px;
+        gap: 20px;
+      }
+
+      .top-banner a {
+        font-size: 0.9rem;
+        padding: 6px 12px;
+      }
+
+      .new-clinical-banner {
+        padding: 10px 20px;
+        width: 95%;
+      }
+
+      .new-clinical-banner h3 {
+        font-size: 1.1rem;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .new-clinical-banner p {
+        font-size: 0.85rem;
+      }
+
+      .clinical-link {
+        padding: 5px 14px;
+        font-size: 0.8rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .banner-container {
+        gap: 10px;
+      }
+
+      .top-banner {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+      }
+
+      .new-clinical-banner {
+        padding: 8px 15px;
+        width: 98%;
+      }
+
+      .new-clinical-banner h3 {
+        font-size: 1rem;
+      }
+
+      .new-clinical-banner p {
+        font-size: 0.8rem;
+      }
+    }
+
+    /* Magical Clinical Banner Styles */
+    .magical-clinical-banner {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 20%, #f093fb 40%, #f5576c 60%, #4facfe 80%, #00f2fe 100%);
+      background-size: 400% 400%;
+      animation: magicalGradient 8s ease infinite;
+      color: white;
+      padding: 25px 30px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      border-radius: 25px;
+      box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+      margin: 25px 0;
+      backdrop-filter: blur(15px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    @keyframes magicalGradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .magic-sparkles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .sparkle {
+      position: absolute;
+      font-size: 1.5rem;
+      animation: sparkleFloat 6s ease-in-out infinite;
+      opacity: 0.8;
+    }
+
+    .sparkle-1 {
+      top: 10%;
+      left: 10%;
+      animation-delay: 0s;
+      animation-duration: 8s;
+    }
+
+    .sparkle-2 {
+      top: 20%;
+      right: 15%;
+      animation-delay: 2s;
+      animation-duration: 7s;
+    }
+
+    .sparkle-3 {
+      bottom: 15%;
+      left: 20%;
+      animation-delay: 4s;
+      animation-duration: 9s;
+    }
+
+    .sparkle-4 {
+      bottom: 25%;
+      right: 10%;
+      animation-delay: 1s;
+      animation-duration: 6s;
+    }
+
+    .sparkle-5 {
+      top: 40%;
+      left: 50%;
+      animation-delay: 3s;
+      animation-duration: 10s;
+    }
+
+    @keyframes sparkleFloat {
+      0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+        opacity: 0.3;
+      }
+      25% {
+        transform: translateY(-20px) rotate(90deg);
+        opacity: 0.8;
+      }
+      50% {
+        transform: translateY(-10px) rotate(180deg);
+        opacity: 1;
+      }
+      75% {
+        transform: translateY(-25px) rotate(270deg);
+        opacity: 0.6;
+      }
+    }
+
+    .magic-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .magical-clinical-banner h3 {
+      margin: 0 0 12px 0;
+      font-size: 1.4rem;
+      font-weight: 700;
+      text-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+      background: linear-gradient(45deg, #ffffff, #e0f7ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .magical-clinical-banner p {
+      margin: 0 0 20px 0;
+      font-size: 1rem;
+      opacity: 0.95;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      line-height: 1.6;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .magic-stats {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 20px;
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .stat-number {
+      font-size: 1.8rem;
+      font-weight: bold;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      animation: statGlow 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes statGlow {
+      from { text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }
+      to { text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 255, 255, 0.5); }
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      opacity: 0.9;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+
+    .magic-portal {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.25);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 30px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.4s ease;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .magic-portal::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .magic-portal:hover::before {
+      left: 100%;
+    }
+
+    .magic-portal:hover {
+      background: rgba(255, 255, 255, 0.35);
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      border-color: rgba(255, 255, 255, 0.6);
+    }
+
+    .portal-text {
+      position: relative;
+      z-index: 2;
+    }
+
+    .portal-arrow {
+      position: relative;
+      z-index: 2;
+      font-size: 1.1rem;
+      animation: arrowPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes arrowPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    .magic-orb {
+      position: absolute;
+      bottom: -20px;
+      right: -20px;
+      width: 60px;
+      height: 60px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 70%);
+      border-radius: 50%;
+      animation: orbFloat 4s ease-in-out infinite;
+    }
+
+    @keyframes orbFloat {
+      0%, 100% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(-10px) scale(1.1); }
+    }
+
+    @media (max-width: 768px) {
+      .magical-clinical-banner {
+        padding: 20px 25px;
+        margin: 20px 0;
+      }
+
+      .magical-clinical-banner h3 {
+        font-size: 1.2rem;
+      }
+
+      .magical-clinical-banner p {
+        font-size: 0.9rem;
+      }
+
+      .magic-stats {
+        gap: 20px;
+      }
+
+      .stat-number {
+        font-size: 1.5rem;
+      }
+
+      .magic-portal {
+        padding: 10px 20px;
+        font-size: 0.85rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .magical-clinical-banner {
+        padding: 15px 20px;
+        margin: 15px 0;
+      }
+
+      .magic-stats {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .magical-clinical-banner h3 {
+        font-size: 1.1rem;
+      }
+
+      .magical-clinical-banner p {
+        font-size: 0.85rem;
+      }
+    }
+
+    /* Contact Form Styles */
+    .contact-section {
+      margin: 40px 0;
+      padding: 30px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .contact-section h2 {
+      color: #2e7d32;
+      font-size: 2.2rem;
+      margin-bottom: 15px;
+      text-align: center;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .contact-section > p {
+      text-align: center;
+      color: #666;
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .contact-form-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      background: rgba(255, 255, 255, 1);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .contact-submit {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .contact-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+    }
+
+    .contact-submit:active {
+      transform: translateY(0);
+    }
+
+    .contact-info {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+      padding: 25px;
+      border-radius: 15px;
+      border: 1px solid rgba(102, 126, 234, 0.2);
+    }
+
+    .contact-info h3 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 1.4rem;
+    }
+
+    .contact-methods {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .contact-method {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 10px;
+      border-radius: 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    .contact-method:hover {
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    .method-icon {
+      font-size: 1.5rem;
+      width: 40px;
+      text-align: center;
+    }
+
+    .contact-method a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .contact-method a:hover {
+      text-decoration: underline;
+    }
+
+    .submit-text {
+      font-weight: 600;
+    }
+
+    .submit-icon {
+      font-size: 1.2rem;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    @media (max-width: 768px) {
+      .contact-form-container {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+
+      .contact-section {
+        margin: 20px 0;
+        padding: 20px;
+      }
+
+      .contact-section h2 {
+        font-size: 1.8rem;
+      }
+
+      .contact-info {
+        padding: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .contact-section h2 {
+        font-size: 1.6rem;
+      }
+
+      .contact-form-container {
+        gap: 20px;
+      }
+
+      .contact-submit {
+        padding: 12px 24px;
+        font-size: 1rem;
+      }
+
+      .contact-method {
+        flex-direction: column;
+        text-align: center;
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- El banner se inyecta dinámicamente desde banner.js -->
+
+  <div class="magic-sparkles-body">
+    <div class="sparkle-body sparkle-body-1">✨</div>
+    <div class="sparkle-body sparkle-body-2">⭐</div>
+    <div class="sparkle-body sparkle-body-3">🌟</div>
+    <div class="sparkle-body sparkle-body-4">💫</div>
+    <div class="sparkle-body sparkle-body-5">✨</div>
+    <div class="sparkle-body sparkle-body-6">⭐</div>
+    <div class="sparkle-body sparkle-body-7">🌟</div>
+    <div class="sparkle-body sparkle-body-8">💫</div>
+  </div>
+
+  <main class="container">
+    <div id="cv-content"></div>
+    <div id="game-section"></div>
+    <div id="contact-section"></div>
+    <div class="bottom-space"></div>
+  </main>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>

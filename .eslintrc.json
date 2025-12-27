@@ -1,0 +1,31 @@
+{
+  "env": {
+    "browser": true,
+    "node": true,
+    "es2021": true
+  },
+  "extends": "eslint:recommended",
+  "parserOptions": {
+    "ecmaVersion": 2021,
+    "sourceType": "module"
+  },
+  "rules": {
+    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "AssignmentExpression[left.property.name='innerHTML']",
+        "message": "Avoid assignment to innerHTML — use textContent or createElement/append for safety."
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["legacy/stringball-endpoint/**"],
+      "rules": {
+        "no-restricted-syntax": "off",
+        "no-empty": "off"
+      }
+    }
+  ]
+}

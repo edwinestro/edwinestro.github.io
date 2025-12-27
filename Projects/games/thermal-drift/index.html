@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Thermal Drift — Prototype</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="game-shell">
+    <header>
+      <h1>Thermal Drift</h1>
+      <p class="lede">Neon survival drift. The doom is airborne.</p>
+      <div class="controls">Controls: <strong>Joystick</strong> thrust/steer • <strong>L/R</strong> reverse thrusters • <strong>Collect 3</strong> ice shards = freeze + upgrade • <strong>Space</strong> brake (5s) • <strong>R</strong> restart • <strong>Esc</strong> pause</div>
+      <div class="hud">
+        <div id="speed">Speed: 0</div>
+        <div id="distance">Distance: 0 m</div>
+        <div id="highscore">Best: 0 m</div>
+        <div id="shards">Ice: 0</div>
+        <div id="freeze">Freeze: 0.0s</div>
+        <div id="doom">Doom: 0%</div>
+        <div id="upgrade">Upgrade: —</div>
+        <div id="brake">Brake: ready</div>
+      </div>
+    </header>
+
+    <div class="stage" aria-label="Game stage">
+      <canvas id="game"></canvas>
+
+      <div class="telemetry" aria-hidden="true">
+        <div class="tel block tl">
+          <div class="row"><span class="k">FPS</span><span class="v" id="t-fps">—</span></div>
+          <div class="row"><span class="k">dt</span><span class="v" id="t-dt">—</span></div>
+          <div class="row"><span class="k">time</span><span class="v" id="t-time">—</span></div>
+          <div class="row"><span class="k">paused</span><span class="v" id="t-paused">—</span></div>
+          <div class="row"><span class="k">pos</span><span class="v" id="t-pos">—</span></div>
+        </div>
+
+        <div class="tel block tr">
+          <div class="row"><span class="k">doom</span><span class="v" id="t-doom">—</span></div>
+          <div class="row"><span class="k">enemies</span><span class="v" id="t-enemies">—</span></div>
+          <div class="row"><span class="k">cap</span><span class="v" id="t-cap">—</span></div>
+          <div class="row"><span class="k">spawn</span><span class="v" id="t-spawn">—</span></div>
+        </div>
+
+        <div class="tel block bl">
+          <div class="row"><span class="k">vx</span><span class="v" id="t-vx">—</span></div>
+          <div class="row"><span class="k">vy</span><span class="v" id="t-vy">—</span></div>
+          <div class="row"><span class="k">ang</span><span class="v" id="t-ang">—</span></div>
+          <div class="row"><span class="k">angVel</span><span class="v" id="t-angvel">—</span></div>
+        </div>
+
+        <div class="tel block br">
+          <div class="row"><span class="k">upgrade</span><span class="v" id="t-up">—</span></div>
+          <div class="row"><span class="k">shots</span><span class="v" id="t-shots">—</span></div>
+          <div class="row"><span class="k">hits</span><span class="v" id="t-hits">—</span></div>
+          <div class="row"><span class="k">acc</span><span class="v" id="t-acc">—</span></div>
+          <div class="row"><span class="k">kills</span><span class="v" id="t-kills">—</span></div>
+          <div class="row"><span class="k">brake</span><span class="v" id="t-brake">—</span></div>
+          <div class="row"><span class="k">handling</span><span class="v" id="t-hand">—</span></div>
+          <div class="row"><span class="k">freeze</span><span class="v" id="t-freeze">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="overlay" id="overlay" role="dialog" aria-modal="true">
+      <div class="panel">
+        <p class="kicker">THERMAL DRIFT / 0-ICE PROTOCOL</p>
+        <h2 id="overlayTitle">Eat ice. Outrun intent.</h2>
+        <p class="copy" id="overlayCopy">
+          Kamikaze ships are vectoring in. They don’t stop.
+          You don’t win by destroying them — you win by staying alive.
+        </p>
+        <div class="lore">
+          <p><strong>Ice shards</strong> improve your handling on pickup.</p>
+          <p>Collect <strong>3 shards</strong> to <strong>freeze enemies</strong> for a while and <strong>upgrade your ship</strong>.</p>
+          <p>After upgrade, you <strong>auto-shoot forward</strong> and each hit chips enemy HP.</p>
+          <p>Collect <strong>3 more shards</strong> to unlock a <strong>cone shot</strong>.</p>
+        </div>
+        <div class="actions">
+          <button class="primary" id="btnStart" type="button">Start</button>
+          <button class="ghost" id="btnHow" type="button">How it works</button>
+          <a class="ghost" href="../../../index.html">Back to site</a>
+        </div>
+
+        <div class="leaderboard" id="leaderboard" aria-live="polite">
+          <h3>Leaderboard</h3>
+          <div class="lb-status" id="lbStatus">Loading…</div>
+          <ol class="lb-list" id="lbList"></ol>
+
+          <form class="lb-submit" id="lbSubmit" hidden>
+            <div class="lb-submit-title">New #1 — log your run</div>
+            <div class="lb-submit-row">
+              <input id="lbName" name="name" autocomplete="nickname" maxlength="32" placeholder="Your name" />
+              <button class="primary" id="lbBtn" type="submit">Save</button>
+            </div>
+            <div class="lb-submit-hint" id="lbHint">Saved to the Excel leaderboard.</div>
+          </form>
+        </div>
+
+        <div class="hint" id="overlayHint">Tip: short drifts beat long prayers.</div>
+      </div>
+    </div>
+
+    <div class="touch-ui" aria-hidden="true">
+      <div class="joystick" id="joy" aria-label="Move joystick">
+        <div class="joy-knob" id="joyKnob"></div>
+      </div>
+      <div class="thrusters" aria-label="Reverse thrusters">
+        <button id="brake-touch" class="mc brake" type="button" aria-label="Brake (slow by 90%)">BRAKE</button>
+        <button id="revL-btn" class="mc thr" type="button" aria-label="Reverse left thruster">L</button>
+        <button id="revR-btn" class="mc thr" type="button" aria-label="Reverse right thruster">R</button>
+      </div>
+    </div>
+    <div class="game-ui">
+      <button id="restart-btn">Restart (R)</button>
+      <button id="pause-btn">Pause</button>
+      <button id="brake-btn">Brake (Space)</button>
+    </div>
+
+    <footer>
+      <a href="../../../index.html">Back to site</a>
+      <div class="credits">Prototype by Edwin Estro</div>
+    </footer>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

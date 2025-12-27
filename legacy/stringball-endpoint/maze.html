@@ -1,0 +1,3057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ScienceLab — 3D Lab (v4)</title>
+  <meta name="description" content="Lightweight pseudo‑3D raycast maze: WASD move, mouse look, space jump, click to shoot. Optimized floor + crisp walls." />
+  <style>
+    :root { --bg:#06101a; --panel:#0d1824; --accent:#22d3ee; --warn:#ff925d; --danger:#ff4d55; --ok:#35d07f; --radius:20px; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;background:radial-gradient(900px 600px at 12% 8%,#12273b,#060c14 70%);color:#e6edf3;min-height:100vh;display:flex;flex-direction:column;}
+    body.playing{overflow:hidden;touch-action:none}
+    body.playing header{display:none}
+    body.playing main{padding:0}
+    body.playing .game-shell{width:100vw;height:100vh;margin:0}
+    body.playing canvas{width:100vw!important;height:100vh!important;border-radius:0;border:none;box-shadow:none;max-width:none;}
+
+    header{padding:14px clamp(16px,4vw,40px);display:flex;justify-content:space-between;align-items:center;gap:20px;background:rgba(8,16,26,.7);backdrop-filter:blur(14px) saturate(160%);border-bottom:1px solid #163044;position:sticky;top:0;z-index:50}
+  header h1{font-size:clamp(1.05rem,2.6vw,1.45rem);line-height:1.1;margin:0;background:linear-gradient(90deg,#22d3ee,#6bc8ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:650;letter-spacing:.5px}
+    header nav a{color:var(--accent);font-size:.7rem;font-weight:600;letter-spacing:.7px;text-transform:uppercase;text-decoration:none;display:inline-flex;align-items:center;gap:6px;padding:10px 14px;border:1px solid rgba(255,255,255,.14);border-radius:14px;background:rgba(255,255,255,.04);transition:.45s}
+    header nav a:hover{background:rgba(255,255,255,.12)}
+
+    main{flex:1;display:grid;place-items:center;padding:24px clamp(10px,4vw,50px) 60px;}
+    .game-shell{position:relative;display:flex;flex-direction:column;align-items:center;gap:12px}
+    canvas{background:#050c14;border:1px solid #1b3143;border-radius:18px;box-shadow:0 10px 34px -14px rgba(0,0,0,.75),0 0 0 1px rgba(34,211,238,.25);image-rendering:pixelated;max-width:100%;cursor:crosshair;touch-action:none;}
+
+    .hud{position:absolute;top:8px;left:8px;display:flex;flex-direction:column;gap:4px;font-size:.62rem;font-weight:500;letter-spacing:.5px;pointer-events:none;text-shadow:0 2px 6px #000c}
+    .hud span{display:inline-flex;gap:6px;align-items:center;background:rgba(0,0,0,.35);padding:4px 8px;border:1px solid rgba(255,255,255,.15);border-radius:10px}
+    
+    /* Helmet HUD Style */
+    .helmet-hud-top{position:absolute;top:0;left:0;right:0;height:80px;background:linear-gradient(180deg,rgba(0,0,0,.8),rgba(0,0,0,.4) 70%,transparent);pointer-events:none;z-index:30;border-radius:0 0 15px 15px;display:flex;justify-content:center;align-items:center;padding:10px 20px;}
+    .helmet-hud-bottom{position:absolute;bottom:0;left:0;right:0;height:100px;background:linear-gradient(0deg,rgba(0,0,0,.8),rgba(0,0,0,.4) 70%,transparent);pointer-events:none;z-index:30;border-radius:15px 15px 0 0;display:flex;justify-content:space-between;align-items:flex-end;padding:15px 20px;}
+    
+    .compass{display:flex;flex-direction:column;align-items:center;gap:8px;color:#22d3ee;font-size:.65rem;font-weight:600;text-shadow:0 0 4px rgba(34,211,238,.8);}
+    .compass-rose{position:relative;width:60px;height:60px;border:2px solid rgba(34,211,238,.6);border-radius:50%;background:radial-gradient(circle,rgba(34,211,238,.1),transparent 70%);}
+    .compass-directions{position:absolute;inset:-8px;font-size:.5rem;font-weight:700;}
+    .compass-n{position:absolute;top:0;left:50%;transform:translateX(-50%);color:#ff6b6b;}
+    .compass-s{position:absolute;bottom:0;left:50%;transform:translateX(-50%);color:#6bcf7f;}
+    .compass-e{position:absolute;right:0;top:50%;transform:translateY(-50%);color:#ffd93d;}
+    .compass-w{position:absolute;left:0;top:50%;transform:translateY(-50%);color:#ff9f43;}
+    .compass-needle{position:absolute;top:50%;left:50%;width:2px;height:25px;background:linear-gradient(180deg,#ff6b6b,#22d3ee);transform-origin:bottom center;transition:transform .3s ease;}
+    
+    .hydrogen-pointer{position:absolute;top:50%;left:50%;width:20px;height:20px;margin:-10px;border:2px solid #8b5cf6;border-radius:50%;background:rgba(139,92,246,.2);transform-origin:center;animation:pulse 2s infinite;}
+    .hydrogen-pointer::after{content:"H";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:.6rem;font-weight:700;color:#8b5cf6;}
+    @keyframes pulse{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.2);opacity:1}}
+    
+    .minimap-container{width:80px;height:80px;border:2px solid rgba(34,211,238,.6);border-radius:8px;overflow:hidden;background:rgba(0,0,0,.3);}
+    .minimap-container canvas{width:100%;height:100%;display:block;}
+    .next-level-control{display:flex;flex-direction:column;align-items:center;gap:5px;margin-left:15px;}
+    .next-level-control button{background:linear-gradient(135deg,#22d3ee,#06b6d4);border:none;color:white;padding:8px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s ease;box-shadow:0 2px 4px rgba(0,0,0,0.3);}
+    .next-level-control button:hover{background:linear-gradient(135deg,#06b6d4,#0891b2);transform:translateY(-1px);box-shadow:0 4px 8px rgba(0,0,0,0.4);}
+    .next-level-control button:active{transform:translateY(0);box-shadow:0 2px 4px rgba(0,0,0,0.3);}
+    #complexityLevel{color:#22d3ee;font-size:11px;font-weight:500;text-shadow:0 0 4px rgba(34,211,238,0.6);}
+    
+    .status-info{display:flex;flex-direction:column;gap:4px;color:#e6edf3;font-size:.6rem;text-shadow:0 2px 4px #000;}
+    .status-info span{display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.4);padding:4px 8px;border:1px solid rgba(255,255,255,.2);border-radius:6px;}
+    .crosshair{position:absolute;top:50%;left:50%;width:16px;height:16px;margin:-8px 0 0 -8px;pointer-events:none;opacity:.65}
+    .crosshair:before,.crosshair:after{content:"";position:absolute;background:#fff;border-radius:2px}
+    .crosshair:before{left:7px;top:0;width:2px;height:16px}
+    .crosshair:after{left:0;top:7px;height:2px;width:16px}
+
+    .overlay{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(130deg,rgba(9,18,30,.88),rgba(9,18,30,.72));backdrop-filter:blur(10px) saturate(180%);border-radius:18px;animation:fadeIn .6s ease;z-index:40;transition:opacity .5s ease,filter .5s ease}
+    .overlay.hidden-force{display:none !important;opacity:0 !important;filter:none !important}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .menu{display:flex;flex-direction:column;align-items:center;gap:18px;max-width:340px;text-align:center}
+  .menu h2{margin:0;font-size:1.25rem;letter-spacing:.5px;font-weight:620;background:linear-gradient(90deg,#22d3ee,#76d6ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .menu p{margin:0 0 4px;font-size:.72rem;line-height:1.45;color:#9eb5c6}
+    .menu .btn-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+    .btn{--grad:linear-gradient(90deg,#22d3ee,#2563eb);background:var(--grad);color:#041019;border:none;font-size:.62rem;font-weight:600;letter-spacing:.8px;text-transform:uppercase;padding:12px 20px;border-radius:16px;display:inline-flex;align-items:center;gap:6px;cursor:pointer;position:relative;overflow:hidden;transition:.45s;box-shadow:0 6px 20px -8px rgba(34,211,238,.55),0 0 0 1px rgba(34,211,238,.4)}
+    .btn.alt{--grad:linear-gradient(90deg,#ff8d5d,#ffcf4d);box-shadow:0 6px 20px -8px rgba(255,170,80,.55),0 0 0 1px rgba(255,200,140,.4)}
+    .btn:hover{transform:translateY(-3px) scale(1.04)}
+    .btn:active{transform:translateY(0) scale(.97)}
+    .btn::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,rgba(255,255,255,.55),rgba(255,255,255,0) 60%);mix-blend-mode:overlay;opacity:0;transition:.55s}
+    .btn:hover::after{opacity:.6}
+
+    .toast{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:#0e1d2a;padding:10px 16px;border:1px solid #1c3344;border-radius:14px;font-size:.65rem;letter-spacing:.5px;display:flex;align-items:center;gap:8px;color:#b7ccd8;box-shadow:0 8px 26px -12px #000b;opacity:0;pointer-events:none;transition:.55s}
+    .toast.show{opacity:1;transform:translate(-50%,0)}
+
+    footer{padding:30px 20px 50px;text-align:center;font-size:.6rem;color:#6e8594;letter-spacing:.4px}
+
+    /* === Start Menu Styles === */
+    .start-menu-overlay .start-menu {
+      max-width: 500px;
+      text-align: center;
+    }
+    
+    .start-menu h2 {
+      margin: 0 0 8px;
+      font-size: 2rem;
+      letter-spacing: 1px;
+      background: linear-gradient(90deg, #22d3ee, #76d6ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    
+    .start-menu-subtitle {
+      font-size: 0.9rem;
+      color: #9eb5c6;
+      margin: 0 0 30px;
+      opacity: 0.9;
+    }
+    
+    .start-menu-options {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin: 30px 0;
+    }
+    
+    .start-menu-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 16px 24px;
+      font-size: 0.9rem;
+      min-width: 200px;
+    }
+    
+    .start-menu-btn span {
+      font-size: 1.1rem;
+    }
+    
+    .start-menu-info {
+      margin-top: 25px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .start-menu-info p {
+      margin: 8px 0;
+      font-size: 0.75rem;
+      color: #7a92a8;
+      line-height: 1.4;
+    }
+
+    /* === Configuration Menu Styles === */
+    .config-menu {
+      max-width: 600px;
+      text-align: left;
+    }
+    
+    .config-menu h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 1.5rem;
+      color: #22d3ee;
+    }
+    
+    .config-options {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin: 30px 0;
+    }
+    
+    .config-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+    }
+    
+    .config-row label {
+      font-weight: 600;
+      color: #e6edf3;
+      font-size: 0.9rem;
+    }
+    
+    .config-control {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .config-btn, .config-toggle {
+      background: rgba(34,211,238,0.2);
+      border: 1px solid rgba(34,211,238,0.5);
+      color: #22d3ee;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .config-btn:hover, .config-toggle:hover {
+      background: rgba(34,211,238,0.3);
+      transform: translateY(-1px);
+    }
+    
+    .config-control span {
+      min-width: 60px;
+      text-align: center;
+      font-weight: 600;
+      color: #b8d4e6;
+    }
+    
+    .config-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+      gap: 15px;
+    }
+
+    /* === Controls Guide Styles === */
+    .controls-menu {
+      max-width: 700px;
+    }
+    
+    .controls-menu h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 1.5rem;
+      color: #22d3ee;
+    }
+    
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 25px;
+      margin: 30px 0;
+    }
+    
+    .controls-section h3 {
+      color: #22d3ee;
+      font-size: 1rem;
+      margin-bottom: 15px;
+      border-bottom: 1px solid rgba(34,211,238,0.3);
+      padding-bottom: 8px;
+    }
+    
+    .control-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      padding: 8px 0;
+    }
+    
+    .control-item kbd {
+      background: linear-gradient(135deg, #2a3f54, #1a2b3a);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: #22d3ee;
+      min-width: 80px;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .control-item span {
+      color: #b8d4e6;
+      font-size: 0.85rem;
+      line-height: 1.3;
+    }
+    
+    .controls-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+      gap: 15px;
+    }
+
+    /* === About Menu Styles === */
+    .about-menu {
+      max-width: 650px;
+    }
+    
+    .about-menu h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 1.5rem;
+      color: #22d3ee;
+    }
+    
+    .about-content {
+      margin: 30px 0;
+    }
+    
+    .about-section {
+      margin-bottom: 25px;
+    }
+    
+    .about-section h3 {
+      color: #22d3ee;
+      font-size: 1rem;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .about-section ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .about-section li {
+      padding: 6px 0;
+      color: #b8d4e6;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      border-left: 3px solid rgba(34,211,238,0.3);
+      padding-left: 15px;
+      margin-bottom: 8px;
+    }
+    
+    .about-section p {
+      color: #9eb5c6;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      margin: 0;
+    }
+    
+    .about-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+      gap: 15px;
+    }
+
+    /* === Responsive Design for Menus === */
+    @media (max-width: 768px) {
+      .config-row {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+      }
+      
+      .controls-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .config-actions, .controls-actions, .about-actions {
+        flex-direction: column;
+      }
+      
+      .start-menu-options {
+        align-items: center;
+      }
+    }
+
+    /* === Magical UI Enhancements === */
+    :root{
+      --magic-accent:#8b5cf6; /* violet */
+      --magic-accent2:#06b6d4; /* cyan */
+      --magic-glow:0 0 12px -2px rgba(139,92,246,.9),0 0 34px -6px rgba(6,182,212,.65),0 0 4px 1px rgba(255,255,255,.08);
+    }
+    body{
+      background:
+        radial-gradient(circle at 20% 25%,rgba(139,92,246,.20),transparent 55%),
+        radial-gradient(circle at 80% 70%,rgba(6,182,212,.18),transparent 60%),
+        linear-gradient(140deg,#0b1322,#091525 55%,#06101a);
+      animation:bgShift 18s linear infinite;
+      background-size:140% 140%;
+    }
+    @keyframes bgShift{0%{background-position:0 0,0 0,0 0}50%{background-position:60% 40%,40% 60%,0 0}100%{background-position:0 0,0 0,0 0}}
+
+    /* Scope header glow only when game playing */
+    body.playing header h1{
+      position:relative;
+      text-shadow:0 0 6px rgba(139,92,246,.75),0 0 18px rgba(6,182,212,.55);
+    }
+    body.playing header h1:after{content:"";position:absolute;inset:0;mix-blend-mode:overlay;pointer-events:none;background:conic-gradient(from 0deg,rgba(255,255,255,.2),transparent 40%,rgba(255,255,255,.2) 60%,transparent 100%);animation:spinAura 8s linear infinite;filter:blur(6px);opacity:.55;}
+    /* Restore static body background; remove global animation */
+    body{background:radial-gradient(900px 600px at 12% 8%,#12273b,#060c14 70%)!important;animation:none!important;}
+    /* New magic layer container (hidden until Start) */
+    .magic-layer{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;display:none;/* ...existing gradient ... */background:radial-gradient(circle at 20% 25%,rgba(139,92,246,.12),transparent 55%),radial-gradient(circle at 80% 70%,rgba(6,182,212,.12),transparent 60%),linear-gradient(140deg,#0b1322,#091525 55%,#06101a);background-size:140% 140%;animation:bgShift 18s linear infinite;} 
+    .magic-layer.show{display:block;}
+    canvas{position:relative;z-index:1;}
+    /* Floating orbs container */
+    .orb{position:absolute;width:18px;height:18px;border-radius:50%;
+      background:radial-gradient(circle at 30% 30%,#ffffff,rgba(255,255,255,0) 70%);
+      mix-blend-mode:screen;pointer-events:none;opacity:.75;filter:blur(.5px) drop-shadow(0 0 6px rgba(139,92,246,.85));
+      animation:float 12s linear infinite;
+    }
+    .orb.orb-alt{filter:blur(.5px) drop-shadow(0 0 6px rgba(6,182,212,.85));}
+    @keyframes float{0%{transform:translateY(0) translateX(0) scale(.7);opacity:.3}25%{opacity:.85}50%{transform:translateY(-60px) translateX(40px) scale(1)}75%{opacity:.6}100%{transform:translateY(0) translateX(0) scale(.7);opacity:.3}}
+
+    canvas{box-shadow:0 0 0 1px rgba(139,92,246,.25),0 0 22px -10px rgba(139,92,246,.8),0 0 64px -14px rgba(6,182,212,.55);}    
+
+    .hud span{background:linear-gradient(140deg,rgba(139,92,246,.35),rgba(6,182,212,.28));border:1px solid rgba(255,255,255,.25);box-shadow:var(--magic-glow);}    
+    .crosshair:before,.crosshair:after{background:linear-gradient(90deg,#8b5cf6,#06b6d4);box-shadow:0 0 6px rgba(139,92,246,.9);} 
+    .element-info{position:absolute;right:8px;bottom:8px;max-width:240px;font-size:.55rem;line-height:1.25;background:rgba(5,18,28,.72);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(6px) saturate(160%);padding:10px 12px;border-radius:12px;box-shadow:0 4px 14px -6px #000a;color:#d9ecf6;display:none;}
+    .element-info h3{margin:0 0 4px;font-size:.75rem;letter-spacing:.5px;font-weight:600;color:#fff;text-shadow:0 0 4px #8b5cf6}
+    .element-info table{width:100%;border-collapse:collapse;margin:4px 0 6px}
+    .element-info td{padding:2px 0;vertical-align:top}
+    .element-info td.key{color:#8dd4f9;padding-right:6px;white-space:nowrap}
+    .element-info code{font-family:ui-monospace,monospace;font-size:.6rem;background:rgba(255,255,255,.08);padding:2px 4px;border-radius:6px;display:inline-block;margin-top:4px}
+    .element-info .use{margin-top:6px;color:#b9d9e8}
+    .element-info canvas{width:100%;height:auto;display:block;margin:4px 0 8px;image-rendering:crisp-edges}
+    .element-info ul{margin:4px 0 6px 14px;padding:0}
+    .element-info .facts{margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,.08)}
+
+    /* Touch controls (shown only on touch devices) */
+    .touch-controls{position:absolute;inset:0;pointer-events:none;z-index:45;display:none;}
+    .touch-controls.show{display:block;}
+    .touch-joystick{position:absolute;left:18px;bottom:22px;width:140px;height:140px;border-radius:50%;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(6px) saturate(140%);pointer-events:auto;}
+    .touch-joystick .knob{position:absolute;left:50%;top:50%;width:54px;height:54px;margin:-27px;border-radius:50%;background:linear-gradient(135deg,rgba(34,211,238,.95),rgba(139,92,246,.9));box-shadow:0 10px 30px -18px rgba(34,211,238,.95),0 0 0 1px rgba(255,255,255,.18);transform:translate(0,0);}
+    .touch-lookzone{position:absolute;right:0;top:0;bottom:0;left:45%;pointer-events:auto;}
+    .touch-buttons{position:absolute;right:18px;bottom:22px;display:flex;flex-direction:column;gap:10px;pointer-events:auto;}
+    .touch-btn{width:62px;height:62px;border-radius:18px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.28);backdrop-filter:blur(6px) saturate(140%);color:#e6edf3;font-weight:750;font-size:18px;box-shadow:0 10px 30px -22px rgba(0,0,0,.85);}
+    .touch-btn:active{transform:scale(.96)}
+    .touch-hint{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);font-size:.68rem;letter-spacing:.3px;color:#a8c3d6;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:6px 10px;pointer-events:none;}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>3D Maze – Lab Preview <sup style="font-size:.55em;font-weight:600;opacity:.8">v4</sup></h1>
+    <nav>
+      <a href="index.html" aria-label="Back to home">← Home</a>
+      <a href="games.html#maze-3d&autostart&fullscreen" aria-label="Games Hub">Games Hub</a>
+    </nav>
+  </header>
+  <main>
+    <div class="game-shell" id="gameShell">
+      <div id="magicLayer" class="magic-layer" aria-hidden="true"></div>
+      <canvas id="mazeCanvas" width="960" height="540" aria-label="3D maze canvas"></canvas>
+
+      <div id="touchControls" class="touch-controls" aria-hidden="true">
+        <div id="touchJoystick" class="touch-joystick" aria-label="Move joystick">
+          <div id="touchKnob" class="knob" aria-hidden="true"></div>
+        </div>
+        <div id="touchLook" class="touch-lookzone" aria-label="Look area"></div>
+        <div class="touch-buttons" aria-hidden="true">
+          <button id="btnTouchJump" class="touch-btn" type="button" aria-label="Jump">⤒</button>
+          <button id="btnTouchInteract" class="touch-btn" type="button" aria-label="Interact">E</button>
+        </div>
+        <div class="touch-hint" id="touchHint">Move: left joystick · Look: swipe right · Tap E to interact</div>
+      </div>
+      
+      <!-- Helmet HUD Top -->
+      <div class="helmet-hud-top" id="helmetHudTop" hidden>
+        <div class="compass">
+          <div class="compass-rose">
+            <div class="compass-directions">
+              <div class="compass-n">N</div>
+              <div class="compass-s">S</div>
+              <div class="compass-e">E</div>
+              <div class="compass-w">W</div>
+            </div>
+            <div class="compass-needle" id="compassNeedle"></div>
+            <div class="hydrogen-pointer" id="hydrogenPointer"></div>
+          </div>
+          <div id="compassInfo">Sector H-1</div>
+        </div>
+      </div>
+      
+      <!-- Helmet HUD Bottom -->
+      <div class="helmet-hud-bottom" id="helmetHudBottom" hidden>
+        <div class="status-info">
+          <span id="hudPerf">FPS: –</span>
+          <span id="hudPos">X:0 Y:0</span>
+          <span id="hudInfo">HP:100 Ammo:∞</span>
+          <span id="hudXP">XP:0</span>
+        </div>
+        <div class="minimap-container">
+          <canvas id="minimapCanvas"></canvas>
+        </div>
+        <div class="next-level-control">
+          <button id="nextLevelBtn" onclick="nextLevel()">Next Level →</button>
+          <span id="complexityLevel">Level: 1</span>
+        </div>
+      </div>
+      
+      <div class="hud" id="hud" hidden>
+        <span id="hudPerfLegacy">FPS: –</span>
+        <span id="hudPosLegacy">X:0 Y:0</span>
+        <span id="hudInfoLegacy">HP:100 Ammo:∞</span>
+        <span id="hudXPLegacy">XP:0</span>
+      </div>
+      <div id="elementInfoPanel" class="element-info" aria-live="polite" hidden></div>
+      <div class="crosshair" id="crosshair" hidden></div>
+      <div class="overlay" id="startOverlay" role="dialog" aria-modal="true">
+        <div class="menu">
+          <h2>Enter The Scientific Lab</h2>
+          <p>Lightweight ray‑cast prototype. Explore with fluid mouse look & WASD. Space to jump (cosmetic), click to fire particles.</p>
+          <p style="opacity:.8">Performance friendly: Simplified floor & dynamic resolution scaler. No enemies in this preview build.</p>
+          <div class="btn-row">
+            <button class="btn" id="btnStart">Start</button>
+            <button class="btn alt" id="btnFS">Fullscreen</button>
+            <button class="btn" id="btnInvert">Invert Y: On</button>
+          </div>
+        </div>
+      </div>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <!-- Start Menu Overlay -->
+    <div class="overlay start-menu-overlay hidden-force" id="startMenuOverlay" role="dialog" aria-modal="true" aria-labelledby="startMenuTitle">
+      <div class="start-menu">
+        <h2 id="startMenuTitle">ScienceLab</h2>
+        <p class="start-menu-subtitle">Enhanced 3D Laboratory Experience</p>
+        
+        <div class="start-menu-options">
+          <button class="btn start-menu-btn" id="btnPlayNow">
+            <span>▶</span> Play Now
+          </button>
+          
+          <button class="btn start-menu-btn" id="btnConfig">
+            <span>⚙</span> Configuration
+          </button>
+          
+          <button class="btn start-menu-btn" id="btnControls">
+            <span>🎮</span> Controls Guide
+          </button>
+          
+          <button class="btn start-menu-btn" id="btnAbout">
+            <span>ℹ</span> About Lab
+          </button>
+        </div>
+        
+        <div class="start-menu-info">
+          <p>Navigate through the periodic table laboratory</p>
+          <p>Interact with scientific equipment and discover elements</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Configuration Menu -->
+    <div class="overlay config-menu-overlay hidden-force" id="configMenuOverlay" role="dialog" aria-modal="true" aria-labelledby="configMenuTitle">
+      <div class="config-menu">
+        <h2 id="configMenuTitle">⚙ Configuration</h2>
+        
+        <div class="config-options">
+          <div class="config-row">
+            <label>Mouse Sensitivity:</label>
+            <div class="config-control">
+              <button class="config-btn" id="mouseSensDown">-</button>
+              <span id="mouseSensValue">Normal</span>
+              <button class="config-btn" id="mouseSensUp">+</button>
+            </div>
+          </div>
+          
+          <div class="config-row">
+            <label>Invert Y-Axis:</label>
+            <div class="config-control">
+              <button class="config-toggle" id="invertYToggle">Off</button>
+            </div>
+          </div>
+          
+          <div class="config-row">
+            <label>Graphics Quality:</label>
+            <div class="config-control">
+              <button class="config-btn" id="qualityDown">-</button>
+              <span id="qualityValue">High</span>
+              <button class="config-btn" id="qualityUp">+</button>
+            </div>
+          </div>
+          
+          <div class="config-row">
+            <label>Audio Volume:</label>
+            <div class="config-control">
+              <button class="config-btn" id="volumeDown">-</button>
+              <span id="volumeValue">100%</span>
+              <button class="config-btn" id="volumeUp">+</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="config-actions">
+          <button class="btn" id="configBack">← Back to Menu</button>
+          <button class="btn" id="configPlay">▶ Play Now</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls Guide Menu -->
+    <div class="overlay controls-menu-overlay hidden-force" id="controlsMenuOverlay" role="dialog" aria-modal="true" aria-labelledby="controlsMenuTitle">
+      <div class="controls-menu">
+        <h2 id="controlsMenuTitle">🎮 Controls Guide</h2>
+        
+        <div class="controls-grid">
+          <div class="controls-section">
+            <h3>Movement</h3>
+            <div class="control-item">
+              <kbd>W A S D</kbd>
+              <span>Move around the laboratory</span>
+            </div>
+            <div class="control-item">
+              <kbd>Mouse</kbd>
+              <span>Look around (first-person)</span>
+            </div>
+            <div class="control-item">
+              <kbd>Space</kbd>
+              <span>Jump over obstacles</span>
+            </div>
+          </div>
+          
+          <div class="controls-section">
+            <h3>Interaction</h3>
+            <div class="control-item">
+              <kbd>E</kbd>
+              <span>Interact with objects</span>
+            </div>
+            <div class="control-item">
+              <kbd>Click</kbd>
+              <span>Shoot particles (debug)</span>
+            </div>
+            <div class="control-item">
+              <kbd>T</kbd>
+              <span>Teleport to random room</span>
+            </div>
+          </div>
+          
+          <div class="controls-section">
+            <h3>System</h3>
+            <div class="control-item">
+              <kbd>ESC</kbd>
+              <span>Pause game / Return to menu</span>
+            </div>
+            <div class="control-item">
+              <kbd>F11</kbd>
+              <span>Toggle fullscreen</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="controls-actions">
+          <button class="btn" id="controlsBack">← Back to Menu</button>
+          <button class="btn" id="controlsPlay">▶ Start Playing</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- About Menu -->
+    <div class="overlay about-menu-overlay hidden-force" id="aboutMenuOverlay" role="dialog" aria-modal="true" aria-labelledby="aboutMenuTitle">
+      <div class="about-menu">
+        <h2 id="aboutMenuTitle">ℹ About ScienceLab</h2>
+        
+        <div class="about-content">
+          <div class="about-section">
+            <h3>🔬 Laboratory Features</h3>
+            <ul>
+              <li>Navigate through 118 elemental rooms based on the periodic table</li>
+              <li>Enhanced helmet HUD with compass and vital information</li>
+              <li>Interactive scientific equipment: tables, blackboards, instruments</li>
+              <li>Hydrogen fountain effects and molecular visualizations</li>
+              <li>3D raycasting engine with realistic perspective</li>
+            </ul>
+          </div>
+          
+          <div class="about-section">
+            <h3>🎯 Objectives</h3>
+            <ul>
+              <li>Explore the vast scientific laboratory complex</li>
+              <li>Interact with laboratory equipment and learn about elements</li>
+              <li>Use the compass system for navigation</li>
+              <li>Experience immersive hydrogen particle effects</li>
+              <li>Master the helmet interface and controls</li>
+            </ul>
+          </div>
+          
+          <div class="about-section">
+            <h3>🚀 Technology</h3>
+            <p>Built with vanilla JavaScript using a custom raycasting engine. Features real-time 3D rendering, dynamic lighting effects, and interactive object system. No external dependencies - runs entirely in your browser.</p>
+          </div>
+        </div>
+        
+        <div class="about-actions">
+          <button class="btn" id="aboutBack">← Back to Menu</button>
+          <button class="btn" id="aboutPlay">▶ Enter Laboratory</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pause Menu -->
+    <div class="overlay pause-menu-overlay hidden-force" id="pauseMenuOverlay" role="dialog" aria-modal="true" aria-labelledby="pauseMenuTitle">
+      <div class="menu" style="max-width:520px;">
+        <h2 id="pauseMenuTitle">Paused</h2>
+        <p>Resume exploring, adjust settings, or exit to the main menu.</p>
+        <div class="btn-row" style="margin-top:8px;">
+          <button class="btn" id="btnResume">Resume</button>
+          <button class="btn" id="btnPauseSettings">Settings</button>
+          <button class="btn alt" id="btnExitToMenu">Exit to Menu</button>
+        </div>
+        <p style="opacity:.75">Tip: click canvas to re-lock mouse.</p>
+      </div>
+    </div>
+
+    </div>
+  </main>
+  <footer>Prototype engine (c) Lab Maze Preview · Auto‑evolves with site game improvements.</footer>
+
+  <noscript><p style="text-align:center;padding:40px 20px;color:#ff6b6b">Enable JavaScript to run the 3D Maze.</p></noscript>
+
+  <script>
+  (()=>{
+    const canvas=document.getElementById('mazeCanvas');
+    const ctx=canvas.getContext('2d');
+    const minimapCanvas=document.getElementById('minimapCanvas');
+    const minimapCtx=minimapCanvas.getContext('2d');
+    
+    // Helmet HUD elements
+    const helmetHudTop=document.getElementById('helmetHudTop');
+    const helmetHudBottom=document.getElementById('helmetHudBottom');
+    const compassNeedle=document.getElementById('compassNeedle');
+    const hydrogenPointer=document.getElementById('hydrogenPointer');
+    const compassInfo=document.getElementById('compassInfo');
+    
+    // Set minimap size to fit in helmet HUD (smaller)
+    minimapCanvas.width = 80;
+    minimapCanvas.height = 80;
+    minimapCanvas.style.width = '100%';
+    minimapCanvas.style.height = '100%';
+    minimapCtx.imageSmoothingEnabled = false;
+
+    const hudPerf=document.getElementById('hudPerf');
+    const hudPos=document.getElementById('hudPos');
+    const hudInfo=document.getElementById('hudInfo');
+    const hud=document.getElementById('hud');
+    const crosshair=document.getElementById('crosshair');
+    const overlay=document.getElementById('startOverlay');
+    const pauseMenuOverlay=document.getElementById('pauseMenuOverlay');
+    const btnResume=document.getElementById('btnResume');
+    const btnPauseSettings=document.getElementById('btnPauseSettings');
+    const btnExitToMenu=document.getElementById('btnExitToMenu');
+    const toastEl=document.getElementById('toast');
+    const btnStart=document.getElementById('btnStart');
+    const btnFS=document.getElementById('btnFS');
+    const btnInvert=document.getElementById('btnInvert');
+    const elementInfoPanel=document.getElementById('elementInfoPanel');
+    const hudXP=document.getElementById('hudXP');
+    const magicLayer=document.getElementById('magicLayer'); // FIX: was undefined causing black screen
+
+    // Touch controls
+    const touchControls=document.getElementById('touchControls');
+    const touchJoystick=document.getElementById('touchJoystick');
+    const touchKnob=document.getElementById('touchKnob');
+    const touchLook=document.getElementById('touchLook');
+    const btnTouchJump=document.getElementById('btnTouchJump');
+    const btnTouchInteract=document.getElementById('btnTouchInteract');
+    const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+    // Config persistence
+    const CONFIG_KEY='scienceLabConfig.v1';
+
+    // --- Ensure jump helper exists (was removed during refactor) ---
+    function jump(){ if(!state.jumping && state.jumpZ===0){ state.jumping=true; state.vz=state.jumpImpulse; } }
+
+    // --- Hydrogen detailed data panel (re-added after map refactor) ---
+    const hydrogenData = {
+      name:'Hydrogen', symbol:'H', number:1, atomicMass:'1.008', group:'1 (non‑metal)', period:1,
+      category:'Diatomic nonmetal', electronConfig:'1s^1', meltingPoint:'14.01 K', boilingPoint:'20.28 K',
+      electronegativity:'2.20 (Pauling)', density:'0.08988 g/L (0 °C, 1 atm)', appearance:'Colorless gas',
+      abundanceUniverse:'~75% of normal (baryonic) matter by mass', ionizationEnergy:'13.598 eV',
+      isotopes:'1H (protium) 99.98%, 2H (deuterium) ~0.02%, 3H (tritium) trace (radioactive)',
+      discovery:'Known since prehistory (distinctly described 1766 – Cavendish)',
+      recentResearch:'High‑pressure phases & pursuit of metallic hydrogen; potential superconductivity remains under active investigation.',
+      uses:['Ammonia synthesis (Haber‑Bosch)','Petroleum hydrocracking','Fuel cells (clean power)'],
+      funFacts:[
+        'Lightest & most abundant element',
+        'Forms stars via nuclear fusion (proton–proton chain)',
+        'Liquid hydrogen used as rocket propellant (with liquid oxygen)',
+        'Deuterium used in heavy water reactors',
+        'Potential clean energy carrier in green hydrogen economy'
+      ],
+      efficiencyExample:{ title:'Efficient Application: PEM Fuel Cell', desc:'Hydrogen + oxygen → electricity + water (~60% electrical efficiency). Waste heat can raise total efficiency in CHP.', reaction:'2 H₂ + O₂ → 2 H₂O + energy' }
+    };
+    // 3D mini-orbit renderer state
+    let h3dCanvas=null,h3dCtx=null,h3dAngle=0;
+    let h3dPhaseA=Math.random()*10, h3dPhaseB=Math.random()*10;
+    function ensureHydrogen3DCanvas(){
+      if(!elementInfoPanel) return; if(h3dCanvas && h3dCanvas.isConnected) return;
+      h3dCanvas=document.createElement('canvas'); h3dCanvas.width=180; h3dCanvas.height=180; h3dCtx=h3dCanvas.getContext('2d');
+      const spot=elementInfoPanel.querySelector('.h3d'); if(spot){ spot.innerHTML=''; spot.appendChild(h3dCanvas); }
+    }
+    function renderHydrogen3D(){
+      if(!h3dCtx || elementInfoPanel.hidden) return;
+      const ctx3=h3dCtx;
+      const w=h3dCanvas.width, h=h3dCanvas.height;
+      ctx3.clearRect(0,0,w,h);
+      const cx=w/2, cy=h/2+4; const nucleusR=22; // nucleus
+      // soft glow
+      const g=ctx3.createRadialGradient(cx,cy,4,cx,cy,nucleusR*2.4); g.addColorStop(0,'rgba(180,230,255,0.55)'); g.addColorStop(1,'rgba(40,80,120,0)'); ctx3.fillStyle=g; ctx3.beginPath(); ctx3.arc(cx,cy,nucleusR*2.2,0,Math.PI*2); ctx3.fill();
+      // nucleus core
+      const g2=ctx3.createRadialGradient(cx-nucleusR*0.4,cy-nucleusR*0.4,2,cx,cy,nucleusR); g2.addColorStop(0,'#ffffff'); g2.addColorStop(1,'#8cc9ff'); ctx3.fillStyle=g2; ctx3.beginPath(); ctx3.arc(cx,cy,nucleusR,0,Math.PI*2); ctx3.fill();
+      // orbit (tilted ellipse)
+      h3dAngle += 0.02;
+      const tilt=0.55;
+      const orbitR=60;
+      const rot=0.35;
+      ctx3.save();
+      ctx3.translate(cx,cy);
+      ctx3.rotate(rot);
+      ctx3.scale(1, tilt);
+      ctx3.strokeStyle='rgba(140,210,255,0.55)';
+      ctx3.lineWidth=2;
+      ctx3.beginPath();
+      ctx3.arc(0,0,orbitR,0,Math.PI*2);
+      ctx3.stroke();
+      ctx3.restore();
+
+      // Electron "quantum-like" wobble: not physically accurate, but adds vertical + depth drift.
+      // Model: 3D lissajous-ish path around nucleus.
+      const ex = Math.cos(h3dAngle)*orbitR;
+      const ey = Math.sin(h3dAngle*1.23 + h3dPhaseA)*orbitR*tilt;
+      const ez = Math.sin(h3dAngle*0.77 + h3dPhaseB) * 12 + Math.sin(h3dAngle*3.1 + h3dPhaseA)*4;
+
+      // Rotate XY for screen projection
+      const xr = ex*Math.cos(rot) - ey*Math.sin(rot);
+      const yr = ex*Math.sin(rot) + ey*Math.cos(rot);
+      const depth = (ez + 16) / 32; // 0..1-ish
+      const eScreenX = cx + xr;
+      const eScreenY = cy + yr - ez*0.35;
+      const eR = 7 + depth*5;
+      // trail
+      ctx3.globalAlpha=0.28;
+      ctx3.strokeStyle='rgba(150,230,255,0.4)';
+      ctx3.beginPath();
+      for(let a=0;a<Math.PI*2;a+=Math.PI/40){
+        const tx=Math.cos(a)*orbitR;
+        const ty=Math.sin(a)*orbitR*tilt;
+        const txr = tx*Math.cos(rot) - ty*Math.sin(rot);
+        const tyr = tx*Math.sin(rot) + ty*Math.cos(rot);
+        ctx3.lineTo(cx+txr, cy+tyr);
+      }
+      ctx3.stroke();
+      ctx3.globalAlpha=1;
+      // electron sphere
+      const eg=ctx3.createRadialGradient(eScreenX-eR*0.4, eScreenY-eR*0.4, 2, eScreenX, eScreenY, eR); eg.addColorStop(0,'#ffffff'); eg.addColorStop(1,'#5cc9ff'); ctx3.fillStyle=eg; ctx3.beginPath(); ctx3.arc(eScreenX,eScreenY,eR,0,Math.PI*2); ctx3.fill();
+    }
+
+    // --- Hydrogen fountain with orbiting electron ---
+    const hydrogenFountain = {
+      x: 0, y: 0, // Will be set to hydrogen station position
+      electron: {
+        angle: 0,
+        radius: 0.3,
+        height: 0.2,
+        speed: 2.0,
+        randomOffset: { x: 0, y: 0, z: 0 },
+        lastRandomTime: 0,
+        phaseA: Math.random()*10,
+        phaseB: Math.random()*10
+      },
+      particles: []
+    };
+    
+    function updateHydrogenFountain(dt) {
+      if (!stations[0]) return;
+      
+      hydrogenFountain.x = stations[0].x;
+      hydrogenFountain.y = stations[0].y;
+      
+      // Update electron orbit with random positions
+      const electron = hydrogenFountain.electron;
+      electron.angle += electron.speed * dt;
+
+      // Smooth "quantum" drift using deterministic waves (avoid jittery teleports)
+      const t = performance.now() * 0.001;
+      const driftX = Math.sin(t*1.1 + electron.phaseA) * 0.06 + Math.sin(t*2.7 + electron.phaseB) * 0.03;
+      const driftY = Math.cos(t*1.3 + electron.phaseB) * 0.06 + Math.cos(t*2.2 + electron.phaseA) * 0.03;
+      const driftZ = Math.sin(t*1.6 + electron.phaseA) * 0.10 + Math.sin(t*3.4 + electron.phaseB) * 0.06;
+      
+      // Add gentle random offset changes every 2 seconds
+      if (performance.now() - electron.lastRandomTime > 2000) {
+        electron.randomOffset.x = (Math.random() - 0.5) * 0.2;
+        electron.randomOffset.y = (Math.random() - 0.5) * 0.2;
+        electron.randomOffset.z = (Math.random() - 0.5) * 0.1;
+        electron.lastRandomTime = performance.now();
+      }
+      
+      // Calculate electron position
+      const radial = electron.radius + driftX;
+      electron.x = hydrogenFountain.x + Math.cos(electron.angle) * radial + electron.randomOffset.x + driftX;
+      electron.y = hydrogenFountain.y + Math.sin(electron.angle) * radial + electron.randomOffset.y + driftY;
+      // Stronger vertical component + depth wobble
+      electron.z = electron.height
+        + Math.sin(electron.angle * 2.0 + electron.phaseA) * 0.20
+        + Math.sin(electron.angle * 5.0 + electron.phaseB) * 0.08
+        + driftZ
+        + electron.randomOffset.z;
+      
+      // Add fountain particles
+      if (Math.random() < 0.3) {
+        hydrogenFountain.particles.push({
+          x: hydrogenFountain.x + (Math.random() - 0.5) * 0.1,
+          y: hydrogenFountain.y + (Math.random() - 0.5) * 0.1,
+          z: 0,
+          vz: 1 + Math.random() * 0.5,
+          life: 2 + Math.random(),
+          maxLife: 2 + Math.random(),
+          color: `hsl(${200 + Math.random() * 60}, 80%, ${50 + Math.random() * 30}%)`
+        });
+      }
+      
+      // Update fountain particles
+      for (let i = hydrogenFountain.particles.length - 1; i >= 0; i--) {
+        const p = hydrogenFountain.particles[i];
+        p.z += p.vz * dt;
+        p.vz -= 2 * dt; // gravity
+        p.life -= dt;
+        
+        if (p.life <= 0 || p.z < 0) {
+          hydrogenFountain.particles.splice(i, 1);
+        }
+      }
+    }
+    
+    function renderHydrogenFountain() {
+      const dx = hydrogenFountain.x - state.px;
+      const dy = hydrogenFountain.y - state.py;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      
+      if (dist > 8) return; // Only render if close enough
+      
+      const dirX = Math.cos(state.dir * Math.PI/180);
+      const dirY = Math.sin(state.dir * Math.PI/180);
+      const planeFov = 0.66;
+      const w = canvas.width, h = canvas.height;
+      const horizon = h/2 + state.pitch*180 - state.jumpZ*26;
+      
+      // Render nucleus (core)
+      const nucleusAngle = Math.atan2(dy, dx) - state.dir * Math.PI/180;
+      const nucleusScreenX = Math.tan(nucleusAngle) * (w / (2 * planeFov)) + w/2;
+      const nucleusSize = Math.min(30, h / (dist * 2));
+      const nucleusScreenY = horizon - nucleusSize/2;
+      
+      // Nucleus glow
+      const gradient = ctx.createRadialGradient(nucleusScreenX, nucleusScreenY, 0, nucleusScreenX, nucleusScreenY, nucleusSize);
+      gradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+      gradient.addColorStop(0.5, 'rgba(139, 92, 246, 0.7)');
+      gradient.addColorStop(1, 'rgba(139, 92, 246, 0)');
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(nucleusScreenX, nucleusScreenY, nucleusSize, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Render orbiting electron
+      const electron = hydrogenFountain.electron;
+      const eDx = electron.x - state.px;
+      const eDy = electron.y - state.py;
+      const eDist = Math.sqrt(eDx * eDx + eDy * eDy);
+      const eAngle = Math.atan2(eDy, eDx) - state.dir * Math.PI/180;
+      const eScreenX = Math.tan(eAngle) * (w / (2 * planeFov)) + w/2;
+      const eSize = Math.min(12, h / (eDist * 3));
+      const eScreenY = horizon - eSize/2 - electron.z * 50;
+      
+      // Electron trail
+      ctx.strokeStyle = 'rgba(6, 182, 212, 0.3)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let a = 0; a < Math.PI * 2; a += Math.PI / 20) {
+        const trailX = hydrogenFountain.x + Math.cos(a) * electron.radius - state.px;
+        const trailY = hydrogenFountain.y + Math.sin(a) * electron.radius - state.py;
+        const trailAngle = Math.atan2(trailY, trailX) - state.dir * Math.PI/180;
+        const trailScreenX = Math.tan(trailAngle) * (w / (2 * planeFov)) + w/2;
+        if (a === 0) ctx.moveTo(trailScreenX, horizon);
+        else ctx.lineTo(trailScreenX, horizon);
+      }
+      ctx.stroke();
+      
+      // Electron
+      ctx.fillStyle = 'rgba(6, 182, 212, 0.9)';
+      ctx.beginPath();
+      ctx.arc(eScreenX, eScreenY, eSize, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Render fountain particles
+      for (const p of hydrogenFountain.particles) {
+        const pDx = p.x - state.px;
+        const pDy = p.y - state.py;
+        const pDist = Math.sqrt(pDx * pDx + pDy * pDy);
+        const pAngle = Math.atan2(pDy, pDx) - state.dir * Math.PI/180;
+        const pScreenX = Math.tan(pAngle) * (w / (2 * planeFov)) + w/2;
+        const pSize = Math.min(6, h / (pDist * 4));
+        const pScreenY = horizon - pSize/2 - p.z * 30;
+        
+        const alpha = p.life / p.maxLife;
+        ctx.fillStyle = p.color.replace(')', `, ${alpha})`).replace('hsl', 'hsla');
+        ctx.beginPath();
+        ctx.arc(pScreenX, pScreenY, pSize, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function showHydrogenPanel(dist){
+      if(!elementInfoPanel) return; const d=hydrogenData; if(!elementInfoPanel._hydroBuilt){
+        const usesList=d.uses.map(u=>`<li>${u}</li>`).join('');
+        const facts=d.funFacts.map(f=>`<li>${f}</li>`).join('');
+        elementInfoPanel.innerHTML = `
+          <h3>${d.name} – ${d.symbol}</h3>
+          <div class='h3d' aria-hidden='true'></div>
+          <table><tbody>
+            <tr><td class='key'>Atomic #</td><td>${d.number}</td></tr>
+            <tr><td class='key'>Mass</td><td>${d.atomicMass} u</td></tr>
+            <tr><td class='key'>Group</td><td>${d.group}</td></tr>
+            <tr><td class='key'>Period</td><td>${d.period}</td></tr>
+            <tr><td class='key'>Category</td><td>${d.category}</td></tr>
+            <tr><td class='key'>e⁻ Config</td><td>${d.electronConfig}</td></tr>
+            <tr><td class='key'>Ionization</td><td>${d.ionizationEnergy}</td></tr>
+            <tr><td class='key'>Melt</td><td>${d.meltingPoint}</td></tr>
+            <tr><td class='key'>Boil</td><td>${d.boilingPoint}</td></tr>
+            <tr><td class='key'>Density</td><td>${d.density}</td></tr>
+            <tr><td class='key'>Abundance</td><td>${d.abundanceUniverse}</td></tr>
+            <tr><td class='key'>Isotopes</td><td>${d.isotopes}</td></tr>
+          </tbody></table>
+          <div class='use'><strong>Uses</strong><ul>${usesList}</ul></div>
+          <div class='use'><strong>${d.efficiencyExample.title}</strong><br>${d.efficiencyExample.desc}<br><code>${d.efficiencyExample.reaction}</code></div>
+          <div class='facts'><strong>Fun Facts</strong><ul>${facts}</ul></div>
+          <div class='facts'><strong>Research</strong><br>${d.recentResearch}</div>
+          <div style='margin-top:4px;opacity:.7'>Room dist: <span id='hydroDist'>${dist.toFixed(2)}</span></div>`;
+        elementInfoPanel._hydroBuilt=true; ensureHydrogen3DCanvas();
+      } else {
+        const dd=document.getElementById('hydroDist'); if(dd) dd.textContent=dist.toFixed(2);
+      }
+      elementInfoPanel.style.display='block'; elementInfoPanel.hidden=false;
+    }
+    function hideHydrogenPanel(){ if(!elementInfoPanel) return; elementInfoPanel.style.display='none'; elementInfoPanel.hidden=true; }
+
+    function toast(msg,ms=2600){toastEl.textContent=msg;toastEl.classList.add('show');clearTimeout(toastEl._t);toastEl._t=setTimeout(()=>toastEl.classList.remove('show'),ms)}
+
+    // --- Update compass and hydrogen pointer ---
+    function updateCompass() {
+      if (!compassNeedle || !hydrogenPointer || !stations[0]) return;
+      
+      // Update compass needle to point north
+      const needleRotation = -state.dir; // Opposite of player direction
+      compassNeedle.style.transform = `rotate(${needleRotation}deg)`;
+      
+      // Update hydrogen pointer
+      const hx = stations[0].x;
+      const hy = stations[0].y;
+      const dx = hx - state.px;
+      const dy = hy - state.py;
+      const hydrogenAngle = Math.atan2(dy, dx) * 180 / Math.PI - state.dir;
+      const hydrogenDist = Math.sqrt(dx * dx + dy * dy);
+      
+      hydrogenPointer.style.transform = `rotate(${hydrogenAngle}deg) translateY(-25px)`;
+      hydrogenPointer.style.opacity = hydrogenDist < 10 ? '1' : '0.5';
+      
+      // Update compass info with nearby elements
+      const nearbyElements = stations.filter(s => {
+        const d = Math.sqrt((s.x - state.px) ** 2 + (s.y - state.py) ** 2);
+        return d < 5;
+      }).slice(0, 3);
+      
+      if (compassInfo) {
+        let info = `Sector H-${Math.floor(state.px / 5)}-${Math.floor(state.py / 5)}`;
+        if (nearbyElements.length > 0) {
+          info += ` | Nearby: ${nearbyElements.map(e => e.sym).join(', ')}`;
+        }
+        compassInfo.textContent = info;
+      }
+    }
+
+    // === Laboratory Room Grid Generation (Each Element = One Room) ===
+    const GRID=11;              // 11x11 => 121 potential rooms (>=118 elements)
+    const ROOM_INNER=5;         // interior walkable square per room
+    const width = GRID*ROOM_INNER + (GRID+1); // walls between rooms + border walls
+    const height = width;       // square layout
+    let mapArr = Array.from({length:height}, ()=> Array(width).fill('#'));
+
+    const elementSymbols = "H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te I Xe Cs Ba La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu Hf Ta W Re Os Ir Pt Au Hg Tl Pb Bi Po At Rn Fr Ra Ac Th Pa U Np Pu Am Cm Bk Cf Es Fm Md No Lr Rf Db Sg Bh Hs Mt Ds Rg Cn Nh Fl Mc Lv Ts Og";
+
+    // Periodic table metadata (factual data) for better boards/panels.
+    // Mass values are standard atomic weights (approx).
+    const periodicTableData = [
+      {sym:'H', name:'Hydrogen', mass:'1.008'}, {sym:'He', name:'Helium', mass:'4.0026'},
+      {sym:'Li', name:'Lithium', mass:'6.94'}, {sym:'Be', name:'Beryllium', mass:'9.0122'},
+      {sym:'B', name:'Boron', mass:'10.81'}, {sym:'C', name:'Carbon', mass:'12.011'},
+      {sym:'N', name:'Nitrogen', mass:'14.007'}, {sym:'O', name:'Oxygen', mass:'15.999'},
+      {sym:'F', name:'Fluorine', mass:'18.998'}, {sym:'Ne', name:'Neon', mass:'20.180'},
+      {sym:'Na', name:'Sodium', mass:'22.990'}, {sym:'Mg', name:'Magnesium', mass:'24.305'},
+      {sym:'Al', name:'Aluminium', mass:'26.982'}, {sym:'Si', name:'Silicon', mass:'28.085'},
+      {sym:'P', name:'Phosphorus', mass:'30.974'}, {sym:'S', name:'Sulfur', mass:'32.06'},
+      {sym:'Cl', name:'Chlorine', mass:'35.45'}, {sym:'Ar', name:'Argon', mass:'39.948'},
+      {sym:'K', name:'Potassium', mass:'39.098'}, {sym:'Ca', name:'Calcium', mass:'40.078'},
+      {sym:'Sc', name:'Scandium', mass:'44.956'}, {sym:'Ti', name:'Titanium', mass:'47.867'},
+      {sym:'V', name:'Vanadium', mass:'50.942'}, {sym:'Cr', name:'Chromium', mass:'51.996'},
+      {sym:'Mn', name:'Manganese', mass:'54.938'}, {sym:'Fe', name:'Iron', mass:'55.845'},
+      {sym:'Co', name:'Cobalt', mass:'58.933'}, {sym:'Ni', name:'Nickel', mass:'58.693'},
+      {sym:'Cu', name:'Copper', mass:'63.546'}, {sym:'Zn', name:'Zinc', mass:'65.38'},
+      {sym:'Ga', name:'Gallium', mass:'69.723'}, {sym:'Ge', name:'Germanium', mass:'72.630'},
+      {sym:'As', name:'Arsenic', mass:'74.922'}, {sym:'Se', name:'Selenium', mass:'78.971'},
+      {sym:'Br', name:'Bromine', mass:'79.904'}, {sym:'Kr', name:'Krypton', mass:'83.798'},
+      {sym:'Rb', name:'Rubidium', mass:'85.468'}, {sym:'Sr', name:'Strontium', mass:'87.62'},
+      {sym:'Y', name:'Yttrium', mass:'88.906'}, {sym:'Zr', name:'Zirconium', mass:'91.224'},
+      {sym:'Nb', name:'Niobium', mass:'92.906'}, {sym:'Mo', name:'Molybdenum', mass:'95.95'},
+      {sym:'Tc', name:'Technetium', mass:'98'}, {sym:'Ru', name:'Ruthenium', mass:'101.07'},
+      {sym:'Rh', name:'Rhodium', mass:'102.91'}, {sym:'Pd', name:'Palladium', mass:'106.42'},
+      {sym:'Ag', name:'Silver', mass:'107.87'}, {sym:'Cd', name:'Cadmium', mass:'112.41'},
+      {sym:'In', name:'Indium', mass:'114.82'}, {sym:'Sn', name:'Tin', mass:'118.71'},
+      {sym:'Sb', name:'Antimony', mass:'121.76'}, {sym:'Te', name:'Tellurium', mass:'127.60'},
+      {sym:'I', name:'Iodine', mass:'126.90'}, {sym:'Xe', name:'Xenon', mass:'131.29'},
+      {sym:'Cs', name:'Caesium', mass:'132.91'}, {sym:'Ba', name:'Barium', mass:'137.33'},
+      {sym:'La', name:'Lanthanum', mass:'138.91'}, {sym:'Ce', name:'Cerium', mass:'140.12'},
+      {sym:'Pr', name:'Praseodymium', mass:'140.91'}, {sym:'Nd', name:'Neodymium', mass:'144.24'},
+      {sym:'Pm', name:'Promethium', mass:'145'}, {sym:'Sm', name:'Samarium', mass:'150.36'},
+      {sym:'Eu', name:'Europium', mass:'151.96'}, {sym:'Gd', name:'Gadolinium', mass:'157.25'},
+      {sym:'Tb', name:'Terbium', mass:'158.93'}, {sym:'Dy', name:'Dysprosium', mass:'162.50'},
+      {sym:'Ho', name:'Holmium', mass:'164.93'}, {sym:'Er', name:'Erbium', mass:'167.26'},
+      {sym:'Tm', name:'Thulium', mass:'168.93'}, {sym:'Yb', name:'Ytterbium', mass:'173.05'},
+      {sym:'Lu', name:'Lutetium', mass:'174.97'}, {sym:'Hf', name:'Hafnium', mass:'178.49'},
+      {sym:'Ta', name:'Tantalum', mass:'180.95'}, {sym:'W', name:'Tungsten', mass:'183.84'},
+      {sym:'Re', name:'Rhenium', mass:'186.21'}, {sym:'Os', name:'Osmium', mass:'190.23'},
+      {sym:'Ir', name:'Iridium', mass:'192.22'}, {sym:'Pt', name:'Platinum', mass:'195.08'},
+      {sym:'Au', name:'Gold', mass:'196.97'}, {sym:'Hg', name:'Mercury', mass:'200.59'},
+      {sym:'Tl', name:'Thallium', mass:'204.38'}, {sym:'Pb', name:'Lead', mass:'207.2'},
+      {sym:'Bi', name:'Bismuth', mass:'208.98'}, {sym:'Po', name:'Polonium', mass:'209'},
+      {sym:'At', name:'Astatine', mass:'210'}, {sym:'Rn', name:'Radon', mass:'222'},
+      {sym:'Fr', name:'Francium', mass:'223'}, {sym:'Ra', name:'Radium', mass:'226'},
+      {sym:'Ac', name:'Actinium', mass:'227'}, {sym:'Th', name:'Thorium', mass:'232.04'},
+      {sym:'Pa', name:'Protactinium', mass:'231.04'}, {sym:'U', name:'Uranium', mass:'238.03'},
+      {sym:'Np', name:'Neptunium', mass:'237'}, {sym:'Pu', name:'Plutonium', mass:'244'},
+      {sym:'Am', name:'Americium', mass:'243'}, {sym:'Cm', name:'Curium', mass:'247'},
+      {sym:'Bk', name:'Berkelium', mass:'247'}, {sym:'Cf', name:'Californium', mass:'251'},
+      {sym:'Es', name:'Einsteinium', mass:'252'}, {sym:'Fm', name:'Fermium', mass:'257'},
+      {sym:'Md', name:'Mendelevium', mass:'258'}, {sym:'No', name:'Nobelium', mass:'259'},
+      {sym:'Lr', name:'Lawrencium', mass:'266'}, {sym:'Rf', name:'Rutherfordium', mass:'267'},
+      {sym:'Db', name:'Dubnium', mass:'268'}, {sym:'Sg', name:'Seaborgium', mass:'269'},
+      {sym:'Bh', name:'Bohrium', mass:'270'}, {sym:'Hs', name:'Hassium', mass:'270'},
+      {sym:'Mt', name:'Meitnerium', mass:'278'}, {sym:'Ds', name:'Darmstadtium', mass:'281'},
+      {sym:'Rg', name:'Roentgenium', mass:'282'}, {sym:'Cn', name:'Copernicium', mass:'285'},
+      {sym:'Nh', name:'Nihonium', mass:'286'}, {sym:'Fl', name:'Flerovium', mass:'289'},
+      {sym:'Mc', name:'Moscovium', mass:'290'}, {sym:'Lv', name:'Livermorium', mass:'293'},
+      {sym:'Ts', name:'Tennessine', mass:'294'}, {sym:'Og', name:'Oganesson', mass:'294'}
+    ];
+
+    const elements=[];
+    elementSymbols.split(/\s+/).forEach((sym,i)=>{
+      const meta = periodicTableData[i];
+      elements.push({
+        num: i+1,
+        sym,
+        name: meta?.name || `Element ${sym}`,
+        atomicMass: meta?.mass || '—'
+      });
+    });
+    const stations=[];
+
+    for(let gy=0, idx=0; gy<GRID; gy++){
+      for(let gx=0; gx<GRID; gx++){
+        if(idx >= elements.length) break; // unused extra rooms remain solid
+        const x0 = 1 + gx*(ROOM_INNER+1); // interior top-left (skip wall)
+        const y0 = 1 + gy*(ROOM_INNER+1);
+        // carve interior
+        for(let yy=0; yy<ROOM_INNER; yy++){
+          for(let xx=0; xx<ROOM_INNER; xx++) mapArr[y0+yy][x0+xx]='.';
+        }
+        // station at center
+        const elem = elements[idx++];
+        stations.push({ x: x0 + ROOM_INNER/2, y: y0 + ROOM_INNER/2, ...elem });
+        // horizontal tunnel to right room (carve door in shared wall)
+        if(gx < GRID-1){
+          const doorX = x0 + ROOM_INNER; // wall column
+          const doorY = y0 + Math.floor(ROOM_INNER/2);
+          mapArr[doorY][doorX]='.';
+        }
+        // vertical tunnel downward
+        if(gy < GRID-1){
+          const doorY = y0 + ROOM_INNER; // wall row
+          const doorX = x0 + Math.floor(ROOM_INNER/2);
+            mapArr[doorY][doorX]='.';
+        }
+      }
+    }
+    const map = mapArr.map(r=>r.join(''));
+    const MAP_W = width, MAP_H = height;
+    const hydrogenStation = stations[0];
+
+    // Return the element symbol for the room interior the point is inside.
+    // If the point is in a wall band/door tile between rooms, returns null.
+    function getRoomSymAt(px, py){
+      const cell = ROOM_INNER + 1; // interior + wall band
+      const gx = Math.floor((px - 1) / cell);
+      const gy = Math.floor((py - 1) / cell);
+      if(gx < 0 || gy < 0 || gx >= GRID || gy >= GRID) return null;
+      const xIn = (px - 1) - gx*cell;
+      const yIn = (py - 1) - gy*cell;
+      if(xIn >= 0 && xIn < ROOM_INNER && yIn >= 0 && yIn < ROOM_INNER){
+        const idx = gy*GRID + gx;
+        return stations[idx]?.sym || null;
+      }
+      return null;
+    }
+
+    // === 3D Objects Definition ===
+    // Set H room as coordinate origin (0,0) for reference
+    const hRoomX = hydrogenStation ? hydrogenStation.x : 4;
+    const hRoomY = hydrogenStation ? hydrogenStation.y : 4;
+    
+    // Enhanced element information database
+    const elementDatabase = {
+      H: {
+        name: "Hydrogen",
+        symbol: "H",
+        atomicNumber: 1,
+        atomicMass: "1.008 u",
+        description: "The lightest and most abundant element in the universe. A colorless, odorless, tasteless, non-toxic, nonmetallic, highly combustible diatomic gas.",
+        properties: [
+          "Atomic Number: 1",
+          "Electron Configuration: 1s¹",
+          "State at Room Temperature: Gas",
+          "Density: 0.08988 g/L at STP",
+          "Melting Point: -259.16°C",
+          "Boiling Point: -252.87°C"
+        ],
+        uses: [
+          "Fuel for rocket engines and space exploration",
+          "Production of ammonia for fertilizers",
+          "Hydrogenation of oils in food industry",
+          "Fuel cells for clean energy generation",
+          "Reducing agent in metallurgy",
+          "Coolant in electrical generators"
+        ],
+        chemicalReactions: [
+          "2H₂ + O₂ → 2H₂O (combustion)",
+          "H₂ + Cl₂ → 2HCl (halogenation)",
+          "N₂ + 3H₂ → 2NH₃ (Haber process)",
+          "H₂ + F₂ → 2HF (highly exothermic)"
+        ],
+        safetyInfo: "Highly flammable. Forms explosive mixtures with air. Store in well-ventilated areas away from ignition sources.",
+        interestingFacts: [
+          "Makes up about 75% of the universe's mass",
+          "Can exist in three isotopes: protium, deuterium, tritium",
+          "Burns with an almost invisible flame in daylight",
+          "Used in weather balloons and airships"
+        ]
+      },
+      C: {
+        name: "Carbon",
+        symbol: "C",
+        atomicNumber: 6,
+        atomicMass: "12.011 u",
+        description: "A versatile nonmetal that forms more compounds than any other element. Essential for all known life forms.",
+        properties: [
+          "Atomic Number: 6",
+          "Electron Configuration: 1s² 2s² 2p²",
+          "State at Room Temperature: Solid",
+          "Density: 2.26 g/cm³ (graphite), 3.51 g/cm³ (diamond)",
+          "Melting Point: 3550°C (sublimes)",
+          "Boiling Point: 4827°C"
+        ],
+        uses: [
+          "Steel and iron production (as coke)",
+          "Diamond cutting tools and jewelry",
+          "Graphite in pencils and lubricants",
+          "Carbon fiber in aerospace and automotive",
+          "Activated carbon for filtration",
+          "Carbon dating in archaeology"
+        ],
+        chemicalReactions: [
+          "C + O₂ → CO₂ (complete combustion)",
+          "2C + O₂ → 2CO (incomplete combustion)",
+          "C + 2H₂ → CH₄ (methane formation)",
+          "C + H₂O → CO + H₂ (water gas reaction)"
+        ],
+        safetyInfo: "Carbon dust can be explosive. Carbon monoxide is toxic. Handle carbon compounds with proper ventilation.",
+        interestingFacts: [
+          "Forms the backbone of all organic molecules",
+          "Can form four covalent bonds",
+          "Exists in multiple allotropes: diamond, graphite, fullerenes",
+          "Essential component of DNA and proteins"
+        ]
+      },
+      O: {
+        name: "Oxygen",
+        symbol: "O",
+        atomicNumber: 8,
+        atomicMass: "15.999 u",
+        description: "A highly reactive nonmetal that readily forms oxides with most elements. Essential for combustion and respiration.",
+        properties: [
+          "Atomic Number: 8",
+          "Electron Configuration: 1s² 2s² 2p⁴",
+          "State at Room Temperature: Gas",
+          "Density: 1.429 g/L at STP",
+          "Melting Point: -218.79°C",
+          "Boiling Point: -182.96°C"
+        ],
+        uses: [
+          "Medical oxygen therapy",
+          "Steel production and welding",
+          "Water treatment and purification",
+          "Rocket fuel oxidizer",
+          "Chemical industry processes",
+          "Life support systems"
+        ],
+        chemicalReactions: [
+          "2H₂ + O₂ → 2H₂O (water formation)",
+          "4Fe + 3O₂ → 2Fe₂O₃ (rusting)",
+          "C + O₂ → CO₂ (combustion)",
+          "2Mg + O₂ → 2MgO (burning magnesium)"
+        ],
+        safetyInfo: "Supports combustion. High concentrations can be toxic. Store away from flammable materials.",
+        interestingFacts: [
+          "Makes up about 21% of Earth's atmosphere",
+          "Paramagnetic - attracted to magnets",
+          "Produces the aurora colors in upper atmospheres",
+          "Critical for cellular respiration in living organisms"
+        ]
+      }
+    };
+
+    // Ensure every element (station) has a database entry.
+    // Rich entries can be added progressively; all others use safe placeholders.
+    for(const st of stations){
+      if(!st || !st.sym) continue;
+      if(!elementDatabase[st.sym]){
+        elementDatabase[st.sym] = {
+          name: st.name || `Element ${st.sym}`,
+          symbol: st.sym,
+          atomicNumber: st.num,
+          atomicMass: st.atomicMass ? `${st.atomicMass} u` : '—',
+          description: 'Element data is not yet expanded in this build. Interact with boards to browse the lab and see atomic number/symbol.',
+          properties: [
+            `Atomic Number: ${st.num}`,
+            `Symbol: ${st.sym}`,
+            `Atomic Mass: ${st.atomicMass ? st.atomicMass + ' u' : '—'}`,
+            'State at Room Temperature: —',
+            'Electron Configuration: —',
+            'Category: —'
+          ],
+          uses: [
+            'Data coming soon (placeholder)',
+            'Data coming soon (placeholder)'
+          ],
+          chemicalReactions: [
+            'Reactions: —'
+          ],
+          safetyInfo: 'Safety information: —',
+          interestingFacts: [
+            'This room is ready for expanded content.',
+            'Add richer element data to `elementDatabase` over time.'
+          ]
+        };
+      } else {
+        // Keep atomic number consistent with station ordering.
+        elementDatabase[st.sym].atomicNumber = elementDatabase[st.sym].atomicNumber || st.num;
+        elementDatabase[st.sym].symbol = elementDatabase[st.sym].symbol || st.sym;
+        elementDatabase[st.sym].name = elementDatabase[st.sym].name || st.name;
+        if((elementDatabase[st.sym].atomicMass === '—' || elementDatabase[st.sym].atomicMass === '— u') && st.atomicMass){
+          elementDatabase[st.sym].atomicMass = `${st.atomicMass} u`;
+        }
+      }
+    }
+    
+    // elementDatabase declared earlier
+
+    const labObjects = (()=>{
+      const objs = [];
+
+      // Special objects
+      objs.push({
+        type: 'blackboard',
+        x: hRoomX + 1.5,
+        y: hRoomY - 1.0,
+        z: 0,
+        width: 0.1,
+        height: 1.8,
+        depth: 2.0,
+        rotation: 0,
+        color: '#1a1a1a',
+        frameColor: '#8b7355',
+        name: 'Hydrogen Research Blackboard',
+        description: 'A scientific blackboard with hydrogen research formulas',
+        interactive: true,
+        hasText: true,
+        text: ['H₂ + O → H₂O', 'H⁺ + e⁻ → H', '2H → H₂', 'ΔH = -436 kJ/mol'],
+        room: 'H'
+      });
+
+      objs.push({
+        type: 'equipment',
+        x: stations[5] ? stations[5].x + 1.5 : 16,
+        y: stations[5] ? stations[5].y - 1.8 : 8.2,
+        z: 0,
+        width: 0.8,
+        height: 1.2,
+        depth: 0.6,
+        rotation: 0,
+        color: '#c0c0c0',
+        name: 'Carbon Analysis Equipment',
+        description: 'Contains spectroscopy equipment for carbon analysis',
+        interactive: true,
+        room: 'C'
+      });
+
+      // Element boards (one per station/room)
+      for(const st of stations){
+        if(!st) continue;
+        // Place boards inside the station's room interior (each element has its own room).
+        // Stations are at room center: (x0 + ROOM_INNER/2, y0 + ROOM_INNER/2).
+        const x0 = st.x - (ROOM_INNER/2);
+        const y0 = st.y - (ROOM_INNER/2);
+        const inset = 0.85; // keep away from walls
+        const xMin = x0 + inset;
+        const xMax = x0 + (ROOM_INNER - 1) - inset;
+        const yMin = y0 + inset;
+        const yMax = y0 + (ROOM_INNER - 1) - inset;
+
+        // Distribute boards on different walls per element.
+        const wall = st.num % 4; // 0=N,1=E,2=S,3=W
+        let bx = st.x;
+        let by = st.y;
+        if(wall === 0){
+          bx = Math.max(xMin, Math.min(xMax, st.x + ((st.num % 3) - 1) * 0.55));
+          by = yMin;
+        } else if(wall === 1){
+          bx = xMax;
+          by = Math.max(yMin, Math.min(yMax, st.y + ((st.num % 3) - 1) * 0.55));
+        } else if(wall === 2){
+          bx = Math.max(xMin, Math.min(xMax, st.x + ((st.num % 3) - 1) * 0.55));
+          by = yMax;
+        } else {
+          bx = xMin;
+          by = Math.max(yMin, Math.min(yMax, st.y + ((st.num % 3) - 1) * 0.55));
+        }
+
+        objs.push({
+          type: 'element-board',
+          x: bx,
+          y: by,
+          z: 0,
+          width: 0.08,
+          height: 1.55,
+          depth: 1.9,
+          rotation: 0,
+          color: '#0b1220',
+          frameColor: '#22d3ee',
+          name: `Element Board: ${st.sym}`,
+          description: 'An interactive lab board with element details',
+          interactive: true,
+          room: st.sym,
+          elementNum: st.num,
+          elementSym: st.sym
+        });
+      }
+
+      return objs;
+    })();
+
+    const state={
+      px: hydrogenStation ? hydrogenStation.x + 1.1 : 3.5,
+      py: hydrogenStation ? hydrogenStation.y : 3.5,
+      dir: 0, pitch:0, jumpZ:0, jumping:false,
+      moveSpeed:3.4, rotSpeed:2.4, strafeSpeed:3.2,
+      invY:false, keys:{},
+      lastTime: performance.now(),
+      fps:0, frames:0, fpsTime:0,
+      pixelStep:1,
+      shootParticles:[],
+      vz:0, gravity:14, jumpImpulse:6,
+      xp:0,
+      nearObject: null, // Track nearby interactive object
+      interactionRange: 2.5, // Distance for object interaction
+      objectPanelOpen: false, // Track if object detail panel is open
+      mouseSensitivity: 0.08, // Default mouse sensitivity
+      complexityLevel: 1, // Current difficulty/complexity level
+      maxComplexity: 5 // Maximum complexity level
+    };
+    // Ensure canvas can receive focus (for overlay focus shift)
+    canvas.setAttribute('tabindex','-1');
+    // Core loop state (moved BEFORE startGame to avoid TDZ access)
+    let running=false, paused=false, rafId=null;
+    // Global error trap to surface silent failures
+    window.onerror = (m,src,line,col,err)=>{ console.error('[MazeError]',m,src,line,col,err); toast('Error: '+m); return false; };
+
+    // === (Re)Add high-DPI resize helper if missing ===
+    if(typeof window.resizeForDPR !== 'function'){
+      window.resizeForDPR = function resizeForDPR(){
+        const scale=Math.min(window.devicePixelRatio||1,2);
+        if(document.fullscreenElement || document.body.classList.contains('playing')){
+          const w=window.innerWidth, h=window.innerHeight;
+          canvas.width=w*scale; canvas.height=h*scale;
+          canvas.style.width=w+'px'; canvas.style.height=h+'px';
+        } else {
+          canvas.width=960*scale; canvas.height=540*scale;
+          canvas.style.width='960px'; canvas.style.height='540px';
+        }
+        ctx.imageSmoothingEnabled=false;
+      };
+      window.addEventListener('resize', resizeForDPR);
+      resizeForDPR();
+
+    }
+    // --- Main game logic ---
+    function update(){
+      const now=performance.now();
+      const dt=(now-state.lastTime)/1000; state.lastTime=now;
+      state.frames++; state.fpsTime += dt; // accumulate real elapsed seconds
+      if(state.fpsTime >= 1){ hudPerf.textContent='FPS: '+state.frames; // adaptive pixelStep: if FPS low -> increase pixelStep, if high -> decrease
+        const measured = state.frames; state.frames=0; state.fpsTime=0;
+        // simple moving decision: increase if <45, decrease if >55
+        if(measured < 42 && state.pixelStep < 3){ state.pixelStep++; resizeForDPR(); toast('Auto: lower res'); }
+        else if(measured > 55 && state.pixelStep > 1){ state.pixelStep--; resizeForDPR(); toast('Auto: higher res'); }
+      }
+      // --- Movement ---
+      const moveDir=state.keys.w ? 1 : state.keys.s ? -1 : 0;
+      const strafeDir=state.keys.d ? 1 : state.keys.a ? -1 : 0;
+      const speed=state.jumping ? state.moveSpeed*0.6 : state.moveSpeed;
+      let newPx = state.px, newPy = state.py;
+      if(moveDir) {
+        const moveX = Math.cos(state.dir * Math.PI/180) * moveDir * speed * dt;
+        const moveY = Math.sin(state.dir * Math.PI/180) * moveDir * speed * dt;
+        newPx += moveX;
+        newPy += moveY;
+      }
+      if(strafeDir) {
+        const strafeX = Math.cos((state.dir + 90) * Math.PI/180) * strafeDir * speed * dt;
+        const strafeY = Math.sin((state.dir + 90) * Math.PI/180) * strafeDir * speed * dt;
+        newPx += strafeX;
+        newPy += strafeY;
+      }
+      // Check bounds and walls
+      if(newPx >= 1 && newPx < MAP_W-1 && newPy >= 1 && newPy < MAP_H-1){
+        const tile = map[Math.floor(newPy)]?.[Math.floor(newPx)];
+        if(tile !== '#'){
+          state.px = newPx;
+          state.py = newPy;
+        }
+      }
+      
+      // --- Check for nearby objects ---
+      checkObjectInteractions();
+      // --- View angle ---
+      if(state.keys.arrowleft) state.dir -= state.rotSpeed * dt;
+      else if(state.keys.arrowright) state.dir += state.rotSpeed * dt;
+      // Clamp pitch (up/down angle)
+      if(state.keys.arrowup) state.pitch -= state.rotSpeed * 0.8 * dt;
+      else if(state.keys.arrowdown) state.pitch += state.rotSpeed * 0.8 * dt;
+      if(state.pitch < -89) state.pitch=-89;
+      else if(state.pitch > 89) state.pitch=89;
+      // --- Jumping ---
+      if(state.keys.space) jump();
+      // --- Shooting (debug: toggle XP) ---
+      if(state.keys.enter) { state.xp += 10; toast('Gained 10 XP!'); }
+      // --- Update HUD ---
+      if(hudInfo){
+        const ammo=state.shootParticles.length;
+        hudInfo.textContent=`HP:100 Ammo:${ammo===0?'∞':ammo} XP:${state.xp}`;
+      }
+      
+      // --- Update compass and hydrogen fountain ---
+      updateCompass();
+      updateHydrogenFountain(dt);
+      // --- Particle update (simple gravity + fade out) ---
+      const gravity=14, drag=.98;
+      for(let i=state.shootParticles.length-1;i>=0;i--){
+        const p=state.shootParticles[i];
+        p.z += p.vz * dt; // vertical speed
+        p.vz -= gravity * dt; // apply gravity
+        p.x += Math.sin(p.angle) * 8 * dt; // horizontal drift
+        p.y += Math.cos(p.angle) * 8 * dt;
+        p.life -= dt;
+        if(p.life <= 0) { state.shootParticles.splice(i,1); continue; }
+        const f=1 - p.life * 0.7;
+        ctx.fillStyle=`rgba(255,255,255,${f})`;
+        ctx.strokeStyle=`rgba(255,255,255,${f})`;
+        ctx.lineWidth=2;
+        ctx.beginPath();
+        ctx.moveTo(p.x-3,p.y-3);
+        ctx.lineTo(p.x+3,p.y+3);
+        ctx.moveTo(p.x+3,p.y-3);
+        ctx.lineTo(p.x-3,p.y+3);
+        ctx.stroke();
+      }
+      // --- Room transition (debug: instant TP) ---
+      if(state.keys.t){
+        const roomIdx = Math.floor(Math.random() * stations.length);
+        const dest = stations[roomIdx];
+        if(dest){
+          state.px = dest.x + 0.5;
+          state.py = dest.y + 0.5;
+          toast('Teleported to room '+dest.sym);
+        }
+      }
+      // --- Render ---
+      render();
+    }
+
+    function render(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      const w=canvas.width, h=canvas.height;
+      // Sky and floor gradients
+      // Pitch is stored in degrees; convert to a bounded pixel shift to avoid extreme horizon jumps.
+      const pitchRad = state.pitch * Math.PI/180;
+      const pitchShift = Math.max(-h*0.45, Math.min(h*0.45, Math.tan(pitchRad) * (h*0.35)));
+      const horizon = h/2 + pitchShift - state.jumpZ*26;
+      const horizonClamped = Math.max(0, Math.min(h, horizon));
+      const sky=ctx.createLinearGradient(0,0,0,Math.max(1,horizonClamped)); sky.addColorStop(0,'#0d1f30'); sky.addColorStop(1,'#0a2638'); ctx.fillStyle=sky; ctx.fillRect(0,0,w,horizonClamped);
+      if(horizonClamped < h){ const fg=ctx.createLinearGradient(0,horizonClamped,0,h); fg.addColorStop(0,'#0e2028'); fg.addColorStop(1,'#09151d'); ctx.fillStyle=fg; ctx.fillRect(0,horizonClamped,w,h-horizonClamped); }
+
+      // Raycaster
+      const dirX = Math.cos(state.dir * Math.PI/180), dirY = Math.sin(state.dir * Math.PI/180);
+      const planeFov = 0.66; // FOV
+      const planeX = -dirY * planeFov, planeY = dirX * planeFov;
+      const cols = Math.floor(w / state.pixelStep);
+      for(let c = 0; c < cols; c++){
+        const cameraX = (2 * c / cols) - 1;
+        const rayDirX = dirX + planeX * cameraX;
+        const rayDirY = dirY + planeY * cameraX;
+        let mapX = Math.floor(state.px), mapY = Math.floor(state.py);
+        const deltaDistX = rayDirX === 0 ? 1e30 : Math.abs(1 / rayDirX);
+        const deltaDistY = rayDirY === 0 ? 1e30 : Math.abs(1 / rayDirY);
+        let stepX, stepY, sideDistX, sideDistY;
+        if(rayDirX < 0){ stepX = -1; sideDistX = (state.px - mapX) * deltaDistX; } else { stepX = 1; sideDistX = (mapX + 1.0 - state.px) * deltaDistX; }
+        if(rayDirY < 0){ stepY = -1; sideDistY = (state.py - mapY) * deltaDistY; } else { stepY = 1; sideDistY = (mapY + 1.0 - state.py) * deltaDistY; }
+        let hit = 0, side = 0;
+        while(hit === 0){
+          if(sideDistX < sideDistY){ sideDistX += deltaDistX; mapX += stepX; side = 0; } else { sideDistY += deltaDistY; mapY += stepY; side = 1; }
+          const tile = map[mapY]?.[mapX];
+          if(tile === '#' || !tile){ hit = 1; }
+        }
+        let perpWallDist = side === 0 ? (mapX - state.px + (1 - stepX)/2) / rayDirX : (mapY - state.py + (1 - stepY)/2) / rayDirY;
+        if(perpWallDist < 0.0002) perpWallDist = 0.0002;
+        // Let near walls overfill the screen; clip draw bounds instead of clamping the height.
+        const lineHeight = Math.min(h*4, Math.floor(h / perpWallDist));
+        const drawStartRaw = Math.floor(horizon - lineHeight/2);
+        const drawEndRaw = Math.floor(horizon + lineHeight/2);
+        const drawStart = Math.max(0, drawStartRaw);
+        const drawEnd = Math.min(h, drawEndRaw);
+        if(drawEnd <= drawStart) continue;
+        const color = wallColor(mapX, mapY, perpWallDist, side);
+        ctx.fillStyle = color;
+        ctx.fillRect(c * state.pixelStep, drawStart, state.pixelStep, drawEnd - drawStart);
+      }
+
+      // Draw particles as billboards
+      for(const p of state.shootParticles){
+        const dx = p.x - state.px, dy = p.y - state.py;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if(dist < 0.1) continue;
+        const angle = Math.atan2(dy, dx) - state.dir * Math.PI/180;
+        const screenX = Math.tan(angle) * (w / (2 * planeFov)) + w/2;
+        const screenSize = Math.min(20, h / dist);
+        const screenY = horizon - screenSize/2;
+        ctx.fillStyle = `rgba(255,255,255,${p.life})`;
+        ctx.fillRect(screenX - screenSize/2, screenY, screenSize, screenSize);
+      }
+
+      // Draw stations as sprites
+      for(const stat of stations){
+        const dx = stat.x - state.px, dy = stat.y - state.py;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if(dist < 0.1) continue;
+        const angle = Math.atan2(dy, dx) - state.dir * Math.PI/180;
+        const screenX = Math.tan(angle) * (w / (2 * planeFov)) + w/2;
+        const screenSize = Math.min(10, h / dist);
+        const screenY = horizon - screenSize/2;
+        ctx.fillStyle = '#22d3ee';
+        ctx.fillRect(screenX - screenSize/2, screenY, screenSize, screenSize);
+      }
+
+      // Draw lab objects (blackboards, equipment)
+      render3DObjects();
+
+      // Draw hydrogen fountain
+      renderHydrogenFountain();
+
+      // Render 3D hydrogen mini-view in info panel (if present)
+      renderHydrogen3D();
+
+      // Auto-show element panel only for Hydrogen (avoids noisy popups for all rooms)
+      if(stations && stations.length){
+        let nearest = null; let nd = Infinity;
+        for(const s of stations){ const dx = s.x - state.px, dy = s.y - state.py; const d = Math.sqrt(dx*dx + dy*dy); if(d < nd){ nd = d; nearest = s; } }
+        if(nearest && nearest.sym === 'H' && nd < 4){ showHydrogenPanel(nd); } else { hideHydrogenPanel(); }
+      }
+
+      // Draw minimap
+      renderMinimap();
+
+      if(hudPos){ hudPos.textContent=`X:${state.px.toFixed(2)} Y:${state.py.toFixed(2)}`; }
+    }
+
+    function render3DObjects() {
+      const w = canvas.width, h = canvas.height;
+      const pitchRad = state.pitch * Math.PI/180;
+      const pitchShift = Math.max(-h*0.45, Math.min(h*0.45, Math.tan(pitchRad) * (h*0.35)));
+      const horizon = h/2 + pitchShift - state.jumpZ*26;
+      const dirX = Math.cos(state.dir * Math.PI/180), dirY = Math.sin(state.dir * Math.PI/180);
+      const planeFov = 0.66;
+      const halfFov = Math.atan(planeFov);
+      const currentRoom = getRoomSymAt(state.px, state.py);
+
+      // Sort objects by distance for proper rendering order
+      const sortedObjects = [...labObjects].sort((a, b) => {
+        const distA = Math.sqrt((a.x - state.px)**2 + (a.y - state.py)**2);
+        const distB = Math.sqrt((b.x - state.px)**2 + (b.y - state.py)**2);
+        return distB - distA; // Render far objects first
+      });
+
+      for (const obj of sortedObjects) {
+        const dx = obj.x - state.px;
+        const dy = obj.y - state.py;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+
+        if (dist < 0.1) continue;
+
+        // Element boards must only render when the player is inside the designated element room.
+        if (obj.type === 'element-board') {
+          if (!currentRoom || currentRoom !== obj.room) continue;
+          if (dist > 7.5) continue;
+        } else {
+          // Other objects have a larger draw distance.
+          if (dist > 15) continue;
+        }
+        
+        // Simple angle calculation for field of view check
+        const angle = Math.atan2(dy, dx) - state.dir * Math.PI/180;
+        
+        // Keep object FOV roughly aligned with the raycaster to avoid off-screen popping.
+        if (Math.abs(angle) > (halfFov + 0.25)) continue;
+        
+        // Simple screen projection
+        const screenX = Math.tan(angle) * (w / (2 * planeFov)) + w/2;
+        
+        // Check if object is within screen bounds
+        if (screenX < -100 || screenX > w + 100) continue;
+        
+        // Simple perspective scaling
+        const perspectiveScale = Math.max(5, h / (dist * 2));
+        
+        if (obj.type === 'blackboard') {
+          render3DBlackboard(obj, screenX, horizon, perspectiveScale, dist, 0);
+        } else if (obj.type === 'element-board') {
+          render3DElementBoard(obj, screenX, horizon, perspectiveScale, dist, 0);
+        } else if (obj.type === 'equipment') {
+          render3DEquipment(obj, screenX, horizon, perspectiveScale, dist, 0);
+        }
+        
+        // Add interaction glow if nearby
+        if (state.nearObject === obj) {
+          ctx.strokeStyle = '#22d3ee';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.rect(
+            screenX - (obj.depth * perspectiveScale)/2 - 5,
+            horizon - (obj.height * perspectiveScale) - 5,
+            (obj.depth * perspectiveScale) + 10,
+            (obj.height * perspectiveScale) + 10
+          );
+          ctx.stroke();
+          
+          // Add pulsing effect
+          const pulse = Math.sin(performance.now() * 0.003) * 0.3 + 0.7;
+          ctx.shadowColor = '#22d3ee';
+          ctx.shadowBlur = 10 * pulse;
+          ctx.strokeStyle = `rgba(34, 211, 238, ${pulse})`;
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+        }
+      }
+    }
+
+    function render3DBlackboard(obj, screenX, horizon, scale, dist, rotation) {
+      // Simplified blackboard rendering - back to basics
+      const boardWidth = obj.depth * scale; // depth = width when viewed from front
+      const boardHeight = obj.height * scale;
+      
+      // Don't render if too far or too close
+      if (dist > 12 || dist < 0.2) return;
+      
+      // Simple fixed positioning - no complex rotation effects
+      const frameThickness = 8;
+      
+      // Wooden frame (outer rectangle)
+      ctx.fillStyle = obj.frameColor || '#8b7355';
+      ctx.fillRect(
+        screenX - boardWidth/2 - frameThickness, 
+        horizon - boardHeight - frameThickness, 
+        boardWidth + (frameThickness * 2), 
+        boardHeight + (frameThickness * 2)
+      );
+      
+      // Blackboard surface (inner rectangle)
+      ctx.fillStyle = obj.color || '#1a1a1a';
+      ctx.fillRect(
+        screenX - boardWidth/2, 
+        horizon - boardHeight, 
+        boardWidth, 
+        boardHeight
+      );
+      
+      // Add simple border for depth
+      ctx.strokeStyle = darkenColor(obj.frameColor || '#8b7355', 30);
+      ctx.lineWidth = 2;
+      ctx.strokeRect(
+        screenX - boardWidth/2, 
+        horizon - boardHeight, 
+        boardWidth, 
+        boardHeight
+      );
+      
+      // Add chalk text if close enough
+      if (obj.hasText && obj.text && dist < 8 && scale > 8) {
+        ctx.fillStyle = '#f0f0f0'; // Chalk white
+        ctx.font = `${Math.max(10, scale * 0.15)}px monospace`;
+        ctx.textAlign = 'center';
+        
+        const textStartY = horizon - boardHeight * 0.85;
+        const lineHeight = Math.max(12, scale * 0.2);
+        
+        obj.text.forEach((line, index) => {
+          ctx.fillText(
+            line, 
+            screenX, 
+            textStartY + (index * lineHeight)
+          );
+        });
+      }
+      
+      // Add chalk ledge at bottom
+      ctx.fillStyle = obj.frameColor || '#8b7355';
+      ctx.fillRect(
+        screenX - boardWidth/2, 
+        horizon - 5, 
+        boardWidth, 
+        6
+      );
+    }
+
+    function render3DElementBoard(obj, screenX, horizon, scale, dist, rotation) {
+      // Compact neon "element board" panel
+      const boardWidth = obj.depth * scale;
+      const boardHeight = obj.height * scale;
+      if (dist > 14 || dist < 0.2) return;
+
+      const frameThickness = 7;
+      const frame = obj.frameColor || '#22d3ee';
+
+      // Outer frame
+      ctx.fillStyle = frame;
+      ctx.globalAlpha = 0.25;
+      ctx.fillRect(
+        screenX - boardWidth/2 - frameThickness,
+        horizon - boardHeight - frameThickness,
+        boardWidth + (frameThickness * 2),
+        boardHeight + (frameThickness * 2)
+      );
+      ctx.globalAlpha = 1;
+
+      // Inner panel
+      const panelGrad = ctx.createLinearGradient(
+        screenX - boardWidth/2,
+        horizon - boardHeight,
+        screenX + boardWidth/2,
+        horizon
+      );
+      panelGrad.addColorStop(0, '#081224');
+      panelGrad.addColorStop(1, '#0b1a2e');
+      ctx.fillStyle = panelGrad;
+      ctx.fillRect(
+        screenX - boardWidth/2,
+        horizon - boardHeight,
+        boardWidth,
+        boardHeight
+      );
+
+      // Border
+      ctx.strokeStyle = frame;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(
+        screenX - boardWidth/2,
+        horizon - boardHeight,
+        boardWidth,
+        boardHeight
+      );
+
+      // Text content if close enough
+      if (dist < 10 && scale > 8) {
+        const sym = obj.elementSym || obj.room || '?';
+        const num = obj.elementNum || (elementDatabase[sym]?.atomicNumber ?? '—');
+        const name = elementDatabase[sym]?.name || `Element ${sym}`;
+
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#e6edf3';
+        ctx.shadowColor = frame;
+        ctx.shadowBlur = 10;
+        ctx.font = `${Math.max(14, scale * 0.22)}px system-ui, sans-serif`;
+        ctx.fillText(sym, screenX, horizon - boardHeight * 0.68);
+
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#9eb5c6';
+        ctx.font = `${Math.max(10, scale * 0.12)}px system-ui, sans-serif`;
+        ctx.fillText(`#${num}`, screenX, horizon - boardHeight * 0.52);
+        ctx.fillText(name, screenX, horizon - boardHeight * 0.32);
+
+        ctx.fillStyle = 'rgba(34,211,238,.85)';
+        ctx.font = `${Math.max(9, scale * 0.11)}px ui-monospace, SFMono-Regular, Menlo, monospace`;
+        ctx.fillText('Press E', screenX, horizon - boardHeight * 0.12);
+      }
+    }
+
+    function render3DEquipment(obj, screenX, horizon, scale, dist, rotation) {
+      const equipWidth = obj.width * scale;
+      const equipHeight = obj.height * scale;
+      const equipDepth = obj.depth * scale;
+      
+      // Apply rotation effect
+      const cosRot = Math.cos(rotation || 0);
+      const sinRot = Math.sin(rotation || 0);
+      
+      // Calculate visible dimensions based on rotation
+      const visibleWidth = Math.abs(equipWidth * cosRot) + Math.abs(equipDepth * sinRot * 0.3);
+      const depthEffect = equipDepth * cosRot * 0.4;
+      
+      // Main equipment cabinet
+      const cabinetGradient = ctx.createLinearGradient(
+        screenX - visibleWidth/2, horizon - equipHeight,
+        screenX + visibleWidth/2, horizon
+      );
+      cabinetGradient.addColorStop(0, darkenColor(obj.color, 20));
+      cabinetGradient.addColorStop(0.5, obj.color);
+      cabinetGradient.addColorStop(1, lightenColor(obj.color, 10));
+      
+      ctx.fillStyle = cabinetGradient;
+      ctx.fillRect(
+        screenX - visibleWidth/2, 
+        horizon - equipHeight, 
+        visibleWidth, 
+        equipHeight
+      );
+      
+      // Side panel (if visible)
+      if (Math.abs(depthEffect) > 2) {
+        ctx.fillStyle = darkenColor(obj.color, 35);
+        ctx.fillRect(
+          screenX + (depthEffect > 0 ? visibleWidth/2 : -visibleWidth/2 - Math.abs(depthEffect)),
+          horizon - equipHeight,
+          Math.abs(depthEffect),
+          equipHeight
+        );
+      }
+      
+      // Add equipment details if close enough and facing the right way
+      if (dist < 10 && cosRot > 0.3) {
+        // Microscope
+        ctx.fillStyle = '#333333';
+        ctx.fillRect(screenX - visibleWidth/3, horizon - equipHeight + 10, visibleWidth/8, equipHeight/3);
+        
+        // Beakers and flasks
+        ctx.fillStyle = '#4169e1';
+        ctx.beginPath();
+        ctx.arc(screenX + visibleWidth/4, horizon - equipHeight/2, visibleWidth/12, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.fillStyle = '#32cd32';
+        ctx.beginPath();
+        ctx.arc(screenX - visibleWidth/6, horizon - equipHeight/3, visibleWidth/15, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Control panels/buttons
+        ctx.fillStyle = '#ff4444';
+        ctx.fillRect(screenX + visibleWidth/6, horizon - equipHeight + 20, 4, 4);
+        ctx.fillStyle = '#44ff44';
+        ctx.fillRect(screenX + visibleWidth/6, horizon - equipHeight + 30, 4, 4);
+      }
+      
+      // Equipment rack shelves
+      ctx.fillStyle = darkenColor(obj.color, 25);
+      for (let i = 1; i < 4; i++) {
+        ctx.fillRect(
+          screenX - visibleWidth/2, 
+          horizon - (equipHeight * i / 4), 
+          visibleWidth, 
+          2
+        );
+        
+        // Shelf depth effect
+        if (Math.abs(depthEffect) > 1) {
+          ctx.fillStyle = darkenColor(obj.color, 40);
+          ctx.fillRect(
+            screenX + (depthEffect > 0 ? visibleWidth/2 : -visibleWidth/2 - Math.abs(depthEffect)),
+            horizon - (equipHeight * i / 4),
+            Math.abs(depthEffect),
+            2
+          );
+        }
+      }
+    }
+
+    function darkenColor(color, percent = 20) {
+      // Convert color to RGB and darken by percentage
+      if (color.startsWith('#')) {
+        const r = parseInt(color.substr(1, 2), 16);
+        const g = parseInt(color.substr(3, 2), 16);
+        const b = parseInt(color.substr(5, 2), 16);
+        
+        const factor = (100 - percent) / 100;
+        const newR = Math.floor(r * factor);
+        const newG = Math.floor(g * factor);
+        const newB = Math.floor(b * factor);
+        
+        return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
+      }
+      
+      // Fallback for named colors
+      if (color === '#8b4513') return '#5d2f0a'; // Darker brown
+      if (color === '#c0c0c0') return '#808080'; // Darker silver
+      if (color === '#1a1a1a') return '#000000'; // Darker black
+      return color;
+    }
+    
+    function lightenColor(color, percent = 20) {
+      // Convert color to RGB and lighten by percentage
+      if (color.startsWith('#')) {
+        const r = parseInt(color.substr(1, 2), 16);
+        const g = parseInt(color.substr(3, 2), 16);
+        const b = parseInt(color.substr(5, 2), 16);
+        
+        const factor = percent / 100;
+        const newR = Math.min(255, Math.floor(r + (255 - r) * factor));
+        const newG = Math.min(255, Math.floor(g + (255 - g) * factor));
+        const newB = Math.min(255, Math.floor(b + (255 - b) * factor));
+        
+        return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
+      }
+      
+      // Fallback for named colors
+      if (color === '#8b4513') return '#cd853f'; // Lighter brown
+      if (color === '#c0c0c0') return '#e0e0e0'; // Lighter silver
+      if (color === '#1a1a1a') return '#4a4a4a'; // Lighter black
+      return color;
+    }
+
+    function nextLevel() {
+      // Increase complexity level
+      if (state.complexityLevel < state.maxComplexity) {
+        state.complexityLevel++;
+        
+        // Apply complexity changes
+        applyComplexityLevel();
+        
+        // Update UI
+        updateComplexityDisplay();
+        
+        // Show notification
+        showLevelUpNotification();
+        
+        // Save to localStorage
+        localStorage.setItem('scienceLabComplexity', state.complexityLevel);
+      } else {
+        // Max level reached
+        showMaxLevelNotification();
+      }
+    }
+    
+    function applyComplexityLevel() {
+      // Increase difficulty based on complexity level
+      const level = state.complexityLevel;
+      
+      // Adjust movement parameters (higher levels = more challenging)
+      state.moveSpeed = 3.4 - (level - 1) * 0.2; // Slower movement at higher levels
+      state.rotSpeed = 2.4 - (level - 1) * 0.1; // Slower rotation
+      state.strafeSpeed = 3.2 - (level - 1) * 0.2; // Slower strafing
+      
+      // Adjust interaction range (smaller at higher levels)
+      state.interactionRange = 2.5 - (level - 1) * 0.2;
+      
+      // Adjust visual complexity
+      state.pixelStep = Math.min(level, 3); // Higher pixel steps for performance challenge
+      
+      // Increase number of particles/effects at higher levels
+      const maxParticles = 10 + (level - 1) * 5;
+      if (state.shootParticles.length > maxParticles) {
+        state.shootParticles = state.shootParticles.slice(0, maxParticles);
+      }
+    }
+    
+    function updateComplexityDisplay() {
+      const complexityElement = document.getElementById('complexityLevel');
+      if (complexityElement) {
+        complexityElement.textContent = `Level: ${state.complexityLevel}`;
+      }
+      
+      // Update button state
+      const nextLevelBtn = document.getElementById('nextLevelBtn');
+      if (nextLevelBtn) {
+        if (state.complexityLevel >= state.maxComplexity) {
+          nextLevelBtn.textContent = 'Max Level ✓';
+          nextLevelBtn.disabled = true;
+          nextLevelBtn.style.opacity = '0.6';
+        }
+      }
+    }
+    
+    function showLevelUpNotification() {
+      // Create temporary notification
+      const notification = document.createElement('div');
+      notification.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: linear-gradient(135deg, #22d3ee, #06b6d4);
+        color: white;
+        padding: 16px 24px;
+        border-radius: 8px;
+        font-size: 18px;
+        font-weight: 600;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        z-index: 10000;
+        animation: levelUpPulse 2s ease-out;
+      `;
+      notification.innerHTML = `
+        <div>🎯 Level Up!</div>
+        <div style="font-size: 14px; margin-top: 4px;">Complexity Level ${state.complexityLevel}</div>
+      `;
+      
+      // Add animation CSS
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes levelUpPulse {
+          0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+          20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+          100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+        }
+      `;
+      document.head.appendChild(style);
+      
+      document.body.appendChild(notification);
+      
+      // Remove after animation
+      setTimeout(() => {
+        document.body.removeChild(notification);
+        document.head.removeChild(style);
+      }, 2000);
+    }
+    
+    function showMaxLevelNotification() {
+      // Create temporary notification for max level
+      const notification = document.createElement('div');
+      notification.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        color: white;
+        padding: 16px 24px;
+        border-radius: 8px;
+        font-size: 18px;
+        font-weight: 600;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        z-index: 10000;
+        animation: maxLevelPulse 2s ease-out;
+      `;
+      notification.innerHTML = `
+        <div>🏆 Maximum Level Reached!</div>
+        <div style="font-size: 14px; margin-top: 4px;">Master of ScienceLab</div>
+      `;
+      
+      // Add animation CSS
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes maxLevelPulse {
+          0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+          20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+          100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+        }
+      `;
+      document.head.appendChild(style);
+      
+      document.body.appendChild(notification);
+      
+      // Remove after animation
+      setTimeout(() => {
+        document.body.removeChild(notification);
+        document.head.removeChild(style);
+      }, 2000);
+    }
+
+    function checkObjectInteractions() {
+      let closestObject = null;
+      let closestDist = Infinity;
+      
+      // Find the closest interactive object
+      for (const obj of labObjects) {
+        if (!obj.interactive) continue;
+        
+        const dx = obj.x - state.px;
+        const dy = obj.y - state.py;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        
+        if (dist < state.interactionRange && dist < closestDist) {
+          closestDist = dist;
+          closestObject = obj;
+        }
+      }
+      
+      // Update state
+      const wasNear = state.nearObject !== null;
+      state.nearObject = closestObject;
+      
+      // Show/hide interaction prompt
+      if (closestObject && !wasNear) {
+        showInteractionPrompt(closestObject);
+      } else if (!closestObject && wasNear) {
+        hideInteractionPrompt();
+      }
+    }
+
+  function showInteractionPrompt(obj) {
+      // Update or create interaction prompt in HUD
+      let promptDiv = document.getElementById('interaction-prompt');
+      if (!promptDiv) {
+        promptDiv = document.createElement('div');
+        promptDiv.id = 'interaction-prompt';
+        promptDiv.style.cssText = `
+          position: absolute;
+          bottom: 120px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: rgba(0, 0, 0, 0.8);
+          color: #22d3ee;
+          padding: 8px 16px;
+          border: 1px solid #22d3ee;
+          border-radius: 8px;
+          font-size: 0.8rem;
+          font-weight: 600;
+          text-align: center;
+          pointer-events: none;
+          z-index: 100;
+          animation: fadeIn 0.3s ease;
+        `;
+        document.querySelector('.game-shell').appendChild(promptDiv);
+      }
+      
+      const elementLabel = (obj.room && elementDatabase[obj.room]) ? ` · ${elementDatabase[obj.room].name}` : '';
+      promptDiv.innerHTML = `
+        <div style="margin-bottom: 4px;">${obj.name}${elementLabel}</div>
+        <div style="font-size: 0.7rem; opacity: 0.8;">Press E to interact</div>
+      `;
+      promptDiv.style.display = 'block';
+    }
+
+    function hideInteractionPrompt() {
+      const promptDiv = document.getElementById('interaction-prompt');
+      if (promptDiv) {
+        promptDiv.style.display = 'none';
+      }
+    }
+
+    function interactWithObject() {
+      if (!state.nearObject) return;
+      
+      const obj = state.nearObject;
+      
+      // If object is tied to an element (room marker), show element details
+      if (obj.room && elementDatabase[obj.room]) {
+        return showElementDetails(elementDatabase[obj.room], obj);
+      }
+      
+      // Fallback generic descriptions
+      if (obj.type === 'blackboard') {
+        showObjectDetails(obj, [
+          "Laboratory blackboard with scientific formulas.",
+          "Current lessons: Chemical equations and physics laws",
+          "The chalk dust still glimmers with recent use.",
+          "Knowledge preserved for future scientists."
+        ]);
+      } else if (obj.type === 'equipment') {
+        showObjectDetails(obj, [
+          "Scientific equipment rack containing precision instruments.",
+          "Contents: Microscopes, spectrophotometer, centrifuge",
+          "All equipment calibrated and ready for analysis.",
+          "Research grade: University level precision."
+        ]);
+      }
+    }
+
+    function showElementDetails(element, obj) {
+      // Create enhanced element info panel
+      let infoPanel = document.getElementById('object-info-panel');
+      if (!infoPanel) {
+        infoPanel = document.createElement('div');
+        infoPanel.id = 'object-info-panel';
+        infoPanel.style.cssText = `
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: linear-gradient(135deg, rgba(8, 18, 28, 0.98), rgba(15, 25, 35, 0.95));
+          border: 2px solid #22d3ee;
+          border-radius: 15px;
+          padding: 25px;
+          max-width: 520px;
+          max-height: 80vh;
+          overflow-y: auto;
+          color: #e6edf3;
+          font-size: 0.85rem;
+          line-height: 1.4;
+          z-index: 200;
+          animation: fadeIn 0.25s ease;
+          box-shadow: 0 10px 30px -10px rgba(0,0,0,0.8);
+        `;
+        document.querySelector('.game-shell').appendChild(infoPanel);
+      }
+      
+      infoPanel.innerHTML = `
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px;">
+          <div style="width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,#22d3ee,#06b6d4);display:flex;align-items:center;justify-content:center;color:#041019;font-weight:800;font-size:1.3rem;">${element.symbol}</div>
+          <div>
+            <h3 style="color:#22d3ee;margin:0;font-size:1.25rem;">${element.name}</h3>
+            <div style="margin-top:2px;color:#9ca3af;font-size:.78rem;">Atomic Number: ${element.atomicNumber} · Mass: ${element.atomicMass}</div>
+          </div>
+        </div>
+        <div style="margin-bottom:12px;">
+          <h4 style="color:#22d3ee;margin:0 0 6px;font-size:.92rem;">Description</h4>
+          <p style="margin:0;color:#d1d5db;">${element.description}</p>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div>
+            <h4 style="color:#22d3ee;margin:0 0 6px;font-size:.92rem;">Key Properties</h4>
+            <ul style="margin:0;padding-left:16px;color:#d1d5db;">
+              ${element.properties.slice(0,5).map(p=>`<li style=\"margin-bottom:4px;\">${p}</li>`).join('')}
+            </ul>
+          </div>
+          <div>
+            <h4 style="color:#22d3ee;margin:0 0 6px;font-size:.92rem;">Common Uses</h4>
+            <ul style="margin:0;padding-left:16px;color:#d1d5db;">
+              ${element.uses.slice(0,5).map(u=>`<li style=\"margin-bottom:4px;\">${u}</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+        <div style="margin-bottom:12px;">
+          <h4 style="color:#22d3ee;margin:0 0 6px;font-size:.92rem;">Key Reactions</h4>
+          <ul style="margin:0;padding-left:16px;color:#d1d5db;font-family:monospace;font-size:.8rem;">
+            ${element.chemicalReactions.slice(0,3).map(r=>`<li style=\"margin-bottom:4px;\">${r}</li>`).join('')}
+          </ul>
+        </div>
+        <div style="margin-bottom:12px;">
+          <h4 style="color:#ff9f43;margin:0 0 6px;font-size:.92rem;">Safety</h4>
+          <p style="margin:0;color:#fbbf24;font-size:.8rem;">${element.safetyInfo}</p>
+        </div>
+        <div>
+          <h4 style="color:#22d3ee;margin:0 0 6px;font-size:.92rem;">Did you know?</h4>
+          <ul style="margin:0;padding-left:16px;color:#d1d5db;">
+            ${element.interestingFacts.slice(0,2).map(f=>`<li style=\"margin-bottom:4px;\">${f}</li>`).join('')}
+          </ul>
+        </div>
+        <div style="text-align:center;margin-top:14px;font-size:.78rem;color:#9ca3af;border-top:1px solid rgba(34,211,238,.3);padding-top:10px;">Press E again to close</div>
+      `;
+      infoPanel.style.display = 'block';
+      state.objectPanelOpen = true;
+    }
+
+    function showObjectDetails(obj, details) {
+      // Create detailed info panel
+      let infoPanel = document.getElementById('object-info-panel');
+      if (!infoPanel) {
+        infoPanel = document.createElement('div');
+        infoPanel.id = 'object-info-panel';
+        infoPanel.style.cssText = `
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: rgba(8, 18, 28, 0.95);
+          border: 2px solid #22d3ee;
+          border-radius: 12px;
+          padding: 20px;
+          max-width: 400px;
+          color: #e6edf3;
+          font-size: 0.9rem;
+          line-height: 1.4;
+          z-index: 200;
+          animation: fadeIn 0.4s ease;
+        `;
+        document.querySelector('.game-shell').appendChild(infoPanel);
+      }
+      
+      infoPanel.innerHTML = `
+        <h3 style="color: #22d3ee; margin-bottom: 12px; font-size: 1.1rem;">${obj.name}</h3>
+        ${details.map(detail => `<p style="margin-bottom: 8px;">${detail}</p>`).join('')}
+        <div style="text-align: center; margin-top: 16px; font-size: 0.8rem; opacity: 0.8;">
+          Press E again to close
+        </div>
+      `;
+      infoPanel.style.display = 'block';
+      
+      // Set flag to close on next E press
+      state.objectPanelOpen = true;
+    }
+
+    function hideObjectDetails() {
+      const infoPanel = document.getElementById('object-info-panel');
+      if (infoPanel) {
+        infoPanel.style.display = 'none';
+      }
+      state.objectPanelOpen = false;
+    }
+
+    function renderMinimap(){
+      minimapCtx.clearRect(0,0,minimapCanvas.width,minimapCanvas.height);
+      const scale = minimapCanvas.width / MAP_W;
+      minimapCtx.fillStyle = '#0d1824';
+      minimapCtx.fillRect(0,0,minimapCanvas.width,minimapCanvas.height);
+      minimapCtx.fillStyle = '#163044';
+      for(let y=0;y<MAP_H;y++){
+        for(let x=0;x<MAP_W;x++){
+          if(map[y][x] === '.') minimapCtx.fillRect(x*scale, y*scale, scale, scale);
+        }
+      }
+      // Draw player
+      minimapCtx.fillStyle = '#ff0000';
+      minimapCtx.fillRect(state.px*scale - 2, state.py*scale - 2, 4, 4);
+
+      // Draw player direction
+      const ang = state.dir * Math.PI/180;
+      const ax = state.px*scale;
+      const ay = state.py*scale;
+      const len = 9;
+      minimapCtx.strokeStyle = '#ff6b6b';
+      minimapCtx.lineWidth = 2;
+      minimapCtx.beginPath();
+      minimapCtx.moveTo(ax, ay);
+      minimapCtx.lineTo(ax + Math.cos(ang)*len, ay + Math.sin(ang)*len);
+      minimapCtx.stroke();
+      // Draw stations
+      minimapCtx.fillStyle = '#22d3ee';
+      for(const stat of stations){
+        minimapCtx.fillRect(stat.x*scale - 1, stat.y*scale - 1, 2, 2);
+      }
+      
+      // Draw laboratory objects
+      minimapCtx.fillStyle = '#ff9f43'; // Orange for objects
+      for(const obj of labObjects){
+        minimapCtx.fillRect(obj.x*scale - 1, obj.y*scale - 1, 2, 2);
+      }
+    }
+
+    // --- Input handling ---
+    function onKeyDown(e){
+      if(e.repeat) return;
+      const key=e.key.toLowerCase();
+      if(key==='f11') { e.preventDefault(); toggleMenu(); return; }
+      if(key==='escape') {
+        if(running){
+          if(paused) resumeGame();
+          else pauseGame();
+        } else {
+          showStartMenu();
+        }
+        return;
+      }
+      if(running && !paused){
+        if(key==='w') state.keys.w=true;
+        else if(key==='s') state.keys.s=true;
+        else if(key==='a') state.keys.a=true;
+        else if(key==='d') state.keys.d=true;
+        else if(key==='arrowup') state.keys.arrowup=true;
+        else if(key==='arrowdown') state.keys.arrowdown=true;
+        else if(key==='arrowleft') state.keys.arrowleft=true;
+        else if(key==='arrowright') state.keys.arrowright=true;
+        else if(key===' ') state.keys.space=true;
+        else if(key==='t') state.keys.t=true;
+        else if(key==='enter') state.keys.enter=true;
+        else if(key==='e') { 
+          // Object interaction
+          if (state.objectPanelOpen) {
+            hideObjectDetails();
+          } else {
+            interactWithObject();
+          }
+        }
+      } else {
+        if(key==='arrowup') state.keys.arrowup=true;
+        else if(key==='arrowdown') state.keys.arrowdown=true;
+        else if(key==='arrowleft') state.keys.arrowleft=true;
+        else if(key==='arrowright') state.keys.arrowright=true;
+      }
+    }
+    function onKeyUp(e){
+      const key=e.key.toLowerCase();
+      if(running){
+        if(key==='w') state.keys.w=false;
+        else if(key==='s') state.keys.s=false;
+        else if(key==='a') state.keys.a=false;
+        else if(key==='d') state.keys.d=false;
+        else if(key==='arrowup') state.keys.arrowup=false;
+        else if(key==='arrowdown') state.keys.arrowdown=false;
+        else if(key==='arrowleft') state.keys.arrowleft=false;
+        else if(key==='arrowright') state.keys.arrowright=false;
+        else if(key===' ') state.keys.space=false;
+        else if(key==='t') state.keys.t=false;
+        else if(key==='enter') state.keys.enter=false;
+      }
+    }
+    function onMouseMove(e){
+      if(!running || paused) return;
+      if(e.movementX !== undefined && e.movementY !== undefined){
+        // Pointer lock movement with configurable sensitivity
+        const yMult = state.invY ? 1 : -1; // Inverted: forward mouse = look up
+        state.dir += e.movementX * state.mouseSensitivity; // X-axis not affected by invert
+        state.pitch += e.movementY * state.mouseSensitivity * yMult; // Y-axis inverted by default
+        state.pitch = Math.max(-89, Math.min(89, state.pitch));
+      }
+    }
+    function onMouseDown(e){
+      if(!running || paused) return;
+      // If pointer lock was lost (ESC / OS gesture), reacquire on click first.
+      if(document.pointerLockElement !== canvas){
+        try { canvas.requestPointerLock?.(); } catch(e) {}
+        return;
+      }
+      if(e.button===0){
+        // Shoot particle
+        state.shootParticles.push({
+          x: state.px,
+          y: state.py,
+          z: state.jumpZ + 0.5,
+          vz: 2,
+          angle: state.dir * Math.PI/180,
+          life: 1.5
+        });
+        toast('Pew!', 800);
+      }
+    }
+    function onMouseUp(e){
+      if(e.button===0) state.keys.enter=false;
+    }
+
+    // Add event listeners
+    document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('keyup', onKeyUp);
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mousedown', onMouseDown);
+    document.addEventListener('mouseup', onMouseUp);
+
+    // --- Pointer lock helpers ---
+    function lockPointer(){
+      if(document.body.classList.contains('playing')){
+        canvas.requestPointerLock?.();
+        document.body.requestPointerLock?.();
+      }
+    }
+    function unlockPointer(){
+      document.exitPointerLock?.();
+    }
+
+    // --- Overlay focus fix (ensure canvas is focusable) ---
+    overlay.addEventListener('focusin',()=>{
+      setTimeout(()=>{ canvas.focus(); },50);
+    });
+
+    // --- Game loop ---
+    function loop(){
+      if(!running) return;
+      if(paused){
+        // Prevent dt spikes when resuming.
+        state.lastTime = performance.now();
+        rafId=requestAnimationFrame(loop);
+        return;
+      }
+      update();
+      rafId=requestAnimationFrame(loop);
+    }
+
+    function hideOverlayImmediate(){
+      // Prevent aria-hidden focus conflict: move focus to canvas/body first
+      if(overlay.contains(document.activeElement)){
+        try { canvas.focus(); } catch(e) {}
+        try { document.activeElement && document.activeElement.blur && document.activeElement.blur(); } catch(e){}
+      }
+      overlay.classList.add('hidden-force');
+      overlay.setAttribute('aria-hidden','true');
+      overlay.removeAttribute('aria-modal');
+    }
+    function showOverlay(){
+      overlay.classList.remove('hidden-force');
+      overlay.removeAttribute('aria-hidden');
+      overlay.setAttribute('aria-modal','true');
+    }
+    async function startGame(){
+
+      if(running) return;
+      hideAllMenus();
+      hideOverlayImmediate();
+      document.body.classList.add('playing');
+      magicLayer.classList.add('show'); magicLayer.removeAttribute('aria-hidden'); spawnOrbs();
+      
+      // Load saved complexity level
+      const savedComplexity = localStorage.getItem('scienceLabComplexity');
+      if (savedComplexity) {
+        state.complexityLevel = Math.min(parseInt(savedComplexity), state.maxComplexity);
+      }
+      
+      // Apply complexity settings and update display
+      applyComplexityLevel();
+      updateComplexityDisplay();
+      
+      // Show helmet HUD instead of old HUD
+      helmetHudTop.hidden=false; helmetHudBottom.hidden=false; crosshair.hidden=false; 
+      hud.hidden=true; // Hide old HUD
+
+      // Touch controls on mobile
+      if(isTouchDevice && touchControls){
+        touchControls.classList.add('show');
+        touchControls.setAttribute('aria-hidden','false');
+      }
+      
+      paused=false;
+      running=true; state.lastTime=performance.now(); state.fpsTime=0; state.frames=0; 
+      toast('WASD • Mouse look • ESC pause • Helmet HUD active');
+      // request pointer lock synchronously (gesture chain) then enter fullscreen
+      try { canvas.requestPointerLock && canvas.requestPointerLock(); } catch(e){}
+      try { await enterFullscreen(); } catch(e) { console.warn('Fullscreen denied',e); }
+      resizeForDPR();
+      render();
+      loop();
+    }
+    function stopGame(){
+      running=false; cancelAnimationFrame(rafId); 
+      paused=false;
+      helmetHudTop.hidden=true; helmetHudBottom.hidden=true; crosshair.hidden=true;
+      hud.hidden=true;
+      document.body.classList.remove('playing');
+      magicLayer.classList.remove('show'); magicLayer.setAttribute('aria-hidden','true');
+      unlockPointer();
+      if(touchControls){
+        touchControls.classList.remove('show');
+        touchControls.setAttribute('aria-hidden','true');
+      }
+      showStartMenu();
+      overlay.classList.add('hidden-force');
+      resizeForDPR();
+    }
+    function toggleMenu(){ if(!running){ startGame(); } else { stopGame(); } }
+
+    // Safe fullscreen helper (re-added to prevent ReferenceError halting loop)
+    async function enterFullscreen(){
+      if(!document.fullscreenElement){
+        try {
+          await document.documentElement.requestFullscreen();
+        } catch(e) {
+          console.warn('Fullscreen request failed:', e);
+        }
+      }
+    }    // Fullscreen change -> ensure pointer lock if running
+    document.addEventListener('fullscreenchange',()=>{ resizeForDPR(); if(running) lockPointer(); });
+
+    // Remove cloning (caused loss of listener & potential TDZ issues)
+    btnStart.addEventListener('click', showStartMenu);
+    btnFS.addEventListener('click',()=>{ const el=document.documentElement; if(!document.fullscreenElement){ el.requestFullscreen?.(); } else { document.exitFullscreen?.(); }});
+    btnInvert.addEventListener('click',()=>{
+      state.invY=!state.invY;
+      gameConfig.invertY=state.invY;
+      btnInvert.textContent='Invert Y: '+(state.invY?'On':'Off');
+      updateConfigDisplay();
+    });
+
+    // === Start Menu System ===
+    const startMenuOverlay = document.getElementById('startMenuOverlay');
+    const configMenuOverlay = document.getElementById('configMenuOverlay');
+    const controlsMenuOverlay = document.getElementById('controlsMenuOverlay');
+    const aboutMenuOverlay = document.getElementById('aboutMenuOverlay');
+    
+    // Configuration state
+    const gameConfig = {
+      mouseSensitivity: 'Normal', // Low, Normal, High, Ultra
+      invertY: false,
+      graphicsQuality: 'High', // Low, Medium, High, Ultra
+      audioVolume: 100
+    };
+
+    function saveConfig(){
+      try{
+        localStorage.setItem(CONFIG_KEY, JSON.stringify(gameConfig));
+      }catch(e){
+        // ignore
+      }
+    }
+
+    function loadConfig(){
+      try{
+        const raw=localStorage.getItem(CONFIG_KEY);
+        if(!raw) return;
+        const saved=JSON.parse(raw);
+        if(saved && typeof saved==='object'){
+          if(saved.mouseSensitivity) gameConfig.mouseSensitivity=saved.mouseSensitivity;
+          if(typeof saved.invertY==='boolean') gameConfig.invertY=saved.invertY;
+          if(saved.graphicsQuality) gameConfig.graphicsQuality=saved.graphicsQuality;
+          if(Number.isFinite(saved.audioVolume)) gameConfig.audioVolume=Math.max(0,Math.min(100, saved.audioVolume));
+        }
+      }catch(e){
+        console.warn('[config] load failed', e);
+      }
+    }
+
+    function showStartMenu() {
+      hideAllMenus();
+      startMenuOverlay.classList.remove('hidden-force');
+      startMenuOverlay.setAttribute('aria-hidden', 'false');
+    }
+
+    function hideAllMenus() {
+      [startMenuOverlay, configMenuOverlay, controlsMenuOverlay, aboutMenuOverlay]
+        .forEach(menu => {
+          menu.classList.add('hidden-force');
+          menu.setAttribute('aria-hidden', 'true');
+        });
+    }
+
+    function backToStartMenu() {
+      hideAllMenus();
+      if(running){
+        // If we're in-game, Back should return to the pause menu.
+        setPauseOverlayVisible(true);
+        return;
+      }
+      showStartMenu();
+    }
+
+    // Start Menu Button Handlers
+    document.getElementById('btnPlayNow')?.addEventListener('click', () => {
+      hideAllMenus();
+      startGame();
+    });
+
+    document.getElementById('btnConfig')?.addEventListener('click', () => {
+      hideAllMenus();
+      configMenuOverlay.classList.remove('hidden-force');
+      configMenuOverlay.setAttribute('aria-hidden', 'false');
+      updateConfigDisplay();
+    });
+
+    document.getElementById('btnControls')?.addEventListener('click', () => {
+      hideAllMenus();
+      controlsMenuOverlay.classList.remove('hidden-force');
+      controlsMenuOverlay.setAttribute('aria-hidden', 'false');
+    });
+
+    document.getElementById('btnAbout')?.addEventListener('click', () => {
+      hideAllMenus();
+      aboutMenuOverlay.classList.remove('hidden-force');
+      aboutMenuOverlay.setAttribute('aria-hidden', 'false');
+    });
+
+    // Configuration Menu Handlers
+    document.getElementById('mouseSensDown')?.addEventListener('click', () => {
+      const levels = ['Low', 'Normal', 'High', 'Ultra'];
+      const current = levels.indexOf(gameConfig.mouseSensitivity);
+      gameConfig.mouseSensitivity = levels[Math.max(0, current - 1)];
+      updateConfigDisplay();
+    });
+
+    document.getElementById('mouseSensUp')?.addEventListener('click', () => {
+      const levels = ['Low', 'Normal', 'High', 'Ultra'];
+      const current = levels.indexOf(gameConfig.mouseSensitivity);
+      gameConfig.mouseSensitivity = levels[Math.min(levels.length - 1, current + 1)];
+      updateConfigDisplay();
+    });
+
+    document.getElementById('invertYToggle')?.addEventListener('click', () => {
+      gameConfig.invertY = !gameConfig.invertY;
+      state.invY = gameConfig.invertY;
+      updateConfigDisplay();
+    });
+
+    document.getElementById('qualityDown')?.addEventListener('click', () => {
+      const levels = ['Low', 'Medium', 'High', 'Ultra'];
+      const current = levels.indexOf(gameConfig.graphicsQuality);
+      gameConfig.graphicsQuality = levels[Math.max(0, current - 1)];
+      updateConfigDisplay();
+    });
+
+    document.getElementById('qualityUp')?.addEventListener('click', () => {
+      const levels = ['Low', 'Medium', 'High', 'Ultra'];
+      const current = levels.indexOf(gameConfig.graphicsQuality);
+      gameConfig.graphicsQuality = levels[Math.min(levels.length - 1, current + 1)];
+      updateConfigDisplay();
+    });
+
+    document.getElementById('volumeDown')?.addEventListener('click', () => {
+      gameConfig.audioVolume = Math.max(0, gameConfig.audioVolume - 10);
+      updateConfigDisplay();
+    });
+
+    document.getElementById('volumeUp')?.addEventListener('click', () => {
+      gameConfig.audioVolume = Math.min(100, gameConfig.audioVolume + 10);
+      updateConfigDisplay();
+    });
+
+    document.getElementById('configBack')?.addEventListener('click', backToStartMenu);
+    document.getElementById('configPlay')?.addEventListener('click', () => {
+      hideAllMenus();
+      startGame();
+    });
+
+    // Controls Menu Handlers
+    document.getElementById('controlsBack')?.addEventListener('click', backToStartMenu);
+    document.getElementById('controlsPlay')?.addEventListener('click', () => {
+      hideAllMenus();
+      startGame();
+    });
+
+    // About Menu Handlers
+    document.getElementById('aboutBack')?.addEventListener('click', backToStartMenu);
+    document.getElementById('aboutPlay')?.addEventListener('click', () => {
+      hideAllMenus();
+      startGame();
+    });
+
+    function updateConfigDisplay(shouldSave=true) {
+      document.getElementById('mouseSensValue').textContent = gameConfig.mouseSensitivity;
+      document.getElementById('invertYToggle').textContent = gameConfig.invertY ? 'On' : 'Off';
+      document.getElementById('qualityValue').textContent = gameConfig.graphicsQuality;
+      document.getElementById('volumeValue').textContent = gameConfig.audioVolume + '%';
+      
+      // Apply mouse sensitivity
+      const sensMap = { 'Low': 0.04, 'Normal': 0.08, 'High': 0.12, 'Ultra': 0.16 };
+      // Store for use in mouse movement handler
+      state.mouseSensitivity = sensMap[gameConfig.mouseSensitivity] || 0.08;
+      
+      // Apply graphics quality
+      // pixelStep must be an integer (column step). Higher = lower resolution.
+      const qualityMap = { 'Ultra': 1, 'High': 1, 'Medium': 2, 'Low': 3 };
+      state.pixelStep = qualityMap[gameConfig.graphicsQuality] || 1;
+
+      // Apply invert
+      state.invY = !!gameConfig.invertY;
+      btnInvert.textContent='Invert Y: '+(state.invY?'On':'Off');
+
+      if(shouldSave) saveConfig();
+    }
+
+    // === Pause Menu System ===
+    function setPauseOverlayVisible(visible){
+      if(!pauseMenuOverlay) return;
+      if(visible){
+        pauseMenuOverlay.classList.remove('hidden-force');
+        pauseMenuOverlay.setAttribute('aria-hidden','false');
+        pauseMenuOverlay.setAttribute('aria-modal','true');
+      } else {
+        pauseMenuOverlay.classList.add('hidden-force');
+        pauseMenuOverlay.setAttribute('aria-hidden','true');
+        pauseMenuOverlay.removeAttribute('aria-modal');
+      }
+    }
+
+    function pauseGame(){
+      if(!running) return;
+      paused=true;
+      // Prevent movement sticking after resume.
+      for(const k in state.keys) state.keys[k]=false;
+      hideObjectDetails();
+      if(elementInfoPanel) elementInfoPanel.hidden = true;
+      unlockPointer();
+      setPauseOverlayVisible(true);
+      if(isTouchDevice && touchControls){
+        touchControls.classList.remove('show');
+        touchControls.setAttribute('aria-hidden','true');
+      }
+      toast('Paused', 900);
+    }
+
+    function resumeGame(){
+      if(!running) return;
+
+      // If a menu (config/controls/about/start) is open while paused, ESC acts as "back".
+      const anyMenuOpen = [startMenuOverlay, configMenuOverlay, controlsMenuOverlay, aboutMenuOverlay]
+        .some(m => m && !m.classList.contains('hidden-force'));
+      if(anyMenuOpen){
+        hideAllMenus();
+        setPauseOverlayVisible(true);
+        return;
+      }
+
+      setPauseOverlayVisible(false);
+      paused=false;
+      state.lastTime = performance.now();
+      if(isTouchDevice && touchControls){
+        touchControls.classList.add('show');
+        touchControls.setAttribute('aria-hidden','false');
+      }
+      lockPointer();
+      toast('Resumed', 650);
+    }
+
+    btnResume?.addEventListener('click', resumeGame);
+    btnPauseSettings?.addEventListener('click', () => {
+      if(!running) return;
+      paused=true;
+      setPauseOverlayVisible(false);
+      hideAllMenus();
+      configMenuOverlay.classList.remove('hidden-force');
+      configMenuOverlay.setAttribute('aria-hidden', 'false');
+      updateConfigDisplay();
+    });
+    btnExitToMenu?.addEventListener('click', () => {
+      if(!running) return;
+      setPauseOverlayVisible(false);
+      stopGame();
+    });
+
+    function setupTouchControls(){
+      if(!isTouchDevice || !touchControls || !touchJoystick || !touchKnob || !touchLook) return;
+
+      let joyTouchId=null;
+      let joyCenter=null;
+      let joyVec={x:0,y:0};
+      const maxR=52;
+
+      function setKeysFromJoy(){
+        const dead=0.22;
+        const x=joyVec.x, y=joyVec.y;
+        state.keys.w = (y < -dead);
+        state.keys.s = (y > dead);
+        state.keys.a = (x < -dead);
+        state.keys.d = (x > dead);
+      }
+
+      function resetJoy(){
+        joyVec={x:0,y:0};
+        touchKnob.style.transform='translate(0,0)';
+        if(running){
+          state.keys.w=false; state.keys.a=false; state.keys.s=false; state.keys.d=false;
+        }
+      }
+
+      touchJoystick.addEventListener('touchstart',(e)=>{
+        if(!running || paused) return;
+        const t=[...e.changedTouches][0];
+        joyTouchId=t.identifier;
+        const rect=touchJoystick.getBoundingClientRect();
+        joyCenter={x:rect.left+rect.width/2, y:rect.top+rect.height/2};
+        e.preventDefault();
+      }, {passive:false});
+
+      touchJoystick.addEventListener('touchmove',(e)=>{
+        if(!running || paused) return;
+        const t=[...e.changedTouches].find(tt=>tt.identifier===joyTouchId);
+        if(!t || !joyCenter) return;
+        const dx=t.clientX-joyCenter.x;
+        const dy=t.clientY-joyCenter.y;
+        const len=Math.hypot(dx,dy) || 1;
+        const clamped=Math.min(maxR, len);
+        const nx=dx/len, ny=dy/len;
+        const px=nx*clamped, py=ny*clamped;
+        touchKnob.style.transform=`translate(${px}px,${py}px)`;
+        joyVec={x:px/maxR, y:py/maxR};
+        setKeysFromJoy();
+        e.preventDefault();
+      }, {passive:false});
+
+      touchJoystick.addEventListener('touchend',(e)=>{
+        const t=[...e.changedTouches].find(tt=>tt.identifier===joyTouchId);
+        if(!t) return;
+        joyTouchId=null; joyCenter=null;
+        resetJoy();
+      }, {passive:false});
+      touchJoystick.addEventListener('touchcancel',(e)=>{
+        const t=[...e.changedTouches].find(tt=>tt.identifier===joyTouchId);
+        if(!t) return;
+        joyTouchId=null; joyCenter=null;
+        resetJoy();
+      }, {passive:false});
+
+      // Look zone swipe
+      let lookTouchId=null;
+      let lastLook=null;
+      const lookSens=1.35; // multiplier relative to mouse sensitivity
+      touchLook.addEventListener('touchstart',(e)=>{
+        if(!running || paused) return;
+        const t=[...e.changedTouches][0];
+        lookTouchId=t.identifier;
+        lastLook={x:t.clientX,y:t.clientY};
+        e.preventDefault();
+      }, {passive:false});
+
+      touchLook.addEventListener('touchmove',(e)=>{
+        if(!running || paused) return;
+        const t=[...e.changedTouches].find(tt=>tt.identifier===lookTouchId);
+        if(!t || !lastLook) return;
+        const dx=t.clientX-lastLook.x;
+        const dy=t.clientY-lastLook.y;
+        lastLook={x:t.clientX,y:t.clientY};
+        const yMult = state.invY ? 1 : -1;
+        state.dir += dx * state.mouseSensitivity * lookSens;
+        state.pitch += dy * state.mouseSensitivity * lookSens * yMult;
+        state.pitch = Math.max(-89, Math.min(89, state.pitch));
+        e.preventDefault();
+      }, {passive:false});
+      touchLook.addEventListener('touchend',(e)=>{
+        const t=[...e.changedTouches].find(tt=>tt.identifier===lookTouchId);
+        if(!t) return;
+        lookTouchId=null; lastLook=null;
+      }, {passive:false});
+      touchLook.addEventListener('touchcancel',(e)=>{
+        const t=[...e.changedTouches].find(tt=>tt.identifier===lookTouchId);
+        if(!t) return;
+        lookTouchId=null; lastLook=null;
+      }, {passive:false});
+
+      // Buttons
+      if(btnTouchJump){
+        btnTouchJump.addEventListener('touchstart',(e)=>{ if(!running || paused) return; state.keys.space=true; e.preventDefault(); }, {passive:false});
+        btnTouchJump.addEventListener('touchend',(e)=>{ state.keys.space=false; e.preventDefault(); }, {passive:false});
+        btnTouchJump.addEventListener('touchcancel',(e)=>{ state.keys.space=false; e.preventDefault(); }, {passive:false});
+      }
+      if(btnTouchInteract){
+        btnTouchInteract.addEventListener('touchstart',(e)=>{
+          if(!running || paused) return;
+          if(state.objectPanelOpen) hideObjectDetails(); else interactWithObject();
+          e.preventDefault();
+        }, {passive:false});
+      }
+    }
+
+    // Load config and prefer the new start menu overlay at startup
+    loadConfig();
+    updateConfigDisplay(false);
+    setupTouchControls();
+    showStartMenu();
+    overlay.classList.add('hidden-force');
+
+    // Hash autostart support
+    if(location.hash.includes('autostart')){ setTimeout(()=>{ hideAllMenus(); startGame(); }, 350); }
+
+    const shell=document.getElementById('gameShell');
+    let magicSpawned=false;
+    function spawnOrbs(count=14){
+      if(magicSpawned || !magicLayer) return; 
+      magicSpawned=true;
+      for(let i=0;i<count;i++){
+        const orb=document.createElement('div');
+        orb.className='orb'+(i%3===0?' orb-alt':'');
+        const x=Math.random()*90+5; const y=Math.random()*80+10; const delay=Math.random()*12; const dur=10+Math.random()*10;
+        orb.style.left=x+'%'; orb.style.top=y+'%'; orb.style.animationDuration=dur+'s'; orb.style.animationDelay='-'+delay+'s';
+        magicLayer.appendChild(orb);
+      }
+    }
+    // Remove immediate orb spawn; now deferred to startGame()
+    // spawnOrbs();
+    // Make buttons pulse magical
+    document.getElementById('btnStart')?.classList.add('magic-pulse');
+    document.getElementById('btnFS')?.classList.add('magic-pulse');
+    window.addEventListener('load',()=>console.log('[maze] script ready, btnStart present?', !!btnStart));
+
+    // Wall color function for shading
+    function wallColor(mapX, mapY, dist, side){
+      // Subtle neon-lab shading: nearby walls brighter, far walls darker and less saturated.
+      const fog = Math.min(1, dist / 12);
+      const hue = side ? 196 : 202;
+      const sat = Math.max(10, 26 - dist*1.6);
+      const base = (82 - Math.min(62, dist*5.0)) * (side ? 0.88 : 1.0);
+      const light = base * (1 - fog*0.08);
+      return `hsl(${hue},${sat}%,${light}%)`;
+    }
+  })();
+  </script>
+</body>
+</html>

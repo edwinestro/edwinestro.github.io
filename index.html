@@ -3,152 +3,363 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Frosted Matrix Horizon</title>
-        <link rel="stylesheet" href="style.css" />
+        <title>Edwin Estro — Gaming AI Development</title>
+        <meta
+            name="description"
+            content="Gaming AI Development workspace: a playable lab of game prototypes + AI agents + experiments (curated by Edwin Estro)."
+        />
+        <meta name="theme-color" content="#0a1020" />
+        <meta property="og:title" content="Edwin Estro — Gaming AI Development" />
+        <meta property="og:description" content="A playable workspace for game prototypes, agent experiments, and end-to-end ship-it engineering." />
+        <meta property="og:type" content="website" />
+        <link rel="preload" as="image" href="assets/img/edw.jpg" />
+        <link rel="stylesheet" href="assets/css/home.css" />
     </head>
     <body>
-        <canvas id="immersion"></canvas>
-        <nav class="nav-bar">
-            <div class="nav-logo">Azure Frost Layer</div>
-            <div class="nav-links">
-                <a href="#hero">Overview</a>
-                <a href="#profile">Profile</a>
-                <a href="#games">Games Blog</a>
-                <a href="#support">Support</a>
+        <canvas id="immersion" aria-hidden="true"></canvas>
+
+        <header class="nav" role="banner">
+            <div class="nav-inner container">
+                <div class="brand" aria-label="Site brand">
+                    <img class="brand-mark" src="assets/img/edw.jpg" alt="Edwin Estro with a mustache" />
+                    <div class="brand-text">
+                        <div class="brand-title">Gaming AI Development</div>
+                        <div class="brand-sub">Edwin Estro · games, agents, experiments</div>
+                    </div>
+                </div>
+
+                <nav class="navlinks" aria-label="Primary">
+                    <a href="#drops">Latest drops</a>
+                    <a href="#explore">Explore</a>
+                    <a href="#quality">Quality</a>
+                    <a href="#support">Support</a>
+                    <a class="btn primary" href="Projects/hubs/science-lab/index.html?mode=play&launch=featured&fs=1">Enter Science Lab</a>
+                </nav>
             </div>
-        </nav>
+        </header>
+
         <main>
-            <section id="hero" class="page-shell">
-                <header class="hero">
-                <p class="tagline">Cooling visions of a wintery Azure development interface</p>
-                <h1>Azure Frosted Development</h1>
-                <p>
-                    Peer through the icy glass into a world of misty glyphs and luminous data streams
-                    while Azure keeps every shard of that frost-formed intelligence secure.
-                </p>
-                <div class="hero-actions">
-                    <a
-                        class="azure-button"
-                        href="https://azure.microsoft.com/en-us/develop/"
-                        target="_blank"
-                        rel="noreferrer"
-                    >
-                        Azure Frost Layer Portal
-                        <span>Launch the trusted console</span>
-                    </a>
-                    <a
-                        class="mslearn-button"
-                        href="https://learn.microsoft.com/en-us/training/browse/?products=azure&terms=iot"
-                        target="_blank"
-                        rel="noreferrer"
-                    >
-                        Random MS Learn Article
-                        <span>Explore a new Azure lesson</span>
-                    </a>
-                </div>
-            </header>
-            <figure class="hero-media">
-                <img src="azure-trust-layer.svg" alt="Azure Frost Layer interface illustration" />
-                <figcaption>
-                    Azure Frost Layer interface, quietly tracing every frosted signal without
-                    disturbing the glass.
-                </figcaption>
-            </figure>
-            </section>
-            <section id="profile" class="profile-card">
-            <div class="profile-art">
-                <img src="edwin.png" alt="Edwin Estro" />
-            </div>
-            <div class="profile-copy">
-                <p class="eyebrow">Azure-inspired Creator</p>
-                <h2>Edwin Estro</h2>
-                <p>
-                    Developer and designer building secure experiences with the Azure trust layer mindset.
-                    I blend calm order with cold data flows, keeping every interaction clear, inclusive, and resilient.
-                </p>
-                <dl>
-                    <dt>Focus</dt>
-                    <dd>Cloud-native automation, responsible AI, and frost-patterned interfaces.</dd>
-                    <dt>Availability</dt>
-                    <dd>Available for collaborations that uplift people through trustworthy tech.</dd>
-                </dl>
-            </div>
-            </section>
-            <section id="games" class="games-section">
-                <header class="games-header">
-                    <p class="eyebrow">Games Prototyping Blog</p>
-                    <h2>Layered Playtests &amp; Experimental Systems</h2>
-                    <p>
-                        Every entry here is a video-game-focused log of prototypes, mechanics, and narrative experiments
-                        that pair Azure-grade trust with a playful spark. Scroll to see the freshest drafts and systems notes.
-                    </p>
-                </header>
-                <div class="games-grid">
-                    <article class="game-card">
-                        <div class="game-card-header">
-                            <span>01</span>
-                            <h3>Thermal Drift</h3>
-                        </div>
-                        <p>
-                            A cold-climate racing prototype where frost builds as players trade velocity for stability. Azure telemetry
-                            captures every slip to tune the next iteration.
+            <section class="hero">
+                <div class="container hero-grid">
+                    <div>
+                        <div class="kicker">Playable portfolio · AI-friendly loops · measurable outcomes</div>
+                        <h1 class="h1">
+                            Build games.
+                            <span class="grad">Wire agents.</span>
+                            Ship experiments.
+                        </h1>
+                        <p class="lede">
+                            This is my Gaming AI Development workspace: a modern lab where small games become testbeds for agents, telemetry,
+                            and reliable engineering. Everything stays preserved, and the hub stays playable.
                         </p>
-                        <div class="game-actions">
-                          <a class="play-link" href="Projects/thermal-drift/index.html" target="_blank" rel="noreferrer">Play Thermal Drift</a>
+
+                        <div class="hero-actions">
+                            <a class="btn primary" href="Projects/hubs/science-lab/index.html?mode=play&launch=featured&fs=1">Play the Science Lab</a>
+                            <a class="btn" href="#drops">See the latest creation</a>
+                            <a class="btn" href="Projects/docs/index.html">Docs / Resume</a>
                         </div>
-                        <div class="game-tags">
-                            <span>Racing</span>
-                            <span>Systems</span>
+                    </div>
+
+                    <aside class="panel" aria-label="Profile">
+                        <div class="profile">
+                            <div class="profile-top">
+                                <img class="avatar" src="assets/img/edw.jpg" alt="Edwin Estro with a mustache" />
+                                <div>
+                                    <div class="profile-name">Edwin Estro</div>
+                                    <div class="profile-role">Gaming AI Development · Builder / Curator</div>
+                                </div>
+                            </div>
+                            <div class="stats" aria-label="Quick stats">
+                                <div class="stat"><div class="n" id="statGames">—</div><div class="l">Playable builds</div></div>
+                                <div class="stat"><div class="n" id="statCounted">—</div><div class="l">Tracked games</div></div>
+                                <div class="stat"><div class="n" id="statUpdated">—</div><div class="l">Last update</div></div>
+                            </div>
+                            <div>
+                                <a class="btn primary" style="width: 100%" href="Projects/games/frost-signal/index.html">Play Frost Signal</a>
+                            </div>
                         </div>
-                    </article>
-                    <article class="game-card">
-                        <div class="game-card-header">
-                            <span>02</span>
-                            <h3>Aurora Vault</h3>
-                        </div>
-                        <p>
-                            Puzzle rooms that refract light through Azure-like shields—solve to keep the trust layer intact while
-                            unlocking deeper lore.
-                        </p>
-                        <div class="game-tags">
-                            <span>Puzzle</span>
-                            <span>Story</span>
-                        </div>
-                    </article>
-                    <article class="game-card">
-                        <div class="game-card-header">
-                            <span>03</span>
-                            <h3>Glacial Echo</h3>
-                        </div>
-                        <p>
-                            Narrative exploration in a frozen archive with branching dialogue. The log details how Azure-backed
-                            services keep voice and gesture data private while players chill.</p>
-                        <div class="game-tags">
-                            <span>Narrative</span>
-                            <span>Privacy</span>
-                        </div>
-                    </article>
-                </div>
-                <div class="games-footnote">
-                    <p>Head to the Azure Dev Center for game-ready cloud services or ping me to collaborate on the next build.</p>
-                    <a class="azure-link" href="https://learn.microsoft.com/en-us/gaming/" target="_blank" rel="noreferrer">Azure for Games</a>
+                    </aside>
                 </div>
             </section>
-            <section id="support" class="donation-layer">
-                <p>If you enjoyed my work, consider supporting Save The Children:</p>
-                <a href="https://support.savethechildren.org/site/Donation2?df_id=1620&mfc_pref=T&1620.donation=form1" target="_blank" rel="noreferrer">
-                    Donate to Save The Children
-                </a>
+
+            <section id="drops" class="section" aria-label="Latest drops">
+                <div class="container">
+                    <h2 class="h2">Latest drops</h2>
+                    <p class="sub">Auto-pulled from <span style="font-weight: 800">Projects/data/games.json</span> so the homepage stays current.</p>
+
+                    <div class="grid" id="dropsGrid" aria-label="Latest game cards">
+                        <!-- JS will render cards here. Kept empty to avoid stale content. -->
+                    </div>
+                </div>
             </section>
+
+            <section id="explore" class="section" aria-label="Explore">
+                <div class="container">
+                    <h2 class="h2">Explore the lab</h2>
+                    <p class="sub">Start with the hub, then jump into individual builds. Everything is designed to be quick-to-play and easy-to-measure.</p>
+
+                    <div class="grid" aria-label="Primary links">
+                        <a class="card big" href="Projects/hubs/science-lab/index.html">
+                            <div class="card-title">Science Lab (Hub)</div>
+                            <div class="card-desc">Single launchpad for every game in this repo, with progress tracking.</div>
+                            <div class="badges">
+                                <span class="badge blue">Hub</span>
+                                <span class="badge">Progress</span>
+                                <span class="badge">Preserved</span>
+                            </div>
+                            <div class="card-cta">Enter Lab →</div>
+                        </a>
+
+                        <a class="card tall" href="Projects/games/frost-signal/index.html">
+                            <div class="card-title">Frost Signal</div>
+                            <div class="card-desc">Arcade MVP. Clear win/lose loop and auto-reporting results.</div>
+                            <div class="badges">
+                                <span class="badge good">MVP</span>
+                                <span class="badge">Arcade</span>
+                            </div>
+                            <div class="card-cta">Play →</div>
+                        </a>
+
+                        <a class="card" href="Projects/games/thermal-drift/index.html">
+                            <div class="card-title">Thermal Drift</div>
+                            <div class="card-desc">Action prototype. Survive, dodge enemies, iterate fast.</div>
+                            <div class="badges">
+                                <span class="badge">Action</span>
+                                <span class="badge">Prototype</span>
+                            </div>
+                            <div class="card-cta">Play →</div>
+                        </a>
+
+                        <a class="card" href="legacy/stringball-endpoint/maze.html">
+                            <div class="card-title">ScienceLab (Legacy 3D)</div>
+                            <div class="card-desc">The original ScienceLab 3D lab experience (v4), preserved for continuity.</div>
+                            <div class="badges">
+                                <span class="badge">3D</span>
+                                <span class="badge">Legacy</span>
+                            </div>
+                            <div class="card-cta">Open →</div>
+                        </a>
+
+                        <a class="card" href="Projects/docs/index.html">
+                            <div class="card-title">Docs</div>
+                            <div class="card-desc">Resume + certificates in a clean organized view.</div>
+                            <div class="badges">
+                                <span class="badge">Docs</span>
+                            </div>
+                            <div class="card-cta">Open →</div>
+                        </a>
+
+                        <a class="card" href="legacy/stringball-endpoint/games.html">
+                            <div class="card-title">Legacy Games Lab</div>
+                            <div class="card-desc">Classic experiments — kept accessible, no deletions.</div>
+                            <div class="badges">
+                                <span class="badge">Archive</span>
+                            </div>
+                            <div class="card-cta">Browse →</div>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <section id="quality" class="section" aria-label="Quality">
+                <div class="container">
+                    <h2 class="h2">Quality layer model</h2>
+                    <p class="sub">The goal is to make every build playable, readable, and resilient — even when it’s “just a prototype.”</p>
+                    <div class="split" aria-label="Quality steps">
+                        <div class="step">
+                            <h3>01 · Clarity</h3>
+                            <p>Readable hierarchy, inclusive UX, and “you don’t need instructions” energy.</p>
+                        </div>
+                        <div class="step">
+                            <h3>02 · Craft</h3>
+                            <p>Responsive layouts, performance, and a clean architecture that survives refactors.</p>
+                        </div>
+                        <div class="step">
+                            <h3>03 · Trust</h3>
+                            <p>Secure defaults, privacy awareness, and resilient engineering habits.</p>
+                        </div>
+                        <div class="step">
+                            <h3>04 · Measurement</h3>
+                            <p>Clear events and outcomes so agents (and humans) can iterate with confidence.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="support" class="section" aria-label="Support">
+                <div class="container">
+                    <h2 class="h2">Support</h2>
+                    <p class="sub">If you’re feeling generous, consider supporting a cause that matters.</p>
+                    <div class="grid" aria-label="Support links">
+                        <a class="card big" href="https://support.savethechildren.org/site/Donation2?df_id=1620&mfc_pref=T&1620.donation=form1" target="_blank" rel="noreferrer">
+                            <div class="card-title">Save the Children</div>
+                            <div class="card-desc">Direct donation link (opens in a new tab).</div>
+                            <div class="badges"><span class="badge blue">Charity</span></div>
+                            <div class="card-cta">Donate →</div>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="footer" aria-label="Footer">
+                <div class="container">
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.9rem; align-items: center; justify-content: space-between;">
+                        <div>© <span id="year"></span> Edwin Estro · Gaming AI Development</div>
+                        <div>
+                            <a href="Projects/hubs/science-lab/index.html">Science Lab</a>
+                            <span style="opacity: 0.45"> · </span>
+                            <a href="Projects/docs/index.html">Docs</a>
+                        </div>
+                    </div>
+                </div>
+            </footer>
         </main>
         <script>
+            // Footer year
+            document.getElementById('year').textContent = String(new Date().getFullYear());
+
+            // Render latest drops from Projects/data/games.json
+            const dropsGrid = document.getElementById('dropsGrid');
+            const statGames = document.getElementById('statGames');
+            const statCounted = document.getElementById('statCounted');
+            const statUpdated = document.getElementById('statUpdated');
+
+            const fmtDate = (iso) => {
+                if (!iso) return '—';
+                const d = new Date(iso);
+                if (Number.isNaN(d.valueOf())) return '—';
+                return d.toISOString().slice(0, 10);
+            };
+
+            // games.json hrefs are authored relative to the Science Lab hub; resolve them so they work from /index.html.
+            const scienceLabBaseUrl = new URL('Projects/hubs/science-lab/index.html', window.location.href);
+            const resolveHubHref = (href) => {
+                try {
+                    if (!href) return '#';
+                    return new URL(href, scienceLabBaseUrl).toString();
+                } catch {
+                    return '#';
+                }
+            };
+
+            const escapeHtml = (s) => String(s)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+
+            const cardHtml = (g, i) => {
+                const title = escapeHtml(g.title ?? 'Untitled');
+                const desc = escapeHtml(g.desc ?? '');
+                const href = escapeHtml(resolveHubHref(g.href));
+                const badges = Array.isArray(g.badges) ? g.badges : [];
+                const updatedAt = fmtDate(g.updatedAt);
+
+                const badgeEls = [
+                    `<span class="badge blue">Updated ${updatedAt}</span>`,
+                    ...(badges.slice(0, 3).map((b) => `<span class="badge">${escapeHtml(b)}</span>`)),
+                ].join('');
+
+                const size = i === 0 ? 'big' : '';
+                return `
+                    <a class="card ${size}" href="${href}" target="_blank" rel="noreferrer">
+                        <div class="card-title">${title}</div>
+                        <div class="card-desc">${desc}</div>
+                        <div class="badges">${badgeEls}</div>
+                        <div class="card-cta">Open →</div>
+                    </a>
+                `;
+            };
+
+            const renderDrops = async () => {
+                try {
+                    const res = await fetch('Projects/data/games.json', { cache: 'no-store' });
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    const data = await res.json();
+                    const games = Array.isArray(data.games) ? data.games.slice() : [];
+
+                    // Stats
+                    const counted = games.filter((g) => g && g.counted);
+                    statGames.textContent = String(games.length);
+                    statCounted.textContent = String(counted.length);
+
+                    const latestUpdated = games
+                        .map((g) => g?.updatedAt)
+                        .filter(Boolean)
+                        .sort()
+                        .slice(-1)[0];
+                    statUpdated.textContent = fmtDate(latestUpdated);
+
+                    // Latest drops (sorted desc)
+                    games.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
+                    const top = games.slice(0, 6);
+                    dropsGrid.innerHTML = top.map(cardHtml).join('');
+
+                    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches === false) {
+                        enableTilt();
+                    }
+                } catch (err) {
+                    dropsGrid.innerHTML = `
+                        <a class="card big" href="Projects/hubs/science-lab/index.html">
+                            <div class="card-title">Science Lab (Hub)</div>
+                            <div class="card-desc">Couldn’t load Projects/data/games.json right now. Jump into the hub instead.</div>
+                            <div class="badges"><span class="badge">Fallback</span></div>
+                            <div class="card-cta">Enter Lab →</div>
+                        </a>
+                    `;
+                    statGames.textContent = '—';
+                    statCounted.textContent = '—';
+                    statUpdated.textContent = '—';
+                    console.warn('Failed to load games.json', err);
+                }
+            };
+
+            renderDrops();
+
+            // Subtle tilt on hover (desktop only)
+            const enableTilt = () => {
+                const cards = document.querySelectorAll('.card');
+                cards.forEach((c) => {
+                    if (c.dataset.tiltReady === '1') return;
+                    c.dataset.tiltReady = '1';
+
+                    let raf = null;
+                    const onMove = (e) => {
+                        const r = c.getBoundingClientRect();
+                        const px = (e.clientX - r.left) / r.width;
+                        const py = (e.clientY - r.top) / r.height;
+                        const rx = (0.5 - py) * 6;
+                        const ry = (px - 0.5) * 8;
+                        if (raf) cancelAnimationFrame(raf);
+                        raf = requestAnimationFrame(() => {
+                            c.style.transform = `translateY(-2px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+                        });
+                    };
+                    const onLeave = () => {
+                        if (raf) cancelAnimationFrame(raf);
+                        c.style.transform = '';
+                    };
+                    c.addEventListener('pointermove', onMove);
+                    c.addEventListener('pointerleave', onLeave);
+                });
+            };
+
+            // Tilt for the static cards; dynamic cards get tilt after renderDrops().
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches === false) {
+                enableTilt();
+            }
+        </script>
+
+        <script>
+            // Immersion canvas: light letter-drift field.
             const canvas = document.getElementById('immersion');
             const ctx = canvas.getContext('2d');
 
             const center = { x: 0, y: 0 };
-            const letters = '氷霜|冷光|MATRIX|GLASS|FROST|CLIM8';
+            const glyphs = 'GAME|AI|DEV|AGENT|LAB|SHIP|FROST|SIGNAL|氷霜|冷光';
             const particles = [];
-            const maxParticles = 160;
+            const maxParticles = 170;
 
             const resize = () => {
                 canvas.width = window.innerWidth;
@@ -157,151 +368,84 @@
                 center.y = canvas.height / 2;
             };
 
-            const spawnParticle = () => {
-                const side = Math.floor(Math.random() * 4);
-                let x, y;
-
-                if (side === 0) {
-                    x = -10;
+            const spawn = () => {
+                const edge = Math.floor(Math.random() * 4);
+                let x = 0;
+                let y = 0;
+                if (edge === 0) {
+                    x = -12;
                     y = Math.random() * canvas.height;
-                } else if (side === 1) {
-                    x = canvas.width + 10;
+                } else if (edge === 1) {
+                    x = canvas.width + 12;
                     y = Math.random() * canvas.height;
-                } else if (side === 2) {
+                } else if (edge === 2) {
                     x = Math.random() * canvas.width;
-                    y = -10;
+                    y = -12;
                 } else {
                     x = Math.random() * canvas.width;
-                    y = canvas.height + 10;
+                    y = canvas.height + 12;
                 }
 
                 const dx = center.x - x;
                 const dy = center.y - y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                const speed = 0.6 + Math.random() * 0.9;
+                const dist = Math.max(1, Math.hypot(dx, dy));
+                const speed = 0.55 + Math.random() * 0.95;
 
                 particles.push({
                     x,
                     y,
-                    vx: (dx / distance) * speed,
-                    vy: (dy / distance) * speed,
-                    char: letters.charAt(Math.floor(Math.random() * letters.length)),
-                    brightness: 0.2 + Math.random() * 0.7,
+                    vx: (dx / dist) * speed,
+                    vy: (dy / dist) * speed,
+                    ch: glyphs.charAt(Math.floor(Math.random() * glyphs.length)),
                     life: 0,
-                    maxLife: 90 + Math.random() * 80,
+                    maxLife: 90 + Math.random() * 110,
                 });
             };
 
-            const drawFreezingVeil = () => {
-                const gradient = ctx.createRadialGradient(
-                    center.x,
-                    center.y,
-                    10,
-                    center.x,
-                    center.y,
-                    Math.max(canvas.width, canvas.height) * 0.8
-                );
-                gradient.addColorStop(0, 'rgba(120, 203, 255, 0.0)');
-                gradient.addColorStop(0.5, 'rgba(48, 135, 220, 0.18)');
-                gradient.addColorStop(1, 'rgba(10, 25, 50, 0.65)');
-
-                ctx.fillStyle = gradient;
+            const drawVeil = () => {
+                const g = ctx.createRadialGradient(center.x, center.y, 10, center.x, center.y, Math.max(canvas.width, canvas.height) * 0.85);
+                g.addColorStop(0, 'rgba(154, 230, 255, 0.02)');
+                g.addColorStop(0.55, 'rgba(122, 162, 255, 0.10)');
+                g.addColorStop(1, 'rgba(7, 10, 16, 0.70)');
+                ctx.fillStyle = g;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                ctx.save();
-                ctx.globalCompositeOperation = 'lighter';
-                ctx.fillStyle = 'rgba(255,255,255,0.04)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.restore();
             };
 
-            const update = () => {
+            const tick = () => {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                drawFreezingVeil();
+                drawVeil();
 
-                while (particles.length < maxParticles) {
-                    spawnParticle();
-                }
+                while (particles.length < maxParticles) spawn();
 
-                ctx.font = '22px "Share Tech Mono", "Courier New", monospace';
+                ctx.font = '18px ui-sans-serif, system-ui, -apple-system, Segoe UI, Inter, Roboto, Arial';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
 
-                particles.forEach((p, index) => {
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    const p = particles[i];
                     p.x += p.vx;
                     p.y += p.vy;
-                    p.life += 1;
+                    p.life++;
 
                     const fade = 1 - p.life / p.maxLife;
-                    const glow = Math.min(1, fade + 0.2);
+                    const alpha = Math.max(0, Math.min(1, fade));
 
-                    ctx.fillStyle = `rgba(138, 255, 168, ${glow})`;
-                    ctx.fillText(p.char, p.x, p.y);
+                    ctx.fillStyle = `rgba(154, 230, 255, ${alpha * 0.65})`;
+                    ctx.fillText(p.ch, p.x, p.y);
 
-                    if (
-                        p.life >= p.maxLife ||
-                        p.x < -50 ||
-                        p.x > canvas.width + 50 ||
-                        p.y < -50 ||
-                        p.y > canvas.height + 50
-                    ) {
-                        particles.splice(index, 1);
+                    if (p.life >= p.maxLife || p.x < -60 || p.x > canvas.width + 60 || p.y < -60 || p.y > canvas.height + 60) {
+                        particles.splice(i, 1);
                     }
-                });
+                }
 
-                ctx.save();
-                ctx.globalAlpha = 0.12;
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-                ctx.filter = 'blur(12px)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.restore();
-
-                requestAnimationFrame(update);
+                requestAnimationFrame(tick);
             };
 
             window.addEventListener('resize', resize);
             resize();
-            update();
-        </script>
-        <script>
-            const msLearnTerms = [
-                'ai',
-                'iot',
-                'azure',
-                'developer',
-                'associate',
-                'engineer',
-                'architect',
-                'security',
-                'devops',
-                'gaming',
-                'data',
-                'machine-learning',
-                'cloud',
-                'containers',
-            ];
 
-            const button = document.querySelector('.mslearn-button');
-            const getTerm = () => msLearnTerms[Math.floor(Math.random() * msLearnTerms.length)];
-
-            const updateButton = (term) => {
-                const chosen = term || getTerm();
-                const searchUrl = `https://learn.microsoft.com/en-us/training/browse/?products=azure&terms=${encodeURIComponent(chosen)}`;
-                button.setAttribute('href', searchUrl);
-                button.setAttribute('data-term', chosen);
-                const span = button.querySelector('span');
-                if (span) {
-                    span.textContent = `Explore ${chosen.replace(/-/g, ' ')} insights`;
-                }
-            };
-
-            if (button) {
-                updateButton();
-                button.addEventListener('click', (event) => {
-                    event.preventDefault();
-                    updateButton();
-                    window.open(button.href, '_blank');
-                });
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches === false) {
+                tick();
             }
         </script>
     </body>

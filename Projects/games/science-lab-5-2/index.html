@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Science Lab 5.2</title>
+  <meta name="description" content="Science Lab 5.2 — teleport between 20 element rooms and observe quantized electron positions inside atoms." />
+  <meta name="theme-color" content="#070a10" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <canvas id="bg" aria-hidden="true"></canvas>
+
+  <header class="top">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true"></div>
+      <div class="brand-text">
+        <div class="brand-title">Science Lab <span class="muted">5.2</span></div>
+        <div class="brand-sub">Teleport lab · 20 rooms (scales) · quantized electron sampling</div>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <button class="btn" id="btnFullscreen" type="button">Fullscreen</button>
+      <button class="btn" id="btnReset" type="button">Reset</button>
+      <a class="btn primary" id="btnHub" href="../../hubs/science-lab/index.html">Back to Hub</a>
+    </div>
+  </header>
+
+  <main class="shell">
+    <aside class="panel" aria-label="Element selector">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title">Rooms</div>
+          <div class="panel-sub">Select an element to teleport.</div>
+        </div>
+        <div class="panel-right">
+          <div class="chip" id="chipProgress" aria-live="polite">Visited: 0 / 20</div>
+        </div>
+      </div>
+
+      <label class="search">
+        <span class="search-label">Search</span>
+        <input id="search" type="search" placeholder="H, Oxygen, 8…" autocomplete="off" />
+      </label>
+
+      <div class="room-list" id="roomList" role="listbox" aria-label="Element rooms"></div>
+
+      <div class="panel-foot">
+        <div class="note">
+          Tip: Use <strong>↑/↓</strong> then <strong>Enter</strong> to teleport. Press <strong>I</strong> for info.
+        </div>
+      </div>
+    </aside>
+
+    <section class="viewport" aria-label="Room viewport">
+      <div class="viewport-bar">
+        <div class="vp-left">
+          <div class="vp-title" id="vpTitle">—</div>
+          <div class="vp-sub" id="vpSub">—</div>
+        </div>
+        <div class="vp-actions">
+          <button class="btn mini" id="btnInfo" type="button">Info</button>
+          <button class="btn mini" id="btnQuiz" type="button">Quiz</button>
+          <button class="btn mini" id="btnViz" type="button">Viz: Both</button>
+          <button class="btn mini" id="btnMode" type="button">Orbital: Auto</button>
+          <button class="btn mini" id="btnMeasure" type="button">Measure</button>
+        </div>
+      </div>
+
+      <div class="canvas-wrap" id="canvasWrap">
+        <canvas id="view" aria-label="Science Lab 5.2 scene"></canvas>
+
+        <div class="overlay" id="overlay" hidden>
+          <div class="overlay-card" role="dialog" aria-modal="true" aria-label="Science Lab overlay">
+            <div class="overlay-kicker" id="overlayKicker">Science Lab 5.2</div>
+            <div class="overlay-title" id="overlayTitle">—</div>
+            <div class="overlay-copy" id="overlayCopy">—</div>
+            <div class="overlay-options" id="overlayOptions" aria-label="Overlay options"></div>
+            <div class="overlay-actions">
+              <button class="btn primary" id="overlayPrimary" type="button">Continue</button>
+              <button class="btn" id="overlaySecondary" type="button">Close</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="hud" aria-label="HUD">
+          <div class="hud-row">
+            <span class="hud-pill" id="hudRoom">Room: —</span>
+            <span class="hud-pill" id="hudOrbital">Orbital: —</span>
+            <span class="hud-pill" id="hudElectrons">Electrons: —</span>
+            <span class="hud-pill" id="hudViz">Viz: —</span>
+            <span class="hud-pill" id="hudHint">Drag to rotate · Scroll to zoom</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>

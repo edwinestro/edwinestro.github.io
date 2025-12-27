@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Agentic Game Development — Science Lab</title>
+  <meta name="description" content="Agentic Game Development hub: a database-driven registry of playable builds, featuring the latest updated game and a unified launch viewport." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <canvas id="bg" aria-hidden="true"></canvas>
+
+  <header class="top">
+    <a class="brand" href="../../../index.html">
+      <span class="mark">EDWIN</span>
+      <span class="name">Science Lab</span>
+    </a>
+
+    <div class="top-actions">
+      <a class="link" href="../../../index.html">Home</a>
+      <a class="link" href="../../games/science-lab-5-2/index.html" target="_blank" rel="noreferrer">Science Lab 5.2</a>
+      <a class="link" href="../../games/frost-signal/index.html" target="_blank" rel="noreferrer">Frost Signal</a>
+      <a class="link" href="../../games/thermal-drift/index.html" target="_blank" rel="noreferrer">Thermal Drift</a>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="highlight" aria-label="Latest build highlight">
+      <div class="featured featured-wide" id="featured" hidden>
+        <div class="featured-head">
+          <div class="featured-title">Latest Build (auto-selected)</div>
+          <div class="featured-date" id="featuredDate">—</div>
+        </div>
+        <div class="featured-card featured-grid" role="group" aria-label="Featured build">
+          <div class="featured-media">
+            <img
+              class="featured-shot"
+              id="featuredShot"
+              src="assets/featured-science-lab-mock.svg"
+              alt="Mock screenshot of the featured Science Lab build"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+          <div class="featured-info">
+            <div class="featured-name" id="featuredName">—</div>
+            <div class="featured-desc" id="featuredDesc">—</div>
+            <div class="featured-actions">
+              <button class="btn mini primary" id="btnLaunchFeatured" type="button">Launch</button>
+              <button class="btn mini" id="btnSelectFeatured" type="button">Select in Registry</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="kicker">Agentic Game Development</p>
+        <h1>Science Lab — Agentic Game Dev</h1>
+        <p class="lede">
+          A database-backed registry of playable prototypes.
+          This hub is designed for an <strong>agentic build loop</strong>: plan → generate → playtest → ship.
+        </p>
+
+        <div class="hero-meta">
+          <div class="chip" id="chipProgress" aria-live="polite">Progress: 0 / 5</div>
+          <div class="chip" id="chipStatus" aria-live="polite">Status: Idle</div>
+        </div>
+      </div>
+
+      <div class="hero-panel">
+        <div class="panel-title">Game Registry</div>
+        <div class="panel-sub">Loaded from <span class="mono">Projects/data/games.json</span>. Select a build to launch it in the viewport.</div>
+
+        <div class="exp-list" id="expList" role="list"></div>
+
+        <div class="panel-actions">
+          <button class="btn primary" id="btnLaunch" type="button">Launch Selected</button>
+          <button class="btn" id="btnComplete" type="button">Mark Complete</button>
+          <button class="btn" id="btnReset" type="button">Reset</button>
+        </div>
+
+        <div class="note" id="note">
+          Tip: Use ↑/↓ to move through the registry and Enter to launch. Some builds auto-report win/lose when embedded.
+        </div>
+      </div>
+    </section>
+
+    <section class="viewport" aria-label="Lab viewport">
+      <div class="viewport-bar">
+        <div class="viewport-title" id="vpTitle">Viewport</div>
+        <div class="viewport-actions">
+          <button class="btn mini" id="btnBack" type="button" disabled>Back to Lab</button>
+          <a class="btn mini" id="btnOpen" href="#" target="_blank" rel="noreferrer">Open in New Tab</a>
+          <button class="btn mini" id="btnFS" type="button">Fullscreen</button>
+        </div>
+      </div>
+
+      <div class="frame-wrap" id="frameWrap">
+        <div class="placeholder" id="placeholder">
+          <div class="ph-title">Choose a build</div>
+          <div class="ph-sub">Launch it here — agentic game development, playable and testable.</div>
+        </div>
+        <iframe
+          id="frame"
+          title="Experiment frame"
+          loading="lazy"
+          referrerpolicy="no-referrer"
+          allow="fullscreen; gamepad; autoplay"
+        ></iframe>
+      </div>
+
+      <div class="result" id="result" hidden>
+        <div class="result-inner">
+          <div class="result-kicker" id="resultKicker">Result</div>
+          <div class="result-title" id="resultTitle">—</div>
+          <div class="result-copy" id="resultCopy">—</div>
+          <div class="result-actions">
+            <button class="btn primary" id="resultOk" type="button">Continue</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div>© 2025 Edwin Estro — Science Lab</div>
+      <div class="footer-links">
+        <a href="../../../legacy/stringball-endpoint/games.html" target="_blank" rel="noreferrer">Legacy Games Lab</a>
+        <a href="../../../legacy/stringball-endpoint/maze.html" target="_blank" rel="noreferrer">ScienceLab (legacy v4)</a>
+      </div>
+    </footer>
+  </main>
+
+  <script src="lab.js"></script>
+</body>
+</html>

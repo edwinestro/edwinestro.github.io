@@ -1,0 +1,9 @@
+{
+  "name": "site-style-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:styles": "node tests/styleCheck.cjs"
+  },
+  "devDependencies": {}
+}

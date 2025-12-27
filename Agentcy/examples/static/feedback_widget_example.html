@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Feedback widget example</title>
+  </head>
+  <body>
+    <h1>Feedback widget demo</h1>
+
+    <h2>Mode A: POST to API</h2>
+    <!-- Configure the endpoint to your deployed API -->
+    <script src="./feedback_widget.js" data-endpoint="http://localhost:8000/feedback" data-mode="api" data-app="thermal-drift" data-autoinit></script>
+
+    <h2>Mode B: Create GitHub Issue (no backend)</h2>
+    <!-- Configure the target repo for issues. Visitors will submit feedback as a GitHub issue. -->
+    <script
+      src="./feedback_widget.js"
+      data-mode="github-issue"
+      data-github-repo="edwinestro/edwinestro.github.io"
+      data-github-labels="feedback"
+      data-app="thermal-drift"
+      data-autoinit
+    ></script>
+  </body>
+</html>

@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r Agentcy/requirements.txt
+          if [ -f Agentcy/requirements-dev.txt ]; then pip install -r Agentcy/requirements-dev.txt; fi
+      - name: Run tests
+        run: |
+          python -m pytest -q

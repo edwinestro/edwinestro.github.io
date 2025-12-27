@@ -1,0 +1,90 @@
+name: Feedback Issues to PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: "Target repo (owner/name)"
+        required: true
+        default: "edwinestro/edwinestro.github.io"
+      label:
+        description: "Issue label to pull feedback from"
+        required: true
+        default: "feedback"
+      limit:
+        description: "Max issues to include"
+        required: true
+        default: "5"
+      base:
+        description: "Base branch"
+        required: true
+        default: "main"
+      allow_prefix:
+        description: "Allowed edit prefix (e.g. ./ or Projects/)"
+        required: true
+        default: "./"
+      share_files:
+        description: "Share small file contents with agent (true/false)"
+        required: true
+        default: "true"
+  schedule:
+    # Every hour
+    - cron: "0 * * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  open-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run feedback → PR
+        env:
+          # Foundry
+          USER_ENDPOINT: ${{ secrets.USER_ENDPOINT }}
+          MODEL_DEPLOYMENT_NAME: ${{ secrets.MODEL_DEPLOYMENT_NAME }}
+          PROJECT_API_KEY: ${{ secrets.PROJECT_API_KEY }}
+
+          # GitHub (PAT with access to target repo)
+          GITHUB_TOKEN: ${{ secrets.SITE_GITHUB_TOKEN }}
+
+        run: |
+          share_files_flag=""
+          if [ "${{ inputs.share_files || 'true' }}" = "true" ]; then
+            share_files_flag="--share-files"
+          fi
+
+          python scripts/github_issues_to_pr.py \
+            --repo "${{ inputs.repo || 'edwinestro/edwinestro.github.io' }}" \
+            --label "${{ inputs.label || 'feedback' }}" \
+            --limit "${{ inputs.limit || '5' }}" \
+            --base "${{ inputs.base || 'main' }}" \
+            --allow-prefix "${{ inputs.allow_prefix || './' }}" \
+            $share_files_flag
+
+      - name: Export issues to single file
+        env:
+          GITHUB_TOKEN: ${{ secrets.SITE_GITHUB_TOKEN }}
+        run: |
+          python scripts/export_issues_to_jsonl.py --repo "${{ inputs.repo || 'edwinestro/edwinestro.github.io' }}" --label "${{ inputs.label || 'feedback' }}" --out generated/all_feedback.jsonl
+
+      - name: Commit aggregated feedback file
+        env:
+          SITE_GITHUB_TOKEN: ${{ secrets.SITE_GITHUB_TOKEN }}
+        run: |
+          python scripts/commit_aggregated_feedback.py \
+            --repo "${{ inputs.repo || 'edwinestro/edwinestro.github.io' }}" \
+            --file generated/all_feedback.jsonl \
+            --target-path feedback/all_feedback.jsonl

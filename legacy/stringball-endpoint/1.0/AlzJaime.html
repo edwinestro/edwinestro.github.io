@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alz-Jaime - Gentle Memory Support Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 20%, #f093fb 40%, #f5576c 60%, #4facfe 80%, #00f2fe 100%);
+            background-size: 400% 400%;
+            animation: magicalGradient 15s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Terminal-style background logs */
+        .debug-console {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            color: rgba(76, 175, 80, 0.15);
+            white-space: pre-wrap;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2e7d32;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .settings {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(46, 125, 50, 0.05);
+            border-radius: 15px;
+        }
+
+        .setting-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 150px;
+        }
+
+        .setting-group label {
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .setting-group select {
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            font-size: 0.9rem;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .setting-group select:focus {
+            outline: none;
+            border-color: #2e7d32;
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+        }
+
+        .game-area {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .board {
+            display: grid;
+            gap: 8px;
+            justify-content: center;
+            margin: 0 auto;
+            max-width: 500px;
+            aspect-ratio: 1;
+        }
+
+        .tile {
+            background: linear-gradient(145deg, #f5f5f5, #e8e8e8);
+            border: 3px solid #ddd;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .tile::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .tile:hover::before {
+            opacity: 1;
+        }
+
+        .tile.lit {
+            background: linear-gradient(145deg, #66bb6a, #4caf50);
+            border-color: #2e7d32;
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4), 0 0 40px rgba(76, 175, 80, 0.2);
+            transform: scale(1.05);
+        }
+
+        .tile.lit::before {
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        }
+
+        .tile.start-tile {
+            background: linear-gradient(145deg, #1976d2, #1565c0);
+            border-color: #0d47a1;
+            box-shadow: 0 6px 20px rgba(25, 118, 210, 0.4), 0 0 40px rgba(25, 118, 210, 0.2);
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tile.start-tile::before {
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        }
+
+        .status {
+            font-size: 1.4rem;
+            color: #2e7d32;
+            margin-bottom: 20px;
+            font-weight: 300;
+            min-height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .progress {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .progress-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .progress-label {
+            font-size: 0.8rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .progress-value {
+            font-size: 1.2rem;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .start-button {
+            background: linear-gradient(145deg, #1976d2, #1565c0);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(25, 118, 210, 0.3);
+            margin: 20px 0;
+        }
+
+        .start-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(25, 118, 210, 0.4);
+        }
+
+        .start-button:active {
+            transform: translateY(0);
+        }
+
+        .instructions {
+            background: rgba(46, 125, 50, 0.05);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border-left: 4px solid #2e7d32;
+        }
+
+        .instructions h3 {
+            color: #2e7d32;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .instructions p {
+            color: #555;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .settings {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .board {
+                max-width: 300px;
+            }
+
+            .tile {
+                min-height: 40px;
+            }
+        }
+
+        /* Gentle animations */
+        @keyframes gentleGlow {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes gentlePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        @keyframes magicalGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .tile.lit {
+            animation: gentlePulse 2s ease-in-out infinite;
+        }
+
+        .tile.lit::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 12px;
+            background: linear-gradient(45deg, transparent, rgba(76, 175, 80, 0.3), transparent);
+            animation: gentleGlow 3s ease-in-out infinite;
+        }
+
+        /* Sparkle effects */
+        .magic-sparkles-body {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .sparkle-body {
+            position: absolute;
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.6);
+            animation: sparkleFloat 8s ease-in-out infinite;
+        }
+
+        .sparkle-body-1 { top: 10%; left: 10%; animation-delay: 0s; }
+        .sparkle-body-2 { top: 20%; right: 15%; animation-delay: 2s; }
+        .sparkle-body-3 { bottom: 15%; left: 20%; animation-delay: 4s; }
+        .sparkle-body-4 { bottom: 25%; right: 10%; animation-delay: 1s; }
+        .sparkle-body-5 { top: 40%; left: 50%; animation-delay: 3s; }
+        .sparkle-body-6 { top: 60%; right: 30%; animation-delay: 5s; }
+        .sparkle-body-7 { bottom: 40%; left: 30%; animation-delay: 6s; }
+        .sparkle-body-8 { top: 80%; right: 50%; animation-delay: 7s; }
+
+        @keyframes sparkleFloat {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0.3;
+            }
+            25% {
+                transform: translateY(-20px) rotate(90deg);
+                opacity: 0.8;
+            }
+            50% {
+                transform: translateY(-10px) rotate(180deg);
+                opacity: 1;
+            }
+            75% {
+                transform: translateY(-15px) rotate(270deg);
+                opacity: 0.8;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-console" id="debugConsole">
+Initializing Alz-Jaime Memory Support System...
+Loading gentle interaction protocols...
+Preparing calming visual environment...
+System ready for therapeutic engagement.
+    </div>
+
+    <div class="game-container">
+        <div class="header">
+            <h1>🧠 Alz-Jaime</h1>
+            <p>A gentle memory support game designed for Alzheimer's patients. Take your time, enjoy the calming interaction, and progress at your own pace.</p>
+        </div>
+
+        <div class="settings">
+            <div class="setting-group">
+                <label for="boardSize">Board Size</label>
+                <select id="boardSize">
+                    <option value="2">2 × 2</option>
+                    <option value="3" selected>3 × 3</option>
+                    <option value="4">4 × 4</option>
+                    <option value="5">5 × 5</option>
+                    <option value="6">6 × 6</option>
+                </select>
+            </div>
+
+            <div class="setting-group">
+                <label for="complexity">Complexity</label>
+                <select id="complexity">
+                    <option value="1">Very Easy (1 tile)</option>
+                    <option value="2">Easy (2 tiles)</option>
+                    <option value="3" selected>Medium (3 tiles)</option>
+                    <option value="4">Challenging (4 tiles)</option>
+                    <option value="5">Advanced (5 tiles)</option>
+                </select>
+            </div>
+
+            <div class="setting-group">
+                <label for="speed">Animation Speed</label>
+                <select id="speed">
+                    <option value="2000">Slow (2s)</option>
+                    <option value="1500" selected>Medium (1.5s)</option>
+                    <option value="1000">Fast (1s)</option>
+                    <option value="500">Very Fast (0.5s)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div class="status" id="status">Welcome to Alz-Jaime. Click the blue tile to begin your gentle memory journey.</div>
+
+            <div class="progress">
+                <div class="progress-item">
+                    <div class="progress-label">Rounds</div>
+                    <div class="progress-value" id="roundsCompleted">0</div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-label">Best</div>
+                    <div class="progress-value" id="bestScore">0</div>
+                </div>
+            </div>
+
+            <div class="board" id="board"></div>
+
+            <button class="start-button" id="startButton" style="display: none;">Begin Your Journey</button>
+        </div>
+
+        <div class="instructions">
+            <h3>🌸 How to Play</h3>
+            <p>Take your time to gently press the glowing green tiles. There's no rush or time limit. Each completed round helps strengthen memory pathways. Adjust the settings above to find your perfect comfort level.</p>
+        </div>
+    </div>
+
+    <script>
+        class AlzJaimeGame {
+            constructor() {
+                this.boardSize = 3;
+                this.complexity = 3;
+                this.animationSpeed = 1500;
+                this.roundsCompleted = 0;
+                this.bestScore = parseInt(localStorage.getItem('alzJaimeBestScore') || '0');
+                this.litTiles = [];
+                this.isPlaying = false;
+                this.tiles = [];
+
+                this.board = document.getElementById('board');
+                this.status = document.getElementById('status');
+                this.startButton = document.getElementById('startButton');
+                this.roundsDisplay = document.getElementById('roundsCompleted');
+                this.bestDisplay = document.getElementById('bestScore');
+                this.debugConsole = document.getElementById('debugConsole');
+
+                this.initializeEventListeners();
+                this.updateDebugConsole('Game system initialized and ready for therapeutic interaction.');
+                this.createInitialBoard();
+            }
+
+            initializeEventListeners() {
+                // Settings change listeners
+                document.getElementById('boardSize').addEventListener('change', (e) => {
+                    this.boardSize = parseInt(e.target.value);
+                    this.updateDebugConsole(`Board size adjusted to ${this.boardSize}x${this.boardSize} for optimal comfort.`);
+                    this.createInitialBoard();
+                });
+
+                document.getElementById('complexity').addEventListener('change', (e) => {
+                    this.complexity = parseInt(e.target.value);
+                    this.updateDebugConsole(`Complexity level set to ${this.complexity} for gentle cognitive engagement.`);
+                });
+
+                document.getElementById('speed').addEventListener('change', (e) => {
+                    this.animationSpeed = parseInt(e.target.value);
+                    this.updateDebugConsole(`Animation speed adjusted to ${this.animationSpeed}ms for calming visual experience.`);
+                });
+
+                // Start button
+                this.startButton.addEventListener('click', () => {
+                    this.startNewGame();
+                });
+            }
+
+            createInitialBoard() {
+                this.board.innerHTML = '';
+                this.tiles = [];
+                this.board.style.gridTemplateColumns = `repeat(${this.boardSize}, 1fr)`;
+
+                const totalTiles = this.boardSize * this.boardSize;
+
+                for (let i = 0; i < totalTiles; i++) {
+                    const tile = document.createElement('div');
+                    tile.className = 'tile';
+                    tile.dataset.index = i;
+
+                    if (i === this.getCenterIndex()) {
+                        tile.classList.add('start-tile');
+                        tile.textContent = 'START';
+                        tile.addEventListener('click', () => this.startNewGame());
+                    } else {
+                        tile.addEventListener('click', (e) => this.handleTileClick(e));
+                    }
+
+                    this.board.appendChild(tile);
+                    this.tiles.push(tile);
+                }
+
+                this.updateDebugConsole(`Created ${totalTiles} gentle interaction tiles in ${this.boardSize}x${this.boardSize} formation.`);
+                this.startButton.style.display = 'none';
+                this.status.textContent = 'Welcome to Alz-Jaime. Click the blue tile to begin your gentle memory journey.';
+            }
+
+            getCenterIndex() {
+                const rows = this.boardSize;
+                const cols = this.boardSize;
+                const centerRow = Math.floor(rows / 2);
+                const centerCol = Math.floor(cols / 2);
+                return centerRow * cols + centerCol;
+            }
+
+            async startNewGame() {
+                this.updateDebugConsole('Beginning new therapeutic memory session...');
+                this.isPlaying = true;
+                this.litTiles = [];
+                this.roundsCompleted = 0;
+                this.roundsDisplay.textContent = '0';
+
+                // Hide start tile and show regular tiles
+                this.tiles.forEach(tile => {
+                    tile.classList.remove('start-tile');
+                    tile.textContent = '';
+                    tile.style.background = 'linear-gradient(145deg, #f5f5f5, #e8e8e8)';
+                });
+
+                this.status.textContent = 'Preparing your memory exercise...';
+                await this.delay(1000);
+
+                this.startNewRound();
+            }
+
+            async startNewRound() {
+                this.updateDebugConsole(`Starting round ${this.roundsCompleted + 1} with ${this.complexity} cognitive challenges.`);
+
+                // Clear any previous lit tiles
+                this.litTiles.forEach(index => {
+                    this.tiles[index].classList.remove('lit');
+                });
+                this.litTiles = [];
+
+                this.status.textContent = 'Watch carefully as tiles gently illuminate...';
+                await this.delay(1500);
+
+                // Generate random lit tiles
+                const totalTiles = this.tiles.length;
+                const availableIndices = Array.from({length: totalTiles}, (_, i) => i);
+
+                for (let i = 0; i < this.complexity && availableIndices.length > 0; i++) {
+                    const randomIndex = Math.floor(Math.random() * availableIndices.length);
+                    const tileIndex = availableIndices.splice(randomIndex, 1)[0];
+                    this.litTiles.push(tileIndex);
+                }
+
+                // Light up tiles with gentle animation
+                for (const index of this.litTiles) {
+                    await this.delay(this.animationSpeed / this.complexity);
+                    this.tiles[index].classList.add('lit');
+                    this.updateDebugConsole(`Illuminating tile at position ${index} for memory pattern.`);
+                }
+
+                this.status.textContent = `Gently press the ${this.litTiles.length} glowing tiles to complete this round.`;
+                this.updateDebugConsole('Memory pattern complete. Awaiting gentle user interaction.');
+            }
+
+            async handleTileClick(event) {
+                if (!this.isPlaying) return;
+
+                const tile = event.target;
+                const index = parseInt(tile.dataset.index);
+
+                if (this.litTiles.includes(index)) {
+                    // Correct tile clicked
+                    tile.classList.remove('lit');
+                    this.litTiles = this.litTiles.filter(i => i !== index);
+
+                    this.updateDebugConsole(`Correct tile interaction at position ${index}. ${this.litTiles.length} challenges remaining.`);
+
+                    // Gentle success feedback
+                    tile.style.background = 'linear-gradient(145deg, #81c784, #66bb6a)';
+                    await this.delay(300);
+                    tile.style.background = 'linear-gradient(145deg, #f5f5f5, #e8e8e8)';
+
+                    if (this.litTiles.length === 0) {
+                        // Round complete
+                        this.roundsCompleted++;
+                        this.roundsDisplay.textContent = this.roundsCompleted;
+
+                        if (this.roundsCompleted > this.bestScore) {
+                            this.bestScore = this.roundsCompleted;
+                            this.bestDisplay.textContent = this.bestScore;
+                            localStorage.setItem('alzJaimeBestScore', this.bestScore.toString());
+                            this.updateDebugConsole('New personal best achieved! Celebrating cognitive milestone.');
+                        }
+
+                        this.status.textContent = `🌟 Excellent! Round ${this.roundsCompleted} completed. Preparing next gentle challenge...`;
+                        this.updateDebugConsole(`Round ${this.roundsCompleted} successfully completed. Preparing cognitive progression.`);
+
+                        await this.delay(2500);
+                        this.startNewRound();
+                    } else {
+                        this.status.textContent = `Good! ${this.litTiles.length} tiles remaining. Take your time.`;
+                    }
+                } else {
+                    // Gentle reminder for incorrect clicks
+                    this.updateDebugConsole(`Gentle guidance: Tile at position ${index} is not currently illuminated.`);
+                    tile.style.background = 'linear-gradient(145deg, #fff3e0, #ffe0b2)';
+                    await this.delay(500);
+                    tile.style.background = 'linear-gradient(145deg, #f5f5f5, #e8e8e8)';
+                }
+            }
+
+            updateDebugConsole(message) {
+                const timestamp = new Date().toLocaleTimeString();
+                this.debugConsole.textContent += `\n[${timestamp}] ${message}`;
+
+                // Keep only last 20 lines for performance
+                const lines = this.debugConsole.textContent.split('\n');
+                if (lines.length > 20) {
+                    this.debugConsole.textContent = lines.slice(-20).join('\n');
+                }
+            }
+
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+        }
+
+        // Initialize the game when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new AlzJaimeGame();
+        });
+    </script>
+
+    <!-- Sparkle elements -->
+    <div class="magic-sparkles-body">
+        <div class="sparkle-body sparkle-body-1">✨</div>
+        <div class="sparkle-body sparkle-body-2">⭐</div>
+        <div class="sparkle-body sparkle-body-3">🌟</div>
+        <div class="sparkle-body sparkle-body-4">💫</div>
+        <div class="sparkle-body sparkle-body-5">✨</div>
+        <div class="sparkle-body sparkle-body-6">⭐</div>
+        <div class="sparkle-body sparkle-body-7">🌟</div>
+        <div class="sparkle-body sparkle-body-8">💫</div>
+    </div>
+</body>
+</html>

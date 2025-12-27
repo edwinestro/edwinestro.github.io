@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "generatedAt": "2025-12-22T05:24:26.255551Z",
+  "games": [
+    {
+      "id": "science-lab-5-2",
+      "title": "Science Lab 5.2",
+      "desc": "Teleport across all 118 element rooms and visualize electrons, orbitals, and probability density (Science Lab 5.2 rework).",
+      "href": "../../games/science-lab-5-2/index.html",
+      "thumbnail": "assets/featured-science-lab-mock.svg",
+      "badges": [
+        "Science",
+        "New",
+        "MVP"
+      ],
+      "counted": true,
+      "sourcePath": "Projects/games/science-lab-5-2",
+      "updatedAt": "2025-12-25T12:00:00.000Z"
+    },
+    {
+      "id": "maze-3d",
+      "title": "ScienceLab",
+      "desc": "Explore the ScienceLab 3D laboratory experience (legacy v4).",
+      "href": "../../../legacy/stringball-endpoint/maze.html",
+      "thumbnail": "assets/featured-science-lab-mock.svg",
+      "badges": [
+        "3D",
+        "Science"
+      ],
+      "counted": true,
+      "sourcePath": "legacy/stringball-endpoint/maze.html",
+      "updatedAt": "2025-12-19T05:54:26.858168Z"
+    },
+    {
+      "id": "frost-signal",
+      "title": "Frost Signal",
+      "desc": "Collect trust shards. Win/lose, restart. Auto-reports result.",
+      "href": "../../games/frost-signal/index.html",
+      "thumbnail": "assets/featured-science-lab-mock.svg",
+      "badges": [
+        "Arcade",
+        "MVP"
+      ],
+      "counted": true,
+      "sourcePath": "Projects/games/frost-signal",
+      "updatedAt": "2025-12-19T05:43:44.901622Z"
+    },
+    {
+      "id": "thermal-drift",
+      "title": "Thermal Drift",
+      "desc": "Survive levels, dodge enemies. Auto-reports result after patch.",
+      "href": "../../games/thermal-drift/index.html",
+      "thumbnail": "assets/featured-science-lab-mock.svg",
+      "badges": [
+        "Action",
+        "Prototype"
+      ],
+      "counted": true,
+      "sourcePath": "Projects/games/thermal-drift",
+      "updatedAt": "2025-12-19T05:43:44.813409Z"
+    },
+    {
+      "id": "memory-sequence",
+      "title": "Memory Sequence",
+      "desc": "Follow and replicate an expanding pattern (legacy lab).",
+      "href": "../../../legacy/stringball-endpoint/games.html#memory-sequence",
+      "thumbnail": "assets/featured-science-lab-mock.svg",
+      "badges": [
+        "Cognitive"
+      ],
+      "counted": true,
+      "sourcePath": "legacy/stringball-endpoint/games.html",
+      "updatedAt": "2025-12-14T03:12:52.894797Z"
+    },
+    {
+      "id": "memory-mapping",
+      "title": "Memory Mapping",
+      "desc": "Rebuild the pattern by position (legacy lab).",
+      "href": "../../../legacy/stringball-endpoint/games.html#memory-mapping",
+      "thumbnail": "assets/featured-science-lab-mock.svg",
+      "badges": [
+        "Cognitive"
+      ],
+      "counted": true,
+      "sourcePath": "legacy/stringball-endpoint/games.html",
+      "updatedAt": "2025-12-14T03:12:52.894797Z"
+    },
+    {
+      "id": "alz-jaime",
+      "title": "Alz‑Jaime",
+      "desc": "Gentle progressive sequence (legacy lab).",
+      "href": "../../../legacy/stringball-endpoint/games.html#alz-jaime",
+      "thumbnail": "assets/featured-science-lab-mock.svg",
+      "badges": [
+        "Gentle"
+      ],
+      "counted": false,
+      "sourcePath": "legacy/stringball-endpoint/games.html",
+      "updatedAt": "2025-12-14T03:12:52.894797Z"
+    },
+    {
+      "id": "unsupervised-3d",
+      "title": "Unsupervised 3D",
+      "desc": "3D memory + environment interactions (legacy lab).",
+      "href": "../../../legacy/stringball-endpoint/games.html#unsupervised-3d",
+      "thumbnail": "assets/featured-science-lab-mock.svg",
+      "badges": [
+        "3D"
+      ],
+      "counted": false,
+      "sourcePath": "legacy/stringball-endpoint/games.html",
+      "updatedAt": "2025-12-14T03:12:52.894797Z"
+    }
+  ]
+}
