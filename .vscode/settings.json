@@ -1,5 +1,9 @@
 {
     "liveServer.settings.port": 5503,
+    "terminal.integrated.shellIntegration.enabled": true,
+    "terminal.integrated.shellIntegration.decorationsEnabled": true,
+    "github.copilot.chat.codeGeneration.useInstructionFiles": true,
+    "github.copilot.chat.agent.thinkingTool": true,
     "cSpell.words": [
         "astro",
         "identificadorUnico",

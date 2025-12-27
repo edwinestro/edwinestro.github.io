@@ -38,5 +38,6 @@ The default prompt contains the phrase "Hello Xbox" as requested in the current 
 Notes
 - Never commit API keys or secrets to the repo.
 - Do not install Google Chrome (or any Chrome download from Google) as part of this workspace setup or automation.
+- For every command run (terminal/task), always include a short human-readable explanation of what it does and why.
 - If the agent doesn't exist or you want to update it, use the existing `Agentcy/scripts/foundry_hello_agent.py --create-or-update` flow.
 - The script prints helpful troubleshooting hints if the call fails.
