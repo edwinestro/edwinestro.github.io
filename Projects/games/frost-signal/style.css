@@ -115,6 +115,62 @@ h1{
   backdrop-filter: blur(18px);
 }
 
+  /* Leaderboard */
+  .leaderboard{
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255,255,255,.10);
+  }
+
+  .lb-head{display:flex;align-items:flex-end;justify-content:space-between;gap:.75rem}
+  .lb-title{font-weight:950;letter-spacing:.02em}
+  .lb-sub{color:rgba(255,255,255,.70);font-size:.9rem}
+
+  .lb-list{
+    margin:.75rem 0 0;
+    padding-left: 1.25rem;
+    display:grid;
+    gap:.35rem;
+    max-height: 180px;
+    overflow:auto;
+  }
+
+  .lb-list li{
+    display:flex;
+    justify-content:space-between;
+    gap:1rem;
+    padding:.35rem .45rem;
+    border-radius: 10px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+  }
+
+  .lb-name{font-weight:900}
+  .lb-score{font-weight:900;color:rgba(154,230,255,.92)}
+
+  .lb-form{
+    margin-top:.75rem;
+    display:grid;
+    grid-template-columns: 1fr auto;
+    gap:.55rem;
+    align-items:center;
+  }
+
+  .lb-label{grid-column:1 / -1;color:rgba(255,255,255,.70);font-weight:800;font-size:.85rem}
+
+  .lb-input{
+    width:100%;
+    padding:.65rem .75rem;
+    border-radius: 12px;
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(0,0,0,.18);
+    color: rgba(255,255,255,.92);
+    font-weight:800;
+  }
+
+  .lb-status{margin-top:.45rem;color:rgba(255,255,255,.72);min-height:1.2em}
+  .lb-note{margin-top:.35rem;color:rgba(255,255,255,.55);font-size:.82rem}
+
 .kicker{
   margin:0;
   color:var(--accent2);

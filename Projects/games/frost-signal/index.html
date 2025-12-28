@@ -37,6 +37,22 @@
             <a class="ghost" href="../../../index.html">Back to site</a>
           </div>
           <div class="hint" id="overlayHint">Tip: short moves keep you safe.</div>
+          <section class="leaderboard" id="leaderboard" aria-label="Leaderboard" hidden>
+            <div class="lb-head">
+              <div class="lb-title">Leaderboard</div>
+              <div class="lb-sub">Most shards collected (Frost Signal)</div>
+            </div>
+
+            <ol class="lb-list" id="lbList"></ol>
+
+            <form class="lb-form" id="lbForm">
+              <label class="lb-label" for="lbName">Name</label>
+              <input class="lb-input" id="lbName" name="name" maxlength="16" placeholder="edwin" autocomplete="nickname" />
+              <button class="btn mini primary" id="lbSubmit" type="submit">Submit</button>
+            </form>
+            <div class="lb-status" id="lbStatus" aria-live="polite"></div>
+            <div class="lb-note">Tip: You can set the API URL via <code>?lb=https://YOUR-RENDER-URL</code></div>
+          </section>
         </div>
       </div>
 

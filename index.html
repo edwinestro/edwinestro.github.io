@@ -14,6 +14,36 @@
         <meta property="og:type" content="website" />
         <link rel="preload" as="image" href="assets/img/edw.jpg" />
         <link rel="stylesheet" href="assets/css/home.css" />
+        
+            <!-- Microsoft Ads (Bing) UET: visit measurement (homepage only) -->
+            <script>
+                (function (w, d, t, r, u) {
+                    var f, n, i;
+                    w[u] = w[u] || [];
+                    f = function () {
+                        var o = { ti: '355052824', enableAutoSpaTracking: true };
+                        o.q = w[u];
+                        w[u] = new UET(o);
+                        w[u].push('pageLoad');
+                    };
+                    n = d.createElement(t);
+                    n.src = r;
+                    n.async = 1;
+                    n.onload = n.onreadystatechange = function () {
+                        var s = this.readyState;
+                        if (s && s !== 'loaded' && s !== 'complete') return;
+                        f();
+                        n.onload = n.onreadystatechange = null;
+                    };
+                    i = d.getElementsByTagName(t)[0];
+                    i.parentNode.insertBefore(n, i);
+                })(window, document, 'script', '//bat.bing.com/bat.js', 'uetq');
+            </script>
+            <script>
+                // Consent Mode default: denied. We only grant if the user explicitly accepts.
+                window.uetq = window.uetq || [];
+                window.uetq.push('consent', 'default', { ad_storage: 'denied' });
+            </script>
     </head>
     <body>
         <canvas id="immersion" aria-hidden="true"></canvas>
@@ -214,6 +244,20 @@
                 </div>
             </footer>
         </main>
+
+        <!-- Cookie / consent banner (homepage only) for Microsoft Ads UET -->
+        <div class="consent-banner" id="consentBanner" role="dialog" aria-live="polite" aria-label="Cookie consent" hidden>
+            <div class="consent-copy">
+                <div class="consent-title">Privacy & measurement</div>
+                <div class="consent-text">
+                    We use Microsoft Ads (Bing) UET to measure visits and improve the site. You can accept or decline ad storage.
+                </div>
+            </div>
+            <div class="consent-actions">
+                <button class="btn" id="consentDecline" type="button">Decline</button>
+                <button class="btn primary" id="consentAccept" type="button">Accept</button>
+            </div>
+        </div>
         <script>
             // Footer year
             document.getElementById('year').textContent = String(new Date().getFullYear());
@@ -349,6 +393,44 @@
             if (window.matchMedia('(prefers-reduced-motion: reduce)').matches === false) {
                 enableTilt();
             }
+        </script>
+
+        <script>
+            // Microsoft Ads (Bing) UET consent control
+            (function () {
+                const KEY = 'consent.uet.ad_storage';
+                const banner = document.getElementById('consentBanner');
+                if (!banner) return;
+
+                const acceptBtn = document.getElementById('consentAccept');
+                const declineBtn = document.getElementById('consentDecline');
+
+                const applyConsent = (state) => {
+                    window.uetq = window.uetq || [];
+                    window.uetq.push('consent', 'update', { ad_storage: state });
+                };
+
+                const saved = localStorage.getItem(KEY);
+                if (saved === 'granted' || saved === 'denied') {
+                    applyConsent(saved);
+                    return;
+                }
+
+                // No choice stored: show banner.
+                banner.hidden = false;
+
+                acceptBtn?.addEventListener('click', () => {
+                    localStorage.setItem(KEY, 'granted');
+                    applyConsent('granted');
+                    banner.hidden = true;
+                });
+
+                declineBtn?.addEventListener('click', () => {
+                    localStorage.setItem(KEY, 'denied');
+                    applyConsent('denied');
+                    banner.hidden = true;
+                });
+            })();
         </script>
 
         <script>

@@ -17,6 +17,109 @@
   const btnPause = document.getElementById('btnPause');
   const btnReset = document.getElementById('btnReset');
 
+  // Leaderboard UI (MVP)
+  const leaderboardEl = document.getElementById('leaderboard');
+  const lbList = document.getElementById('lbList');
+  const lbForm = document.getElementById('lbForm');
+  const lbName = document.getElementById('lbName');
+  const lbSubmit = document.getElementById('lbSubmit');
+  const lbStatus = document.getElementById('lbStatus');
+
+  const LB_GAME = 'frost-signal';
+  // Configure in prod via query param, e.g. ?lb=https://YOUR-RENDER-URL
+  const LB_BASE = new URLSearchParams(location.search).get('lb') || '';
+  const LB_LIMIT = 10;
+
+  const lbEnabled = () => Boolean(LB_BASE);
+  const setLbStatus = (msg) => {
+    if (lbStatus) lbStatus.textContent = msg || '';
+  };
+
+  const renderLeaderboardRows = (rows) => {
+    if (!lbList) return;
+    lbList.replaceChildren();
+
+    if (!rows || !rows.length) {
+      const li = document.createElement('li');
+      li.textContent = 'No scores yet.';
+      lbList.appendChild(li);
+      return;
+    }
+
+    for (const r of rows) {
+      const li = document.createElement('li');
+      const left = document.createElement('span');
+      left.className = 'lb-name';
+      left.textContent = r.name || 'anon';
+      const right = document.createElement('span');
+      right.className = 'lb-score';
+      right.textContent = String(r.score ?? 0);
+      li.appendChild(left);
+      li.appendChild(right);
+      lbList.appendChild(li);
+    }
+  };
+
+  async function fetchLeaderboard() {
+    if (!leaderboardEl) return;
+    leaderboardEl.hidden = false;
+
+    const saved = localStorage.getItem('frostSignal.playerName');
+    if (lbName && saved) lbName.value = saved;
+
+    if (!lbEnabled()) {
+      renderLeaderboardRows([]);
+      setLbStatus('Leaderboard is not configured yet. Add ?lb=https://YOUR-RENDER-URL');
+      return;
+    }
+
+    setLbStatus('Loading leaderboard…');
+    try {
+      const url = `${LB_BASE.replace(/\/$/, '')}/api/leaderboard?game=${encodeURIComponent(LB_GAME)}&limit=${LB_LIMIT}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      renderLeaderboardRows(data.leaderboard || []);
+      setLbStatus('');
+    } catch (e) {
+      renderLeaderboardRows([]);
+      setLbStatus(`Leaderboard offline: ${e?.message || e}`);
+    }
+  }
+
+  async function submitScore(name, score) {
+    if (!lbEnabled()) {
+      setLbStatus('Missing API URL. Add ?lb=https://YOUR-RENDER-URL');
+      return;
+    }
+
+    const safeName = String(name || '').trim().slice(0, 16);
+    if (!safeName) {
+      setLbStatus('Enter a name.');
+      return;
+    }
+
+    setLbStatus('Submitting…');
+    if (lbSubmit) lbSubmit.disabled = true;
+
+    try {
+      const url = `${LB_BASE.replace(/\/$/, '')}/api/submit-score`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: safeName, score: Number(score) || 0, game: LB_GAME }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      localStorage.setItem('frostSignal.playerName', safeName);
+      setLbStatus('Score submitted!');
+      await fetchLeaderboard();
+    } catch (e) {
+      setLbStatus(`Submit failed: ${e?.message || e}`);
+    } finally {
+      if (lbSubmit) lbSubmit.disabled = false;
+    }
+  }
+
   const targetShards = 12;
   const roundSeconds = 60;
 
@@ -95,6 +198,9 @@
     btnStart.hidden = false;
     btnRestart.hidden = true;
     btnPause.textContent = 'Pause';
+
+    // Show leaderboard on the start overlay (MVP engagement)
+    fetchLeaderboard();
   }
 
   function startRound() {
@@ -196,6 +302,17 @@
         color,
       });
     }
+
+    // Show leaderboard on end overlay.
+    fetchLeaderboard();
+  }
+
+  if (lbForm) {
+    lbForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      // MVP: “points eaten” = shards collected
+      submitScore(lbName?.value, state.shards);
+    });
   }
 
   function inputDir() {

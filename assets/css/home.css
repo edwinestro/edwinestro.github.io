@@ -190,6 +190,39 @@ body::before {
   background: linear-gradient(135deg, rgba(122, 162, 255, 0.24), rgba(154, 230, 255, 0.10));
 }
 
+/* Consent banner (homepage) */
+.consent-banner{
+  position: fixed;
+  left: 1rem;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 40;
+  max-width: 980px;
+  margin: 0 auto;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: .95rem 1rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(4,10,28,.86);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 30px 80px rgba(0,0,0,.55);
+}
+
+.consent-copy{display:grid;gap:.25rem}
+.consent-title{font-weight:950;letter-spacing:.02em}
+.consent-text{color: rgba(255,255,255,.74); line-height: 1.4; font-size: .95rem}
+
+.consent-actions{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:flex-end}
+
+@media (max-width: 640px){
+  .consent-banner{flex-direction: column; align-items: stretch}
+  .consent-actions{justify-content: stretch}
+  .consent-actions .btn{width:100%}
+}
+
 .btn.primary:hover,
 .btn.primary:focus-visible {
   filter: brightness(1.06);
