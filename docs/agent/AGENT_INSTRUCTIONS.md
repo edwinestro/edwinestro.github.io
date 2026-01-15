@@ -3,7 +3,7 @@
 Goal: provide a convenient, documented way to invoke the Foundry agent `edw` from this repo.
 
 Files added:
-- `Agentcy/scripts/hey_copilot.py` — CLI that calls an agent and writes `edw_hello_world.txt` to repo root.
+- `packages/agentcy/scripts/hey_copilot.py` — CLI that calls an agent and writes `edw_hello_world.txt` to repo root.
 - `heyCopilot` — top-level executable wrapper (run `./heyCopilot speak`).
 
 Auth and env vars
@@ -39,5 +39,5 @@ Notes
 - Never commit API keys or secrets to the repo.
 - Do not install Google Chrome (or any Chrome download from Google) as part of this workspace setup or automation.
 - For every command run (terminal/task), always include a short human-readable explanation of what it does and why.
-- If the agent doesn't exist or you want to update it, use the existing `Agentcy/scripts/foundry_hello_agent.py --create-or-update` flow.
+- If the agent doesn't exist or you want to update it, use the existing `packages/agentcy/scripts/foundry_hello_agent.py --create-or-update` flow.
 - The script prints helpful troubleshooting hints if the call fails.

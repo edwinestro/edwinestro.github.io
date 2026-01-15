@@ -58,7 +58,7 @@ from typing import Iterable
 AzureKeyCredential = None
 
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 GENERATED_DIR = REPO_ROOT / "generated"
 
 # Allowed repos for safety. When not using --dry-run the target must be in this set

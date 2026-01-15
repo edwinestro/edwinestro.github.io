@@ -5,7 +5,7 @@ import tempfile
 from pathlib import Path
 
 # Ensure repo root is importable for scripts package
-# Add Agentcy/ to sys.path so we can import scripts as a top-level module
+# Add packages/agentcy/ to sys.path so we can import scripts as a top-level module
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 # Provide lightweight fake azure modules so top-level imports succeed in test environment

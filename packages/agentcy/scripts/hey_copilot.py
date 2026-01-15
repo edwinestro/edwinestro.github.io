@@ -3,11 +3,11 @@
 
 Usage:
   # dry-run (no network calls)
-  python3 Agentcy/scripts/hey_copilot.py speak --dry-run
+    python3 packages/agentcy/scripts/hey_copilot.py speak --dry-run
 
   # real call (ensure USER_ENDPOINT + auth are set):
   export USER_ENDPOINT="https://<resource>.services.ai.azure.com/api/projects/<project>"
-  python3 Agentcy/scripts/hey_copilot.py speak
+    python3 packages/agentcy/scripts/hey_copilot.py speak
 
 The top-level repo also gets a convenience wrapper script `heyCopilot` so you can run:
   ./heyCopilot speak
@@ -29,8 +29,8 @@ import time
 import traceback
 from typing import Optional
 
-# Repo root is two levels up from this file: Agentcy/scripts/hey_copilot.py
-REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
+# Repo root is three levels up from this file: packages/agentcy/scripts/hey_copilot.py
+REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 OUTFILE = REPO_ROOT / "edw_hello_world.txt"
 # No default endpoint stored in the repo; set USER_ENDPOINT or pass --endpoint.
 DEFAULT_ENDPOINT = ""  # placeholder, override via env or CLI
@@ -72,7 +72,7 @@ def _get_credential(project_api_key: str):
 
     except Exception as exc:  # noqa: BLE001
         raise SystemExit(
-            "Missing Azure dependencies. Install with: pip install -r Agentcy/requirements.txt"
+            "Missing Azure dependencies. Install with: pip install -r packages/agentcy/requirements.txt"
         ) from exc
 
     if project_api_key:
@@ -100,30 +100,31 @@ def run_speak(
     dry_run: bool,
     debug: bool,
 ) -> int:
-    if not endpoint:
+    if not endpoint and not dry_run:
         try:
             endpoint = input("USER_ENDPOINT (Foundry project endpoint): ").strip()
         except (KeyboardInterrupt, EOFError):
             print("\nCancelled.")
             return 130
-    endpoint = _require(endpoint, "USER_ENDPOINT/--endpoint")
 
     if debug:
         print("Debug: environment")
         print(f"- python: {sys.executable}")
         print(f"- python_version: {platform.python_version()}")
         print(f"- platform: {platform.platform()}")
-        print(f"- endpoint: {endpoint}")
+        print(f"- endpoint: {endpoint or '(not set)'}")
         print(f"- agent: {agent_name}")
         print(f"- outfile: {OUTFILE}")
 
     if dry_run:
         print("Dry-run: would call Foundry agent with:")
-        print(f"  endpoint: {endpoint}")
+        print(f"  endpoint: {endpoint or '(not required for dry-run)'}")
         print(f"  agent: {agent_name}")
         print(f"  prompt: {prompt}")
         print(f"  outfile: {OUTFILE}")
         return 0
+
+    endpoint = _require(endpoint, "USER_ENDPOINT/--endpoint")
 
     if not project_api_key:
         try:
@@ -165,7 +166,7 @@ def run_speak(
         from azure.ai.projects import AIProjectClient
     except Exception as exc:  # noqa: BLE001
         raise SystemExit(
-            "Missing Azure AI Projects SDK. Install with: pip install -r Agentcy/requirements.txt"
+            "Missing Azure AI Projects SDK. Install with: pip install -r packages/agentcy/requirements.txt"
         ) from exc
 
     try:

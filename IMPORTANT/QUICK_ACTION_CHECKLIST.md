@@ -40,10 +40,9 @@
   - Choose: MIT, Apache 2.0, or proprietary
   - Add to repository root
 
-- [ ] **Rename Directories** - Remove spaces
-  ```bash
-  mv "Stringball endpoint" stringball-endpoint
-  ```
+- [x] **Remove Space-Named Directories**
+  - The duplicate `Stringball endpoint/` folder was removed.
+  - Canonical legacy path is `legacy/stringball-endpoint/`.
 
 ---
 

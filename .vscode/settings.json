@@ -4,6 +4,30 @@
     "terminal.integrated.shellIntegration.decorationsEnabled": true,
     "github.copilot.chat.codeGeneration.useInstructionFiles": true,
     "github.copilot.chat.agent.thinkingTool": true,
+    "files.exclude": {
+        "**/.git": true,
+        "**/.github": true,
+        "**/.vscode": false,
+
+        "assets": true,
+        "data": true,
+        "docs": true,
+        "generated": true,
+        "IMPORTANT": true,
+        "legacy": true,
+        "packages": true,
+        "tests": true,
+        "tools": true,
+
+        ".eslintrc.json": true,
+        ".gitignore": true,
+        "Makefile": true,
+        "package.json": true,
+        "package-lock.json": true,
+        "README.md": true,
+        "_config.yml": true,
+        "heyCopilot": true
+    },
     "cSpell.words": [
         "astro",
         "identificadorUnico",

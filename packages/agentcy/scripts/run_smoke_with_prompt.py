@@ -1,12 +1,12 @@
 """Wrapper to run the Foundry smoke test with optional interactive Project API Key input.
 
 Usage:
-  ./.venv/bin/python Agentcy/scripts/run_smoke_with_prompt.py [--endpoint ENDPOINT] [--model MODEL] [--no-prompt]
+    ./.venv/bin/python packages/agentcy/scripts/run_smoke_with_prompt.py [--endpoint ENDPOINT] [--model MODEL] [--no-prompt]
 
 Behavior:
 - Prompts interactively for PROJECT_API_KEY (secret) unless --no-prompt is supplied.
 - If no key is supplied, it will rely on DefaultAzureCredential (e.g., `az login`).
-- Runs Agentcy/scripts/foundry_smoke_test.py and prints output.
+- Runs packages/agentcy/scripts/foundry_smoke_test.py and prints output.
 """
 from __future__ import annotations
 
@@ -18,8 +18,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-SMOKE = REPO_ROOT / "Agentcy" / "scripts" / "foundry_smoke_test.py"
+REPO_ROOT = Path(__file__).resolve().parents[3]
+SMOKE = REPO_ROOT / "packages" / "agentcy" / "scripts" / "foundry_smoke_test.py"
 
 
 def main() -> int:

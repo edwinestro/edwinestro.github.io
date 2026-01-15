@@ -24,11 +24,11 @@ and provide MODEL_DEPLOYMENT_NAME.
 Examples:
   export USER_ENDPOINT="https://<resource>.services.ai.azure.com/api/projects/<project>"
   export AGENT_NAME="edw"
-  python3 Agentcy/scripts/foundry_hello_agent.py --prompt "hello world"
+    python3 packages/agentcy/scripts/foundry_hello_agent.py --prompt "hello world"
 
   # Create/update an agent version first:
   export MODEL_DEPLOYMENT_NAME="<deployment>"
-  python3 Agentcy/scripts/foundry_hello_agent.py --create-or-update
+    python3 packages/agentcy/scripts/foundry_hello_agent.py --create-or-update
 """
 
 from __future__ import annotations
@@ -60,7 +60,7 @@ def _get_credential(project_api_key: str):
 
     except Exception as exc:  # noqa: BLE001
         raise SystemExit(
-            "Missing Azure dependencies. Install with: pip install -r Agentcy/requirements.txt"
+            "Missing Azure dependencies. Install with: pip install -r packages/agentcy/requirements.txt"
         ) from exc
 
     if project_api_key:
@@ -114,7 +114,7 @@ def main() -> int:
         from azure.ai.projects.models import PromptAgentDefinition
     except Exception as exc:  # noqa: BLE001
         raise SystemExit(
-            "Missing Azure AI Projects SDK. Install with: pip install -r Agentcy/requirements.txt"
+            "Missing Azure AI Projects SDK. Install with: pip install -r packages/agentcy/requirements.txt"
         ) from exc
 
     try:

@@ -15,11 +15,11 @@ These can always be recreated.
 From repo root:
 
 ```bash
-python3 -m venv Agentcy/.venv
-source Agentcy/.venv/bin/activate
-pip install -r Agentcy/requirements.txt
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r packages/agentcy/requirements.txt
 # optional dev tooling
-pip install -r Agentcy/requirements-dev.txt
+pip install -r packages/agentcy/requirements-dev.txt
 ```
 
 ### Legacy Leaderboard API (Node)

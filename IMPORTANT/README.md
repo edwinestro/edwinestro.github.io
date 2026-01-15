@@ -72,8 +72,9 @@ git rm .github/workflows/azure-staticwebapp.yml
 # 5. Create SECURITY.md (15 min)
 # See template in main audit report
 
-# 6. Rename directories (5 min)
-mv "Stringball endpoint" stringball-endpoint
+# 6. Remove space-named directories (5 min)
+# Done: removed duplicate `Stringball endpoint/` folder.
+# Canonical legacy path is `legacy/stringball-endpoint/`.
 ```
 
 **Result:** Score improves from 4.5/10 to ~6.0/10

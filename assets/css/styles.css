@@ -18,7 +18,7 @@
 
 .hero{
   display:grid;
-  background-image: url('autumn.png');
+  background-image: url('../img/autumn.png');
   background-repeat:no-repeat;
   background-size:contain;
   background-position: center;
@@ -398,7 +398,7 @@ article a:hover {
     }
 }
 .article-image{
-  background-image: url(connections.png);
+  background-image: url(../img/connections.png);
 }
 .relationshipDesign{
   background-image: linear-gradient(to right, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
@@ -408,5 +408,5 @@ article a:hover {
 }
 
 .article-image{
-  background-image: url(connections.png);
+  background-image: url(../img/connections.png);
 }

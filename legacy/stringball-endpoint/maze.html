@@ -44,12 +44,9 @@
     .hydrogen-pointer::after{content:"H";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:.6rem;font-weight:700;color:#8b5cf6;}
     @keyframes pulse{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.2);opacity:1}}
     
-    .minimap-container{width:80px;height:80px;border:2px solid rgba(34,211,238,.6);border-radius:8px;overflow:hidden;background:rgba(0,0,0,.3);}
+    .minimap-container{position:absolute;right:16px;top:12px;width:80px;height:80px;border:2px solid rgba(34,211,238,.6);border-radius:8px;overflow:hidden;background:rgba(0,0,0,.3);}
     .minimap-container canvas{width:100%;height:100%;display:block;}
-    .next-level-control{display:flex;flex-direction:column;align-items:center;gap:5px;margin-left:15px;}
-    .next-level-control button{background:linear-gradient(135deg,#22d3ee,#06b6d4);border:none;color:white;padding:8px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s ease;box-shadow:0 2px 4px rgba(0,0,0,0.3);}
-    .next-level-control button:hover{background:linear-gradient(135deg,#06b6d4,#0891b2);transform:translateY(-1px);box-shadow:0 4px 8px rgba(0,0,0,0.4);}
-    .next-level-control button:active{transform:translateY(0);box-shadow:0 2px 4px rgba(0,0,0,0.3);}
+    .next-level-control{display:none;}
     #complexityLevel{color:#22d3ee;font-size:11px;font-weight:500;text-shadow:0 0 4px rgba(34,211,238,0.6);}
     
     .status-info{display:flex;flex-direction:column;gap:4px;color:#e6edf3;font-size:.6rem;text-shadow:0 2px 4px #000;}
@@ -466,10 +463,6 @@
         <div class="minimap-container">
           <canvas id="minimapCanvas"></canvas>
         </div>
-        <div class="next-level-control">
-          <button id="nextLevelBtn" onclick="nextLevel()">Next Level →</button>
-          <span id="complexityLevel">Level: 1</span>
-        </div>
       </div>
       
       <div class="hud" id="hud" hidden>
@@ -521,6 +514,7 @@
         <div class="start-menu-info">
           <p>Navigate through the periodic table laboratory</p>
           <p>Interact with scientific equipment and discover elements</p>
+          <p style="margin-top:8px;color:#22d3ee;font-weight:700;">Mission: create a Hydrogen atom — combine 1 proton + 1 electron, then scan the Hydrogen board to unlock Helium.</p>
         </div>
       </div>
     </div>
@@ -553,6 +547,22 @@
               <button class="config-btn" id="qualityDown">-</button>
               <span id="qualityValue">High</span>
               <button class="config-btn" id="qualityUp">+</button>
+            </div>
+          </div>
+
+          <div class="config-row">
+            <label>Field of View:</label>
+            <div class="config-control">
+              <button class="config-btn" id="fovDown">-</button>
+              <span id="fovValue">67°</span>
+              <button class="config-btn" id="fovUp">+</button>
+            </div>
+          </div>
+
+          <div class="config-row">
+            <label>Auto Quality:</label>
+            <div class="config-control">
+              <button class="config-toggle" id="autoQualityToggle">On</button>
             </div>
           </div>
           
@@ -620,6 +630,10 @@
             <div class="control-item">
               <kbd>F11</kbd>
               <span>Toggle fullscreen</span>
+            </div>
+            <div class="control-item">
+              <kbd>H</kbd>
+              <span>Open controls (in-game)</span>
             </div>
           </div>
         </div>
@@ -740,8 +754,201 @@
     const btnTouchInteract=document.getElementById('btnTouchInteract');
     const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
+    if(!isTouchDevice && touchControls){
+      touchControls.classList.remove('show');
+      touchControls.setAttribute('aria-hidden','true');
+    }
+
     // Config persistence
     const CONFIG_KEY='scienceLabConfig.v1';
+
+    // --- Procedural textures (no external assets) ---
+    const TEX_SIZE = 64;
+    const wallTexCanvas = document.createElement('canvas');
+    wallTexCanvas.width = TEX_SIZE; wallTexCanvas.height = TEX_SIZE;
+    const wallTexCtx = wallTexCanvas.getContext('2d');
+
+    const floorTexCanvas = document.createElement('canvas');
+    floorTexCanvas.width = TEX_SIZE; floorTexCanvas.height = TEX_SIZE;
+    const floorTexCtx = floorTexCanvas.getContext('2d');
+
+    const ceilTexCanvas = document.createElement('canvas');
+    ceilTexCanvas.width = TEX_SIZE; ceilTexCanvas.height = TEX_SIZE;
+    const ceilTexCtx = ceilTexCanvas.getContext('2d');
+
+    const desertFloorCanvas = document.createElement('canvas');
+    desertFloorCanvas.width = TEX_SIZE; desertFloorCanvas.height = TEX_SIZE;
+    const desertFloorCtx = desertFloorCanvas.getContext('2d');
+
+    const desertSkyCanvas = document.createElement('canvas');
+    desertSkyCanvas.width = TEX_SIZE; desertSkyCanvas.height = TEX_SIZE;
+    const desertSkyCtx = desertSkyCanvas.getContext('2d');
+
+    function rnd(seed){
+      // deterministic-ish hash RNG (fast)
+      let t = seed + 0x6D2B79F5;
+      t = Math.imul(t ^ (t >>> 15), 1 | t);
+      t ^= t + Math.imul(t ^ (t >>> 7), 61 | t);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    }
+
+    function buildWallTexture(){
+      const g = wallTexCtx;
+      g.clearRect(0,0,TEX_SIZE,TEX_SIZE);
+      // Base brushed metal
+      const bg = g.createLinearGradient(0,0,TEX_SIZE,0);
+      bg.addColorStop(0,'#0b2233');
+      bg.addColorStop(0.5,'#0e2a3f');
+      bg.addColorStop(1,'#081a28');
+      g.fillStyle = bg;
+      g.fillRect(0,0,TEX_SIZE,TEX_SIZE);
+      // Vertical panel seams
+      g.fillStyle = 'rgba(34,211,238,0.22)';
+      for(let x=0;x<TEX_SIZE;x+=16){
+        g.fillRect(x,0,1,TEX_SIZE);
+        g.fillRect(x+8,0,1,TEX_SIZE);
+      }
+      // Rivets
+      for(let y=8;y<TEX_SIZE;y+=16){
+        for(let x=8;x<TEX_SIZE;x+=16){
+          g.fillStyle='rgba(255,255,255,0.12)';
+          g.fillRect(x,y,1,1);
+          g.fillStyle='rgba(0,0,0,0.35)';
+          g.fillRect(x+1,y+1,1,1);
+        }
+      }
+      // Noise
+      const img = g.getImageData(0,0,TEX_SIZE,TEX_SIZE);
+      const d = img.data;
+      for(let i=0;i<d.length;i+=4){
+        const n = (Math.random()*2-1) * 12;
+        d[i] = Math.max(0, Math.min(255, d[i] + n));
+        d[i+1] = Math.max(0, Math.min(255, d[i+1] + n));
+        d[i+2] = Math.max(0, Math.min(255, d[i+2] + n));
+      }
+      g.putImageData(img,0,0);
+    }
+
+    function buildFloorTexture(){
+      const g = floorTexCtx;
+      g.clearRect(0,0,TEX_SIZE,TEX_SIZE);
+      // Dark tiles
+      for(let y=0;y<TEX_SIZE;y+=8){
+        for(let x=0;x<TEX_SIZE;x+=8){
+          const t = ((x>>3) + (y>>3)) & 1;
+          g.fillStyle = t ? '#07131b' : '#0a1a24';
+          g.fillRect(x,y,8,8);
+        }
+      }
+      // Neon grid lines
+      g.strokeStyle = 'rgba(34,211,238,0.22)';
+      g.lineWidth = 1;
+      for(let i=0;i<=TEX_SIZE;i+=8){
+        g.beginPath(); g.moveTo(i,0); g.lineTo(i,TEX_SIZE); g.stroke();
+        g.beginPath(); g.moveTo(0,i); g.lineTo(TEX_SIZE,i); g.stroke();
+      }
+      // Micro speckle
+      const img = g.getImageData(0,0,TEX_SIZE,TEX_SIZE);
+      const d = img.data;
+      for(let y=0;y<TEX_SIZE;y++){
+        for(let x=0;x<TEX_SIZE;x++){
+          const i = (y*TEX_SIZE + x) * 4;
+          const n = (rnd(x*73856093 ^ y*19349663) * 2 - 1) * 10;
+          d[i] = Math.max(0, Math.min(255, d[i] + n));
+          d[i+1] = Math.max(0, Math.min(255, d[i+1] + n));
+          d[i+2] = Math.max(0, Math.min(255, d[i+2] + n));
+        }
+      }
+      g.putImageData(img,0,0);
+    }
+
+    function buildCeilTexture(){
+      const g = ceilTexCtx;
+      g.clearRect(0,0,TEX_SIZE,TEX_SIZE);
+      // Ceiling panels
+      g.fillStyle = '#071b28';
+      g.fillRect(0,0,TEX_SIZE,TEX_SIZE);
+      g.strokeStyle = 'rgba(255,255,255,0.10)';
+      g.lineWidth = 1;
+      for(let y=0;y<TEX_SIZE;y+=16){
+        for(let x=0;x<TEX_SIZE;x+=16){
+          g.strokeRect(x+1,y+1,14,14);
+        }
+      }
+      // Soft light strips
+      g.fillStyle = 'rgba(34,211,238,0.12)';
+      for(let x=6;x<TEX_SIZE;x+=16){
+        g.fillRect(x,0,2,TEX_SIZE);
+      }
+      // Noise
+      const img = g.getImageData(0,0,TEX_SIZE,TEX_SIZE);
+      const d = img.data;
+      for(let i=0;i<d.length;i+=4){
+        const n = (Math.random()*2-1) * 9;
+        d[i] = Math.max(0, Math.min(255, d[i] + n));
+        d[i+1] = Math.max(0, Math.min(255, d[i+1] + n));
+        d[i+2] = Math.max(0, Math.min(255, d[i+2] + n));
+      }
+      g.putImageData(img,0,0);
+    }
+
+    function buildDesertFloor(){
+      const g = desertFloorCtx;
+      g.clearRect(0,0,TEX_SIZE,TEX_SIZE);
+      g.fillStyle = '#caa36a';
+      g.fillRect(0,0,TEX_SIZE,TEX_SIZE);
+      // dune bands
+      for(let y=0;y<TEX_SIZE;y+=8){
+        g.fillStyle = (y/8)%2 ? 'rgba(214,176,120,0.55)' : 'rgba(184,140,90,0.45)';
+        g.fillRect(0,y,TEX_SIZE,4);
+      }
+      const img = g.getImageData(0,0,TEX_SIZE,TEX_SIZE);
+      const d = img.data;
+      for(let i=0;i<d.length;i+=4){
+        const n = (Math.random()*2-1) * 22;
+        d[i] = Math.max(0, Math.min(255, d[i] + n));
+        d[i+1] = Math.max(0, Math.min(255, d[i+1] + n));
+        d[i+2] = Math.max(0, Math.min(255, d[i+2] + n));
+      }
+      g.putImageData(img,0,0);
+    }
+
+    function buildDesertSky(){
+      const g = desertSkyCtx;
+      const grad = g.createLinearGradient(0,0,0,TEX_SIZE);
+      grad.addColorStop(0, '#f4a261');
+      grad.addColorStop(0.45, '#f6bd77');
+      grad.addColorStop(1, '#8ecae6');
+      g.fillStyle = grad;
+      g.fillRect(0,0,TEX_SIZE,TEX_SIZE);
+      // faint clouds
+      g.fillStyle = 'rgba(255,255,255,0.18)';
+      for(let i=0;i<6;i++){
+        const x = (i*11)%TEX_SIZE;
+        const y = (i*7)%TEX_SIZE;
+        g.beginPath();
+        g.ellipse(x+10, y+8, 12, 5, 0, 0, Math.PI*2);
+        g.fill();
+      }
+    }
+
+    buildWallTexture();
+    buildFloorTexture();
+    buildCeilTexture();
+    buildDesertFloor();
+    buildDesertSky();
+
+    const floorTexData = floorTexCtx.getImageData(0,0,TEX_SIZE,TEX_SIZE).data;
+    const ceilTexData = ceilTexCtx.getImageData(0,0,TEX_SIZE,TEX_SIZE).data;
+    const desertFloorData = desertFloorCtx.getImageData(0,0,TEX_SIZE,TEX_SIZE).data;
+    const desertSkyData = desertSkyCtx.getImageData(0,0,TEX_SIZE,TEX_SIZE).data;
+
+    function sampleTex(data, u, v){
+      const uu = u & (TEX_SIZE - 1);
+      const vv = v & (TEX_SIZE - 1);
+      const idx = ((vv * TEX_SIZE + uu) << 2);
+      return [data[idx], data[idx+1], data[idx+2]];
+    }
 
     // --- Ensure jump helper exists (was removed during refactor) ---
     function jump(){ if(!state.jumping && state.jumpZ===0){ state.jumping=true; state.vz=state.jumpImpulse; } }
@@ -1138,6 +1345,15 @@
     });
     const stations=[];
 
+    // Helper to map grid coords to element symbol
+    function roomSymbolAt(gx, gy){
+      const idx = gy * GRID + gx;
+      return (idx >= 0 && idx < elements.length) ? elements[idx].sym : null;
+    }
+
+    // Door list for locking/unlocking rooms
+    const doorPositions = [];
+
     for(let gy=0, idx=0; gy<GRID; gy++){
       for(let gx=0; gx<GRID; gx++){
         if(idx >= elements.length) break; // unused extra rooms remain solid
@@ -1155,18 +1371,49 @@
           const doorX = x0 + ROOM_INNER; // wall column
           const doorY = y0 + Math.floor(ROOM_INNER/2);
           mapArr[doorY][doorX]='.';
+          doorPositions.push({
+            x: doorX,
+            y: doorY,
+            a: roomSymbolAt(gx, gy),
+            b: roomSymbolAt(gx + 1, gy)
+          });
         }
         // vertical tunnel downward
         if(gy < GRID-1){
           const doorY = y0 + ROOM_INNER; // wall row
           const doorX = x0 + Math.floor(ROOM_INNER/2);
             mapArr[doorY][doorX]='.';
+            doorPositions.push({
+              x: doorX,
+              y: doorY,
+              a: roomSymbolAt(gx, gy),
+              b: roomSymbolAt(gx, gy + 1)
+            });
         }
       }
+    }
+
+    // Carve a desert test site using the first unused room (if any)
+    const desertRoomIndex = elements.length; // first unused room index
+    const desertGX = desertRoomIndex % GRID;
+    const desertGY = Math.floor(desertRoomIndex / GRID);
+    let desertArena = null;
+    if(desertGY < GRID){
+      const dx0 = 1 + desertGX*(ROOM_INNER+1);
+      const dy0 = 1 + desertGY*(ROOM_INNER+1);
+      for(let yy=0; yy<ROOM_INNER; yy++){
+        for(let xx=0; xx<ROOM_INNER; xx++) mapArr[dy0+yy][dx0+xx]='.';
+      }
+      desertArena = { x: dx0 + ROOM_INNER/2, y: dy0 + ROOM_INNER/2 };
     }
     const map = mapArr.map(r=>r.join(''));
     const MAP_W = width, MAP_H = height;
     const hydrogenStation = stations[0];
+
+    const doorMap = new Map();
+    for(const d of doorPositions){
+      doorMap.set(`${d.x},${d.y}`, d);
+    }
 
     // Return the element symbol for the room interior the point is inside.
     // If the point is in a wall band/door tile between rooms, returns null.
@@ -1343,6 +1590,67 @@
         }
       }
     }
+
+    function normalizeElementEntry(sym, stationFallback){
+      const e = elementDatabase[sym] || {};
+      const st = stationFallback || stations.find(s=>s && s.sym===sym);
+      const meta = periodicTableData.find(p=>p.sym===sym);
+      const atomicNumber = (e.atomicNumber ?? st?.num ?? '—');
+      const name = e.name || st?.name || meta?.name || `Element ${sym}`;
+      const mass = e.atomicMass && e.atomicMass !== '—' ? e.atomicMass : (st?.atomicMass ? `${st.atomicMass} u` : (meta?.mass ? `${meta.mass} u` : '—'));
+      e.symbol = e.symbol || sym;
+      e.name = name;
+      e.atomicNumber = atomicNumber;
+      e.atomicMass = mass;
+
+      if(!e.description || String(e.description).includes('not yet expanded')){
+        e.description = `A chemical element (${sym}) in the periodic table. Atomic number ${atomicNumber}${mass && mass !== '—' ? `, standard atomic weight ${mass}.` : '.'}`;
+      }
+
+      if(!Array.isArray(e.properties)) e.properties = [];
+      const wantProps = [
+        `Atomic Number: ${atomicNumber}`,
+        `Symbol: ${sym}`,
+        `Atomic Mass: ${mass}`
+      ];
+      for(const p of wantProps){
+        if(!e.properties.some(x => String(x).startsWith(p.split(':')[0]+':'))) e.properties.unshift(p);
+      }
+
+      if(!Array.isArray(e.uses) || e.uses.length === 0 || String(e.uses[0]||'').includes('Data coming soon')){
+        e.uses = [
+          'Education & lab demonstrations',
+          'Materials science research',
+          'Industrial applications vary by compound and alloying'
+        ];
+      }
+
+      if(!Array.isArray(e.chemicalReactions) || e.chemicalReactions.length === 0 || String(e.chemicalReactions[0]||'').includes('Reactions: —')){
+        e.chemicalReactions = [
+          'Reactivity depends on compounds/oxidation states',
+          'Refer to standard chemistry references for common reactions'
+        ];
+      }
+
+      if(!e.safetyInfo || String(e.safetyInfo).trim() === 'Safety information: —'){
+        e.safetyInfo = 'Safety varies by compound and form; follow standard lab PPE and consult SDS/MSDS for specific materials.';
+      }
+
+      if(!Array.isArray(e.interestingFacts) || e.interestingFacts.length === 0 || String(e.interestingFacts[0]||'').includes('expanded content')){
+        e.interestingFacts = [
+          `Room for ${sym} is ready for richer content.`,
+          'Data can be expanded over time inside elementDatabase.'
+        ];
+      }
+
+      elementDatabase[sym] = e;
+      return e;
+    }
+
+    for(const st of stations){
+      if(!st || !st.sym) continue;
+      normalizeElementEntry(st.sym, st);
+    }
     
     // elementDatabase declared earlier
 
@@ -1384,6 +1692,25 @@
         interactive: true,
         room: 'C'
       });
+
+      // Desert hydrogen subatomic console
+      if(desertArena){
+        objs.push({
+          id: 'hydrogen-subatomic',
+          type: 'equipment',
+          x: desertArena.x + 0.9,
+          y: desertArena.y - 0.6,
+          z: 0,
+          width: 1.0,
+          height: 1.1,
+          depth: 0.7,
+          rotation: 0,
+          color: '#d9b58d',
+          name: 'Hydrogen Subatomic Console',
+          description: 'A desert lab console to stabilize hydrogen orbitals',
+          interactive: true
+        });
+      }
 
       // Element boards (one per station/room)
       for(const st of stations){
@@ -1448,7 +1775,16 @@
       lastTime: performance.now(),
       fps:0, frames:0, fpsTime:0,
       pixelStep:1,
+      renderScale: 1,
+      fovDeg: 67,
+      autoQuality: true,
       shootParticles:[],
+      darts:[],
+      maxDarts: 16,
+      hydrogenObjectiveComplete: false,
+      hydrogenSubatomicComplete: false,
+      desertMode: false,
+      lastLockedToast: 0,
       vz:0, gravity:14, jumpImpulse:6,
       xp:0,
       nearObject: null, // Track nearby interactive object
@@ -1462,6 +1798,74 @@
     canvas.setAttribute('tabindex','-1');
     // Core loop state (moved BEFORE startGame to avoid TDZ access)
     let running=false, paused=false, rafId=null;
+    let lastAutoQualityChange = 0;
+
+    function isLockedDoor(x, y){
+      if(state.hydrogenObjectiveComplete) return false;
+      return doorMap.has(`${x},${y}`);
+    }
+
+    function isWallAt(x, y){
+      const tile = map[y]?.[x];
+      if(tile === '#' || !tile) return true;
+      if(isLockedDoor(x, y)) return true;
+      return false;
+    }
+
+    function enterDesertLab(){
+      if(!desertArena) return;
+      state.desertMode = true;
+      state.px = desertArena.x;
+      state.py = desertArena.y;
+      state.jumpZ = 0;
+      state.pitch = 0;
+      state.dir = 90;
+      toast('Desert test site: Hydrogen subatomic lab', 1500);
+      setTimeout(()=>toast('Objective: interact with the Subatomic Console (press E)', 1700), 400);
+    }
+
+    // --- Lightweight ambient audio (optional) ---
+    let audioCtx=null, audioGain=null, audioOsc=null, audioFilter=null;
+    function ensureAudioStarted(){
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if(!Ctx) return;
+      if(!audioCtx){
+        audioCtx = new Ctx();
+        audioGain = audioCtx.createGain();
+        audioFilter = audioCtx.createBiquadFilter();
+        audioFilter.type = 'lowpass';
+        audioFilter.frequency.value = 420;
+        audioFilter.Q.value = 0.8;
+
+        audioOsc = audioCtx.createOscillator();
+        audioOsc.type = 'sawtooth';
+        audioOsc.frequency.value = 54;
+        audioOsc.connect(audioFilter);
+        audioFilter.connect(audioGain);
+        audioGain.connect(audioCtx.destination);
+        audioOsc.start();
+      }
+      audioCtx.resume?.().catch(()=>{});
+    }
+    function setAmbientVolume(volPct, pausedMult=1){
+      if(!audioCtx || !audioGain) return;
+      const v = Math.max(0, Math.min(100, Number(volPct) || 0));
+      // Keep it subtle: 0..~0.06
+      const target = (v/100) * 0.06 * pausedMult;
+      try{
+        audioGain.gain.setTargetAtTime(target, audioCtx.currentTime, 0.06);
+      }catch(e){
+        audioGain.gain.value = target;
+      }
+    }
+    function stopAmbientAudio(){
+      try{ audioOsc?.stop?.(); }catch(e){}
+      try{ audioOsc?.disconnect?.(); }catch(e){}
+      try{ audioFilter?.disconnect?.(); }catch(e){}
+      try{ audioGain?.disconnect?.(); }catch(e){}
+      try{ audioCtx?.close?.(); }catch(e){}
+      audioCtx=null; audioGain=null; audioOsc=null; audioFilter=null;
+    }
     // Global error trap to surface silent failures
     window.onerror = (m,src,line,col,err)=>{ console.error('[MazeError]',m,src,line,col,err); toast('Error: '+m); return false; };
 
@@ -1469,12 +1873,15 @@
     if(typeof window.resizeForDPR !== 'function'){
       window.resizeForDPR = function resizeForDPR(){
         const scale=Math.min(window.devicePixelRatio||1,2);
+        const renderScale = Math.max(1, Math.min(1.8, state.renderScale || 1));
         if(document.fullscreenElement || document.body.classList.contains('playing')){
           const w=window.innerWidth, h=window.innerHeight;
-          canvas.width=w*scale; canvas.height=h*scale;
+          canvas.width=Math.max(320, Math.floor((w*scale) / renderScale));
+          canvas.height=Math.max(240, Math.floor((h*scale) / renderScale));
           canvas.style.width=w+'px'; canvas.style.height=h+'px';
         } else {
-          canvas.width=960*scale; canvas.height=540*scale;
+          canvas.width=Math.floor((960*scale) / renderScale);
+          canvas.height=Math.floor((540*scale) / renderScale);
           canvas.style.width='960px'; canvas.style.height='540px';
         }
         ctx.imageSmoothingEnabled=false;
@@ -1491,8 +1898,21 @@
       if(state.fpsTime >= 1){ hudPerf.textContent='FPS: '+state.frames; // adaptive pixelStep: if FPS low -> increase pixelStep, if high -> decrease
         const measured = state.frames; state.frames=0; state.fpsTime=0;
         // simple moving decision: increase if <45, decrease if >55
-        if(measured < 42 && state.pixelStep < 3){ state.pixelStep++; resizeForDPR(); toast('Auto: lower res'); }
-        else if(measured > 55 && state.pixelStep > 1){ state.pixelStep--; resizeForDPR(); toast('Auto: higher res'); }
+        if(state.autoQuality && (now - lastAutoQualityChange) > 4200){
+          if(measured < 42 && state.pixelStep < 3){
+            state.pixelStep++;
+            state.renderScale = 1 + (state.pixelStep - 1) * 0.3;
+            lastAutoQualityChange = now;
+            resizeForDPR();
+            toast('Auto: lower quality', 900);
+          } else if(measured > 55 && state.pixelStep > 1){
+            state.pixelStep--;
+            state.renderScale = 1 + (state.pixelStep - 1) * 0.3;
+            lastAutoQualityChange = now;
+            resizeForDPR();
+            toast('Auto: higher quality', 900);
+          }
+        }
       }
       // --- Movement ---
       const moveDir=state.keys.w ? 1 : state.keys.s ? -1 : 0;
@@ -1513,10 +1933,17 @@
       }
       // Check bounds and walls
       if(newPx >= 1 && newPx < MAP_W-1 && newPy >= 1 && newPy < MAP_H-1){
-        const tile = map[Math.floor(newPy)]?.[Math.floor(newPx)];
-        if(tile !== '#'){
+        const tx = Math.floor(newPx);
+        const ty = Math.floor(newPy);
+        if(!isWallAt(tx, ty)){
           state.px = newPx;
           state.py = newPy;
+        } else if(isLockedDoor(tx, ty)){
+          const now = performance.now();
+          if(now - state.lastLockedToast > 1400){
+            toast('Locked: complete Hydrogen objective first', 1100);
+            state.lastLockedToast = now;
+          }
         }
       }
       
@@ -1536,8 +1963,8 @@
       if(state.keys.enter) { state.xp += 10; toast('Gained 10 XP!'); }
       // --- Update HUD ---
       if(hudInfo){
-        const ammo=state.shootParticles.length;
-        hudInfo.textContent=`HP:100 Ammo:${ammo===0?'∞':ammo} XP:${state.xp}`;
+        const ammo=state.darts.length;
+        hudInfo.textContent=`HP:100 Darts:${ammo} XP:${state.xp}`;
       }
       
       // --- Update compass and hydrogen fountain ---
@@ -1564,6 +1991,60 @@
         ctx.lineTo(p.x-3,p.y+3);
         ctx.stroke();
       }
+
+      // --- Dart update (simple ballistic + collision) ---
+      for(let i=state.darts.length-1;i>=0;i--){
+        const d = state.darts[i];
+        d.life -= dt;
+        if(d.life <= 0){ state.darts.splice(i,1); continue; }
+        // mild drop
+        d.vz -= 7.5 * dt;
+        const nx = d.x + d.vx * dt;
+        const ny = d.y + d.vy * dt;
+        const nz = Math.max(0.1, d.z + d.vz * dt);
+
+        // Wall collision
+        if(isWallAt(Math.floor(nx), Math.floor(ny))){
+          // impact sparks
+          for(let k=0;k<6;k++){
+            state.shootParticles.push({
+              x: d.x,
+              y: d.y,
+              z: d.z,
+              vz: 2 + Math.random()*2,
+              angle: (Math.random()*Math.PI*2),
+              life: 0.55 + Math.random()*0.35
+            });
+          }
+          toast('Thunk!', 500);
+          state.darts.splice(i,1);
+          continue;
+        }
+
+        // Object collision (soft)
+        for(const obj of labObjects){
+          const dx = obj.x - nx;
+          const dy = obj.y - ny;
+          const dist = Math.sqrt(dx*dx + dy*dy);
+          if(dist < 0.55){
+            toast('Hit: ' + (obj.name || obj.type), 700);
+            for(let k=0;k<5;k++){
+              state.shootParticles.push({
+                x: nx,
+                y: ny,
+                z: nz,
+                vz: 1.5 + Math.random()*2,
+                angle: (Math.random()*Math.PI*2),
+                life: 0.45 + Math.random()*0.35
+              });
+            }
+            state.darts.splice(i,1);
+            continue;
+          }
+        }
+
+        d.x = nx; d.y = ny; d.z = nz;
+      }
       // --- Room transition (debug: instant TP) ---
       if(state.keys.t){
         const roomIdx = Math.floor(Math.random() * stations.length);
@@ -1587,13 +2068,77 @@
       const pitchShift = Math.max(-h*0.45, Math.min(h*0.45, Math.tan(pitchRad) * (h*0.35)));
       const horizon = h/2 + pitchShift - state.jumpZ*26;
       const horizonClamped = Math.max(0, Math.min(h, horizon));
-      const sky=ctx.createLinearGradient(0,0,0,Math.max(1,horizonClamped)); sky.addColorStop(0,'#0d1f30'); sky.addColorStop(1,'#0a2638'); ctx.fillStyle=sky; ctx.fillRect(0,0,w,horizonClamped);
+      const sky=ctx.createLinearGradient(0,0,0,Math.max(1,horizonClamped));
+      if(state.desertMode){
+        sky.addColorStop(0,'#f4a261'); sky.addColorStop(1,'#8ecae6');
+      } else {
+        sky.addColorStop(0,'#0d1f30'); sky.addColorStop(1,'#0a2638');
+      }
+      ctx.fillStyle=sky; ctx.fillRect(0,0,w,horizonClamped);
       if(horizonClamped < h){ const fg=ctx.createLinearGradient(0,horizonClamped,0,h); fg.addColorStop(0,'#0e2028'); fg.addColorStop(1,'#09151d'); ctx.fillStyle=fg; ctx.fillRect(0,horizonClamped,w,h-horizonClamped); }
 
       // Raycaster
       const dirX = Math.cos(state.dir * Math.PI/180), dirY = Math.sin(state.dir * Math.PI/180);
-      const planeFov = 0.66; // FOV
+      const fovRad = (state.fovDeg * Math.PI/180);
+      const planeFov = Math.tan(fovRad/2);
       const planeX = -dirY * planeFov, planeY = dirX * planeFov;
+
+      // --- Textured ceiling + floor (optimized floor-casting) ---
+      const floorData = state.desertMode ? desertFloorData : floorTexData;
+      const ceilData = state.desertMode ? desertSkyData : ceilTexData;
+      const step = Math.max(4, state.pixelStep * 3);
+      const posZ = 0.5 * h;
+      // Ceiling
+      for(let y=0; y < horizonClamped; y += step){
+        const p = (horizon - y);
+        if(p < 1) continue;
+        const rowDist = posZ / p;
+        let worldX = state.px + rowDist * (dirX - planeX);
+        let worldY = state.py + rowDist * (dirY - planeY);
+        const stepX = rowDist * (2 * planeX) / w;
+        const stepY = rowDist * (2 * planeY) / w;
+        // Distance shade
+        const shade = Math.max(0.12, 0.85 / (1 + rowDist * 0.16));
+        for(let x=0; x < w; x += step){
+          const u = (worldX * TEX_SIZE) | 0;
+          const v = (worldY * TEX_SIZE) | 0;
+          const [r,g,b] = sampleTex(ceilData, u, v);
+          const rr = (r * shade) | 0;
+          const gg = (g * shade) | 0;
+          const bb = (b * shade) | 0;
+          ctx.fillStyle = `rgb(${rr},${gg},${bb})`;
+          ctx.fillRect(x, y, step, step);
+          worldX += stepX * step;
+          worldY += stepY * step;
+        }
+      }
+      // Floor
+      for(let y=(horizonClamped|0); y < h; y += step){
+        const p = (y - horizon);
+        if(p < 1) continue;
+        const rowDist = posZ / p;
+        let worldX = state.px + rowDist * (dirX - planeX);
+        let worldY = state.py + rowDist * (dirY - planeY);
+        const stepX = rowDist * (2 * planeX) / w;
+        const stepY = rowDist * (2 * planeY) / w;
+        const shade = Math.max(0.10, 0.95 / (1 + rowDist * 0.18));
+        for(let x=0; x < w; x += step){
+          const u = (worldX * TEX_SIZE) | 0;
+          const v = (worldY * TEX_SIZE) | 0;
+          const [r,g,b] = sampleTex(floorData, u, v);
+          // Subtle forward glow bias (makes center read better)
+          const cx = (x / w) - 0.5;
+          const centerBoost = 1 - Math.min(1, Math.abs(cx) * 1.6);
+          const s2 = shade * (0.85 + centerBoost * 0.15);
+          const rr = (r * s2) | 0;
+          const gg = (g * s2) | 0;
+          const bb = (b * s2) | 0;
+          ctx.fillStyle = `rgb(${rr},${gg},${bb})`;
+          ctx.fillRect(x, y, step, step);
+          worldX += stepX * step;
+          worldY += stepY * step;
+        }
+      }
       const cols = Math.floor(w / state.pixelStep);
       for(let c = 0; c < cols; c++){
         const cameraX = (2 * c / cols) - 1;
@@ -1608,8 +2153,7 @@
         let hit = 0, side = 0;
         while(hit === 0){
           if(sideDistX < sideDistY){ sideDistX += deltaDistX; mapX += stepX; side = 0; } else { sideDistY += deltaDistY; mapY += stepY; side = 1; }
-          const tile = map[mapY]?.[mapX];
-          if(tile === '#' || !tile){ hit = 1; }
+          if(isWallAt(mapX, mapY)){ hit = 1; }
         }
         let perpWallDist = side === 0 ? (mapX - state.px + (1 - stepX)/2) / rayDirX : (mapY - state.py + (1 - stepY)/2) / rayDirY;
         if(perpWallDist < 0.0002) perpWallDist = 0.0002;
@@ -1620,9 +2164,32 @@
         const drawStart = Math.max(0, drawStartRaw);
         const drawEnd = Math.min(h, drawEndRaw);
         if(drawEnd <= drawStart) continue;
-        const color = wallColor(mapX, mapY, perpWallDist, side);
-        ctx.fillStyle = color;
-        ctx.fillRect(c * state.pixelStep, drawStart, state.pixelStep, drawEnd - drawStart);
+
+        // Textured walls (slice from procedural wall texture)
+        let wallX;
+        if(side === 0) wallX = state.py + perpWallDist * rayDirY;
+        else wallX = state.px + perpWallDist * rayDirX;
+        wallX -= Math.floor(wallX);
+        let texX = (wallX * TEX_SIZE) | 0;
+        // Flip texX for certain sides to keep orientation consistent
+        if((side === 0 && rayDirX > 0) || (side === 1 && rayDirY < 0)) texX = TEX_SIZE - texX - 1;
+
+        const xPix = c * state.pixelStep;
+        ctx.drawImage(wallTexCanvas, texX, 0, 1, TEX_SIZE, xPix, drawStart, state.pixelStep, drawEnd - drawStart);
+
+        // Distance shading
+        const fog = Math.min(1, perpWallDist / 12);
+        const sideDark = side ? 0.18 : 0.08;
+        const dark = Math.min(0.85, sideDark + fog * 0.68);
+        ctx.fillStyle = `rgba(0,0,0,${dark})`;
+        ctx.fillRect(xPix, drawStart, state.pixelStep, drawEnd - drawStart);
+
+        // Slight cyan tint for lab vibe (fades with distance)
+        const tint = Math.max(0, 0.10 - fog * 0.08);
+        if(tint > 0.002){
+          ctx.fillStyle = `rgba(34,211,238,${tint})`;
+          ctx.fillRect(xPix, drawStart, state.pixelStep, drawEnd - drawStart);
+        }
       }
 
       // Draw particles as billboards
@@ -1638,6 +2205,27 @@
         ctx.fillRect(screenX - screenSize/2, screenY, screenSize, screenSize);
       }
 
+      // Draw darts as thin billboards
+      for(const d of state.darts){
+        const dx = d.x - state.px, dy = d.y - state.py;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if(dist < 0.12) continue;
+        const angle = Math.atan2(dy, dx) - state.dir * Math.PI/180;
+        if(Math.abs(angle) > (fovRad/2 + 0.35)) continue;
+        const screenX = Math.tan(angle) * (w / (2 * planeFov)) + w/2;
+        const size = Math.min(40, h / (dist * 1.6));
+        const screenY = (horizon - size/2) - (d.z * 18);
+        ctx.strokeStyle = 'rgba(245,245,245,0.92)';
+        ctx.lineWidth = Math.max(1, size * 0.08);
+        ctx.beginPath();
+        ctx.moveTo(screenX - size*0.40, screenY + size*0.05);
+        ctx.lineTo(screenX + size*0.40, screenY + size*0.16);
+        ctx.stroke();
+        // tip
+        ctx.fillStyle = 'rgba(34,211,238,0.9)';
+        ctx.fillRect(screenX + size*0.35, screenY + size*0.12, Math.max(2, size*0.08), Math.max(2, size*0.08));
+      }
+
       // Draw stations as sprites
       for(const stat of stations){
         const dx = stat.x - state.px, dy = stat.y - state.py;
@@ -1650,6 +2238,16 @@
         ctx.fillStyle = '#22d3ee';
         ctx.fillRect(screenX - screenSize/2, screenY, screenSize, screenSize);
       }
+
+      // Subtle vignette for depth / helmet feel
+      ctx.save();
+      const vgR = Math.max(w,h) * 0.72;
+      const vg = ctx.createRadialGradient(w/2, horizonClamped, Math.max(10, vgR*0.08), w/2, horizonClamped, vgR);
+      vg.addColorStop(0, 'rgba(0,0,0,0)');
+      vg.addColorStop(1, 'rgba(0,0,0,0.38)');
+      ctx.fillStyle = vg;
+      ctx.fillRect(0,0,w,h);
+      ctx.restore();
 
       // Draw lab objects (blackboards, equipment)
       render3DObjects();
@@ -1679,8 +2277,9 @@
       const pitchShift = Math.max(-h*0.45, Math.min(h*0.45, Math.tan(pitchRad) * (h*0.35)));
       const horizon = h/2 + pitchShift - state.jumpZ*26;
       const dirX = Math.cos(state.dir * Math.PI/180), dirY = Math.sin(state.dir * Math.PI/180);
-      const planeFov = 0.66;
-      const halfFov = Math.atan(planeFov);
+      const fovRad = (state.fovDeg * Math.PI/180);
+      const planeFov = Math.tan(fovRad/2);
+      const halfFov = fovRad/2;
       const currentRoom = getRoomSymAt(state.px, state.py);
 
       // Sort objects by distance for proper rendering order
@@ -1698,13 +2297,21 @@
         if (dist < 0.1) continue;
 
         // Element boards must only render when the player is inside the designated element room.
+        let baseAlpha = 1;
         if (obj.type === 'element-board') {
           if (!currentRoom || currentRoom !== obj.room) continue;
           if (dist > 7.5) continue;
+          const fadeStart = 2.2;
+          const fadeEnd = 6.6;
+          baseAlpha = 1 - Math.min(1, Math.max(0, (dist - fadeStart) / (fadeEnd - fadeStart)));
         } else {
           // Other objects have a larger draw distance.
           if (dist > 15) continue;
+          const fadeStart = 3.5;
+          const fadeEnd = 12.5;
+          baseAlpha = 1 - Math.min(1, Math.max(0, (dist - fadeStart) / (fadeEnd - fadeStart)));
         }
+        if(baseAlpha <= 0.05) continue;
         
         // Simple angle calculation for field of view check
         const angle = Math.atan2(dy, dx) - state.dir * Math.PI/180;
@@ -1721,6 +2328,8 @@
         // Simple perspective scaling
         const perspectiveScale = Math.max(5, h / (dist * 2));
         
+        ctx.save();
+        ctx.globalAlpha = baseAlpha;
         if (obj.type === 'blackboard') {
           render3DBlackboard(obj, screenX, horizon, perspectiveScale, dist, 0);
         } else if (obj.type === 'element-board') {
@@ -1728,6 +2337,7 @@
         } else if (obj.type === 'equipment') {
           render3DEquipment(obj, screenX, horizon, perspectiveScale, dist, 0);
         }
+        ctx.restore();
         
         // Add interaction glow if nearby
         if (state.nearObject === obj) {
@@ -2060,11 +2670,21 @@
       
       // Adjust visual complexity
       state.pixelStep = Math.min(level, 3); // Higher pixel steps for performance challenge
+
+      // Keep render scale aligned with pixelStep for challenge mode
+      state.renderScale = 1 + (state.pixelStep - 1) * 0.3;
+      if(typeof resizeForDPR === 'function') resizeForDPR();
       
       // Increase number of particles/effects at higher levels
       const maxParticles = 10 + (level - 1) * 5;
       if (state.shootParticles.length > maxParticles) {
         state.shootParticles = state.shootParticles.slice(0, maxParticles);
+      }
+
+      const maxDarts = 10 + (level - 1) * 3;
+      state.maxDarts = Math.min(24, maxDarts);
+      if(state.darts.length > state.maxDarts){
+        state.darts = state.darts.slice(0, state.maxDarts);
       }
     }
     
@@ -2269,10 +2889,23 @@
           "All equipment calibrated and ready for analysis.",
           "Research grade: University level precision."
         ]);
+      } else if (obj.id === 'hydrogen-subatomic') {
+        showObjectDetails(obj, [
+          "Subatomic Console: visualize hydrogen's electron orbit.",
+          "Objective: stabilize the electron cloud and log the reading.",
+          "Outcome: unlocks advanced hydrogen experiments."
+        ]);
+        state.hydrogenSubatomicComplete = true;
+        toast('Subatomic scan complete.', 1200);
       }
     }
 
     function showElementDetails(element, obj) {
+      if((element?.symbol === 'H' || obj?.room === 'H') && !state.hydrogenObjectiveComplete){
+        state.hydrogenObjectiveComplete = true;
+        toast('Hydrogen objective complete! Doors unlocked.', 1400);
+        if(!state.desertMode) setTimeout(()=>enterDesertLab(), 300);
+      }
       // Create enhanced element info panel
       let infoPanel = document.getElementById('object-info-panel');
       if (!infoPanel) {
@@ -2402,7 +3035,7 @@
       minimapCtx.fillStyle = '#163044';
       for(let y=0;y<MAP_H;y++){
         for(let x=0;x<MAP_W;x++){
-          if(map[y][x] === '.') minimapCtx.fillRect(x*scale, y*scale, scale, scale);
+          if(map[y][x] === '.' && !isLockedDoor(x, y)) minimapCtx.fillRect(x*scale, y*scale, scale, scale);
         }
       }
       // Draw player
@@ -2438,6 +3071,15 @@
       if(e.repeat) return;
       const key=e.key.toLowerCase();
       if(key==='f11') { e.preventDefault(); toggleMenu(); return; }
+      if((key==='h' || key==='?') && running){
+        // In-game help: pause and show controls
+        if(!paused) pauseGame();
+        setPauseOverlayVisible(false);
+        hideAllMenus();
+        controlsMenuOverlay.classList.remove('hidden-force');
+        controlsMenuOverlay.setAttribute('aria-hidden', 'false');
+        return;
+      }
       if(key==='escape') {
         if(running){
           if(paused) resumeGame();
@@ -2508,16 +3150,35 @@
         return;
       }
       if(e.button===0){
-        // Shoot particle
-        state.shootParticles.push({
-          x: state.px,
-          y: state.py,
-          z: state.jumpZ + 0.5,
-          vz: 2,
-          angle: state.dir * Math.PI/180,
-          life: 1.5
-        });
-        toast('Pew!', 800);
+        // Shoot dart
+        const ang = state.dir * Math.PI/180;
+        const speed = 10.5;
+        const startX = state.px + Math.cos(ang) * 0.35;
+        const startY = state.py + Math.sin(ang) * 0.35;
+        const dart = {
+          x: startX,
+          y: startY,
+          z: Math.max(0.25, state.jumpZ + 0.55),
+          vx: Math.cos(ang) * speed,
+          vy: Math.sin(ang) * speed,
+          vz: 1.2,
+          life: 1.8
+        };
+        state.darts.unshift(dart);
+        if(state.darts.length > state.maxDarts) state.darts.pop();
+
+        // Muzzle spark
+        for(let k=0;k<4;k++){
+          state.shootParticles.push({
+            x: state.px,
+            y: state.py,
+            z: state.jumpZ + 0.5,
+            vz: 1.8 + Math.random()*1.4,
+            angle: ang + (Math.random()*0.6 - 0.3),
+            life: 0.35 + Math.random()*0.35
+          });
+        }
+        toast('Dart!', 450);
       }
     }
     function onMouseUp(e){
@@ -2535,12 +3196,24 @@
     function lockPointer(){
       if(document.body.classList.contains('playing')){
         canvas.requestPointerLock?.();
-        document.body.requestPointerLock?.();
       }
     }
     function unlockPointer(){
       document.exitPointerLock?.();
     }
+
+    // Pointer lock feedback + crosshair behavior
+    const hasPointerLock = !!(canvas && canvas.requestPointerLock);
+    function updateCrosshairVisibility(){
+      const shouldShow = running && !paused && !isTouchDevice;
+      if(crosshair) crosshair.hidden = !shouldShow;
+    }
+    document.addEventListener('pointerlockchange', ()=>{
+      updateCrosshairVisibility();
+      if(running && !paused && hasPointerLock && document.pointerLockElement !== canvas){
+        toast('Mouse unlocked — click to re-lock', 1200);
+      }
+    });
 
     // --- Overlay focus fix (ensure canvas is focusable) ---
     overlay.addEventListener('focusin',()=>{
@@ -2594,7 +3267,7 @@
       updateComplexityDisplay();
       
       // Show helmet HUD instead of old HUD
-      helmetHudTop.hidden=false; helmetHudBottom.hidden=false; crosshair.hidden=false; 
+      helmetHudTop.hidden=false; helmetHudBottom.hidden=false;
       hud.hidden=true; // Hide old HUD
 
       // Touch controls on mobile
@@ -2605,7 +3278,17 @@
       
       paused=false;
       running=true; state.lastTime=performance.now(); state.fpsTime=0; state.frames=0; 
+      updateCrosshairVisibility();
       toast('WASD • Mouse look • ESC pause • Helmet HUD active');
+      if(!state.hydrogenObjectiveComplete){
+        setTimeout(()=>toast('Objective: create Hydrogen (1 proton + 1 electron) — scan the Hydrogen board (E)', 2000), 350);
+      }
+
+      // Start ambient audio only after user gesture
+      if(gameConfig && (gameConfig.audioVolume|0) > 0){
+        ensureAudioStarted();
+        setAmbientVolume(gameConfig.audioVolume, 1);
+      }
       // request pointer lock synchronously (gesture chain) then enter fullscreen
       try { canvas.requestPointerLock && canvas.requestPointerLock(); } catch(e){}
       try { await enterFullscreen(); } catch(e) { console.warn('Fullscreen denied',e); }
@@ -2621,6 +3304,7 @@
       document.body.classList.remove('playing');
       magicLayer.classList.remove('show'); magicLayer.setAttribute('aria-hidden','true');
       unlockPointer();
+      stopAmbientAudio();
       if(touchControls){
         touchControls.classList.remove('show');
         touchControls.setAttribute('aria-hidden','true');
@@ -2664,6 +3348,8 @@
       mouseSensitivity: 'Normal', // Low, Normal, High, Ultra
       invertY: false,
       graphicsQuality: 'High', // Low, Medium, High, Ultra
+      fovDeg: 67,
+      autoQuality: true,
       audioVolume: 100
     };
 
@@ -2684,6 +3370,8 @@
           if(saved.mouseSensitivity) gameConfig.mouseSensitivity=saved.mouseSensitivity;
           if(typeof saved.invertY==='boolean') gameConfig.invertY=saved.invertY;
           if(saved.graphicsQuality) gameConfig.graphicsQuality=saved.graphicsQuality;
+          if(Number.isFinite(saved.fovDeg)) gameConfig.fovDeg=Math.max(50,Math.min(95, Math.round(saved.fovDeg)));
+          if(typeof saved.autoQuality==='boolean') gameConfig.autoQuality=saved.autoQuality;
           if(Number.isFinite(saved.audioVolume)) gameConfig.audioVolume=Math.max(0,Math.min(100, saved.audioVolume));
         }
       }catch(e){
@@ -2775,6 +3463,21 @@
       updateConfigDisplay();
     });
 
+    document.getElementById('fovDown')?.addEventListener('click', () => {
+      gameConfig.fovDeg = Math.max(50, (gameConfig.fovDeg || 67) - 3);
+      updateConfigDisplay();
+    });
+
+    document.getElementById('fovUp')?.addEventListener('click', () => {
+      gameConfig.fovDeg = Math.min(95, (gameConfig.fovDeg || 67) + 3);
+      updateConfigDisplay();
+    });
+
+    document.getElementById('autoQualityToggle')?.addEventListener('click', () => {
+      gameConfig.autoQuality = !gameConfig.autoQuality;
+      updateConfigDisplay();
+    });
+
     document.getElementById('volumeDown')?.addEventListener('click', () => {
       gameConfig.audioVolume = Math.max(0, gameConfig.audioVolume - 10);
       updateConfigDisplay();
@@ -2809,6 +3512,8 @@
       document.getElementById('mouseSensValue').textContent = gameConfig.mouseSensitivity;
       document.getElementById('invertYToggle').textContent = gameConfig.invertY ? 'On' : 'Off';
       document.getElementById('qualityValue').textContent = gameConfig.graphicsQuality;
+      document.getElementById('fovValue').textContent = (gameConfig.fovDeg || 67) + '°';
+      document.getElementById('autoQualityToggle').textContent = (gameConfig.autoQuality !== false) ? 'On' : 'Off';
       document.getElementById('volumeValue').textContent = gameConfig.audioVolume + '%';
       
       // Apply mouse sensitivity
@@ -2821,9 +3526,31 @@
       const qualityMap = { 'Ultra': 1, 'High': 1, 'Medium': 2, 'Low': 3 };
       state.pixelStep = qualityMap[gameConfig.graphicsQuality] || 1;
 
+      // True internal resolution scaling (independent from pixelStep)
+      const renderScaleMap = { 'Ultra': 1, 'High': 1, 'Medium': 1.25, 'Low': 1.55 };
+      state.renderScale = renderScaleMap[gameConfig.graphicsQuality] || 1;
+
+      // FOV + auto quality
+      state.fovDeg = Math.max(50, Math.min(95, Math.round(gameConfig.fovDeg || 67)));
+      state.autoQuality = (gameConfig.autoQuality !== false);
+
       // Apply invert
       state.invY = !!gameConfig.invertY;
       btnInvert.textContent='Invert Y: '+(state.invY?'On':'Off');
+
+      // Apply quality changes immediately in-game
+      if(running){
+        resizeForDPR();
+        updateCrosshairVisibility();
+
+        // Apply volume immediately
+        if(gameConfig && (gameConfig.audioVolume|0) > 0){
+          ensureAudioStarted();
+          setAmbientVolume(gameConfig.audioVolume, paused ? 0.35 : 1);
+        } else {
+          stopAmbientAudio();
+        }
+      }
 
       if(shouldSave) saveConfig();
     }
@@ -2856,6 +3583,12 @@
         touchControls.setAttribute('aria-hidden','true');
       }
       toast('Paused', 900);
+      updateCrosshairVisibility();
+
+      if(gameConfig && (gameConfig.audioVolume|0) > 0){
+        ensureAudioStarted();
+        setAmbientVolume(gameConfig.audioVolume, 0.35);
+      }
     }
 
     function resumeGame(){
@@ -2879,6 +3612,12 @@
       }
       lockPointer();
       toast('Resumed', 650);
+      updateCrosshairVisibility();
+
+      if(gameConfig && (gameConfig.audioVolume|0) > 0){
+        ensureAudioStarted();
+        setAmbientVolume(gameConfig.audioVolume, 1);
+      }
     }
 
     btnResume?.addEventListener('click', resumeGame);
@@ -3043,12 +3782,25 @@
 
     // Wall color function for shading
     function wallColor(mapX, mapY, dist, side){
-      // Subtle neon-lab shading: nearby walls brighter, far walls darker and less saturated.
+      // Neon-lab shading: distance fog + a subtle “hydrogen glow” near the H fountain.
       const fog = Math.min(1, dist / 12);
-      const hue = side ? 196 : 202;
-      const sat = Math.max(10, 26 - dist*1.6);
-      const base = (82 - Math.min(62, dist*5.0)) * (side ? 0.88 : 1.0);
-      const light = base * (1 - fog*0.08);
+      let hue = side ? 196 : 202;
+      let sat = Math.max(10, 26 - dist*1.6);
+      let base = (82 - Math.min(62, dist*5.0)) * (side ? 0.88 : 1.0);
+
+      // Hydrogen station light contribution (cheap approximation per wall column)
+      if(hydrogenFountain && Number.isFinite(hydrogenFountain.x)){
+        const dx = (mapX + 0.5) - hydrogenFountain.x;
+        const dy = (mapY + 0.5) - hydrogenFountain.y;
+        const d2 = dx*dx + dy*dy;
+        const pulse = 0.65 + 0.35 * Math.sin(performance.now() * 0.002);
+        const glow = Math.max(0, (pulse * 1.2) / (1 + (d2 / 8)));
+        base += glow * 10;
+        sat += glow * 8;
+        hue = hue + glow * 8;
+      }
+
+      const light = base * (1 - fog*0.10);
       return `hsl(${hue},${sat}%,${light}%)`;
     }
   })();

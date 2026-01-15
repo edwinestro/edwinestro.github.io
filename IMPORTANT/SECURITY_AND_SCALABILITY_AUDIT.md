@@ -84,7 +84,7 @@ EOF
 **Current State:**
 ```
 - 27 deleted files in working directory
-- Multiple untracked directories: Agentcy/, assets/, legacy/, tools/
+- Multiple untracked directories: packages/agentcy/, assets/, legacy/, tools/
 - No clear versioning or release strategy
 - Git history shows inconsistent commit messages
 ```
@@ -193,20 +193,19 @@ Response time: 48-72 hours
 **Current State:**
 ```
 /
-├── Agentcy/              # Python automation scripts
-├── Projects/             # Multiple nested projects
-├── Stringball endpoint/  # Games/content (space in name!)
+├── packages/             # Automation/tooling (Python)
+├── Projects/             # Games + hubs
 ├── legacy/               # Old versions preserved
-├── assets/               # Global assets
-├── config/               # Configuration files
-├── data/                 # Unknown data
+├── assets/               # Global site assets
+├── data/                 # Data files
 ├── docs/                 # Documentation
 ├── generated/            # Generated content
+├── tests/                # Repo tests
 └── tools/                # Utility scripts
 ```
 
 **Issues:**
-- Spaces in directory names (`Stringball endpoint`)
+- Spaces in directory names (avoid for web-safe URLs)
 - Unclear separation between public/private code
 - Multiple nested package.json files
 - No clear "source of truth" for deployments

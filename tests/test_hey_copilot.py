@@ -5,10 +5,15 @@ import os
 REPO_ROOT = os.path.dirname(os.path.dirname(__file__))
 HEY = os.path.join(REPO_ROOT, "heyCopilot")
 
+HEY_PY = os.path.join(REPO_ROOT, "packages", "agentcy", "scripts", "hey_copilot.py")
+
 
 def test_dry_run():
     # Ensure dry-run exits with code 0 and prints expected outline
-    proc = subprocess.run([HEY, "speak", "--dry-run"], capture_output=True, text=True)
+    if os.name == "nt":
+        proc = subprocess.run([sys.executable, HEY_PY, "speak", "--dry-run"], capture_output=True, text=True)
+    else:
+        proc = subprocess.run([HEY, "speak", "--dry-run"], capture_output=True, text=True)
     assert proc.returncode == 0
     assert "Dry-run" in proc.stdout
 

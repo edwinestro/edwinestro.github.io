@@ -3,7 +3,7 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-# Ensure Agentcy/ is on sys.path so `examples.*` imports resolve when running from repo root.
+# Ensure packages/agentcy/ is on sys.path so `examples.*` imports resolve when running from repo root.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from examples.feedback_api import app
