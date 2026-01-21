@@ -57,11 +57,11 @@
   // Fallback if the DB can’t be loaded (offline / missing file).
   const DEFAULT_EXPERIMENTS = [
     {
-      id: 'maze-3d',
-      title: 'ScienceLab',
-      desc: 'Explore the ScienceLab 3D laboratory experience (legacy v4).',
-      href: '../../../legacy/stringball-endpoint/maze.html',
-      badges: ['3D', 'Science'],
+      id: 'attract-ion',
+      title: 'Attract‑ion',
+      desc: 'Subatomic formation MVP: energy fluctuations, lepton orbitals, and hydrogen stabilization.',
+      href: '../../games/attract-ion/index.html',
+      badges: ['Science', 'MVP'],
       counted: true,
     },
     {
@@ -120,6 +120,9 @@
 
   let selectedId = null;
   let currentId = null;
+  const PAGE_SIZE = 12;
+  let visibleCount = PAGE_SIZE;
+  let scrollBound = false;
 
   function normalizeExperiment(exp) {
     const e = { ...exp };
@@ -134,6 +137,10 @@
     // Normalize updatedAt into a sortable numeric field.
     const ms = typeof e.updatedAt === 'string' ? Date.parse(e.updatedAt) : NaN;
     e.updatedAtMs = Number.isFinite(ms) ? ms : 0;
+
+    // Normalize createdAt (fallback to updatedAt if missing).
+    const createdMs = typeof e.createdAt === 'string' ? Date.parse(e.createdAt) : NaN;
+    e.createdAtMs = Number.isFinite(createdMs) ? createdMs : e.updatedAtMs || 0;
     return e;
   }
 
@@ -201,6 +208,9 @@
       experiments = DEFAULT_EXPERIMENTS.map(normalizeExperiment);
     }
 
+    // Single gallery ordered by creation date (newest first)
+    experiments.sort((a, b) => (b.createdAtMs || 0) - (a.createdAtMs || 0));
+
     countedTotal = experiments.filter((e) => e.counted).length;
     const featuredExp = pickFeatured(experiments);
     featuredId = featuredExp?.id || null;
@@ -266,8 +276,16 @@
 
     while(expList.firstChild) expList.removeChild(expList.firstChild);
     let focusTarget = null;
-    for (let i = 0; i < experiments.length; i++) {
-      const exp = experiments[i];
+
+    const selectedIndex = experiments.findIndex((e) => e.id === selectedId);
+    if (selectedIndex >= visibleCount) {
+      visibleCount = Math.min(experiments.length, selectedIndex + 1);
+    }
+
+    const visible = experiments.slice(0, visibleCount);
+
+    for (let i = 0; i < visible.length; i++) {
+      const exp = visible[i];
       const row = document.createElement('div');
       row.className = `exp ${exp.id === selectedId ? 'active' : ''}`;
       row.setAttribute('role', 'listitem');
@@ -333,6 +351,18 @@
     if (focusTarget) {
       focusTarget.focus({ preventScroll: true });
     }
+  }
+
+  function setupInfiniteScroll() {
+    if (scrollBound) return;
+    scrollBound = true;
+    expList.addEventListener('scroll', () => {
+      const nearBottom = expList.scrollTop + expList.clientHeight >= expList.scrollHeight - 120;
+      if (!nearBottom) return;
+      if (visibleCount >= experiments.length) return;
+      visibleCount = Math.min(experiments.length, visibleCount + PAGE_SIZE);
+      render();
+    });
   }
 
   function getSelected() {
@@ -580,6 +610,7 @@
   (async () => {
     await loadExperimentsFromDb();
     render();
+    setupInfiniteScroll();
     setStatus('Idle');
 
     // Optional direct-to-game mode.

@@ -295,7 +295,7 @@ h1{
 
 .featured-actions{margin-top:.7rem;display:flex;gap:.55rem;flex-wrap:wrap}
 
-.exp-list{margin-top:1rem;display:flex;flex-direction:column;gap:.6rem}
+.exp-list{margin-top:1rem;display:flex;flex-direction:column;gap:.6rem;max-height:min(62vh,520px);overflow:auto;padding-right:6px;scrollbar-gutter:stable;}
 
 .exp{
   display:flex;

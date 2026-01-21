@@ -84,7 +84,8 @@
                         </p>
 
                         <div class="hero-actions">
-                            <a class="btn primary" href="Projects/hubs/science-lab/index.html?mode=play&launch=featured&fs=1">Play the Science Lab</a>
+                            <a class="btn primary" href="Projects/games/attract-ion/index.html">Play Attract‑ion</a>
+                            <a class="btn" href="Projects/hubs/science-lab/index.html">Open Game Gallery</a>
                             <a class="btn" href="#drops">See the latest creation</a>
                             <a class="btn" href="Projects/docs/index.html">Docs / Resume</a>
                         </div>
@@ -106,6 +107,17 @@
                             </div>
                             <div>
                                 <a class="btn primary" style="width: 100%" href="Projects/games/frost-signal/index.html">Play Frost Signal</a>
+                            </div>
+                            <div class="feature-shot-wrap" aria-label="Attract‑ion screenshot">
+                                <div class="feature-shot-title">Attract‑ion (MVP)</div>
+                                <img
+                                    class="feature-shot"
+                                    src="Projects/hubs/science-lab/assets/attract-ion-1600x900.png"
+                                    alt="Attract‑ion screenshot showing the subatomic energy lab"
+                                    loading="lazy"
+                                    decoding="async"
+                                />
+                                <div class="feature-shot-caption">New MVP · subatomic formation</div>
                             </div>
                         </div>
                     </aside>
@@ -179,39 +191,68 @@
                             <div class="card-cta">Open →</div>
                         </a>
 
-                        <a class="card" href="legacy/stringball-endpoint/games.html">
-                            <div class="card-title">Legacy Games Lab</div>
-                            <div class="card-desc">Classic experiments — kept accessible, no deletions.</div>
+                        <a class="card" href="Projects/games/attract-ion/index.html">
+                            <div class="card-title">Attract‑ion</div>
+                            <div class="card-desc">Subatomic formation MVP: energy fluctuations, lepton orbitals, and hydrogen stabilization.</div>
                             <div class="badges">
-                                <span class="badge">Archive</span>
+                                <span class="badge good">MVP</span>
+                                <span class="badge">Science</span>
                             </div>
-                            <div class="card-cta">Browse →</div>
+                            <div class="card-cta">Play →</div>
                         </a>
-                    </div>
                 </div>
             </section>
 
             <section id="quality" class="section" aria-label="Quality">
                 <div class="container">
-                    <h2 class="h2">Quality layer model</h2>
-                    <p class="sub">The goal is to make every build playable, readable, and resilient — even when it’s “just a prototype.”</p>
-                    <div class="split" aria-label="Quality steps">
-                        <div class="step">
-                            <h3>01 · Clarity</h3>
-                            <p>Readable hierarchy, inclusive UX, and “you don’t need instructions” energy.</p>
+                    <div class="quality-head">
+                        <div>
+                            <h2 class="h2">Quality layer model</h2>
+                            <p class="sub">The goal is to make every build playable, readable, and resilient — even when it’s “just a prototype.”</p>
                         </div>
-                        <div class="step">
-                            <h3>02 · Craft</h3>
-                            <p>Responsive layouts, performance, and a clean architecture that survives refactors.</p>
-                        </div>
-                        <div class="step">
-                            <h3>03 · Trust</h3>
-                            <p>Secure defaults, privacy awareness, and resilient engineering habits.</p>
-                        </div>
-                        <div class="step">
-                            <h3>04 · Measurement</h3>
-                            <p>Clear events and outcomes so agents (and humans) can iterate with confidence.</p>
-                        </div>
+                        <div class="quality-pill">Playable · Readable · Resilient</div>
+                    </div>
+                    <div class="quality-grid" aria-label="Quality steps">
+                        <article class="quality-card clarity">
+                            <div class="quality-num">01</div>
+                            <h3 class="quality-title">Clarity</h3>
+                            <p class="quality-desc">Readable hierarchy, inclusive UX, and “you don’t need instructions” energy.</p>
+                            <ul class="quality-list">
+                                <li>Self-guided UI with obvious next actions</li>
+                                <li>Accessible contrast and motion-safe patterns</li>
+                                <li>Readable typography and feedback-first states</li>
+                            </ul>
+                        </article>
+                        <article class="quality-card craft">
+                            <div class="quality-num">02</div>
+                            <h3 class="quality-title">Craft</h3>
+                            <p class="quality-desc">Responsive layouts, performance, and a clean architecture that survives refactors.</p>
+                            <ul class="quality-list">
+                                <li>Plays cleanly on mobile → ultrawide</li>
+                                <li>Lightweight assets and predictable frame time</li>
+                                <li>Modular components with clear ownership</li>
+                            </ul>
+                        </article>
+                        <article class="quality-card trust">
+                            <div class="quality-num">03</div>
+                            <h3 class="quality-title">Trust</h3>
+                            <p class="quality-desc">Secure defaults, privacy awareness, and resilient engineering habits.</p>
+                            <ul class="quality-list">
+                                <li>Least-privilege inputs and safe defaults</li>
+                                <li>Privacy-first data collection</li>
+                                <li>Clear error handling and recovery paths</li>
+                            </ul>
+                        </article>
+                        <article class="quality-card measure">
+                            <div class="quality-num">04</div>
+                            <h3 class="quality-title">Measurement</h3>
+                            <p class="quality-desc">Clear events and outcomes so agents (and humans) can iterate with confidence.</p>
+                            <ul class="quality-list">
+                                <li>Human-auditable events and outcomes</li>
+                                <li>Easy experiments with rollback paths</li>
+                                <li>Iteration-ready metrics for every build</li>
+                            </ul>
+                        </article>
                     </div>
                 </div>
             </section>
