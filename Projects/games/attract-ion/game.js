@@ -18,6 +18,9 @@
   const hudStability = document.getElementById('hudStability');
   const hudOrbit = document.getElementById('hudOrbit');
   const hudVelocity = document.getElementById('hudVelocity');
+  const orbitHint = document.getElementById('orbitHint');
+  const orbitHintTitle = document.getElementById('orbitHintTitle');
+  const orbitHintSub = document.getElementById('orbitHintSub');
   const toastEl = document.getElementById('toast');
   const faqStep = document.getElementById('faqStep');
   const faqBand = document.getElementById('faqBand');
@@ -25,7 +28,7 @@
 
   const config = {
     k: 380000,
-    damping: 0.03,
+    damping: 0.035,
     targetRadius: 120,
     bandFraction: 0.18,
     frameRadius: 260,
@@ -38,11 +41,15 @@
     softening: 55,
     holdTime: 7,
     grace: 3,
-    driftForce: 6,
-    fieldStep: 0.2,
+    driftForce: 5,
+    fieldStep: 0.18,
     fieldMax: 1.6,
     fieldMin: -1.6,
-    fieldScale: 48,
+    fieldScale: 44,
+    fieldResponse: 7.5,
+    wheelThreshold: 70,
+    tutorialSeconds: 10,
+    tutorialPulseEvery: 1.1,
     coreRadius: 28,
     escapeRadius: 260,
   };
@@ -61,6 +68,7 @@
     lastTime: 0,
     energy: 0,
     fieldBias: 0,
+    fieldBiasTarget: 0,
     fieldForce: 0,
     attraction: 0,
     orbitError: 0,
@@ -72,6 +80,9 @@
     pullIntensity: 0,
     pushIntensity: 0,
     failReason: null,
+    wheelAccum: 0,
+    tutorialLeft: 0,
+    tutorialNextPulseAt: 0,
     stars: [],
     trail: [],
     electron: {
@@ -168,6 +179,16 @@
     if (controlPad) {
       controlPad.hidden = phase !== 'simulate';
     }
+
+    if (orbitHint) {
+      orbitHint.hidden = phase !== 'simulate';
+      orbitHint.classList.toggle('show', phase === 'simulate');
+    }
+
+    if (phase !== 'simulate') {
+      btnCool?.classList.remove('suggest');
+      btnHeat?.classList.remove('suggest');
+    }
   }
 
   function startIntro() {
@@ -182,6 +203,7 @@
     state.electron.vy = Math.sqrt((config.k * r) / (r * r + config.softening));
     state.energy = 0;
     state.fieldBias = 0;
+    state.fieldBiasTarget = 0;
     state.fieldForce = 0;
     state.attraction = config.k / (r * r + config.softening);
     state.orbitError = r - config.targetRadius;
@@ -194,6 +216,9 @@
     state.pullIntensity = 0;
     state.pushIntensity = 0;
     state.failReason = null;
+    state.wheelAccum = 0;
+    state.tutorialLeft = config.tutorialSeconds;
+    state.tutorialNextPulseAt = 0;
     if (hudEnergy) hudEnergy.textContent = Math.round(state.energy);
     if (hudPressure) hudPressure.textContent = `${state.attraction.toFixed(1)} a.u.`;
     const fieldLabel = `${state.fieldBias >= 0 ? '+' : ''}${state.fieldBias.toFixed(2)}`;
@@ -537,11 +562,16 @@
   function onWheel(e) {
     if (state.phase !== 'simulate') return;
     e.preventDefault();
-    const direction = Math.sign(e.deltaY);
-    if (direction < 0) {
-      applyFieldBias(-config.fieldStep);
-    } else if (direction > 0) {
-      applyFieldBias(config.fieldStep);
+    let dy = e.deltaY;
+    if (e.deltaMode === 1) dy *= 16;
+    if (e.deltaMode === 2) dy *= 240;
+
+    state.wheelAccum += dy;
+    const threshold = config.wheelThreshold;
+    while (Math.abs(state.wheelAccum) >= threshold) {
+      const direction = Math.sign(state.wheelAccum);
+      applyFieldBias(direction > 0 ? config.fieldStep : -config.fieldStep);
+      state.wheelAccum -= direction * threshold;
     }
   }
 
@@ -549,7 +579,7 @@
 
   function applyFieldBias(delta) {
     if (state.phase !== 'simulate') return;
-    state.fieldBias = clamp(state.fieldBias + delta, config.fieldMin, config.fieldMax);
+    state.fieldBiasTarget = clamp(state.fieldBiasTarget + delta, config.fieldMin, config.fieldMax);
     if (delta < 0) {
       state.pullIntensity = clamp(state.pullIntensity + 0.2, 0, 1);
       state.pushIntensity = Math.max(0, state.pushIntensity - 0.12);
@@ -608,6 +638,8 @@
     const dy = e.y;
     const r = Math.hypot(dx, dy) || 1;
     state.currentRadius = r;
+
+    state.fieldBias += (state.fieldBiasTarget - state.fieldBias) * (1 - Math.exp(-config.fieldResponse * dt));
 
     const attract = -config.k / (r * r + config.softening);
     const drift = Math.sin(state.time * 0.0011) * config.driftForce;
@@ -701,12 +733,37 @@
       return;
     }
 
+    const needPull = orbitError > 0;
     const hint = inBand
-      ? 'Nice. Hold steady inside the band.'
-      : orbitError > 0
+      ? 'Hold steady inside the band.'
+      : needPull
         ? 'Too far — pull in (scroll up / W / ↑).'
         : 'Too close — push out (scroll down / S / ↓).';
     if (hudStep && hudStep.textContent !== hint) hudStep.textContent = hint;
+
+    if (orbitHint && orbitHintTitle && orbitHintSub) {
+      orbitHint.dataset.mode = inBand ? 'hold' : needPull ? 'pull' : 'push';
+      orbitHint.classList.add('show');
+      orbitHintTitle.textContent = inBand ? 'HOLD' : needPull ? 'PULL IN' : 'PUSH OUT';
+      orbitHintSub.textContent = inBand
+        ? 'Stay inside the band.'
+        : needPull
+          ? 'Scroll up / W / ↑'
+          : 'Scroll down / S / ↓';
+    }
+
+    btnCool?.classList.toggle('suggest', !inBand && needPull);
+    btnHeat?.classList.toggle('suggest', !inBand && !needPull);
+
+    if (state.tutorialLeft > 0) {
+      state.tutorialLeft = Math.max(0, state.tutorialLeft - dt);
+      if (!inBand && state.time >= state.tutorialNextPulseAt) {
+        state.tutorialNextPulseAt = state.time + config.tutorialPulseEvery * 1000;
+        if (orbitHintSub) {
+          orbitHintSub.textContent = needPull ? 'Try a small pull pulse (scroll up).' : 'Try a small push pulse (scroll down).';
+        }
+      }
+    }
 
     state.attraction = Math.abs(attract);
     state.fieldForce = fieldForce;

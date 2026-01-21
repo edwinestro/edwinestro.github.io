@@ -35,6 +35,29 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-appl
 .control-pad .btn.control{padding:.6rem .95rem;font-size:.7rem;letter-spacing:.12em}
 .control-pad .btn.cool{border-color:rgba(154,230,255,.45);background:rgba(154,230,255,.14)}
 .control-pad .btn.heat{border-color:rgba(255,180,84,.45);background:rgba(255,180,84,.14)}
+.control-pad .btn.suggest{animation:suggestPulse 900ms ease-in-out infinite;box-shadow:0 0 0 1px rgba(255,255,255,.12), 0 0 28px rgba(154,230,255,.28)}
+.control-pad .btn.heat.suggest{box-shadow:0 0 0 1px rgba(255,255,255,.12), 0 0 28px rgba(255,180,84,.28)}
+
+@keyframes suggestPulse{
+  0%,100%{transform:translateY(0);filter:saturate(1)}
+  50%{transform:translateY(-1px);filter:saturate(1.25)}
+}
+
+.orbit-hint{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%) scale(.985);z-index:2;pointer-events:none;opacity:0;transition:opacity 180ms ease, transform 180ms ease;padding:.75rem 1rem;border-radius:16px;border:1px solid rgba(255,255,255,.14);background:rgba(6,10,16,.58);backdrop-filter:blur(10px);text-align:center;min-width:min(360px, calc(100vw - 48px));box-shadow:0 24px 80px rgba(0,0,0,.4)}
+.orbit-hint.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.orbit-hint[data-mode="hold"]{border-color:rgba(138,255,168,.28)}
+.orbit-hint[data-mode="pull"]{border-color:rgba(154,230,255,.3)}
+.orbit-hint[data-mode="push"]{border-color:rgba(255,180,84,.3)}
+.orbit-hint-title{font-weight:950;letter-spacing:.14em;text-transform:uppercase;font-size:1.05rem}
+.orbit-hint[data-mode="hold"] .orbit-hint-title{color:var(--good)}
+.orbit-hint[data-mode="pull"] .orbit-hint-title{color:var(--accent2)}
+.orbit-hint[data-mode="push"] .orbit-hint-title{color:var(--warn)}
+.orbit-hint-sub{margin-top:.18rem;color:rgba(232,238,244,.72);font-size:.86rem;line-height:1.35}
+
+@media (prefers-reduced-motion: reduce){
+  .control-pad .btn.suggest{animation:none}
+  .orbit-hint{transition:none}
+}
 .toast{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);padding:.5rem .9rem;border-radius:999px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.12);font-size:.82rem;opacity:0;transition:opacity 200ms ease}
 .toast.show{opacity:1}
 .quality-drawer{position:absolute;left:18px;bottom:74px;z-index:3;width:min(860px, calc(100% - 36px));color:var(--text)}
