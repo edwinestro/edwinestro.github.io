@@ -4,7 +4,9 @@ const speedInput = document.getElementById("speed");
 const countInput = document.getElementById("count");
 const toggleButton = document.getElementById("toggle");
 
-let running = true;
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+let running = !reducedMotion;
 let tracks = [];
 let kinks = [];
 let lastTime = 0;
@@ -206,6 +208,7 @@ const render = (time) => {
 toggleButton.addEventListener("click", () => {
   running = !running;
   toggleButton.textContent = running ? "Pause" : "Play";
+  if (running) lastTime = 0;
 });
 
 window.addEventListener("resize", () => {
@@ -215,4 +218,5 @@ window.addEventListener("resize", () => {
 
 resizeCanvas();
 resetScene();
+toggleButton.textContent = running ? "Pause" : "Play";
 requestAnimationFrame(render);

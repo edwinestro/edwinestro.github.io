@@ -1,0 +1,38 @@
+/* Shared design tokens — single source of truth for the colour / spacing system.
+   Import this file first in any stylesheet that uses these custom properties.        */
+
+:root {
+  /* Backgrounds */
+  --bg0: #070a10;
+  --bg1: #0a1020;
+
+  /* Text */
+  --text: rgba(245, 247, 255, 0.92);
+  --muted: rgba(245, 247, 255, 0.68);
+  --muted2: rgba(245, 247, 255, 0.64);
+
+  /* Borders / surfaces */
+  --line: rgba(255, 255, 255, 0.10);
+  --glass: rgba(20, 24, 40, 0.58);
+  --glass2: rgba(22, 28, 50, 0.72);
+
+  /* Accent palette */
+  --a1: #7aa2ff;
+  --a2: #9ae6ff;
+  --a3: #8affa8;
+  --bad: #ff6b8b;
+
+  /* Radii */
+  --r1: 18px;
+  --r2: 14px;
+
+  /* Elevation */
+  --shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+
+  /* Layout */
+  --max: 1120px;
+  --g: clamp(1rem, 4vw, 2.2rem);
+
+  /* Motion */
+  --t: 180ms;
+}

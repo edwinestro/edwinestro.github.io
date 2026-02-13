@@ -4,6 +4,7 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 
 const { getLeaderboard, submitScore } = require('./leaderboardStore');
 const { publishLeaderboardToGitHub } = require('./githubPublisher');
@@ -14,8 +15,47 @@ const DATA_FILE = path.resolve(__dirname, 'data.json');
 function readData(){ try{ return JSON.parse(fs.readFileSync(DATA_FILE,'utf8')); }catch(e){ return {posts:[], likes:{}, subscribers:{}} }}
 function writeData(d){ fs.writeFileSync(DATA_FILE, JSON.stringify(d,null,2),'utf8'); }
 
+// Allowed origins for CORS
+const ALLOWED_ORIGINS = [
+  'https://edwinestro.github.io',
+  'https://ashy-glacier-0eaccc510.azurestaticapps.net',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000'
+];
+
 const app = express();
-app.use(cors());
+
+// Security headers via helmet
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' }, // Allow cross-origin for static files
+  contentSecurityPolicy: false // CSP handled by Azure Static Web Apps
+}));
+
+// Global rate limiter (100 requests per minute per IP)
+const globalLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 100,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { ok: false, error: 'Too many requests, please try again later' }
+});
+app.use('/api/', globalLimiter);
+
+// CORS with restricted origins
+app.use(cors({
+  origin: function(origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, etc.) in dev
+    if (!origin) return callback(null, true);
+    if (ALLOWED_ORIGINS.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('CORS policy: origin not allowed'), false);
+  },
+  credentials: true
+}));
+
 app.use(bodyParser.json());
 
 app.get('/api/ping', (req,res)=> res.json({ok:true}));

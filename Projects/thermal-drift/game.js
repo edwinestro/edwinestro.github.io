@@ -231,7 +231,7 @@ function loop(now){
     // set displayed speed for HUD (0 when not moving)
     car.speed = moved ? Math.round(moveSpeedBase * mult / 10) : 0;
   }
-  updateParticles();
+  updateParticles(elapsed);
 
   // draw
   drawTrack();

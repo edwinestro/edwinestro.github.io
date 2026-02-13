@@ -520,11 +520,75 @@ const invDiv = document.createElement('div'); invDiv.style.cssText='margin-top:8
     if(chairs.length===0) return; const ch = chairs[0]; if(!isSitting){ prevCam = { ...cam }; cam.x = ch.seat.x; cam.z = ch.seat.z + 0.6; cam.y = ch.seat.y + 0.4; cam.yaw = 0; cam.pitch = -0.05; isSitting = true; sitBtn.textContent='Stand'; message.textContent='Seated'; } else { if(prevCam){ cam.x = prevCam.x; cam.y = prevCam.y; cam.z = prevCam.z; cam.yaw = prevCam.yaw; cam.pitch = prevCam.pitch; } isSitting = false; sitBtn.textContent='Sit'; message.textContent='Standing'; }
   });
 
+  // --- Touch controls overlay (mobile d-pad + pick button) ---
+  const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+  let touchOverlay = null;
+  if(isTouchDevice){
+    touchOverlay = document.createElement('div');
+    touchOverlay.style.cssText = 'position:fixed;bottom:18px;left:0;right:0;display:flex;justify-content:space-between;align-items:flex-end;padding:0 18px;pointer-events:none;z-index:10000;';
+    // d-pad container
+    const dpad = document.createElement('div');
+    dpad.style.cssText = 'display:grid;grid-template-columns:repeat(3,54px);grid-template-rows:repeat(3,54px);gap:4px;pointer-events:auto;';
+    const dirs = [
+      {label:'',key:null,col:1,row:1},{label:'W',key:'w',col:2,row:1},{label:'',key:null,col:3,row:1},
+      {label:'A',key:'a',col:1,row:2},{label:'',key:null,col:2,row:2},{label:'D',key:'d',col:3,row:2},
+      {label:'',key:null,col:1,row:3},{label:'S',key:'s',col:2,row:3},{label:'',key:null,col:3,row:3}
+    ];
+    dirs.forEach(d => {
+      const btn = document.createElement('button');
+      btn.style.cssText = 'width:54px;height:54px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#e6f9ff;font-size:1.1rem;font-weight:700;touch-action:none;-webkit-user-select:none;user-select:none;';
+      btn.style.gridColumn = d.col; btn.style.gridRow = d.row;
+      btn.textContent = d.label;
+      if(!d.key){ btn.style.visibility = 'hidden'; }
+      else {
+        btn.setAttribute('aria-label', 'Move ' + d.label);
+        const activate = (e) => { e.preventDefault(); keys[d.key] = true; };
+        const deactivate = (e) => { e.preventDefault(); keys[d.key] = false; };
+        btn.addEventListener('pointerdown', activate);
+        btn.addEventListener('pointerup', deactivate);
+        btn.addEventListener('pointerleave', deactivate);
+        btn.addEventListener('pointercancel', deactivate);
+      }
+      dpad.appendChild(btn);
+    });
+    touchOverlay.appendChild(dpad);
+
+    // Pick button (right side)
+    const pickBtn = document.createElement('button');
+    pickBtn.textContent = 'Pick (F)';
+    pickBtn.setAttribute('aria-label', 'Pick up or interact');
+    pickBtn.style.cssText = 'pointer-events:auto;width:80px;height:80px;border-radius:50%;border:1px solid rgba(255,255,255,0.15);background:rgba(100,200,255,0.15);color:#e6f9ff;font-size:1rem;font-weight:700;touch-action:none;-webkit-user-select:none;user-select:none;';
+    pickBtn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      // Cast center ray (same as F-key handler)
+      const vw = canvas.width / (window.devicePixelRatio||1);
+      const vh = canvas.height / (window.devicePixelRatio||1);
+      const sx = vw/2, sy = vh/2;
+      const ray = getRayFromScreen(sx, sy);
+      // Test pickables (same logic as F-key onKeyDown)
+      for(const obj of objects){
+        if(!obj.pickable || obj.picked) continue;
+        const tmin = intersectAABB(cam, ray, obj.x-obj.w/2, obj.x+obj.w/2, obj.y-obj.h/2, obj.y+obj.h/2, obj.z-obj.d/2, obj.z+obj.d/2);
+        if(tmin !== null){
+          obj.picked = true; obj.held = true; inventory[obj.name] = obj;
+          message.textContent = `${obj.name} picked up`;
+          obj.x = cam.x + ray.x * 0.9; obj.y = cam.y - 0.1; obj.z = cam.z + ray.z * 0.9;
+          const invSword = invDiv.querySelector('#invSword'); const invShield = invDiv.querySelector('#invShield');
+          if(obj.name==='Sword') invSword.textContent = 'Sword: Acquired';
+          if(obj.name==='Shield') invShield.textContent = 'Shield: Acquired';
+          break;
+        }
+      }
+    });
+    touchOverlay.appendChild(pickBtn);
+    wrap.appendChild(touchOverlay);
+  }
+
   initBoard();
   last = performance.now();
   raf = requestAnimationFrame(loop);
 
-  function destroy(){ cancelAnimationFrame(raf); window.removeEventListener('resize', resize); document.removeEventListener('pointerlockchange', onPointerLockChange); document.removeEventListener('pointerlockerror', onPointerLockError); canvas.removeEventListener('pointerdown', onPointerDown); canvas.removeEventListener('pointerup', onPointerUp); canvas.removeEventListener('pointermove', onPointerMove); canvas.removeEventListener('pointermove', onHoverMove); window.removeEventListener('keydown', onMoveKeyDown); window.removeEventListener('keyup', onMoveKeyUp); window.removeEventListener('keydown', onKeyDown); try{ wrap.remove(); }catch(e){} }
+  function destroy(){ cancelAnimationFrame(raf); window.removeEventListener('resize', resize); document.removeEventListener('pointerlockchange', onPointerLockChange); document.removeEventListener('pointerlockerror', onPointerLockError); canvas.removeEventListener('pointerdown', onPointerDown); canvas.removeEventListener('pointerup', onPointerUp); canvas.removeEventListener('pointermove', onPointerMove); canvas.removeEventListener('pointermove', onHoverMove); window.removeEventListener('keydown', onMoveKeyDown); window.removeEventListener('keyup', onMoveKeyUp); window.removeEventListener('keydown', onKeyDown); if(touchOverlay) try{ touchOverlay.remove(); }catch(e){} try{ wrap.remove(); }catch(e){} }
   // status chip
   const chip=document.createElement('div'); chip.className='status-chip'; chip.innerHTML='<strong>Room:</strong> Mahjong memory (3D)'; statusBar.appendChild(chip);
   return { destroy };

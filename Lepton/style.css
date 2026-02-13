@@ -22,6 +22,9 @@ body {
   min-height: 100vh;
 }
 
+.skip-link{position:absolute;top:-100%;left:1rem;z-index:100;padding:.5rem 1rem;border-radius:999px;background:var(--accent);color:var(--bg);font-weight:700;font-size:.85rem;text-decoration:none}
+.skip-link:focus{top:.5rem}
+
 .app {
   display: flex;
   flex-direction: column;
@@ -132,3 +135,11 @@ button:hover {
     width: 100%;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+/* Track-color legend */
+.legend { display:flex; align-items:center; gap:10px; justify-content:center; padding:10px 0; font-size:.85rem; color:rgba(255,255,255,.7); }
+.legend__swatch { display:inline-block; width:14px; height:14px; border-radius:3px; vertical-align:middle; margin-right:3px; }

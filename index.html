@@ -15,8 +15,14 @@
         <link rel="preload" as="image" href="assets/img/edw.jpg" />
         <link rel="stylesheet" href="assets/css/home.css" />
         
-            <!-- Microsoft Ads (Bing) UET: visit measurement (homepage only) -->
+            <!-- Microsoft Ads (Bing) UET: Consent must be set BEFORE UET initializes -->
             <script>
+                // Set consent default FIRST (before bat.js loads)
+                window.uetq = window.uetq || [];
+                window.uetq.push('consent', 'default', { ad_storage: 'denied' });
+            </script>
+            <script>
+                // Now load and initialize UET
                 (function (w, d, t, r, u) {
                     var f, n, i;
                     w[u] = w[u] || [];
@@ -39,13 +45,15 @@
                     i.parentNode.insertBefore(n, i);
                 })(window, document, 'script', '//bat.bing.com/bat.js', 'uetq');
             </script>
-            <script>
-                // Consent Mode default: denied. We only grant if the user explicitly accepts.
-                window.uetq = window.uetq || [];
-                window.uetq.push('consent', 'default', { ad_storage: 'denied' });
-            </script>
     </head>
     <body>
+        <a class="skip-link" href="#drops">Skip to content</a>
+        <!-- Animated background orbs -->
+        <div class="orb orb--1" aria-hidden="true"></div>
+        <div class="orb orb--2" aria-hidden="true"></div>
+        <div class="orb orb--3" aria-hidden="true"></div>
+        <!-- Scroll progress bar -->
+        <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
         <canvas id="immersion" aria-hidden="true"></canvas>
 
         <header class="nav" role="banner">
@@ -58,13 +66,16 @@
                     </div>
                 </div>
 
-                <nav class="navlinks" aria-label="Primary">
+                <nav class="navlinks" aria-label="Primary" id="mainNav">
                     <a href="#drops">Latest drops</a>
                     <a href="#explore">Explore</a>
                     <a href="#quality">Quality</a>
                     <a href="#support">Support</a>
                     <a class="btn primary" href="Projects/hubs/science-lab/index.html?mode=play&launch=featured&fs=1">Enter Science Lab</a>
                 </nav>
+                <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="mainNav">
+                    <span></span><span></span><span></span>
+                </button>
             </div>
         </header>
 
@@ -191,6 +202,16 @@
                             <div class="card-cta">Open →</div>
                         </a>
 
+                        <a class="card" href="Projects/Audit/index.html">
+                            <div class="card-title">Audit Hub</div>
+                            <div class="card-desc">Claude Opus automated audits: security, accessibility, and code quality.</div>
+                            <div class="badges">
+                                <span class="badge blue">Quality</span>
+                                <span class="badge">Audit</span>
+                            </div>
+                            <div class="card-cta">View Audits →</div>
+                        </a>
+
                         <a class="card" href="Projects/games/attract-ion/index.html">
                             <div class="card-title">Attract‑ion</div>
                             <div class="card-desc">Subatomic formation MVP: energy fluctuations, lepton orbitals, and hydrogen stabilization.</div>
@@ -200,6 +221,7 @@
                             </div>
                             <div class="card-cta">Play →</div>
                         </a>
+                    </div>
                 </div>
             </section>
 
@@ -279,6 +301,8 @@
                         <div>
                             <a href="Projects/hubs/science-lab/index.html">Science Lab</a>
                             <span style="opacity: 0.45"> · </span>
+                            <a href="Projects/Audit/index.html">Audit Hub</a>
+                            <span style="opacity: 0.45"> · </span>
                             <a href="Projects/docs/index.html">Docs</a>
                         </div>
                     </div>
@@ -287,7 +311,7 @@
         </main>
 
         <!-- Cookie / consent banner (homepage only) for Microsoft Ads UET -->
-        <div class="consent-banner" id="consentBanner" role="dialog" aria-live="polite" aria-label="Cookie consent" hidden>
+        <div class="consent-banner" id="consentBanner" role="dialog" aria-live="polite" aria-label="Cookie consent" style="display:none;">
             <div class="consent-copy">
                 <div class="consent-title">Privacy & measurement</div>
                 <div class="consent-text">
@@ -295,13 +319,53 @@
                 </div>
             </div>
             <div class="consent-actions">
-                <button class="btn" id="consentDecline" type="button">Decline</button>
-                <button class="btn primary" id="consentAccept" type="button">Accept</button>
+                <button class="btn" type="button" onclick="window.consentChoice('denied')">Decline</button>
+                <button class="btn primary" type="button" onclick="window.consentChoice('granted')">Accept</button>
             </div>
         </div>
         <script>
+            // Consent handler - globally accessible
+            window.consentChoice = function(choice) {
+                localStorage.setItem('consent.uet.ad_storage', choice);
+                window.uetq = window.uetq || [];
+                window.uetq.push('consent', 'update', { ad_storage: choice });
+                document.getElementById('consentBanner').style.display = 'none';
+            };
+
+            // Show banner if no choice saved (or ?resetconsent in URL for testing)
+            (function() {
+                var params = new URLSearchParams(window.location.search);
+                if (params.has('resetconsent')) {
+                    localStorage.removeItem('consent.uet.ad_storage');
+                }
+                var saved = localStorage.getItem('consent.uet.ad_storage');
+                var banner = document.getElementById('consentBanner');
+                if (!banner) return;
+                if (saved === 'granted' || saved === 'denied') {
+                    window.uetq = window.uetq || [];
+                    window.uetq.push('consent', 'update', { ad_storage: saved });
+                    banner.style.display = 'none';
+                } else {
+                    banner.style.display = 'flex';
+                }
+            })();
+        </script>
+        <script>
             // Footer year
             document.getElementById('year').textContent = String(new Date().getFullYear());
+
+            // Hamburger nav toggle
+            const navToggle = document.getElementById('navToggle');
+            const mainNav = document.getElementById('mainNav');
+            navToggle?.addEventListener('click', () => {
+                const open = mainNav.classList.toggle('open');
+                navToggle.setAttribute('aria-expanded', String(open));
+            });
+            // Close nav when a link is clicked
+            mainNav?.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+                mainNav.classList.remove('open');
+                navToggle?.setAttribute('aria-expanded', 'false');
+            }));
 
             // Render latest drops from Projects/data/games.json
             const dropsGrid = document.getElementById('dropsGrid');
@@ -418,7 +482,7 @@
                         const ry = (px - 0.5) * 8;
                         if (raf) cancelAnimationFrame(raf);
                         raf = requestAnimationFrame(() => {
-                            c.style.transform = `translateY(-2px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+                            c.style.transform = `translateY(-4px) scale(1.015) rotateX(${rx}deg) rotateY(${ry}deg)`;
                         });
                     };
                     const onLeave = () => {
@@ -430,59 +494,200 @@
                 });
             };
 
+            // ─── Mouse spotlight on cards ───
+            const enableSpotlight = () => {
+                document.querySelectorAll('.card').forEach(c => {
+                    if (c.dataset.spotReady === '1') return;
+                    c.dataset.spotReady = '1';
+                    c.addEventListener('pointermove', (e) => {
+                        const r = c.getBoundingClientRect();
+                        c.style.setProperty('--spot-x', `${e.clientX - r.left}px`);
+                        c.style.setProperty('--spot-y', `${e.clientY - r.top}px`);
+                        c.style.setProperty('--spot-opacity', '1');
+                    });
+                    c.addEventListener('pointerleave', () => {
+                        c.style.setProperty('--spot-opacity', '0');
+                    });
+                });
+            };
+
+            const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
             // Tilt for the static cards; dynamic cards get tilt after renderDrops().
-            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches === false) {
+            if (!reducedMotion) {
                 enableTilt();
+                enableSpotlight();
             }
-        </script>
 
-        <script>
-            // Microsoft Ads (Bing) UET consent control
-            (function () {
-                const KEY = 'consent.uet.ad_storage';
-                const banner = document.getElementById('consentBanner');
-                if (!banner) return;
+            // ─── Hero text decode effect ───
+            if (!reducedMotion) {
+                const h1 = document.querySelector('.hero .h1');
+                if (h1) {
+                    const textNodes = [];
+                    // Gather direct text children (not .grad span)
+                    h1.childNodes.forEach(node => {
+                        if (node.nodeType === 3 && node.textContent.trim()) textNodes.push(node);
+                    });
+                    const gradSpan = h1.querySelector('.grad');
+                    const allTargets = gradSpan ? [...textNodes, gradSpan] : textNodes;
 
-                const acceptBtn = document.getElementById('consentAccept');
-                const declineBtn = document.getElementById('consentDecline');
+                    allTargets.forEach(node => {
+                        const original = node.textContent;
+                        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#@$%&';
+                        let progress = 0;
+                        const speed = 2; // characters decoded per frame
+                        const delay = node === gradSpan ? 400 : 200;
 
-                const applyConsent = (state) => {
-                    window.uetq = window.uetq || [];
-                    window.uetq.push('consent', 'update', { ad_storage: state });
+                        setTimeout(() => {
+                            const tick = () => {
+                                progress += speed;
+                                let result = '';
+                                for (let i = 0; i < original.length; i++) {
+                                    if (original[i] === ' ' || original[i] === '\n') { result += original[i]; continue; }
+                                    if (i < progress) result += original[i];
+                                    else result += chars[Math.floor(Math.random() * chars.length)];
+                                }
+                                node.textContent = result;
+                                if (progress < original.length) requestAnimationFrame(tick);
+                            };
+                            requestAnimationFrame(tick);
+                        }, delay);
+                    });
+                }
+            }
+
+            // ─── Scroll progress bar ───
+            const scrollProgressEl = document.getElementById('scrollProgress');
+            if (!reducedMotion && scrollProgressEl) {
+                let ticking = false;
+                const updateProgress = () => {
+                    const scrollH = document.documentElement.scrollHeight - window.innerHeight;
+                    const pct = scrollH > 0 ? (window.scrollY / scrollH) * 100 : 0;
+                    scrollProgressEl.style.width = `${pct}%`;
+                    ticking = false;
+                };
+                window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(updateProgress); } }, { passive: true });
+            }
+
+            // ─── Nav scroll shrink + scroll-spy active link ───
+            const nav = document.querySelector('.nav');
+            const sections = document.querySelectorAll('.section[id], .hero');
+            const navAnchors = document.querySelectorAll('.navlinks a[href^="#"]');
+            if (nav) {
+                let navTicking = false;
+                const onScroll = () => {
+                    // Shrink
+                    nav.classList.toggle('scrolled', window.scrollY > 60);
+
+                    // Spy
+                    let current = '';
+                    sections.forEach(s => {
+                        const top = s.getBoundingClientRect().top;
+                        if (top < window.innerHeight * 0.4) current = s.id || '';
+                    });
+                    navAnchors.forEach(a => {
+                        a.classList.toggle('active', a.getAttribute('href') === `#${current}`);
+                    });
+                    navTicking = false;
+                };
+                window.addEventListener('scroll', () => { if (!navTicking) { navTicking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+            }
+
+            // ─── Scroll-reveal via IntersectionObserver ───
+            if (!reducedMotion) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(e => {
+                        if (e.isIntersecting) {
+                            e.target.classList.add('revealed');
+                            observer.unobserve(e.target);
+                        }
+                    });
+                }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+                const tagRevealTargets = () => {
+                    // Section headings + sub text
+                    document.querySelectorAll('.section .h2, .section .sub').forEach((el, i) => {
+                        if (el.classList.contains('revealed')) return;
+                        el.classList.add('reveal');
+                        el.style.setProperty('--d', `${i * 0.08}s`);
+                        observer.observe(el);
+                    });
+
+                    // Cards inside grids
+                    document.querySelectorAll('.grid .card').forEach((el, i) => {
+                        if (el.classList.contains('revealed')) return;
+                        el.classList.add('reveal');
+                        el.style.setProperty('--d', `${0.06 + (i % 6) * 0.09}s`);
+                        observer.observe(el);
+                    });
+
+                    // Quality cards
+                    document.querySelectorAll('.quality-card').forEach((el, i) => {
+                        if (el.classList.contains('revealed')) return;
+                        el.classList.add('reveal');
+                        el.style.setProperty('--d', `${0.08 + i * 0.12}s`);
+                        observer.observe(el);
+                    });
+
+                    // Quality pill
+                    const pill = document.querySelector('.quality-pill');
+                    if (pill && !pill.classList.contains('revealed')) {
+                        pill.classList.add('reveal');
+                        pill.style.setProperty('--d', '0.2s');
+                        observer.observe(pill);
+                    }
                 };
 
-                const saved = localStorage.getItem(KEY);
-                if (saved === 'granted' || saved === 'denied') {
-                    applyConsent(saved);
-                    return;
-                }
+                // Tag static elements immediately, re-tag after drops load
+                tagRevealTargets();
+                // Re-apply after dynamic cards load
+                setTimeout(() => { tagRevealTargets(); enableTilt(); enableSpotlight(); }, 900);
+            }
 
-                // No choice stored: show banner.
-                banner.hidden = false;
+            // ─── Stat number count-up animation ───
+            const animateCounter = (el, end) => {
+                if (reducedMotion) { el.textContent = String(end); el.classList.add('counted'); return; }
+                const duration = 900;
+                const start = performance.now();
+                const step = (now) => {
+                    const t = Math.min((now - start) / duration, 1);
+                    const ease = 1 - Math.pow(1 - t, 3);
+                    el.textContent = String(Math.round(ease * end));
+                    if (t < 1) requestAnimationFrame(step);
+                    else { el.textContent = String(end); el.classList.add('counted'); }
+                };
+                requestAnimationFrame(step);
+            };
 
-                acceptBtn?.addEventListener('click', () => {
-                    localStorage.setItem(KEY, 'granted');
-                    applyConsent('granted');
-                    banner.hidden = true;
+            // Hook into renderDrops data flow: observe the stat elements for first real value
+            const hookStat = (el) => {
+                let fired = false;
+                const obs = new MutationObserver(() => {
+                    if (fired) return;
+                    const raw = el.textContent.trim();
+                    const num = parseInt(raw, 10);
+                    if (!raw || raw === '—' || raw === '0' || isNaN(num)) return;
+                    fired = true;
+                    obs.disconnect();
+                    el.textContent = '0';
+                    animateCounter(el, num);
                 });
-
-                declineBtn?.addEventListener('click', () => {
-                    localStorage.setItem(KEY, 'denied');
-                    applyConsent('denied');
-                    banner.hidden = true;
-                });
-            })();
+                obs.observe(el, { childList: true, characterData: true, subtree: true });
+            };
+            [statGames, statCounted].forEach(hookStat);
         </script>
 
         <script>
-            // Immersion canvas: light letter-drift field.
+            // Immersion canvas: cursor-interactive letter-drift field.
             const canvas = document.getElementById('immersion');
             const ctx = canvas.getContext('2d');
 
             const center = { x: 0, y: 0 };
+            const mouse = { x: -9999, y: -9999 };
             const glyphs = 'GAME|AI|DEV|AGENT|LAB|SHIP|FROST|SIGNAL|氷霜|冷光';
             const particles = [];
             const maxParticles = 170;
+            const mouseRadius = 120; // repulsion radius
 
             const resize = () => {
                 canvas.width = window.innerWidth;
@@ -513,15 +718,20 @@
                 const dy = center.y - y;
                 const dist = Math.max(1, Math.hypot(dx, dy));
                 const speed = 0.55 + Math.random() * 0.95;
+                const hue = Math.random() < 0.3 ? 160 : (Math.random() < 0.5 ? 220 : 190);
 
                 particles.push({
                     x,
                     y,
                     vx: (dx / dist) * speed,
                     vy: (dy / dist) * speed,
+                    baseVx: (dx / dist) * speed,
+                    baseVy: (dy / dist) * speed,
                     ch: glyphs.charAt(Math.floor(Math.random() * glyphs.length)),
                     life: 0,
                     maxLife: 90 + Math.random() * 110,
+                    size: 14 + Math.random() * 8,
+                    hue,
                 });
             };
 
@@ -540,12 +750,26 @@
 
                 while (particles.length < maxParticles) spawn();
 
-                ctx.font = '18px ui-sans-serif, system-ui, -apple-system, Segoe UI, Inter, Roboto, Arial';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
 
                 for (let i = particles.length - 1; i >= 0; i--) {
                     const p = particles[i];
+
+                    // Mouse repulsion
+                    const mdx = p.x - mouse.x;
+                    const mdy = p.y - mouse.y;
+                    const mDist = Math.hypot(mdx, mdy);
+                    if (mDist < mouseRadius && mDist > 0) {
+                        const force = (1 - mDist / mouseRadius) * 1.8;
+                        p.vx += (mdx / mDist) * force;
+                        p.vy += (mdy / mDist) * force;
+                    }
+
+                    // Ease velocity back toward base drift
+                    p.vx += (p.baseVx - p.vx) * 0.06;
+                    p.vy += (p.baseVy - p.vy) * 0.06;
+
                     p.x += p.vx;
                     p.y += p.vy;
                     p.life++;
@@ -553,7 +777,8 @@
                     const fade = 1 - p.life / p.maxLife;
                     const alpha = Math.max(0, Math.min(1, fade));
 
-                    ctx.fillStyle = `rgba(154, 230, 255, ${alpha * 0.65})`;
+                    ctx.font = `${p.size}px ui-sans-serif, system-ui, -apple-system, Segoe UI, Inter, Roboto, Arial`;
+                    ctx.fillStyle = `hsla(${p.hue}, 80%, 85%, ${alpha * 0.60})`;
                     ctx.fillText(p.ch, p.x, p.y);
 
                     if (p.life >= p.maxLife || p.x < -60 || p.x > canvas.width + 60 || p.y < -60 || p.y > canvas.height + 60) {
@@ -563,6 +788,13 @@
 
                 requestAnimationFrame(tick);
             };
+
+            // Track mouse for particle interaction
+            window.addEventListener('pointermove', (e) => {
+                mouse.x = e.clientX;
+                mouse.y = e.clientY;
+            }, { passive: true });
+            window.addEventListener('pointerleave', () => { mouse.x = -9999; mouse.y = -9999; });
 
             window.addEventListener('resize', resize);
             resize();

@@ -271,6 +271,7 @@
     return {
       ensure,
       toggleMuted,
+      _isMuted: () => muted,
       startJingle,
       thrustHiss,
       reverseKick,
@@ -1462,6 +1463,12 @@
   restartBtn?.addEventListener('click', resetRound);
   pauseBtn?.addEventListener('click', togglePause);
   brakeBtn?.addEventListener('click', brakeBurst);
+
+  // Mute button
+  const muteBtn = document.getElementById('mute-btn');
+  const updateMuteLabel = () => { if(muteBtn) muteBtn.textContent = sound._isMuted?.() ? 'Sound: OFF' : 'Sound: ON'; };
+  muteBtn?.addEventListener('click', () => { sound.toggleMuted(); updateMuteLabel(); });
+
   brakeTouchBtn?.addEventListener('pointerdown', (e)=>{ e.preventDefault(); if(!state.started && !state.over) startGame(); brakeBurst(); });
   brakeTouchBtn?.addEventListener('click', (e)=>{ e.preventDefault(); if(!state.started && !state.over) startGame(); brakeBurst(); });
 

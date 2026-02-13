@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <a class="skip-link" href="#viewport">Skip to games</a>
   <canvas id="bg" aria-hidden="true"></canvas>
 
   <header class="top">
@@ -18,6 +19,7 @@
 
     <div class="top-actions">
       <a class="link" href="../../../index.html">Home</a>
+      <a class="link" href="../../Audit/index.html">Audit Hub</a>
       <a class="link" href="../../games/science-lab-5-2/index.html" target="_blank" rel="noreferrer">Science Lab 5.2</a>
       <a class="link" href="../../games/frost-signal/index.html" target="_blank" rel="noreferrer">Frost Signal</a>
       <a class="link" href="../../games/thermal-drift/index.html" target="_blank" rel="noreferrer">Thermal Drift</a>
@@ -124,7 +126,7 @@
     </section>
 
     <footer class="footer">
-      <div>© 2025 Edwin Estro — Science Lab</div>
+      <div>© <span class="year"></span> Edwin Estro — Science Lab</div>
       <div class="footer-links">
         <a href="../../../legacy/stringball-endpoint/games.html" target="_blank" rel="noreferrer">Legacy Games Lab</a>
         <a href="../../../legacy/stringball-endpoint/maze.html" target="_blank" rel="noreferrer">ScienceLab (legacy v4)</a>
@@ -133,5 +135,6 @@
   </main>
 
   <script src="lab.js"></script>
+  <script>document.querySelectorAll('.year').forEach(el => el.textContent = new Date().getFullYear());</script>
 </body>
 </html>

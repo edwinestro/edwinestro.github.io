@@ -594,6 +594,15 @@
   btnOverlayStart.addEventListener('click', startGame);
   btnOverlayRestart.addEventListener('click', resetGame);
 
+  // Touch directive buttons (mobile)
+  document.querySelectorAll('.dir-btn').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      const d = btn.dataset.dir;
+      if (d === 'exec') { executeEarly(); return; }
+      assignDirective(Number(d) - 1);
+    });
+  });
+
   window.addEventListener('resize', resize);
 
   resize();

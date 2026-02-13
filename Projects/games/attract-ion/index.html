@@ -3,192 +3,138 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Attract‑ion — Attraction v2</title>
-  <meta name="description" content="Attract‑ion: stabilize a single electron orbit by applying inward and outward field forces." />
+  <title>Attract-ion</title>
+  <meta name="description" content="Attract-ion: stabilize electron orbits from Hydrogen to Helium. Scroll down to pull electrons into orbit." />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="shell" id="shell">
     <header class="bar">
-      <div class="title">Attract‑ion — Attraction v2</div>
+      <div class="title">Attract-ion</div>
       <div class="actions">
+        <button class="btn" id="btnSound" type="button">Sound On</button>
         <a class="btn" href="../../../index.html">Home</a>
-        <a class="btn" href="../../hubs/science-lab/index.html">Game Gallery</a>
+        <a class="btn" href="../../hubs/science-lab/index.html">Games</a>
       </div>
     </header>
 
     <main class="stage">
-      <canvas id="scene" width="1600" height="900" aria-label="Attract‑ion scene"></canvas>
+      <canvas id="scene" width="1600" height="900" aria-label="Attract-ion simulation"></canvas>
 
-      <div class="hud" aria-live="polite">
-        <div class="hud-title">Attraction v2</div>
-        <div class="hud-step" id="hudStep">Initializing field…</div>
-        <div class="hud-metrics" aria-label="Simulation metrics">
-          <div class="metric">
-            <span class="metric-label">Kinetic</span>
-            <span class="metric-value" id="hudEnergy">—</span>
+      <!-- Simplified HUD: only the numbers that matter -->
+      <div class="hud" id="hud" aria-live="polite">
+        <div class="hud-row hud-level-row">
+          <span class="level-name" id="hudLevelName">H Hydrogen</span>
+          <span class="level-electrons" id="hudLevelElectrons">1 electron</span>
+        </div>
+        <div class="hud-row hud-top-row">
+          <div class="hud-hearts" id="hudHearts" aria-label="Lives remaining">
+            <span class="heart full" aria-hidden="true">&#9829;</span>
+            <span class="heart full" aria-hidden="true">&#9829;</span>
+            <span class="heart full" aria-hidden="true">&#9829;</span>
           </div>
-          <div class="metric">
-            <span class="metric-label">Attraction</span>
-            <span class="metric-value" id="hudPressure">—</span>
+          <div class="hud-stability-wrap">
+            <span class="stability-label">Stability</span>
+            <span class="stability-value" id="hudStabilityVal">0%</span>
           </div>
-          <div class="metric">
-            <span class="metric-label">Field</span>
-            <span class="metric-value" id="hudTemp">—</span>
+        </div>
+
+        <div class="hud-step" id="hudStep">Initializing...</div>
+
+        <!-- Hold-time progress bar -->
+        <div class="hud-hold" id="hudHold">
+          <div class="hold-bar">
+            <div class="hold-fill" id="hudHoldFill" style="width:0%"></div>
           </div>
-          <div class="metric">
-            <span class="metric-label">Orbit Error</span>
-            <span class="metric-value" id="hudVolume">—</span>
+          <div class="hold-labels">
+            <span class="hold-time" id="hudHoldTime">0.0 / 7.0s</span>
+            <span class="hold-grace" id="hudHoldGrace"></span>
           </div>
-          <div class="metric">
-            <span class="metric-label">Hold Time</span>
-            <span class="metric-value" id="hudTempHold">—</span>
-          </div>
-          <div class="metric">
-            <span class="metric-label">Stability</span>
-            <span class="metric-value" id="hudStability">—</span>
-          </div>
-          <div class="metric">
-            <span class="metric-label">Radius</span>
-            <span class="metric-value" id="hudOrbit">—</span>
-          </div>
-          <div class="metric">
-            <span class="metric-label">Velocity</span>
-            <span class="metric-value" id="hudVelocity">—</span>
+        </div>
+
+        <!-- Orbit error: the key instability gauge -->
+        <div class="hud-error" id="hudError">
+          <span class="error-label">Orbit</span>
+          <span class="error-value" id="hudErrorVal">-- px</span>
+          <span class="error-zone" id="hudErrorZone">--</span>
+        </div>
+      </div>
+
+      <!-- Tutorial overlay (shown on first play) -->
+      <div class="tutorial-overlay" id="tutorialOverlay" hidden>
+        <div class="tutorial-card" id="tutorialCard">
+          <div class="tutorial-dots" id="tutorialDots"></div>
+          <h2 class="tutorial-title" id="tutorialTitle"></h2>
+          <p class="tutorial-body" id="tutorialBody"></p>
+          <div class="tutorial-actions">
+            <button class="btn primary" id="tutorialNext" type="button">Next</button>
+            <button class="btn" id="tutorialSkip" type="button">Skip Tutorial</button>
           </div>
         </div>
       </div>
 
+      <!-- In-game directional hint -->
       <div class="orbit-hint" id="orbitHint" role="status" aria-live="polite" hidden>
-        <div class="orbit-hint-title" id="orbitHintTitle">—</div>
-        <div class="orbit-hint-sub" id="orbitHintSub">—</div>
+        <div class="orbit-hint-title" id="orbitHintTitle">--</div>
+        <div class="orbit-hint-sub" id="orbitHintSub">--</div>
       </div>
 
+      <!-- Prompt panel (intro, fail, success) -->
       <div class="prompt" id="prompt" hidden>
-        <div class="prompt-title" id="promptTitle">Field Control Online</div>
-        <div class="prompt-body" id="promptBody">
-          Pull in or push out to stabilize the electron orbit.
+        <div class="prompt-title" id="promptTitle"></div>
+        <div class="prompt-body" id="promptBody"></div>
+        <div class="prompt-stats" id="promptStats" hidden>
+          <div class="prompt-stat">
+            <span class="prompt-stat-label">Hold Time</span>
+            <span class="prompt-stat-value" id="statHoldTime">0.0s</span>
+          </div>
+          <div class="prompt-stat">
+            <span class="prompt-stat-label">Peak Stability</span>
+            <span class="prompt-stat-value" id="statStability">0%</span>
+          </div>
+          <div class="prompt-stat">
+            <span class="prompt-stat-label">Attempt</span>
+            <span class="prompt-stat-value" id="statAttempts">#1</span>
+          </div>
+          <div class="prompt-stat progress">
+            <span class="prompt-stat-label">Progress</span>
+            <span class="prompt-stat-value prompt-progress" id="statProgress">0%</span>
+          </div>
         </div>
+        <div class="prompt-encourage" id="promptEncourage" hidden></div>
         <div class="prompt-actions">
-          <button class="btn primary" id="promptAction" type="button">Engage</button>
-          <button class="btn" id="promptSkip" type="button">Skip Intro</button>
+          <button class="btn primary" id="promptAction" type="button">Play</button>
+          <button class="btn" id="promptLevels" type="button">Levels</button>
+          <button class="btn" id="promptSkip" type="button">Skip</button>
         </div>
       </div>
 
+      <!-- Touch/click controls -->
       <div class="control-pad" id="controlPad" aria-label="Field controls" hidden>
-        <button class="btn control cool" id="btnCool" type="button" aria-label="Pull the electron inward">Pull In</button>
-        <button class="btn control heat" id="btnHeat" type="button" aria-label="Push the electron outward">Push Out</button>
+        <button class="btn control pull" id="btnPull" type="button" aria-label="Pull the electron inward">Pull</button>
       </div>
 
       <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-      <details class="quality-drawer" id="qualityDrawer" open>
-        <summary>
-          <span>Quality layer model</span>
-          <span class="quality-pill">Playable · Readable · Resilient</span>
-        </summary>
-        <div class="quality-body" aria-label="Quality steps">
-          <div class="quality-banner">Playable · Readable · Resilient</div>
-          <p class="quality-sub">The goal is to make every build playable, readable, and resilient — even when it’s “just a prototype.”</p>
-          <div class="quality-grid">
-            <article class="quality-card clarity">
-              <div class="quality-num">01</div>
-              <h3 class="quality-title">Clarity</h3>
-              <p class="quality-desc">Readable hierarchy, inclusive UX, and “you don’t need instructions” energy.</p>
-              <ul class="quality-list">
-                <li>Self-guided UI with obvious next actions</li>
-                <li>Accessible contrast and motion-safe patterns</li>
-                <li>Readable typography and feedback-first states</li>
-              </ul>
-            </article>
-            <article class="quality-card craft">
-              <div class="quality-num">02</div>
-              <h3 class="quality-title">Craft</h3>
-              <p class="quality-desc">Responsive layouts, performance, and a clean architecture that survives refactors.</p>
-              <ul class="quality-list">
-                <li>Plays cleanly on mobile → ultrawide</li>
-                <li>Lightweight assets and predictable frame time</li>
-                <li>Modular components with clear ownership</li>
-              </ul>
-            </article>
-            <article class="quality-card trust">
-              <div class="quality-num">03</div>
-              <h3 class="quality-title">Trust</h3>
-              <p class="quality-desc">Secure defaults, privacy awareness, and resilient engineering habits.</p>
-              <ul class="quality-list">
-                <li>Least-privilege inputs and safe defaults</li>
-                <li>Privacy-first data collection</li>
-                <li>Clear error handling and recovery paths</li>
-              </ul>
-            </article>
-            <article class="quality-card measure">
-              <div class="quality-num">04</div>
-              <h3 class="quality-title">Measurement</h3>
-              <p class="quality-desc">Clear events and outcomes so agents (and humans) can iterate with confidence.</p>
-              <ul class="quality-list">
-                <li>Human-auditable events and outcomes</li>
-                <li>Easy experiments with rollback paths</li>
-                <li>Iteration-ready metrics for every build</li>
-              </ul>
-            </article>
+      <!-- Level Select overlay -->
+      <div class="level-select-overlay" id="levelSelect" hidden>
+        <div class="level-select-card">
+          <h2 class="level-select-title">Choose Your Atom</h2>
+          <p class="level-select-sub">Complete each atom to unlock the next one.</p>
+          <div class="level-grid" id="levelGrid">
+            <!-- Populated by game.js -->
+          </div>
+          <div class="level-select-actions">
+            <button class="btn" id="levelSelectBack" type="button">Back</button>
           </div>
         </div>
-      </details>
+      </div>
     </main>
 
     <footer class="footer">
-      <span>Attract‑ion · Attraction v2</span>
-      <span class="muted">Scroll to pull in or push out and keep the electron inside the orbit band.</span>
+      <span>Attract-ion</span>
+      <span class="muted">Keep the electron inside the green band to win.</span>
     </footer>
-
-    <section class="faq" aria-label="FAQ">
-      <h3>FAQ</h3>
-      <div class="faq-item">
-        <div class="faq-q">How do we stabilize the orbit?</div>
-        <div class="faq-a">
-          Scroll up to pull the electron inward and scroll down to push it outward. Make small corrections and
-          keep the orbit inside the band for the full hold time.
-          <span class="muted">Band width: ±<strong><span id="faqBand">—</span> px</strong> (≈<strong><span id="faqBandPct">—</span>%</strong> of target radius).</span>
-        </div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q">How strong is a pulse?</div>
-        <div class="faq-a">
-          Pulses are disabled. Use the mouse wheel instead: wheel up applies pull-in and wheel down applies push-out in
-          <strong><span id="faqStep">—</span></strong> field steps.
-        </div>
-      </div>
-    </section>
-
-    <section class="knowledge" aria-label="Knowledge base">
-      <h3>Knowledge base</h3>
-      <div class="knowledge-grid">
-        <article class="knowledge-card">
-          <h4>Leptons</h4>
-          <p>Electrons are leptons: light particles that do not feel the strong force.</p>
-          <ul>
-            <li>Carry negative electric charge (e⁻).</li>
-            <li>Orbit behavior is modeled here as a toy 2D system.</li>
-          </ul>
-        </article>
-        <article class="knowledge-card">
-          <h4>Quarks</h4>
-          <p>Quarks combine to form hadrons such as protons and neutrons.</p>
-          <ul>
-            <li>Proton = two up quarks + one down quark.</li>
-            <li>Bound by the strong interaction.</li>
-          </ul>
-        </article>
-        <article class="knowledge-card">
-          <h4>Hadron colliders</h4>
-          <p>Large accelerators collide hadrons to probe fundamental interactions.</p>
-          <ul>
-            <li>Collisions reveal particle behavior at high energies.</li>
-            <li>Data informs models used in particle physics.</li>
-          </ul>
-        </article>
-      </div>
-    </section>
   </div>
 
   <script src="game.js"></script>

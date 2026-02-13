@@ -53,6 +53,8 @@
   footer{padding:50px 30px 60px;text-align:center;font-size:.6rem;color:rgba(255,255,255,.55)}
   footer a{color:var(--a3)}
   .footer-license{margin-top:14px;opacity:.7}
+  .skip-link{position:absolute;top:-100%;left:1rem;z-index:100;padding:.45rem .9rem;border-radius:999px;background:var(--a3);color:#041019;font-weight:700;font-size:.75rem;text-decoration:none}
+  .skip-link:focus{top:.5rem}
 
   /* Ant Path spark effect */
   .ant-spark{position:absolute;left:50%;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;background:radial-gradient(circle,#ffe28f,#ffbb33 55%,#ff6b00);border-radius:50%;pointer-events:none;animation:antSpark .8s ease-out forwards;box-shadow:0 0 6px 2px rgba(255,214,134,.6)}
@@ -67,6 +69,7 @@
 </style>
 </head>
 <body>
+<a class="skip-link" href="#boardMount">Skip to game</a>
 <header>
   <div style="font-weight:600;letter-spacing:.6px;font-size:.9rem">Games Lab · Edwin Estrada</div>
   <nav>
@@ -85,48 +88,48 @@
     <p id="pageSub" style="font-size:.8rem;line-height:1.5;opacity:.85">Experiments in sequencing, spatial recall and gentle cognitive reinforcement. Each game is modular vanilla JS with adaptive difficulty.</p>
   </div>
   <div class="game-select" id="gameSelect" role="tablist" aria-label="Game selector">
-    <div class="game-card is-active" role="tab" tabindex="0" aria-selected="true" data-game="memory-sequence">
+    <div class="game-card is-active" role="tab" tabindex="0" aria-selected="true" aria-controls="boardMount" data-game="memory-sequence">
       <h2>Memory Sequence <span class="version-badge">v1</span></h2>
       <p id="desc-memory-sequence">Follow and replicate an expanding color pattern. Focus & reaction.</p>
       <div class="badge-row"><span class="badge">Sequence</span><span class="badge">Adaptive</span></div>
     </div>
-    <div class="game-card" role="tab" tabindex="0" aria-selected="false" data-game="memory-mapping">
+    <div class="game-card" role="tab" tabindex="0" aria-selected="false" aria-controls="boardMount" data-game="memory-mapping">
       <h2>Memory Mapping <span class="version-badge">v1</span></h2>
       <p id="desc-memory-mapping">Pattern flashes then disappears. Rebuild by position.</p>
       <div class="badge-row"><span class="badge">Spatial</span><span class="badge">Delay</span></div>
     </div>
-    <div class="game-card" role="tab" tabindex="0" aria-selected="false" data-game="alz-jaime">
+    <div class="game-card" role="tab" tabindex="0" aria-selected="false" aria-controls="boardMount" data-game="alz-jaime">
       <h2>Alz‑Jaime <span class="version-badge">v1</span></h2>
       <p id="desc-alz-jaime">Gentle progressive sequence with optional persistent hints.</p>
       <div class="badge-row"><span class="badge">Gentle</span><span class="badge">Assist</span></div>
     </div>
-    <div class="game-card" role="tab" tabindex="0" aria-selected="false" data-game="focus-pulse">
+    <div class="game-card" role="tab" tabindex="0" aria-selected="false" aria-controls="boardMount" data-game="focus-pulse">
       <h2>Focus Pulse <span class="version-badge">v2</span></h2>
       <p>Track shrinking pulse targets. Improves timing & sustained attention.</p>
       <div class="badge-row"><span class="badge">Timing</span><span class="badge">Attention</span></div>
     </div>
-    <div class="game-card" role="tab" tabindex="0" aria-selected="false" data-game="ant-path">
+    <div class="game-card" role="tab" tabindex="0" aria-selected="false" aria-controls="boardMount" data-game="ant-path">
       <h2>Ant Path <span class="version-badge">v3</span></h2>
       <p>Navigate the ant to food. Spatial planning & quick decisions.</p>
       <div class="badge-row"><span class="badge">Maze</span><span class="badge">Movement</span></div>
     </div>
-    <div class="game-card" role="tab" tabindex="0" aria-selected="false" data-game="unsupervised">
+    <div class="game-card" role="tab" tabindex="0" aria-selected="false" aria-controls="boardMount" data-game="unsupervised">
       <h2>The Unsupervised Game <span class="version-badge">v9</span></h2>
       <p id="desc-unsupervised">Hybrid memory, mapping & reaction challenge. Agentic AI only.</p>
       <div class="badge-row"><span class="badge">Hybrid</span><span class="badge">Adaptive</span></div>
     </div>
-    <div class="game-card" role="tab" tabindex="0" aria-selected="false" data-game="unsupervised-3d">
+    <div class="game-card" role="tab" tabindex="0" aria-selected="false" aria-controls="boardMount" data-game="unsupervised-3d">
       <h2>Unsupervised 3D <span class="version-badge">v1</span></h2>
       <p>Single-room 3D — Mahjong-like memory + environment interactions (chair, objects).</p>
       <div class="badge-row"><span class="badge">3D</span><span class="badge">Memory</span></div>
     </div>
-    <div class="game-card" role="tab" tabindex="0" aria-selected="false" data-game="maze-3d">
+    <div class="game-card" role="tab" tabindex="0" aria-selected="false" aria-controls="boardMount" data-game="maze-3d">
       <h2>ScienceLab <span class="version-badge">v4</span></h2>
       <p>Enhanced 3D scientific laboratory with helmet HUD, compass navigation & hydrogen effects. Click to play →</p>
       <div class="badge-row"><span class="badge">3D</span><span class="badge">Science</span><span class="badge">Fullscreen</span></div>
     </div>
   </div>
-  <div class="board-area" aria-live="polite">
+  <div class="board-area" role="tabpanel" aria-labelledby="activeGameTitle" aria-live="polite">
     <div class="panel-col">
       <h2 id="activeGameTitle" style="font-size:1.1rem;letter-spacing:.6px">Memory Sequence</h2>
       <p id="activeGameDesc" style="font-size:.7rem;line-height:1.4;opacity:.8">Follow and replicate an expanding color pattern. Focus & reaction.</p>
@@ -138,7 +141,7 @@
   </div>
 </div>
 <footer>
-  © 2025 Edwin Estrada · <a href="index.html">Landing</a> · <a href="cv.html">CV</a>
+  © <span class="year"></span> Edwin Estrada · <a href="index.html">Landing</a> · <a href="cv.html">CV</a> · <a href="../../Projects/hubs/science-lab/index.html">Science Lab ↗</a>
   <div class="footer-license" id="gLicense">MIT Licensed · Created with GitHub Copilot assistance.</div>
 </footer>
 <script type="module">
@@ -732,3 +735,4 @@ function chip(html){ const d=document.createElement('div'); d.className='status-
   handleHash();
   window.addEventListener('hashchange', handleHash);
 </script>
+<script>document.querySelectorAll('.year').forEach(el => el.textContent = new Date().getFullYear());</script>

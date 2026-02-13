@@ -23,6 +23,10 @@
 }
 
 *{box-sizing:border-box}
+
+.skip-link{position:absolute;top:-100%;left:1rem;z-index:100;padding:.5rem 1rem;border-radius:999px;background:var(--accent2);color:var(--bg);font-weight:700;font-size:.85rem;text-decoration:none}
+.skip-link:focus{top:.5rem}
+
 html{color-scheme:dark;scroll-behavior:smooth}
 body{
   margin:0;

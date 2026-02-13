@@ -1,5 +1,14 @@
+# Virtual environments
 .venv/
+venv/
+
+# Environment variables
 .env
+.env.local
+.env.*.local
+*.secret
+
+# Test artifacts
 edw_hello_world.txt
 
 # Python caches
@@ -8,10 +17,19 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+
 # Node artifacts
 node_modules/
 dist/
 build/
 
-# macOS files
+# OS files
 .DS_Store
+Thumbs.db
+
+# Editor / IDE
+.idea/
+*.swp
+*.swo
+*.tmp
+*.log

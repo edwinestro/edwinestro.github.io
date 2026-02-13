@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Security & Scalability Audit — Claude Opus Audit</title>
+  <meta name="description" content="Comprehensive security and scalability audit for the edwinestro.github.io repository, conducted December 19, 2025." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <canvas id="bg" aria-hidden="true"></canvas>
+
+  <header class="top">
+    <a class="brand" href="../../index.html">
+      <span class="mark">EDWIN</span>
+      <span class="name">Audit Hub</span>
+    </a>
+
+    <div class="top-actions">
+      <a class="link" href="index.html">All Audits</a>
+      <a class="link" href="../hubs/science-lab/index.html">Science Lab</a>
+      <a class="link" href="https://github.com/edwinestro/edwinestro.github.io" target="_blank" rel="noreferrer">Repository</a>
+    </div>
+  </header>
+
+  <main class="shell">
+    <a class="back-link" href="index.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      Back to Audit Hub
+    </a>
+
+    <article class="report-content">
+      <header class="report-header">
+        <div>
+          <h1 class="report-title">Security & Scalability Audit</h1>
+          <p style="margin:.5rem 0 0;color:rgba(255,255,255,.6);font-size:.9rem">
+            Repository: edwinestro.github.io • Static Website with Node.js Backend Components
+          </p>
+        </div>
+        <div class="report-meta">
+          <span class="report-date">December 19, 2025</span>
+          <div class="report-score-display">
+            <span class="score-big">4.5/10</span>
+          </div>
+        </div>
+      </header>
+
+      <section class="score-breakdown" style="margin-bottom:2rem">
+        <h2 style="font-size:1rem;letter-spacing:.14em;margin:0 0 1rem">Score Breakdown</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem">
+          <div class="issue-item" style="text-align:center">
+            <div style="font-size:1.8rem;font-weight:900;color:var(--good)">6/10</div>
+            <div style="font-size:.75rem;letter-spacing:.12em;color:rgba(255,255,255,.6);margin-top:.25rem">CODE SECURITY</div>
+          </div>
+          <div class="issue-item" style="text-align:center">
+            <div style="font-size:1.8rem;font-weight:900;color:var(--bad)">3/10</div>
+            <div style="font-size:.75rem;letter-spacing:.12em;color:rgba(255,255,255,.6);margin-top:.25rem">CONFIGURATION</div>
+          </div>
+          <div class="issue-item" style="text-align:center">
+            <div style="font-size:1.8rem;font-weight:900;color:var(--warning)">4/10</div>
+            <div style="font-size:.75rem;letter-spacing:.12em;color:rgba(255,255,255,.6);margin-top:.25rem">ACCESS CONTROL</div>
+          </div>
+          <div class="issue-item" style="text-align:center">
+            <div style="font-size:1.8rem;font-weight:900;color:var(--warning)">5/10</div>
+            <div style="font-size:.75rem;letter-spacing:.12em;color:rgba(255,255,255,.6);margin-top:.25rem">DOCUMENTATION</div>
+          </div>
+          <div class="issue-item" style="text-align:center">
+            <div style="font-size:1.8rem;font-weight:900;color:var(--warning)">4/10</div>
+            <div style="font-size:.75rem;letter-spacing:.12em;color:rgba(255,255,255,.6);margin-top:.25rem">INFRASTRUCTURE</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="issue-section">
+        <h3>🚨 Top 10 Critical Issues</h3>
+
+        <div class="issue-item">
+          <div class="issue-title">
+            Missing .gitignore File
+            <span class="badge critical">Critical</span>
+          </div>
+          <div class="issue-body">
+            <p><strong>Risk Level:</strong> HIGH — Sensitive files, credentials, and build artifacts may be committed.</p>
+            <p>No <code>.gitignore</code> file exists at repository root. Multiple untracked sensitive files detected including <code>.DS_Store</code>, <code>.venv/</code>, and scattered <code>node_modules/</code> directories.</p>
+            <div class="action-box">
+              <div class="action-label">Action Required</div>
+              <p>Create comprehensive <code>.gitignore</code> covering dependencies, environment variables, OS files, build outputs, and IDE configurations.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="issue-item">
+          <div class="issue-title">
+            Repository State Chaos
+            <span class="badge critical">Critical</span>
+          </div>
+          <div class="issue-body">
+            <p><strong>Risk Level:</strong> HIGH — 27 deleted files not committed, numerous untracked files creating deployment confusion.</p>
+            <ul>
+              <li>27 deleted files in working directory</li>
+              <li>Multiple untracked directories: packages/agentcy/, assets/, legacy/, tools/</li>
+              <li>No clear versioning or release strategy</li>
+              <li>Git history shows inconsistent commit messages</li>
+            </ul>
+            <div class="action-box">
+              <div class="action-label">Action Required</div>
+              <p>Clean up working directory with <code>git status</code>, commit or restore changes, add all untracked production files, implement conventional commits.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="issue-item">
+          <div class="issue-title">
+            No Comprehensive README
+            <span class="badge high">High</span>
+          </div>
+          <div class="issue-body">
+            <p><strong>Risk Level:</strong> MEDIUM — New developers cannot understand project structure, setup, or contribution guidelines.</p>
+            <p>README.md was deleted in working directory. No root-level documentation explaining project architecture, setup instructions, development workflow, or deployment process.</p>
+            <div class="action-box">
+              <div class="action-label">Action Required</div>
+              <p>Create comprehensive README.md with project overview, architecture diagram, setup instructions, contributing guidelines, security policy, and license information.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="issue-item">
+          <div class="issue-title">
+            Secrets Exposed in GitHub Workflows
+            <span class="badge high">High</span>
+          </div>
+          <div class="issue-body">
+            <p><strong>Risk Level:</strong> HIGH — Azure deployment tokens stored as GitHub secrets but referenced directly in workflow files.</p>
+            <ul>
+              <li>Two duplicate workflow files with Azure Static Web Apps configuration</li>
+              <li>Token names hardcoded in workflow files</li>
+              <li>No secret rotation policy documented</li>
+              <li>No workflow security scanning</li>
+            </ul>
+            <div class="action-box">
+              <div class="action-label">Action Required</div>
+              <p>Consolidate to ONE Azure Static Web Apps workflow, document secret rotation procedures, add Dependabot for workflow security updates, consider Azure RBAC with OIDC.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="issue-item">
+          <div class="issue-title">
+            Missing SECURITY.md and Security Policies
+            <span class="badge high">High</span>
+          </div>
+          <div class="issue-body">
+            <p><strong>Risk Level:</strong> MEDIUM — No clear vulnerability reporting process, no security guidelines for contributors.</p>
+            <ul>
+              <li>No SECURITY.md file</li>
+              <li>No vulnerability disclosure policy</li>
+              <li>No security contact information</li>
+              <li>No incident response plan</li>
+            </ul>
+            <div class="action-box">
+              <div class="action-label">Action Required</div>
+              <p>Create <code>SECURITY.md</code> with supported versions, vulnerability reporting process, response time expectations, and security best practices.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="issue-item">
+          <div class="issue-title">
+            Fragmented Project Structure
+            <span class="badge medium">Medium</span>
+          </div>
+          <div class="issue-body">
+            <p><strong>Risk Level:</strong> MEDIUM — Difficult to maintain, scale, and onboard new developers.</p>
+            <ul>
+              <li>Spaces in directory names (avoid for web-safe URLs)</li>
+              <li>Unclear separation between public/private code</li>
+              <li>Multiple nested package.json files</li>
+              <li>No clear "source of truth" for deployments</li>
+            </ul>
+            <div class="action-box">
+              <div class="action-label">Action Required</div>
+              <p>Rename directories to be web-safe, create clear <code>src/</code> and <code>public/</code> separation, consolidate or document purpose of each top-level directory, create ARCHITECTURE.md.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="issue-item">
+          <div class="issue-title">
+            No License File
+            <span class="badge medium">Medium</span>
+          </div>
+          <div class="issue-body">
+            <p><strong>Risk Level:</strong> MEDIUM — Legal ambiguity about code usage, potential copyright issues.</p>
+            <p>LICENSE exists in <code>legacy/stringball-endpoint/</code> but not at root. No clear licensing for the entire repository.</p>
+            <div class="action-box">
+              <div class="action-label">Action Required</div>
+              <p>Choose appropriate license (MIT, Apache 2.0, or proprietary), add LICENSE file to repository root, add license headers to source files, document third-party attributions.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="issue-item">
+          <div class="issue-title">
+            No Dependency Management Strategy
+            <span class="badge medium">Medium</span>
+          </div>
+          <div class="issue-body">
+            <p><strong>Risk Level:</strong> MEDIUM — Security vulnerabilities over time, difficult updates.</p>
+            <ul>
+              <li>Node.js dependencies clean (npm audit: 0 vulnerabilities)</li>
+              <li>Python dependencies not versioned (no requirements.txt at root)</li>
+              <li>No Dependabot configuration</li>
+              <li>No automated dependency updates</li>
+            </ul>
+            <div class="action-box">
+              <div class="action-label">Action Required</div>
+              <p>Add <code>dependabot.yml</code> for npm and GitHub Actions, create root-level <code>requirements.txt</code>, document update policy and testing procedures.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="issue-item">
+          <div class="issue-title">
+            No Monitoring or Observability
+            <span class="badge medium">Medium</span>
+          </div>
+          <div class="issue-body">
+            <p><strong>Risk Level:</strong> LOW — Cannot detect issues, performance problems, or security incidents in production.</p>
+            <p>Azure Static Web Apps deployed but no Application Insights integration, error tracking, performance monitoring, security monitoring, or uptime monitoring.</p>
+            <div class="action-box">
+              <div class="action-label">Action Required</div>
+              <p>Enable Azure Application Insights, add error boundaries to frontend, implement structured logging, set up uptime monitoring, create alerting for critical errors.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="issue-item">
+          <div class="issue-title">
+            No CI/CD Testing Pipeline
+            <span class="badge medium">Medium</span>
+          </div>
+          <div class="issue-body">
+            <p><strong>Risk Level:</strong> MEDIUM — Breaking changes can reach production without detection.</p>
+            <ul>
+              <li>Linting workflow exists</li>
+              <li>Azure deployment workflows exist</li>
+              <li>BUT: No automated testing, no build validation, no security scanning</li>
+            </ul>
+            <div class="action-box">
+              <div class="action-label">Action Required</div>
+              <p>Create comprehensive CI/CD pipeline with lint, test, security-scan (Snyk), and build jobs running on push and pull requests.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="issue-section">
+        <h3>📋 Additional Recommendations</h3>
+        
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem">
+          <div class="issue-item">
+            <div class="issue-title" style="font-size:.85rem">Infrastructure & Deployment</div>
+            <div class="issue-body">
+              <ul style="font-size:.82rem">
+                <li>Implement staging environment</li>
+                <li>Add CDN caching headers</li>
+                <li>Enable HTTPS enforcement and HSTS</li>
+                <li>Configure CSP headers</li>
+                <li>Add rate limiting to backend APIs</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="issue-item">
+            <div class="issue-title" style="font-size:.85rem">Code Quality</div>
+            <div class="issue-body">
+              <ul style="font-size:.82rem">
+                <li>Add ESLint/Prettier at root</li>
+                <li>Implement pre-commit hooks with Husky</li>
+                <li>Add TypeScript for type safety</li>
+                <li>Document API endpoints</li>
+                <li>Add unit tests (target 60%+ coverage)</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="issue-item">
+            <div class="issue-title" style="font-size:.85rem">Documentation</div>
+            <div class="issue-body">
+              <ul style="font-size:.82rem">
+                <li>Create CONTRIBUTING.md</li>
+                <li>Add CODE_OF_CONDUCT.md</li>
+                <li>Document environment variables</li>
+                <li>Create deployment runbook</li>
+                <li>Add API documentation</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="issue-item">
+            <div class="issue-title" style="font-size:.85rem">Security Hardening</div>
+            <div class="issue-body">
+              <ul style="font-size:.82rem">
+                <li>Implement SRI for CDN assets</li>
+                <li>Add X-Frame-Options, X-Content-Type-Options</li>
+                <li>Enable GitHub Security Advisories</li>
+                <li>Add branch protection rules</li>
+                <li>Require code reviews for main branch</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="issue-section">
+        <h3>🎯 7-Day Action Plan</h3>
+        
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.75rem">
+          <div class="issue-item" style="text-align:center">
+            <div style="font-size:1.2rem;font-weight:900;color:var(--accent)">Day 1</div>
+            <div style="font-size:.8rem;color:rgba(255,255,255,.7);margin-top:.35rem">Create .gitignore, clean up git state, create SECURITY.md</div>
+          </div>
+          <div class="issue-item" style="text-align:center">
+            <div style="font-size:1.2rem;font-weight:900;color:var(--accent)">Day 2</div>
+            <div style="font-size:.8rem;color:rgba(255,255,255,.7);margin-top:.35rem">Consolidate workflows, create README, add LICENSE</div>
+          </div>
+          <div class="issue-item" style="text-align:center">
+            <div style="font-size:1.2rem;font-weight:900;color:var(--accent)">Day 3</div>
+            <div style="font-size:.8rem;color:rgba(255,255,255,.7);margin-top:.35rem">Rename directories, create ARCHITECTURE.md, add dependabot</div>
+          </div>
+          <div class="issue-item" style="text-align:center">
+            <div style="font-size:1.2rem;font-weight:900;color:var(--accent)">Day 4</div>
+            <div style="font-size:.8rem;color:rgba(255,255,255,.7);margin-top:.35rem">Set up monitoring, add pre-commit hooks, create requirements.txt</div>
+          </div>
+          <div class="issue-item" style="text-align:center">
+            <div style="font-size:1.2rem;font-weight:900;color:var(--accent)">Day 5</div>
+            <div style="font-size:.8rem;color:rgba(255,255,255,.7);margin-top:.35rem">Implement CI/CD pipeline, add security headers, enable branch protection</div>
+          </div>
+          <div class="issue-item" style="text-align:center">
+            <div style="font-size:1.2rem;font-weight:900;color:var(--accent)">Day 6</div>
+            <div style="font-size:.8rem;color:rgba(255,255,255,.7);margin-top:.35rem">Document env variables, create runbook, add CONTRIBUTING.md</div>
+          </div>
+          <div class="issue-item" style="text-align:center">
+            <div style="font-size:1.2rem;font-weight:900;color:var(--accent)">Day 7</div>
+            <div style="font-size:.8rem;color:rgba(255,255,255,.7);margin-top:.35rem">Run security audit scan, review all changes, final testing</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="issue-section" style="border-top:1px solid rgba(255,255,255,.1);padding-top:1.5rem;margin-top:2rem">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem">
+          <div>
+            <div style="font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.5)">Next Scheduled Review</div>
+            <div style="font-size:1rem;font-weight:700;margin-top:.25rem">March 19, 2026</div>
+          </div>
+          <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+            <a class="btn mini" href="index.html">Back to Audits</a>
+            <a class="btn mini primary" href="../../IMPORTANT/SECURITY_AND_SCALABILITY_AUDIT.md" target="_blank">View Raw Report</a>
+          </div>
+        </div>
+      </section>
+    </article>
+
+    <footer class="footer">
+      <div>© <span class="year"></span> Edwin Estro — Claude Opus Audit</div>
+      <div class="footer-links">
+        <a href="../hubs/science-lab/index.html">Science Lab</a>
+        <a href="../../index.html">Home</a>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    const canvas = document.getElementById('bg');
+    const ctx = canvas.getContext('2d');
+    let w, h;
+    
+    function resize() {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    }
+    
+    function draw() {
+      ctx.clearRect(0, 0, w, h);
+      const time = Date.now() * 0.0002;
+      
+      const gradient = ctx.createRadialGradient(
+        w * 0.2 + Math.sin(time) * 50, 
+        h * 0.3 + Math.cos(time) * 30, 
+        0,
+        w * 0.2, h * 0.3, 400
+      );
+      gradient.addColorStop(0, 'rgba(122, 162, 255, 0.06)');
+      gradient.addColorStop(1, 'transparent');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, w, h);
+      
+      const gradient2 = ctx.createRadialGradient(
+        w * 0.8 + Math.cos(time * 0.7) * 40,
+        h * 0.6 + Math.sin(time * 0.7) * 25,
+        0,
+        w * 0.8, h * 0.6, 350
+      );
+      gradient2.addColorStop(0, 'rgba(154, 230, 255, 0.05)');
+      gradient2.addColorStop(1, 'transparent');
+      ctx.fillStyle = gradient2;
+      ctx.fillRect(0, 0, w, h);
+      
+      requestAnimationFrame(draw);
+    }
+    
+    window.addEventListener('resize', resize);
+    resize();
+    draw();
+  </script>
+  <script>document.querySelectorAll('.year').forEach(el => el.textContent = new Date().getFullYear());</script>
+</body>
+</html>

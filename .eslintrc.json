@@ -2,13 +2,14 @@
   "env": {
     "browser": true,
     "node": true,
-    "es2021": true
+    "es2022": true
   },
   "extends": "eslint:recommended",
   "parserOptions": {
-    "ecmaVersion": 2021,
+    "ecmaVersion": "latest",
     "sourceType": "module"
   },
+  "ignorePatterns": ["node_modules/", ".venv/", "generated/"],
   "rules": {
     "no-console": ["warn", { "allow": ["warn", "error"] }],
     "no-restricted-syntax": [

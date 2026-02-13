@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <a class="skip-link" href="#game">Skip to game</a>
     <div class="shell">
       <header class="topbar">
         <div>
@@ -71,6 +72,13 @@
           </div>
         </div>
       </main>
+
+      <div class="touch-directives" id="touchDirectives" aria-label="Mobile directive controls">
+        <button class="dir-btn" data-dir="1" aria-label="Assign directive 1: Filter">1 Filter</button>
+        <button class="dir-btn" data-dir="2" aria-label="Assign directive 2: Analyze">2 Analyze</button>
+        <button class="dir-btn" data-dir="3" aria-label="Assign directive 3: Quarantine">3 Quarantine</button>
+        <button class="dir-btn exec" data-dir="exec" aria-label="Execute early (Space)">Execute</button>
+      </div>
 
       <section class="legend">
         <div class="legend-block">

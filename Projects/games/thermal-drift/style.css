@@ -333,3 +333,10 @@ footer a:hover,footer a:focus-visible{border-bottom-color:rgba(154,230,255,.55);
 	#game{height:50vh}
 	.tel.block{min-width:154px;max-width:210px;font-size:.70rem;padding:.5rem .55rem}
 }
+
+@media (prefers-reduced-motion: reduce){
+	*{animation:none!important;transition:none!important}
+	.game-shell::before,.game-shell::after{display:none}
+	.primary::after{display:none}
+	.panel::before,.panel::after{display:none}
+}

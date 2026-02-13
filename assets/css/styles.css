@@ -1,4 +1,11 @@
 /* Custom properties/variables  */
+:root {
+  --main-white: #f5f7ff;
+  --main-red: #c0392b;
+  --main-gray: #303841;
+  --main-blue: #1e3a5f;
+}
+
 .title, .nav-list {
   color:rgb(3, 45, 96);
 }
@@ -72,9 +79,9 @@ div{
  * The calculation is the following
  * screen size divided by browser base font size
  * As an example: a breakpoint at 980px
+ * 980px / 16px = 61.25em
 */
 /* 1200px / 16px = 75em */
-* 980px / 16px = 61.25em
 
 @media (max-width: 75em) {
   html {

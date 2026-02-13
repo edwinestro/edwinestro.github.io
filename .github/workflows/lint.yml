@@ -14,7 +14,4 @@ jobs:
       - name: Install ESLint
         run: npm install -g eslint@8
       - name: Run ESLint
-        run: eslint "**/*.js" --ext .js || true
-      - name: Check for ESLint errors
-        run: |
-          eslint "**/*.js" --ext .js --max-warnings 0
+        run: eslint "**/*.js" --ext .js --max-warnings 0

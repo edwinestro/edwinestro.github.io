@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Claude Opus Audit — Automated Quality Assurance</title>
+  <meta name="description" content="Claude Opus Audit hub: automated security, accessibility, and code quality audits for the Edwin Estro portfolio." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <canvas id="bg" aria-hidden="true"></canvas>
+
+  <header class="top">
+    <a class="brand" href="../../index.html">
+      <span class="mark">EDWIN</span>
+      <span class="name">Audit Hub</span>
+    </a>
+
+    <div class="top-actions">
+      <a class="link" href="../../index.html">Home</a>
+      <a class="link" href="../hubs/science-lab/index.html">Science Lab</a>
+      <a class="link" href="https://github.com/edwinestro/edwinestro.github.io" target="_blank" rel="noreferrer">Repository</a>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="highlight">
+      <div class="featured featured-wide">
+        <div class="featured-head">
+          <div class="featured-title">Claude Opus Audit</div>
+          <div class="featured-date">Powered by Claude 4</div>
+        </div>
+        <div class="featured-card featured-grid">
+          <div class="featured-media">
+            <div class="audit-visual">
+              <div class="audit-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 12l2 2 4-4"/>
+                  <path d="M12 3a9 9 0 109 9"/>
+                  <circle cx="12" cy="12" r="9"/>
+                </svg>
+              </div>
+              <div class="audit-score">
+                <span class="score-value">6.0</span>
+                <span class="score-max">/10</span>
+              </div>
+              <div class="audit-label">Security Score (improved)</div>
+            </div>
+          </div>
+          <div class="featured-info">
+            <div class="featured-name">Automated Quality Assurance</div>
+            <div class="featured-desc">
+              Claude Opus Audit provides comprehensive automated reviews of security, 
+              accessibility, code quality, and best practices. Each audit generates 
+              actionable recommendations prioritized by impact.
+            </div>
+            <div class="featured-actions">
+              <a class="btn mini primary" href="security-audit.html">View Security Audit</a>
+              <a class="btn mini" href="#audits">Browse All Audits</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="kicker">Quality Assurance</p>
+        <h1>Claude Opus Audit</h1>
+        <p class="lede">
+          Automated audits powered by <strong>Claude Opus 4.5</strong> for continuous 
+          quality improvement. Every audit follows a structured methodology to ensure 
+          consistent, actionable insights.
+        </p>
+
+        <div class="hero-meta">
+          <div class="chip" id="chipTotal">Total Audits: 1</div>
+          <div class="chip chip-accent">Last Run: Feb 6, 2026</div>
+        </div>
+      </div>
+
+      <div class="hero-panel">
+        <div class="panel-title">Audit Categories</div>
+        <div class="panel-sub">Comprehensive coverage across security, accessibility, performance, and code quality.</div>
+
+        <div class="category-grid">
+          <div class="category-card">
+            <div class="category-icon security">🔒</div>
+            <div class="category-name">Security</div>
+            <div class="category-desc">Vulnerability scanning, secrets detection, dependency audits</div>
+          </div>
+          <div class="category-card">
+            <div class="category-icon access">♿</div>
+            <div class="category-name">Accessibility</div>
+            <div class="category-desc">WCAG compliance, screen reader testing, keyboard navigation</div>
+          </div>
+          <div class="category-card">
+            <div class="category-icon perf">⚡</div>
+            <div class="category-name">Performance</div>
+            <div class="category-desc">Load times, asset optimization, Core Web Vitals</div>
+          </div>
+          <div class="category-card">
+            <div class="category-icon code">📝</div>
+            <div class="category-name">Code Quality</div>
+            <div class="category-desc">Architecture review, best practices, documentation</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="audits-section" id="audits">
+      <div class="section-header">
+        <h2>Audit Reports</h2>
+        <p class="section-sub">Complete audit history with detailed findings and recommendations.</p>
+      </div>
+
+      <div class="audit-list">
+        <a class="audit-card" href="security-audit.html">
+          <div class="audit-card-header">
+            <div class="audit-type">Security & Scalability</div>
+            <div class="audit-date">December 19, 2025</div>
+          </div>
+          <div class="audit-card-body">
+            <div class="audit-card-title">Repository Security Audit</div>
+            <div class="audit-card-desc">
+              Comprehensive security assessment covering configuration, access control, 
+              infrastructure, and compliance considerations.
+            </div>
+          </div>
+          <div class="audit-card-footer">
+            <div class="audit-score-badge">
+              <span class="score-label">Score:</span>
+              <span class="score-num">6.0/10</span>
+            </div>
+            <div class="audit-issues">
+              <span class="issue-count">3 Remaining</span>
+              <span class="issue-count medium">10 Completed</span>
+            </div>
+          </div>
+        </a>
+
+        <div class="audit-card placeholder-card">
+          <div class="placeholder-content">
+            <div class="placeholder-icon">📋</div>
+            <div class="placeholder-text">More audits coming soon</div>
+            <div class="placeholder-sub">Accessibility, Performance, and Code Quality audits in development</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="methodology-section">
+      <div class="section-header">
+        <h2>Audit Methodology</h2>
+        <p class="section-sub">How Claude Opus conducts comprehensive quality assessments.</p>
+      </div>
+
+      <div class="method-grid">
+        <div class="method-step">
+          <div class="step-num">01</div>
+          <div class="step-title">Discovery</div>
+          <div class="step-desc">Automated scanning of repository structure, dependencies, and configurations.</div>
+        </div>
+        <div class="method-step">
+          <div class="step-num">02</div>
+          <div class="step-title">Analysis</div>
+          <div class="step-desc">Deep inspection using industry standards (OWASP, WCAG, best practices).</div>
+        </div>
+        <div class="method-step">
+          <div class="step-num">03</div>
+          <div class="step-title">Scoring</div>
+          <div class="step-desc">Quantified assessment with weighted categories and severity levels.</div>
+        </div>
+        <div class="method-step">
+          <div class="step-num">04</div>
+          <div class="step-title">Recommendations</div>
+          <div class="step-desc">Prioritized action items with implementation guidance and timelines.</div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div>© <span class="year"></span> Edwin Estro — Claude Opus Audit</div>
+      <div class="footer-links">
+        <a href="../hubs/science-lab/index.html">Science Lab</a>
+        <a href="../../legacy/stringball-endpoint/games.html" target="_blank" rel="noreferrer">Legacy Games</a>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    // Minimal background animation
+    const canvas = document.getElementById('bg');
+    const ctx = canvas.getContext('2d');
+    let w, h;
+    
+    function resize() {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    }
+    
+    function draw() {
+      ctx.clearRect(0, 0, w, h);
+      const time = Date.now() * 0.0002;
+      
+      // Subtle gradient orbs
+      const gradient = ctx.createRadialGradient(
+        w * 0.2 + Math.sin(time) * 50, 
+        h * 0.3 + Math.cos(time) * 30, 
+        0,
+        w * 0.2, h * 0.3, 400
+      );
+      gradient.addColorStop(0, 'rgba(122, 162, 255, 0.06)');
+      gradient.addColorStop(1, 'transparent');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, w, h);
+      
+      const gradient2 = ctx.createRadialGradient(
+        w * 0.8 + Math.cos(time * 0.7) * 40,
+        h * 0.6 + Math.sin(time * 0.7) * 25,
+        0,
+        w * 0.8, h * 0.6, 350
+      );
+      gradient2.addColorStop(0, 'rgba(154, 230, 255, 0.05)');
+      gradient2.addColorStop(1, 'transparent');
+      ctx.fillStyle = gradient2;
+      ctx.fillRect(0, 0, w, h);
+      
+      requestAnimationFrame(draw);
+    }
+    
+    window.addEventListener('resize', resize);
+    resize();
+    draw();
+  </script>
+  <script>document.querySelectorAll('.year').forEach(el => el.textContent = new Date().getFullYear());</script>
+</body>
+</html>

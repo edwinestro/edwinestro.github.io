@@ -24,6 +24,9 @@ body {
   min-height: 100vh;
 }
 
+.skip-link{position:absolute;top:-100%;left:1rem;z-index:100;padding:.5rem 1rem;border-radius:999px;background:var(--accent);color:var(--bg);font-weight:700;font-size:.85rem;text-decoration:none}
+.skip-link:focus{top:.5rem}
+
 .shell {
   max-width: 1100px;
   margin: 0 auto;
@@ -593,6 +596,29 @@ canvas {
   canvas {
     height: 360px;
   }
+}
+
+/* Touch directive buttons (mobile only) */
+.touch-directives{display:none;gap:.6rem;flex-wrap:wrap;justify-content:center;padding:.6rem 0}
+.dir-btn{
+  padding:.7rem 1.1rem;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.06);
+  color:var(--text);
+  font-weight:800;
+  font-size:.9rem;
+  letter-spacing:.06em;
+  cursor:pointer;
+  touch-action:manipulation;
+}
+.dir-btn[data-dir="1"]{border-color:rgba(99,230,255,.35);color:#63e6ff}
+.dir-btn[data-dir="2"]{border-color:rgba(141,123,255,.35);color:#8d7bff}
+.dir-btn[data-dir="3"]{border-color:rgba(124,255,182,.35);color:#7cffb6}
+.dir-btn.exec{border-color:rgba(255,180,100,.35);color:#ffb464;font-weight:900}
+
+@media (hover:none) and (pointer:coarse){
+  .touch-directives{display:flex}
 }
 
 @media (prefers-reduced-motion: reduce) {

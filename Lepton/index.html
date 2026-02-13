@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <a class="skip-link" href="#scene">Skip to simulation</a>
     <main class="app">
       <header class="app__header">
         <div>
@@ -32,6 +33,12 @@
           <div class="chip">Charged tracks visible • Neutrinos are invisible</div>
         </div>
       </section>
+
+      <aside class="legend" aria-label="Track color legend">
+        <span class="legend__swatch" style="background:#4af"></span> Electron/Muon (−)
+        <span class="legend__swatch" style="background:#f55"></span> Positron/Anti-muon (+)
+        <span class="legend__swatch" style="background:#999"></span> Neutrino (invisible)
+      </aside>
     </main>
 
     <script src="script.js"></script>
