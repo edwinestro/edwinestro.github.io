@@ -1120,13 +1120,28 @@
     for (var ni = 0; ni < lvl.neutrons; ni++) nucleons.push({ type: 'n' });
 
     var totalN = nucleons.length;
+    // Scale quark detail based on nucleon count — fewer nucleons = more detail room
+    var showLabels = totalN <= 1;
+    var quarkSize = totalN <= 1 ? 4.5 : 3;
+    var quarkOrbitR = totalN <= 1 ? 14 : 7;
+    var nucleonSpread = totalN <= 1 ? 46 : 18;
+
     for (var nIdx = 0; nIdx < totalN; nIdx++) {
       var nuc = nucleons[nIdx];
       var basePhase = (nIdx / Math.max(1, totalN)) * Math.PI * 2;
-      var orbitR = 36 + totalN * 5 + Math.sin(t * 0.002 + nIdx) * 5;
-      var nucAng = t * 0.001 + basePhase;
-      var nucX = c.x + Math.cos(nucAng) * orbitR * 0.4;
-      var nucY = c.y + Math.sin(nucAng) * orbitR * 0.4 * 0.78;
+      // Position nucleons in a tight cluster — spread grows slightly with count
+      var nucAng = basePhase + t * 0.0008;
+      var nucDist = totalN <= 1 ? 0 : nucleonSpread + Math.sin(t * 0.002 + nIdx) * 3;
+      var nucX = c.x + Math.cos(nucAng) * nucDist;
+      var nucY = c.y + Math.sin(nucAng) * nucDist * 0.78;
+
+      // Draw a subtle nucleon body (proton = blue tint, neutron = grey)
+      if (totalN > 1) {
+        ctx.fillStyle = nuc.type === 'p' ? 'rgba(122,162,255,0.25)' : 'rgba(180,190,210,0.2)';
+        ctx.beginPath();
+        ctx.arc(nucX, nucY, quarkOrbitR + 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
 
       var quarks = nuc.type === 'p'
         ? [
@@ -1144,19 +1159,21 @@
       for (var qi = 0; qi < quarks.length; qi++) {
         var q = quarks[qi];
         var qAng = t * 0.0014 + basePhase + qi * (Math.PI * 2 / 3);
-        var qR = 14 + Math.sin(t * 0.002 + qi) * 2;
+        var qR = quarkOrbitR + Math.sin(t * 0.002 + qi) * (totalN <= 1 ? 2 : 1);
         var qx = nucX + Math.cos(qAng) * qR;
         var qy = nucY + Math.sin(qAng) * qR * 0.78;
         qPositions.push({ x: qx, y: qy });
 
         ctx.fillStyle = q.color;
         ctx.beginPath();
-        ctx.arc(qx, qy, 4.5, 0, Math.PI * 2);
+        ctx.arc(qx, qy, quarkSize, 0, Math.PI * 2);
         ctx.fill();
-        ctx.fillStyle = 'rgba(255,255,255,0.8)';
-        ctx.font = '9px system-ui, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(q.label, qx, qy - 7);
+        if (showLabels) {
+          ctx.fillStyle = 'rgba(255,255,255,0.8)';
+          ctx.font = '9px system-ui, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(q.label, qx, qy - 7);
+        }
       }
 
       // Gluon bonds
