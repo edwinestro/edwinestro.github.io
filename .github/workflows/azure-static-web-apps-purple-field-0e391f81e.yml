@@ -2,33 +2,69 @@ name: Azure Static Web Apps CI/CD
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
-  id-token: write      # required for Azure authentication (OIDC)
-  contents: read       # allows the workflow to read your repo files
+  id-token: write
+  contents: read
 
 jobs:
-  build_and_deploy:
+  build_and_deploy_job:
+    # Run on push to main, or on PR events except "closed"
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
+    name: Build and Deploy Job
 
     steps:
-      # 1. Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: true
 
-      # 2. Deploy the static site without building anything
-      - name: Build and Deploy to Azure Static Web Apps
+      - name: Build And Deploy
+        id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
+          # 🔧 Use the generic repo secret you created in GitHub → Settings → Secrets → Actions
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
 
-          # Your site files are located directly in the repo root
+          # For PR comment/status integration
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+
+          # We are uploading static content (no framework build)
+          action: "upload"
+
+          ###### Repository/Build Configurations ######
+          # App source code path (repo root where index.html lives)
           app_location: "/"
 
-          # No build step = no output folder
+          # No API in this project
+          api_location: ""
+
+          # No build output folder (deploy files as-is)
           output_location: ""
 
-          # Explicitly skip the build step (optional but recommended)
+          # Optional: make intent explicit (prevents framework auto-build)
           skip_app_build: true
+          ###### End of Repository/Build Configurations ######
+
+  close_pull_request_job:
+    # Run only when a PR to main is closed
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    name: Close Pull Request Job
+
+    steps:
+      - name: Close Pull Request
+        id: closepullrequest
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          # 🔧 Same generic secret here
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: "close"
