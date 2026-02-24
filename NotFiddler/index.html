@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NotFiddler — HAR File Analyzer</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Drop Overlay -->
+    <div id="drop-overlay" class="drop-overlay hidden">
+        <div class="drop-overlay-content">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <h2>Drop HAR file here</h2>
+        </div>
+    </div>
+
+    <!-- Landing / Upload Screen -->
+    <div id="landing-screen" class="landing-screen">
+        <div class="landing-content">
+            <div class="logo">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M12 20h9"/>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                </svg>
+                <h1>NotFiddler</h1>
+            </div>
+            <p class="tagline">A fast, privacy-first HAR file analyzer. Everything runs in your browser.</p>
+            <div class="upload-area" id="upload-area">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                <p><strong>Drop a .har file here</strong> or click to browse</p>
+                <span class="upload-hint">Files are processed entirely in your browser and never uploaded</span>
+                <input type="file" id="file-input" accept=".har,application/json" hidden>
+            </div>
+            <button class="btn btn-secondary" id="load-demo-btn">Load demo data</button>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="app-screen" class="app-screen hidden">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="top-bar-left">
+                <span class="app-title">NotFiddler</span>
+                <span class="file-name" id="file-name"></span>
+            </div>
+            <div class="top-bar-right">
+                <button class="btn btn-sm" id="new-file-btn" title="Open another file">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="12" y1="18" x2="12" y2="12"/>
+                        <line x1="9" y1="15" x2="15" y2="15"/>
+                    </svg>
+                    New File
+                </button>
+                <button class="btn btn-sm" id="export-btn" title="Export summary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Export
+                </button>
+            </div>
+        </header>
+
+        <!-- Summary Bar -->
+        <div class="summary-bar" id="summary-bar">
+            <div class="summary-stat">
+                <span class="stat-value" id="stat-requests">0</span>
+                <span class="stat-label">Requests</span>
+            </div>
+            <div class="summary-stat">
+                <span class="stat-value" id="stat-transferred">0 B</span>
+                <span class="stat-label">Transferred</span>
+            </div>
+            <div class="summary-stat">
+                <span class="stat-value" id="stat-load-time">0 ms</span>
+                <span class="stat-label">Load Time</span>
+            </div>
+            <div class="summary-stat">
+                <span class="stat-value" id="stat-domains">0</span>
+                <span class="stat-label">Domains</span>
+            </div>
+            <div class="summary-stat error-stat">
+                <span class="stat-value" id="stat-errors">0</span>
+                <span class="stat-label">Errors</span>
+            </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <div class="search-box">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text" id="search-input" placeholder="Filter requests..." autocomplete="off">
+                    <button class="search-clear hidden" id="search-clear">&times;</button>
+                </div>
+                <div class="filter-group">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="document">Doc</button>
+                    <button class="filter-btn" data-filter="stylesheet">CSS</button>
+                    <button class="filter-btn" data-filter="script">JS</button>
+                    <button class="filter-btn" data-filter="xhr">XHR</button>
+                    <button class="filter-btn" data-filter="font">Font</button>
+                    <button class="filter-btn" data-filter="image">Img</button>
+                    <button class="filter-btn" data-filter="other">Other</button>
+                </div>
+            </div>
+            <div class="toolbar-right">
+                <label class="toggle-label">
+                    <input type="checkbox" id="toggle-errors-only">
+                    Errors only
+                </label>
+                <div class="view-tabs">
+                    <button class="view-tab active" data-view="waterfall" title="Waterfall">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="4" rx="1"/>
+                            <rect x="6" y="10" width="10" height="4" rx="1"/>
+                            <rect x="4" y="17" width="14" height="4" rx="1"/>
+                        </svg>
+                    </button>
+                    <button class="view-tab" data-view="chart" title="Charts">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="20" x2="18" y2="10"/>
+                            <line x1="12" y1="20" x2="12" y2="4"/>
+                            <line x1="6" y1="20" x2="6" y2="14"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Requests Panel -->
+            <div class="panel requests-panel" id="requests-panel">
+                <!-- Waterfall View -->
+                <div id="waterfall-view" class="view-content">
+                    <div class="table-header">
+                        <div class="col col-status" data-sort="status">Status</div>
+                        <div class="col col-method" data-sort="method">Method</div>
+                        <div class="col col-name" data-sort="url">Name</div>
+                        <div class="col col-type" data-sort="type">Type</div>
+                        <div class="col col-size" data-sort="size">Size</div>
+                        <div class="col col-time" data-sort="time">Time</div>
+                        <div class="col col-waterfall">Waterfall</div>
+                    </div>
+                    <div class="table-body" id="request-list"></div>
+                </div>
+
+                <!-- Charts View -->
+                <div id="chart-view" class="view-content hidden">
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <h3>Requests by Type</h3>
+                            <canvas id="chart-type" width="300" height="300"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Size by Type</h3>
+                            <canvas id="chart-size" width="300" height="300"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Response Codes</h3>
+                            <canvas id="chart-status" width="300" height="300"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Top 10 Slowest Requests</h3>
+                            <canvas id="chart-slow" width="600" height="300"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Top 10 Largest Requests</h3>
+                            <canvas id="chart-large" width="600" height="300"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Requests by Domain</h3>
+                            <canvas id="chart-domain" width="300" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detail Panel -->
+            <div class="panel detail-panel hidden" id="detail-panel">
+                <div class="detail-header">
+                    <div class="detail-tabs">
+                        <button class="detail-tab active" data-detail="headers">Headers</button>
+                        <button class="detail-tab" data-detail="request">Request</button>
+                        <button class="detail-tab" data-detail="response">Response</button>
+                        <button class="detail-tab" data-detail="cookies">Cookies</button>
+                        <button class="detail-tab" data-detail="timing">Timing</button>
+                    </div>
+                    <button class="detail-close" id="detail-close">&times;</button>
+                </div>
+                <div class="detail-body" id="detail-body">
+                    <div id="detail-headers" class="detail-content"></div>
+                    <div id="detail-request" class="detail-content hidden"></div>
+                    <div id="detail-response" class="detail-content hidden"></div>
+                    <div id="detail-cookies" class="detail-content hidden"></div>
+                    <div id="detail-timing" class="detail-content hidden"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/har-parser.js"></script>
+    <script src="js/waterfall-chart.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/ui-controller.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
