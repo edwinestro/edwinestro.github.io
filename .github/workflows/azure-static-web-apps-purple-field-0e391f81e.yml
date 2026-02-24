@@ -8,6 +8,7 @@ on:
     types: [opened, synchronize, reopened, closed]
     branches:
       - main
+  # Allows manual runs from the Actions tab
   workflow_dispatch:
 
 permissions:
@@ -16,8 +17,7 @@ permissions:
 
 jobs:
   build_and_deploy_job:
-    # Run on push to main, or on PR events except "closed"
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    # Run for push, PR (except closed handled below), and manual runs
     runs-on: ubuntu-latest
     name: Build and Deploy Job
 
@@ -31,31 +31,24 @@ jobs:
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
-          # 🔧 Use the generic repo secret you created in GitHub → Settings → Secrets → Actions
+          # ✅ Use your generic repo secret (set in GitHub → Settings → Secrets → Actions)
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
-
-          # For PR comment/status integration
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-
-          # We are uploading static content (no framework build)
+          repo_token: ${{ secrets.GITHUB_TOKEN }} # Enables PR comments/status
           action: "upload"
 
           ###### Repository/Build Configurations ######
-          # App source code path (repo root where index.html lives)
+          # Static site is at repo root
           app_location: "/"
-
-          # No API in this project
+          # No API
           api_location: ""
-
           # No build output folder (deploy files as-is)
           output_location: ""
-
-          # Optional: make intent explicit (prevents framework auto-build)
+          # Explicitly skip framework builds
           skip_app_build: true
           ###### End of Repository/Build Configurations ######
 
   close_pull_request_job:
-    # Run only when a PR to main is closed
+    # Runs only when a PR to main is closed
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
     name: Close Pull Request Job
@@ -65,6 +58,6 @@ jobs:
         id: closepullrequest
         uses: Azure/static-web-apps-deploy@v1
         with:
-          # 🔧 Same generic secret here
+          # ✅ Same generic secret here
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           action: "close"
