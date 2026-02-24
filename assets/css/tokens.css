@@ -2,24 +2,24 @@
    Import this file first in any stylesheet that uses these custom properties.        */
 
 :root {
-  /* Backgrounds */
-  --bg0: #070a10;
-  --bg1: #0a1020;
+  /* Backgrounds — deep frozen night */
+  --bg0: #060a14;
+  --bg1: #081020;
 
   /* Text */
-  --text: rgba(245, 247, 255, 0.92);
-  --muted: rgba(245, 247, 255, 0.68);
-  --muted2: rgba(245, 247, 255, 0.64);
+  --text: rgba(235, 245, 255, 0.94);
+  --muted: rgba(200, 220, 255, 0.68);
+  --muted2: rgba(200, 220, 255, 0.58);
 
-  /* Borders / surfaces */
-  --line: rgba(255, 255, 255, 0.10);
-  --glass: rgba(20, 24, 40, 0.58);
-  --glass2: rgba(22, 28, 50, 0.72);
+  /* Borders / surfaces — frosted glass */
+  --line: rgba(180, 220, 255, 0.10);
+  --glass: rgba(14, 22, 44, 0.62);
+  --glass2: rgba(16, 26, 55, 0.74);
 
-  /* Accent palette */
-  --a1: #7aa2ff;
-  --a2: #9ae6ff;
-  --a3: #8affa8;
+  /* Accent palette — blizzard ice */
+  --a1: #6ea8ff;
+  --a2: #a0e8ff;
+  --a3: #b8f0ff;
   --bad: #ff6b8b;
 
   /* Radii */
