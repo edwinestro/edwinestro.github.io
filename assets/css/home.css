@@ -1104,6 +1104,133 @@ body::before {
   animation: footerReveal 1s 0.6s ease both;
 }
 
+/* ─── Blog section ─── */
+.blog-featured {
+  position: relative;
+  border-radius: var(--r1);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--glass2);
+  box-shadow: var(--shadow);
+  padding: 1.5rem 1.5rem 1rem;
+  margin-top: 1.1rem;
+}
+
+.blog-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.blog-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem;
+  color: var(--text);
+}
+
+.blog-body {
+  line-height: 1.7;
+  color: var(--muted);
+}
+.blog-body p { margin: 0 0 0.9rem; }
+
+.blog-body.blog-collapsed {
+  max-height: 7.5em;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 40%, transparent 100%);
+}
+
+.blog-body.blog-expanded {
+  max-height: none;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+.blog-toggle {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.45rem 1.1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--a2);
+  background: rgba(154, 230, 255, 0.08);
+  border: 1px solid rgba(154, 230, 255, 0.25);
+  border-radius: var(--r1);
+  cursor: pointer;
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+.blog-toggle:hover {
+  background: rgba(154, 230, 255, 0.16);
+  border-color: rgba(154, 230, 255, 0.45);
+}
+
+/* Blog archive */
+.blog-archive {
+  margin-top: 1.6rem;
+}
+.blog-archive-heading {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 0.5rem;
+}
+.blog-archive-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.blog-archive-list li {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.blog-archive-list a {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.55rem 0.3rem;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.88rem;
+  transition: color 0.2s ease, background 0.2s ease;
+  border-radius: 4px;
+}
+.blog-archive-list a:hover {
+  color: var(--a2);
+  background: rgba(154, 230, 255, 0.06);
+}
+.blog-archive-list time {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.6;
+  font-size: 0.82rem;
+}
+
+/* ─── Banner (horizontal scroll strip for drops) ─── */
+.banner {
+  margin-top: 1.1rem;
+  display: flex;
+  gap: 0.9rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 0.5rem;
+}
+.banner::-webkit-scrollbar { display: none; }
+
+.banner .card {
+  flex: 0 0 280px;
+  scroll-snap-align: start;
+  grid-column: unset;
+}
+.banner .card.big {
+  flex: 0 0 340px;
+  grid-column: unset;
+}
+
 /* ─── Reduced motion: kill everything ─── */
 @media (prefers-reduced-motion: reduce) {
   html {

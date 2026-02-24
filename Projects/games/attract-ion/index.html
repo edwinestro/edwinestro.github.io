@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Attract-ion</title>
-  <meta name="description" content="Attract-ion: stabilize electron orbits from Hydrogen to Helium. Scroll down to pull electrons into orbit." />
+  <meta name="description" content="Attract-ion: stabilize electron orbits from Hydrogen to Boron and play Expansion Attraction as an H2O cooling challenge." />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -13,6 +13,7 @@
       <div class="title">Attract-ion</div>
       <div class="actions">
         <button class="btn" id="btnSound" type="button">Sound On</button>
+        <button class="btn" id="btnPause" type="button">Pause</button>
         <a class="btn" href="../../../index.html">Home</a>
         <a class="btn" href="../../hubs/science-lab/index.html">Games</a>
       </div>
@@ -29,6 +30,8 @@
         </div>
         <div class="hud-row hud-top-row">
           <div class="hud-hearts" id="hudHearts" aria-label="Lives remaining">
+            <span class="heart full" aria-hidden="true">&#9829;</span>
+            <span class="heart full" aria-hidden="true">&#9829;</span>
             <span class="heart full" aria-hidden="true">&#9829;</span>
             <span class="heart full" aria-hidden="true">&#9829;</span>
             <span class="heart full" aria-hidden="true">&#9829;</span>
@@ -57,6 +60,20 @@
           <span class="error-label">Orbit</span>
           <span class="error-value" id="hudErrorVal">-- px</span>
           <span class="error-zone" id="hudErrorZone">--</span>
+        </div>
+
+        <div class="hud-thermo" id="hudThermo" hidden>
+          <div class="thermo-header">
+            <span class="thermo-title">H2O Lab</span>
+            <span class="thermo-target" id="thermoTarget">Target: Freeze</span>
+          </div>
+          <div class="thermo-grid">
+            <span class="thermo-pill" id="thermoCompounds">Compounds: --</span>
+            <span class="thermo-pill" id="thermoPhase">Phase: --</span>
+            <span class="thermo-pill" id="thermoTemp">Temp: --</span>
+            <span class="thermo-pill" id="thermoPressure">Pressure: --</span>
+            <span class="thermo-pill" id="thermoVolume">Volume: --</span>
+          </div>
         </div>
       </div>
 
@@ -102,8 +119,10 @@
           </div>
         </div>
         <div class="prompt-encourage" id="promptEncourage" hidden></div>
+        <div class="prompt-test" id="promptTest" hidden></div>
         <div class="prompt-actions">
           <button class="btn primary" id="promptAction" type="button">Play</button>
+          <button class="btn" id="promptExpansion" type="button">Expansion</button>
           <button class="btn" id="promptLevels" type="button">Levels</button>
           <button class="btn" id="promptSkip" type="button">Skip</button>
         </div>
@@ -111,10 +130,34 @@
 
       <!-- Touch/click controls -->
       <div class="control-pad" id="controlPad" aria-label="Field controls" hidden>
-        <button class="btn control pull" id="btnPull" type="button" aria-label="Pull the electron inward">Pull</button>
+        <button class="btn control pull" id="btnPull" type="button" aria-label="Pull orbit inward">Pull</button>
+        <button class="btn control thermo" id="btnCool" type="button" aria-label="Cool water">Cool</button>
+        <button class="btn control thermo" id="btnHeat" type="button" aria-label="Heat water">Heat</button>
+        <button class="btn control thermo" id="btnPressureUp" type="button" aria-label="Increase pressure">P+</button>
+        <button class="btn control thermo" id="btnPressureDown" type="button" aria-label="Decrease pressure">P-</button>
+        <button class="btn control thermo" id="btnVolumeUp" type="button" aria-label="Increase volume">V+</button>
+        <button class="btn control thermo" id="btnVolumeDown" type="button" aria-label="Decrease volume">V-</button>
+        <div class="molecule-options" id="moleculeOptions" hidden>
+          <span class="molecule-label">H2O Molecules</span>
+          <button class="btn control molecule" id="btnMol10" type="button" aria-label="Set 10 H2O molecules">10</button>
+          <button class="btn control molecule" id="btnMol10000" type="button" aria-label="Set 10,000 H2O molecules">10,000</button>
+          <button class="btn control molecule" id="btnMol10b" type="button" aria-label="Set 10,000,000,000 H2O molecules">10,000,000,000</button>
+        </div>
       </div>
 
       <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+      <!-- Pause overlay -->
+      <div class="pause-overlay" id="pauseOverlay" hidden>
+        <div class="pause-card">
+          <h2 class="pause-title">Paused</h2>
+          <p class="pause-body">Press <strong>P</strong> or <strong>Escape</strong> to resume.</p>
+          <div class="pause-actions">
+            <button class="btn primary" id="pauseResume" type="button">Resume</button>
+            <button class="btn" id="pauseRestart" type="button">Restart Level</button>
+          </div>
+        </div>
+      </div>
 
       <!-- Level Select overlay -->
       <div class="level-select-overlay" id="levelSelect" hidden>
@@ -133,7 +176,7 @@
 
     <footer class="footer">
       <span>Attract-ion</span>
-      <span class="muted">Keep the electron inside the green band to win.</span>
+      <span class="muted">Scroll, hold Space, or hold ArrowDown to pull electrons toward the nucleus.</span>
     </footer>
   </div>
 

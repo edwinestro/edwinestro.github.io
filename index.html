@@ -67,6 +67,7 @@
                 </div>
 
                 <nav class="navlinks" aria-label="Primary" id="mainNav">
+                    <a href="#blog">Blog</a>
                     <a href="#drops">Latest drops</a>
                     <a href="#explore">Explore</a>
                     <a href="#quality">Quality</a>
@@ -135,12 +136,47 @@
                 </div>
             </section>
 
+            <!-- ─── Blog ─── -->
+            <section id="blog" class="section" aria-label="Blog">
+                <div class="container">
+                    <h2 class="h2">Blog</h2>
+                    <p class="sub">Thoughts on game development, AI experiments, and building in public.</p>
+
+                    <article class="blog-featured">
+                        <div class="blog-meta">
+                            <time datetime="2026-02-24">Feb 24, 2026</time>
+                            <span class="badge blue">Featured</span>
+                        </div>
+                        <h3 class="blog-title">Building Attract‑ion: Lessons from Subatomic Game Design</h3>
+                        <div class="blog-body blog-collapsed" id="blogBody">
+                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+                            <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida.</p>
+                            <p>Praesent blandit dolor. Sed non quam. In vel mi sit amet augue congue elementum. Morbi in ipsum sit amet pede facilisis laoreet. Donec lacus nunc, viverra nec, blandit vel, egestas et, augue. Vestibulum tincidunt malesuada tellus. Ut ultrices ultrices enim. Curabitur sit amet mauris. Morbi in dui quis est pulvinar ullamcorper.</p>
+                            <p>Nulla facilisi. Integer lacinia sollicitudin massa. Cras metus. Sed aliquet risus a tortor. Integer id quam. Morbi mi. Quisque nisl felis, venenatis tristique, dignissim in, ultrices sit amet, augue. Proin sodales libero eget ante. Nulla quam. Aenean laoreet. Vestibulum nisi lectus, commodo ac, facilisis ac, ultricies eu, pede.</p>
+                        </div>
+                        <button class="blog-toggle" id="blogToggle" aria-expanded="false" aria-controls="blogBody">Read more ▾</button>
+                    </article>
+
+                    <div class="blog-archive">
+                        <h3 class="blog-archive-heading">Archive</h3>
+                        <ul class="blog-archive-list">
+                            <li>
+                                <a href="#blog">
+                                    <time datetime="2026-02-24">2026-02-24</time>
+                                    <span>Building Attract‑ion: Lessons from Subatomic Game Design</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
             <section id="drops" class="section" aria-label="Latest drops">
                 <div class="container">
                     <h2 class="h2">Latest drops</h2>
-                    <p class="sub">Auto-pulled from <span style="font-weight: 800">Projects/data/games.json</span> so the homepage stays current.</p>
+                    <p class="sub">Auto-pulled from <span style="font-weight: 800">Projects/data/games.json</span> — sorted by last modified.</p>
 
-                    <div class="grid" id="dropsGrid" aria-label="Latest game cards">
+                    <div class="banner" id="dropsGrid" aria-label="Latest game cards">
                         <!-- JS will render cards here. Kept empty to avoid stale content. -->
                     </div>
                 </div>
@@ -613,8 +649,8 @@
                         observer.observe(el);
                     });
 
-                    // Cards inside grids
-                    document.querySelectorAll('.grid .card').forEach((el, i) => {
+                    // Cards inside grids and banners
+                    document.querySelectorAll('.grid .card, .banner .card').forEach((el, i) => {
                         if (el.classList.contains('revealed')) return;
                         el.classList.add('reveal');
                         el.style.setProperty('--d', `${0.06 + (i % 6) * 0.09}s`);
@@ -677,119 +713,86 @@
             [statGames, statCounted].forEach(hookStat);
         </script>
 
+        <!-- ─── Blog toggle ─── -->
         <script>
-            // Immersion canvas: cursor-interactive letter-drift field.
+            const blogToggle = document.getElementById('blogToggle');
+            const blogBody = document.getElementById('blogBody');
+            if (blogToggle && blogBody) {
+                blogToggle.addEventListener('click', () => {
+                    const expanded = blogBody.classList.toggle('blog-expanded');
+                    blogBody.classList.toggle('blog-collapsed', !expanded);
+                    blogToggle.setAttribute('aria-expanded', String(expanded));
+                    blogToggle.textContent = expanded ? 'Show less ▴' : 'Read more ▾';
+                });
+            }
+        </script>
+
+        <!-- ─── Matrix rain canvas ─── -->
+        <script>
             const canvas = document.getElementById('immersion');
             const ctx = canvas.getContext('2d');
-
-            const center = { x: 0, y: 0 };
             const mouse = { x: -9999, y: -9999 };
-            const glyphs = 'GAME|AI|DEV|AGENT|LAB|SHIP|FROST|SIGNAL|氷霜|冷光';
-            const particles = [];
-            const maxParticles = 170;
-            const mouseRadius = 120; // repulsion radius
+            const mouseGlow = 140;
+
+            const fontSize = 15;
+            const glyphs = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&';
+            let columns = [];
+            let W, H, colCount;
 
             const resize = () => {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-                center.x = canvas.width / 2;
-                center.y = canvas.height / 2;
-            };
-
-            const spawn = () => {
-                const edge = Math.floor(Math.random() * 4);
-                let x = 0;
-                let y = 0;
-                if (edge === 0) {
-                    x = -12;
-                    y = Math.random() * canvas.height;
-                } else if (edge === 1) {
-                    x = canvas.width + 12;
-                    y = Math.random() * canvas.height;
-                } else if (edge === 2) {
-                    x = Math.random() * canvas.width;
-                    y = -12;
-                } else {
-                    x = Math.random() * canvas.width;
-                    y = canvas.height + 12;
-                }
-
-                const dx = center.x - x;
-                const dy = center.y - y;
-                const dist = Math.max(1, Math.hypot(dx, dy));
-                const speed = 0.55 + Math.random() * 0.95;
-                const hue = Math.random() < 0.3 ? 160 : (Math.random() < 0.5 ? 220 : 190);
-
-                particles.push({
-                    x,
-                    y,
-                    vx: (dx / dist) * speed,
-                    vy: (dy / dist) * speed,
-                    baseVx: (dx / dist) * speed,
-                    baseVy: (dy / dist) * speed,
-                    ch: glyphs.charAt(Math.floor(Math.random() * glyphs.length)),
-                    life: 0,
-                    maxLife: 90 + Math.random() * 110,
-                    size: 14 + Math.random() * 8,
-                    hue,
-                });
-            };
-
-            const drawVeil = () => {
-                const g = ctx.createRadialGradient(center.x, center.y, 10, center.x, center.y, Math.max(canvas.width, canvas.height) * 0.85);
-                g.addColorStop(0, 'rgba(154, 230, 255, 0.02)');
-                g.addColorStop(0.55, 'rgba(122, 162, 255, 0.10)');
-                g.addColorStop(1, 'rgba(7, 10, 16, 0.70)');
-                ctx.fillStyle = g;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                W = canvas.width = window.innerWidth;
+                H = canvas.height = window.innerHeight;
+                const newCount = Math.ceil(W / fontSize);
+                // Preserve existing column positions on resize, add new ones
+                while (columns.length < newCount) columns.push(Math.random() * H / fontSize | 0);
+                columns.length = newCount;
+                colCount = newCount;
             };
 
             const tick = () => {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                drawVeil();
+                // Fade previous frame — translucent black overlay creates the trail
+                ctx.fillStyle = 'rgba(7, 10, 16, 0.06)';
+                ctx.fillRect(0, 0, W, H);
 
-                while (particles.length < maxParticles) spawn();
+                ctx.font = `${fontSize}px monospace`;
 
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
+                for (let i = 0; i < colCount; i++) {
+                    const x = i * fontSize;
+                    const y = columns[i] * fontSize;
+                    const ch = glyphs[Math.random() * glyphs.length | 0];
 
-                for (let i = particles.length - 1; i >= 0; i--) {
-                    const p = particles[i];
+                    // Cursor proximity glow
+                    const dx = x - mouse.x;
+                    const dy = y - mouse.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
 
-                    // Mouse repulsion
-                    const mdx = p.x - mouse.x;
-                    const mdy = p.y - mouse.y;
-                    const mDist = Math.hypot(mdx, mdy);
-                    if (mDist < mouseRadius && mDist > 0) {
-                        const force = (1 - mDist / mouseRadius) * 1.8;
-                        p.vx += (mdx / mDist) * force;
-                        p.vy += (mdy / mDist) * force;
+                    if (dist < mouseGlow) {
+                        const bright = 1 - dist / mouseGlow;
+                        ctx.fillStyle = `rgba(154, 230, 255, ${0.5 + bright * 0.5})`;
+                        ctx.shadowColor = 'rgba(154, 230, 255, 0.7)';
+                        ctx.shadowBlur = 8;
+                    } else {
+                        // Cycle through the palette for variety
+                        const hue = (i % 3 === 0) ? 160 : (i % 3 === 1) ? 190 : 220;
+                        ctx.fillStyle = `hsla(${hue}, 80%, 70%, 0.85)`;
+                        ctx.shadowColor = 'transparent';
+                        ctx.shadowBlur = 0;
                     }
 
-                    // Ease velocity back toward base drift
-                    p.vx += (p.baseVx - p.vx) * 0.06;
-                    p.vy += (p.baseVy - p.vy) * 0.06;
+                    ctx.fillText(ch, x, y);
+                    ctx.shadowBlur = 0;
 
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    p.life++;
-
-                    const fade = 1 - p.life / p.maxLife;
-                    const alpha = Math.max(0, Math.min(1, fade));
-
-                    ctx.font = `${p.size}px ui-sans-serif, system-ui, -apple-system, Segoe UI, Inter, Roboto, Arial`;
-                    ctx.fillStyle = `hsla(${p.hue}, 80%, 85%, ${alpha * 0.60})`;
-                    ctx.fillText(p.ch, p.x, p.y);
-
-                    if (p.life >= p.maxLife || p.x < -60 || p.x > canvas.width + 60 || p.y < -60 || p.y > canvas.height + 60) {
-                        particles.splice(i, 1);
+                    // Advance column; reset randomly to stagger the rain
+                    if (y > H && Math.random() > 0.975) {
+                        columns[i] = 0;
+                    } else {
+                        columns[i]++;
                     }
                 }
 
                 requestAnimationFrame(tick);
             };
 
-            // Track mouse for particle interaction
             window.addEventListener('pointermove', (e) => {
                 mouse.x = e.clientX;
                 mouse.y = e.clientY;

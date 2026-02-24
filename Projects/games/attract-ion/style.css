@@ -91,6 +91,13 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-appl
 .error-zone[data-state="warn"]{background:rgba(255,180,84,.15);color:var(--warn)}
 .error-zone[data-state="danger"]{background:rgba(255,64,96,.15);color:var(--danger)}
 
+.hud-thermo{display:flex;flex-direction:column;gap:.35rem;padding:.42rem .5rem;border-radius:10px;border:1px solid rgba(154,230,255,.18);background:rgba(8,14,22,.52)}
+.thermo-header{display:flex;justify-content:space-between;align-items:center;gap:.35rem}
+.thermo-title{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent2);font-weight:800}
+.thermo-target{font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--good);font-weight:800}
+.thermo-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.28rem}
+.thermo-pill{font-size:.58rem;letter-spacing:.04em;color:var(--text);padding:.17rem .34rem;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);white-space:nowrap}
+
 /* ═══════════════════════════════════════
    Tutorial overlay
    ═══════════════════════════════════════ */
@@ -148,22 +155,48 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-appl
 .prompt-progress::before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:1.6rem;height:4px;border-radius:2px;background:rgba(255,255,255,.15)}
 .prompt-progress::after{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:calc(var(--progress,0%) * 1.6rem / 100);height:4px;border-radius:2px;background:var(--good);transition:width 300ms ease}
 .prompt-encourage{margin-top:.55rem;padding:.4rem .6rem;border-radius:8px;background:rgba(138,255,168,.1);border:1px solid rgba(138,255,168,.2);color:var(--good);font-size:.82rem;font-weight:700;text-align:center}
+.prompt-test{margin-top:.5rem;padding:.48rem .6rem;border-radius:8px;background:rgba(154,230,255,.08);border:1px solid rgba(154,230,255,.18);color:rgba(232,238,244,.85);font-size:.75rem;line-height:1.45;white-space:pre-line}
 .prompt-actions{display:flex;gap:.5rem;margin-top:.75rem;flex-wrap:wrap}
 @keyframes pulseGlow{0%{text-shadow:0 0 8px rgba(138,255,168,.6)}100%{text-shadow:none}}
 
 /* ═══════════════════════════════════════
    Control pad (touch buttons)
    ═══════════════════════════════════════ */
-.control-pad{position:absolute;right:20px;bottom:100px;display:flex;gap:.5rem;z-index:4}
+.control-pad{position:absolute;right:20px;bottom:100px;display:flex;gap:.5rem;z-index:4;flex-wrap:wrap;justify-content:flex-end;max-width:min(640px,calc(100vw - 40px))}
 .control-pad[hidden]{display:none}
 .control-pad .btn.control{padding:.55rem .85rem;font-size:.68rem;letter-spacing:.1em}
 .control-pad .btn.pull{border-color:rgba(154,230,255,.45);background:rgba(154,230,255,.14)}
+.control-pad .btn.thermo{padding:.45rem .62rem;font-size:.62rem;border-color:rgba(138,255,168,.34);background:rgba(138,255,168,.09)}
+.molecule-options{display:flex;gap:.35rem;align-items:center;justify-content:flex-end;flex-basis:100%}
+.molecule-options[hidden]{display:none}
+.molecule-label{font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(154,230,255,.78);font-weight:800;padding:.12rem .32rem;border-radius:999px;background:rgba(154,230,255,.1);border:1px solid rgba(154,230,255,.24)}
+.control-pad .btn.molecule{padding:.42rem .6rem;font-size:.58rem;border-color:rgba(154,230,255,.28);background:rgba(154,230,255,.08)}
+.control-pad .btn.molecule.is-active{border-color:rgba(138,255,168,.45);background:rgba(138,255,168,.16);color:var(--good)}
 .control-pad .btn.suggest{animation:suggestPulse 900ms ease-in-out infinite;box-shadow:0 0 0 1px rgba(255,255,255,.12),0 0 24px rgba(154,230,255,.28)}
 @keyframes suggestPulse{0%,100%{transform:translateY(0);filter:saturate(1)}50%{transform:translateY(-1px);filter:saturate(1.25)}}
 
 /* Toast */
 .toast{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);padding:.45rem .8rem;border-radius:999px;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.12);font-size:.78rem;opacity:0;transition:opacity 200ms ease;z-index:5}
 .toast.show{opacity:1}
+
+/* Pause overlay */
+.pause-overlay{
+  position:absolute;inset:0;z-index:11;
+  display:grid;place-items:center;
+  background:rgba(4,6,10,.78);
+  backdrop-filter:blur(6px);
+}
+.pause-overlay[hidden]{display:none}
+.pause-card{
+  max-width:360px;width:calc(100% - 32px);
+  padding:1.3rem 1.35rem;border-radius:16px;
+  background:rgba(10,16,26,.92);border:1px solid rgba(154,230,255,.2);
+  box-shadow:0 22px 60px rgba(0,0,0,.5);
+  text-align:center;
+}
+.pause-title{margin:0 0 .4rem;font-size:1.1rem;font-weight:900;color:var(--accent2);letter-spacing:.08em;text-transform:uppercase}
+.pause-body{margin:0;color:var(--muted);font-size:.88rem;line-height:1.45}
+.pause-actions{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;margin-top:.9rem}
 
 /* ═══════════════════════════════════════
    Level Select overlay
@@ -200,6 +233,7 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-appl
 .level-card.locked .level-symbol{color:var(--muted)}
 .level-card .level-label{font-size:.78rem;font-weight:700;color:var(--text);margin-top:.2rem;letter-spacing:.06em;text-transform:uppercase}
 .level-card .level-info{font-size:.65rem;color:var(--muted);margin-top:.25rem;line-height:1.4}
+.level-card .level-best{font-size:.6rem;color:rgba(232,238,244,.58);margin-top:.3rem;line-height:1.35;letter-spacing:.03em}
 .level-card .level-badge{
   position:absolute;top:-.35rem;right:-.35rem;
   padding:.15rem .4rem;border-radius:6px;
