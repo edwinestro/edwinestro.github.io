@@ -12,6 +12,6 @@
     "exceljs": "^4.4.0",
     "bad-words": "^3.0.4",
     "express-rate-limit": "^7.5.0",
-    "helmet": "^7.1.0"
+    "helmet": "^8.1.0"
   }
 }
