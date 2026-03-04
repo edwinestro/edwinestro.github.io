@@ -44,3 +44,5 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_WONDERFUL_WAVE_06F97621E }}
           action: "close"
+          skip_app_build: true       # <-- ADD THIS LINE
+
