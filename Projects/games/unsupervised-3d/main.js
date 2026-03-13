@@ -97,7 +97,7 @@ const LEVELS = [
     rounds: [
       { label: 'Core Screen', briefing: 'Three sentries screen the final alignment core.', targetKills: 3, aliveCap: 3, hp: 5, fireDelay: 1.1, respawnMs: 1000, moveScale: 1.35, projectileSpeed: 8.5, damage: 2, shell: 0x22103f, glow: 0x7b61ff, eye: 0xffe66d },
       { label: 'Sentinel Teeth', briefing: 'Heavy hunters replace the scouts and close every safe angle around the model.', targetKills: 3, aliveCap: 3, hp: 6, fireDelay: 0.98, respawnMs: 900, moveScale: 1.42, projectileSpeed: 8.8, damage: 2, shell: 0x2f112f, glow: 0xff6ec7, eye: 0xff5e5e },
-      { label: 'Eclipse Crown', briefing: 'The eclipse sentinel arrives with escorts. Launch the guardian before corruption closes the vault.', targetKills: 4, aliveCap: 3, hp: 7, fireDelay: 0.9, respawnMs: 850, moveScale: 1.5, projectileSpeed: 9.0, damage: 3, shell: 0x141826, glow: 0x00e5ff, eye: 0xffe66d, scale: 1.2 },
+      { label: 'Eclipse Crown', briefing: 'The eclipse sentinel warps between lanes, unleashes barrages, and will not yield the core without a true boss fight.', targetKills: 1, aliveCap: 1, hp: 18, fireDelay: 0.82, respawnMs: 850, moveScale: 1.55, projectileSpeed: 9.2, damage: 3, boss: true, shell: 0x141826, glow: 0x00e5ff, eye: 0xffe66d, scale: 1.35 },
     ],
   },
 ];
@@ -149,6 +149,7 @@ let pickupNotice = '';
 let pickupNoticeUntil = 0;
 let bonusDamage = 0;
 let bonusSpeed = 0;
+let captureRig = null;
 
 const keys = { w: false, a: false, s: false, d: false };
 let pointerLocked = false;
@@ -163,6 +164,7 @@ const hudLevel = $('hudLevel'), hudPairs = $('hudPairs'), hudScore = $('hudScore
 const hudHealth = $('hudHealth'), hudEnemy = $('hudEnemy');
 const hudCombo = $('hudCombo'), hudTimer = $('hudTimer'), hudStars = $('hudStars');
 const hudProgress = $('hudProgress'), mission = $('mission');
+const pickupRadarMap = $('pickupRadarMap'), pickupRadarNote = $('pickupRadarNote');
 const startOverlay = $('startOverlay'), startBtn = $('startBtn');
 const startTitle = $('startTitle'), startCopy = $('startCopy'), startHint = $('startHint');
 const damageFlash = $('damageFlash');
@@ -330,6 +332,7 @@ const pickupGroup = new THREE.Group();
 scene.add(pickupGroup);
 
 const FACE_DOWN_COLOR = 0x1a1040;
+const captureMode = new URLSearchParams(location.search).has('capture');
 
 function getLevelConfig() {
   return LEVELS[level] || LEVELS[LEVELS.length - 1];
@@ -400,6 +403,50 @@ function clearPickups() {
 function setPickupNotice(text) {
   pickupNotice = text;
   pickupNoticeUntil = performance.now() + 2800;
+}
+
+function roomToRadarPosition(x, z) {
+  const width = pickupRadarMap.clientWidth || 104;
+  const height = pickupRadarMap.clientHeight || 104;
+  return {
+    left: ((x + ROOM.w / 2) / ROOM.w) * width,
+    top: ((z + ROOM.d / 2) / ROOM.d) * height,
+  };
+}
+
+function renderRadarMarkers() {
+  if (!pickupRadarMap || !pickupRadarNote) return;
+  pickupRadarMap.querySelectorAll('.pickup-radar-marker').forEach((node) => node.remove());
+
+  let note = 'No AGI tools active';
+  pickups.forEach((pickup) => {
+    const marker = document.createElement('div');
+    marker.className = 'pickup-radar-marker ' + pickup.type;
+    const pos = roomToRadarPosition(pickup.root.position.x, pickup.root.position.z);
+    marker.style.left = pos.left + 'px';
+    marker.style.top = pos.top + 'px';
+    marker.title = pickup.label;
+    pickupRadarMap.append(marker);
+  });
+
+  const bossUnit = enemies.find((unit) => unit.alive && unit.profile.boss);
+  if (bossUnit) {
+    const marker = document.createElement('div');
+    marker.className = 'pickup-radar-marker boss';
+    const pos = roomToRadarPosition(bossUnit.root.position.x, bossUnit.root.position.z);
+    marker.style.left = pos.left + 'px';
+    marker.style.top = pos.top + 'px';
+    marker.title = 'Eclipse Crown';
+    pickupRadarMap.append(marker);
+    note = 'Boss live: Eclipse Crown distorting the core lanes';
+  } else if (pickups.length === 1) {
+    note = pickups[0].label + ' detected';
+  } else if (pickups.length > 1) {
+    note = pickups.length + ' AGI tools detected';
+  }
+
+  if (pickupNotice && performance.now() < pickupNoticeUntil) note = pickupNotice;
+  pickupRadarNote.textContent = note;
 }
 
 function choosePickupType() {
@@ -531,12 +578,67 @@ function buildBoard() {
     }
   }
 
-  // Reset camera — slight upward tilt to show room depth and neon ceiling
+  // Reset camera — slight downward tilt so the board and hostiles read immediately on spawn
   camera.position.set(0, 1.65, -ROOM.d / 2 + 1.5);
-  euler.set(-0.15, 0, 0);
+  euler.set(0.16, 0, 0);
   camera.rotation.copy(euler);
 
   updateHUD();
+}
+
+function setPhotoModeCamera() {
+  camera.position.set(0, 2.55, -3.2);
+  euler.set(0.82, 0, 0);
+  camera.rotation.copy(euler);
+}
+
+function stageCaptureScene() {
+  scene.background = new THREE.Color(0x070316);
+  scene.fog = new THREE.FogExp2(0x070316, 0.028);
+  setPhotoModeCamera();
+  const showcaseTiles = [
+    [-1.45, 0.12, -0.15],
+    [-0.25, 0.12, 0.15],
+    [0.95, 0.12, 0.45],
+    [2.15, 0.12, 0.75],
+  ];
+  [0, 1, 2, 3].forEach((index, order) => {
+    if (!tiles[index]) return;
+    revealTile(tiles[index]);
+    tiles[index].position.set(...showcaseTiles[order]);
+    tiles[index].rotation.x = -0.18;
+    tiles[index].scale.setScalar(1.28 - order * 0.08);
+    tiles[index].material[2].emissiveIntensity = 2.3;
+    tiles[index].material[0].emissiveIntensity = 0.65;
+    tiles[index].material[1].emissiveIntensity = 0.65;
+    tiles[index].material[3].emissiveIntensity = 0.65;
+    tiles[index].material[4].emissiveIntensity = 0.65;
+    tiles[index].material[5].emissiveIntensity = 0.65;
+  });
+  if (!pickups.length) {
+    spawnPickup(new THREE.Vector3(0.35, 0.45, 0.15), 'lens');
+  }
+  const leadEnemy = enemies.find((unit) => unit.alive);
+  if (leadEnemy) {
+    leadEnemy.root.position.set(1.45, 1.55, 1.35);
+    leadEnemy.root.userData.baseX = 1.45;
+    leadEnemy.root.userData.baseY = 1.55;
+    leadEnemy.root.userData.baseZ = 1.35;
+    leadEnemy.eye.material.emissiveIntensity = 2.8;
+    leadEnemy.ring.material.emissiveIntensity = 1.8;
+  }
+  addBeam(new THREE.Vector3(-0.3, 0.25, -0.1), new THREE.Vector3(1.35, 1.45, 1.2), 0x61ffca, 0.2, 0.9);
+  if (!captureRig) {
+    captureRig = new THREE.Group();
+    const key = new THREE.PointLight(0xff6ec7, 14, 12, 2);
+    key.position.set(-1.8, 2.8, -0.8);
+    const fill = new THREE.PointLight(0x00e5ff, 10, 12, 2);
+    fill.position.set(1.8, 2.1, 0.4);
+    const rim = new THREE.PointLight(0xffe66d, 7, 10, 2);
+    rim.position.set(0.4, 3.2, 2.2);
+    captureRig.add(key, fill, rim);
+    scene.add(captureRig);
+  }
 }
 
 function clearEnemyProjectiles() {
@@ -900,6 +1002,9 @@ function spawnEnemy(profile, slotIndex) {
     slot: slotIndex,
     profile,
     phase: Math.random() * Math.PI * 2,
+    bossWarpAt: performance.now() + 2400 + Math.random() * 900,
+    barrageCooldown: profile.boss ? 2.4 : 0,
+    phaseTrigger: 0,
   };
   enemies.push(unit);
   return unit;
@@ -976,19 +1081,22 @@ function damagePlayer(amount) {
 
 function enemyShoot(unit) {
   if (!unit || !unit.alive || !pointerLocked || !runStarted || gameOver || gameWon) return;
-  const shot = new THREE.Mesh(
-    new THREE.SphereGeometry(0.09, 10, 10),
-    new THREE.MeshBasicMaterial({ color: unit.profile.eye }),
-  );
   const origin = unit.root.position.clone();
   origin.y += 0.02;
-  shot.position.copy(origin);
-  const target = camera.position.clone().add(new THREE.Vector3((Math.random() - 0.5) * 0.35, 0.1 + Math.random() * 0.2, (Math.random() - 0.5) * 0.35));
-  addBeam(origin, target, unit.profile.eye, 0.12, 0.7);
-  shot.userData.vel = target.sub(origin).normalize().multiplyScalar(unit.profile.projectileSpeed);
-  shot.userData.life = 4;
-  shot.userData.damage = getEnemyDamage(unit.profile);
-  enemyProjectiles.add(shot);
+  const shotOffsets = unit.profile.boss ? [-0.22, 0, 0.22] : [0];
+  shotOffsets.forEach((spread) => {
+    const shot = new THREE.Mesh(
+      new THREE.SphereGeometry(unit.profile.boss ? 0.11 : 0.09, 10, 10),
+      new THREE.MeshBasicMaterial({ color: unit.profile.eye }),
+    );
+    shot.position.copy(origin);
+    const target = camera.position.clone().add(new THREE.Vector3(spread, 0.1 + Math.random() * 0.2, (Math.random() - 0.5) * 0.2));
+    addBeam(origin, target, unit.profile.eye, unit.profile.boss ? 0.18 : 0.12, unit.profile.boss ? 0.85 : 0.7);
+    shot.userData.vel = target.sub(origin).normalize().multiplyScalar(unit.profile.projectileSpeed + (unit.profile.boss ? 0.6 : 0));
+    shot.userData.life = unit.profile.boss ? 4.8 : 4;
+    shot.userData.damage = getEnemyDamage(unit.profile);
+    enemyProjectiles.add(shot);
+  });
 }
 
 function firePlayerShot() {
@@ -1060,6 +1168,7 @@ function updateHUD() {
   else if (floorDroneKills < getFloorKillRequirement(lv)) mt = [lv.objective, 'Finish the hostile waves to unlock extraction.', killText, roundText].join(' · ');
   else if (remaining <= 0) mt = 'Directive complete. Lift opening...';
   mission.textContent = mt;
+  renderRadarMarkers();
 }
 
 /* ══════════════════════════════════════════════
@@ -1259,20 +1368,44 @@ function updateEnemy(dt) {
   enemies.forEach((unit) => {
     if (!unit.alive) return;
     const t = performance.now() * 0.001 - unit.root.userData.spawnTime;
-    const swing = Math.min(3.1, (LEVELS[level].cols * TILE_GAP) / 2 + 0.6) * unit.profile.moveScale;
-    unit.root.position.x = unit.root.userData.baseX + Math.sin(t * (0.75 + unit.profile.moveScale * 0.2) + unit.phase) * swing;
-    unit.root.position.z = unit.root.userData.baseZ + Math.cos(t * (0.55 + unit.profile.moveScale * 0.14) + unit.phase) * (0.8 + unit.profile.moveScale * 0.55);
-    unit.root.position.y = unit.root.userData.baseY + Math.sin(t * 2.4 + unit.phase) * 0.22;
+    if (unit.profile.boss) {
+      const phaseRatio = 1 - unit.hp / unit.profile.hp;
+      const swing = 1.6 + phaseRatio * 1.4;
+      unit.root.position.x = Math.sin(t * (1.1 + phaseRatio * 0.5) + unit.phase) * swing;
+      unit.root.position.z = 3.6 + Math.cos(t * (0.8 + phaseRatio * 0.35) + unit.phase) * (1.1 + phaseRatio * 0.55);
+      unit.root.position.y = 2.35 + Math.sin(t * 3.4) * 0.35;
+      if (performance.now() >= unit.bossWarpAt) {
+        const slot = ENEMY_SLOTS[Math.floor(Math.random() * ENEMY_SLOTS.length)];
+        unit.root.userData.baseX = slot[0] * 0.72;
+        unit.root.userData.baseZ = Math.max(2.6, slot[2] + 0.4);
+        unit.phase += Math.PI / 3;
+        unit.bossWarpAt = performance.now() + Math.max(1200, 2400 - phaseRatio * 900);
+        spawnParticles(unit.root.position, unit.profile.glow, 18);
+        addBeam(unit.root.position.clone(), camera.position.clone(), unit.profile.glow, 0.18, 0.55);
+      }
+      unit.barrageCooldown -= dt;
+      if (unit.barrageCooldown <= 0) {
+        enemyShoot(unit);
+        unit.barrageCooldown = Math.max(0.95, 2.1 - phaseRatio * 0.9);
+      }
+    } else {
+      const swing = Math.min(3.1, (LEVELS[level].cols * TILE_GAP) / 2 + 0.6) * unit.profile.moveScale;
+      unit.root.position.x = unit.root.userData.baseX + Math.sin(t * (0.75 + unit.profile.moveScale * 0.2) + unit.phase) * swing;
+      unit.root.position.z = unit.root.userData.baseZ + Math.cos(t * (0.55 + unit.profile.moveScale * 0.14) + unit.phase) * (0.8 + unit.profile.moveScale * 0.55);
+      unit.root.position.y = unit.root.userData.baseY + Math.sin(t * 2.4 + unit.phase) * 0.22;
+    }
     unit.root.lookAt(camera.position.x, unit.root.position.y, camera.position.z);
     unit.ring.rotation.z += dt * (2.2 + unit.profile.moveScale * 0.6);
-    unit.charge = THREE.MathUtils.clamp(1 - unit.cooldown / unit.profile.fireDelay, 0, 1);
+    const activeCooldown = unit.profile.boss ? unit.barrageCooldown : unit.cooldown;
+    const maxCooldown = unit.profile.boss ? 2.4 : unit.profile.fireDelay;
+    unit.charge = THREE.MathUtils.clamp(1 - activeCooldown / maxCooldown, 0, 1);
     unit.eye.material.emissiveIntensity = 1.2 + unit.charge * 1.8;
     if (unit.charge > 0.72) {
       addBeam(unit.root.position.clone().add(new THREE.Vector3(0, 0, 0.28 * (unit.profile.scale || 1))), camera.position.clone(), unit.profile.eye, 0.03, 0.35);
     }
 
     unit.cooldown -= dt;
-    if (unit.cooldown <= 0) {
+    if (!unit.profile.boss && unit.cooldown <= 0) {
       enemyShoot(unit);
       unit.cooldown = unit.profile.fireDelay;
     }
@@ -1383,3 +1516,21 @@ buildLights();
 buildBoard();
 showOverlay('start');
 animate();
+
+if (captureMode) {
+  document.body.classList.add('capture-mode');
+  runStarted = true;
+  hideOverlay();
+  stageCaptureScene();
+}
+
+if (location.hostname === '127.0.0.1' || location.hostname === 'localhost') {
+  window.__unsupervised3dCapture = {
+    photoMode() {
+      runStarted = true;
+      hideOverlay();
+      stageCaptureScene();
+      updateHUD();
+    },
+  };
+}

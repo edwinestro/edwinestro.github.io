@@ -8,6 +8,14 @@
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:system-ui,sans-serif}
 canvas{display:block;position:fixed;inset:0;z-index:0}
 
+body.capture-mode .hud,
+body.capture-mode .mission,
+body.capture-mode .pickup-radar,
+body.capture-mode .home-link-wrap,
+body.capture-mode .controls-legend,
+body.capture-mode .crosshair,
+body.capture-mode .start-overlay{display:none !important}
+
 /* ── HUD bar ── */
 .hud{position:fixed;top:10px;left:12px;right:12px;z-index:10;
   display:flex;align-items:center;gap:12px;padding:8px 16px;
