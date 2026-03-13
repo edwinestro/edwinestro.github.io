@@ -3,6 +3,22 @@
   "generatedAt": "2026-03-11T00:00:00.000Z",
   "games": [
     {
+      "id": "agi-breeder",
+      "title": "AGI Breeder",
+      "desc": "Breed candidate AGI lineages, balance capability against safety, and launch a good AGI before the lab overheats.",
+      "href": "../../games/agi-breeder/index.html",
+      "thumbnail": "assets/agi-breeder-1600x900.svg",
+      "badges": [
+        "Strategy",
+        "Simulation",
+        "New"
+      ],
+      "counted": true,
+      "sourcePath": "Projects/games/agi-breeder",
+      "createdAt": "2026-03-13T00:00:00.000Z",
+      "updatedAt": "2026-03-13T00:00:00.000Z"
+    },
+    {
       "id": "protein-interactions",
       "title": "Protein Interactions",
       "desc": "3D molecular dynamics: watch antibodies dock antigens, drugs inhibit enzymes, and ions flow through membranes.",

@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AGI Breeder</title>
+  <meta name="description" content="Breed candidate AGI lineages, balance capability against safety, and launch a good AGI before the lab spirals out of control." />
+  <link rel="stylesheet" href="/Projects/games/agi-breeder/style.css" />
+</head>
+<body>
+  <a class="skip-link" href="#gameShell">Skip to game</a>
+  <div class="shell" id="gameShell">
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Directive Lab Simulation</p>
+        <h1>AGI Breeder</h1>
+        <p class="intro">Breed lineages, shape traits, and hold the lab together long enough to launch a good AGI instead of an unstable one.</p>
+      </div>
+      <div class="hero-stats">
+        <div class="chip" id="weekChip">Week 1 / 12</div>
+        <div class="chip" id="actionsChip">Actions 3</div>
+        <div class="chip" id="computeChip">Compute 6</div>
+        <div class="chip danger" id="riskChip">Lab Risk 18</div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel roster-panel">
+        <div class="panel-head">
+          <div>
+            <p class="kicker">Candidate Roster</p>
+            <h2>Breeding Pool</h2>
+          </div>
+          <button class="ghost" id="sortBtn" type="button">Sort by launch score</button>
+        </div>
+        <div class="roster-grid" id="rosterGrid" aria-live="polite"></div>
+      </section>
+
+      <section class="panel control-panel">
+        <div class="control-stack">
+          <section class="subpanel">
+            <p class="kicker">Breeding Bay</p>
+            <h2>Compose a new lineage</h2>
+            <div class="parent-strip">
+              <div class="parent-slot" id="parentASlot">Parent A: none</div>
+              <div class="parent-slot" id="parentBSlot">Parent B: none</div>
+            </div>
+            <div class="focus-row" id="focusRow" aria-label="Incubation focus"></div>
+            <button class="primary full" id="breedBtn" type="button">Breed candidate</button>
+            <p class="microcopy">Breeding costs 2 compute and 1 action. Different focuses bend the offspring toward power, safety, resilience, or imagination.</p>
+          </section>
+
+          <section class="subpanel">
+            <p class="kicker">Lab Programs</p>
+            <h2 id="activeTitle">Focus candidate</h2>
+            <div class="program-grid" id="programGrid"></div>
+          </section>
+
+          <section class="subpanel launch-panel">
+            <p class="kicker">Launch Console</p>
+            <h2 id="launchCandidateTitle">No launch candidate selected</h2>
+            <div class="launch-bars" id="launchBars"></div>
+            <div class="launch-checklist" id="launchChecklist"></div>
+            <button class="primary full" id="launchBtn" type="button">Launch good AGI</button>
+            <button class="ghost full" id="endWeekBtn" type="button">End week</button>
+          </section>
+        </div>
+      </section>
+
+      <section class="panel side-panel">
+        <section class="subpanel status-panel">
+          <p class="kicker">Pressure</p>
+          <h2>Lab Status</h2>
+          <div class="status-grid">
+            <div class="status-card">
+              <span>Next compute grant</span>
+              <strong id="computeForecast">4</strong>
+            </div>
+            <div class="status-card">
+              <span>Top launch score</span>
+              <strong id="bestScore">0</strong>
+            </div>
+            <div class="status-card wide">
+              <span>Current directive</span>
+              <strong id="directiveText">Stabilize the seed pool before you chase power.</strong>
+              <small id="directiveSubtext">Reward: lower risk and gain compute.</small>
+            </div>
+          </div>
+        </section>
+
+        <section class="subpanel feed-panel">
+          <p class="kicker">Event Feed</p>
+          <h2>Lab Log</h2>
+          <ol class="log" id="logList"></ol>
+        </section>
+      </section>
+    </main>
+
+    <div class="overlay" id="overlay">
+      <div class="overlay-card">
+        <p class="eyebrow" id="overlayKicker">Benevolent intelligence lab</p>
+        <h2 id="overlayTitle">Breed the first good AGI</h2>
+        <p id="overlayCopy">Select two parents, choose an incubation focus, and spend weekly actions on safety, capability, resilience, and creativity. Launch before week 12 while keeping lab risk below collapse.</p>
+        <div class="overlay-actions">
+          <button class="primary" id="overlayStart" type="button">Start run</button>
+          <button class="ghost" id="overlayRestart" type="button" hidden>Restart</button>
+          <a class="ghost" href="../../../index.html">Back to portal</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/Projects/games/agi-breeder/game.js"></script>
+</body>
+</html>
