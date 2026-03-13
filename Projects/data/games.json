@@ -1,13 +1,45 @@
 {
   "version": 1,
-  "generatedAt": "2026-01-17T00:00:00.000Z",
+  "generatedAt": "2026-03-11T00:00:00.000Z",
   "games": [
+    {
+      "id": "protein-interactions",
+      "title": "Protein Interactions",
+      "desc": "3D molecular dynamics: watch antibodies dock antigens, drugs inhibit enzymes, and ions flow through membranes.",
+      "href": "../../games/protein-interactions/index.html",
+      "thumbnail": "assets/protein-interactions-1600x900.png",
+      "badges": [
+        "Science",
+        "3D Simulation",
+        "New"
+      ],
+      "counted": true,
+      "sourcePath": "Projects/games/protein-interactions",
+      "createdAt": "2026-03-11T00:00:00.000Z",
+      "updatedAt": "2026-03-11T00:00:00.000Z"
+    },
+    {
+      "id": "protein-simulator",
+      "title": "Protein Simulator",
+      "desc": "Interactive 3D molecular viewer: explore alpha-helices, beta-sheets, collagen, and DNA with multiple render modes.",
+      "href": "../../games/protein-simulator/index.html",
+      "thumbnail": "assets/protein-simulator-1600x900.png",
+      "badges": [
+        "Science",
+        "3D Viewer",
+        "New"
+      ],
+      "counted": true,
+      "sourcePath": "Projects/games/protein-simulator",
+      "createdAt": "2026-03-11T00:00:00.000Z",
+      "updatedAt": "2026-03-11T00:00:00.000Z"
+    },
     {
       "id": "science-lab-5-2",
       "title": "Science Lab 5.2",
       "desc": "Teleport across all 118 element rooms and visualize electrons, orbitals, and probability density (Science Lab 5.2 rework).",
       "href": "../../games/science-lab-5-2/index.html",
-      "thumbnail": "assets/featured-science-lab-mock.svg",
+      "thumbnail": "assets/science-lab-5-2-1600x900.png",
       "badges": [
         "Science",
         "New",
@@ -39,7 +71,7 @@
       "title": "oneAI: Directive Grid",
       "desc": "Strategic directive assignment: override AI suggestions, stabilize signals, and reach target score before time runs out.",
       "href": "../../games/oneAIGame/index.html",
-      "thumbnail": "assets/featured-science-lab-mock.svg",
+      "thumbnail": "assets/one-ai-1600x900.png",
       "badges": [
         "Strategy",
         "MVP",
@@ -55,7 +87,7 @@
       "title": "Frost Signal",
       "desc": "Collect trust shards. Win/lose, restart. Auto-reports result.",
       "href": "../../games/frost-signal/index.html",
-      "thumbnail": "assets/featured-science-lab-mock.svg",
+      "thumbnail": "assets/frost-signal-1600x900.png",
       "badges": [
         "Arcade",
         "MVP"
@@ -70,7 +102,7 @@
       "title": "Thermal Drift",
       "desc": "Survive levels, dodge enemies. Auto-reports result after patch.",
       "href": "../../games/thermal-drift/index.html",
-      "thumbnail": "assets/featured-science-lab-mock.svg",
+      "thumbnail": "assets/thermal-drift-1600x900.png",
       "badges": [
         "Action",
         "Prototype"
@@ -85,7 +117,7 @@
       "title": "Memory Sequence",
       "desc": "Follow and replicate an expanding pattern (legacy lab).",
       "href": "../../../legacy/stringball-endpoint/games.html#memory-sequence",
-      "thumbnail": "assets/featured-science-lab-mock.svg",
+      "thumbnail": "assets/memory-sequence-1600x900.png",
       "badges": [
         "Cognitive"
       ],
@@ -99,7 +131,7 @@
       "title": "Memory Mapping",
       "desc": "Rebuild the pattern by position (legacy lab).",
       "href": "../../../legacy/stringball-endpoint/games.html#memory-mapping",
-      "thumbnail": "assets/featured-science-lab-mock.svg",
+      "thumbnail": "assets/memory-mapping-1600x900.png",
       "badges": [
         "Cognitive"
       ],
@@ -113,7 +145,7 @@
       "title": "Alz‑Jaime",
       "desc": "Gentle progressive sequence (legacy lab).",
       "href": "../../../legacy/stringball-endpoint/games.html#alz-jaime",
-      "thumbnail": "assets/featured-science-lab-mock.svg",
+      "thumbnail": "assets/alz-jaime-1600x900.png",
       "badges": [
         "Gentle"
       ],
@@ -125,16 +157,18 @@
     {
       "id": "unsupervised-3d",
       "title": "Unsupervised 3D",
-      "desc": "3D memory + environment interactions (legacy lab).",
-      "href": "../../../legacy/stringball-endpoint/games.html#unsupervised-3d",
-      "thumbnail": "assets/featured-science-lab-mock.svg",
+      "desc": "First-person neon vault run: match memory tiles while a hovering drone hunts and fires back.",
+      "href": "../../games/unsupervised-3d/index.html",
+      "thumbnail": "assets/unsupervised-3d-1600x900.png",
       "badges": [
-        "3D"
+        "3D",
+        "Action",
+        "Memory"
       ],
-      "counted": false,
-      "sourcePath": "legacy/stringball-endpoint/games.html",
+      "counted": true,
+      "sourcePath": "Projects/games/unsupervised-3d",
       "createdAt": "2025-12-14T03:12:52.894797Z",
-      "updatedAt": "2025-12-14T03:12:52.894797Z"
+      "updatedAt": "2026-03-12T00:00:00.000Z"
     }
   ]
 }

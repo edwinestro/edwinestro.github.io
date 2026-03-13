@@ -694,6 +694,7 @@
   }
 
   function beginRunMetrics() {
+    if (window.uetEvent) window.uetEvent('game_start', { game: 'attract-ion' });
     state.runMetrics = {
       startedAt: performance.now(),
       levelIndex: state.currentLevel,
@@ -794,6 +795,7 @@
       suggestion: buildRunSuggestion(run, outcome, comfortScore),
     };
 
+    if (window.uetEvent) window.uetEvent('game_end', { game: 'attract-ion', result: outcome });
     playtest.history.unshift(report);
     playtest.history = playtest.history.slice(0, 30);
     savePlaytestHistory();

@@ -143,3 +143,6 @@ button:hover {
 /* Track-color legend */
 .legend { display:flex; align-items:center; gap:10px; justify-content:center; padding:10px 0; font-size:.85rem; color:rgba(255,255,255,.7); }
 .legend__swatch { display:inline-block; width:14px; height:14px; border-radius:3px; vertical-align:middle; margin-right:3px; }
+.legend__swatch--electron { background: #4af; }
+.legend__swatch--positron { background: #f55; }
+.legend__swatch--neutrino { background: #999; }

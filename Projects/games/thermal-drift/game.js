@@ -286,7 +286,7 @@
     // Priority:
     // 1) ?api=https://your-server.example.com
     // 2) localStorage td-api
-    // 3) local dev default -> http://127.0.0.1:3000
+    // 3) otherwise disabled by default so the static build does not probe localhost
     const params = new URLSearchParams(window.location.search);
     const fromQuery = (params.get('api') || '').trim();
     if (fromQuery) {
@@ -295,10 +295,7 @@
     }
     const fromStorage = (localStorage.getItem('td-api') || '').trim();
     if (fromStorage) return fromStorage.replace(/\/$/, '');
-
-    const host = window.location.hostname;
-    const isLocal = host === 'localhost' || host === '127.0.0.1';
-    return isLocal ? 'http://127.0.0.1:3000' : '';
+    return '';
   })();
 
   async function apiGetLeaderboard(){

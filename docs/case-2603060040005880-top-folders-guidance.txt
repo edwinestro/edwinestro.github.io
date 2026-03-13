@@ -1,0 +1,51 @@
+There is no built-in switch on Get-EXOMailboxFolderStatistics or Get-MailboxFolderStatistics that tells the service to return only the top 20 largest archive folders.
+
+To identify the largest folders, the cmdlet still needs folder statistics data first, and then the results must be sorted locally.
+
+Recommended approach
+- Use Get-MailboxFolderStatistics -Archive with paging.
+- Collect results in smaller windows.
+- Sort locally by FolderAndSubfolderSize if you want the overall largest folder trees.
+- Sort by FolderSize if you want only the direct folder size.
+
+Example
+
+$pageSize = 100
+$skip = 0
+$results = @()
+
+while ($true) {
+    $page = Get-MailboxFolderStatistics -Identity s9uajk@fanniemae.com -Archive -ResultSize $pageSize -SkipCount $skip |
+        Select Name,FolderPath,FolderSize,FolderAndSubfolderSize,ItemsInFolder,ItemsInFolderAndSubfolders
+
+    if (-not $page) {
+        break
+    }
+
+    $results += $page
+
+    if ($page.Count -lt $pageSize) {
+        break
+    }
+
+    $skip += $pageSize
+}
+
+$results |
+    Select Name,FolderPath,FolderAndSubfolderSize,ItemsInFolderAndSubfolders,
+        @{Name='SizeBytes';Expression={
+            if ($_.FolderAndSubfolderSize -match '\(([\d,]+) bytes\)') {
+                [int64](($matches[1] -replace ',', ''))
+            }
+            else {
+                0
+            }
+        }} |
+    Sort-Object SizeBytes -Descending |
+    Select-Object -First 20 Name,FolderPath,FolderAndSubfolderSize,ItemsInFolderAndSubfolders
+
+Notes
+- This is not server-side top-N filtering. It is client-side sorting after paged retrieval.
+- Because of that, very large archives can still run into timeout or service limits.
+- If page size 100 still fails, reduce it to 50 or 25.
+- If even the first small page fails consistently, that is stronger evidence that the limitation is not just the size of one response.

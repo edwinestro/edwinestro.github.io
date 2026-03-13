@@ -24,3 +24,12 @@ This repository is a GitHub Pages site plus a few supporting tools.
 ## Local dev
 - Static site server: `make serve` (defaults to port 5173)
 - Python env + tools: `make venv`
+
+## Quality
+All pages are audited for:
+- **Security**: CSP headers, COOP/COEP, no inline event handlers, input escaping
+- **Accessibility**: ARIA labels, skip links, keyboard navigation, form labels
+- **SEO**: Meta descriptions, Open Graph, structured data (JSON-LD), sitemap
+- **Performance**: Async script loading, lazy images, reduced-motion safety
+
+See [IMPORTANT/SECURITY_AND_SCALABILITY_AUDIT.md](IMPORTANT/SECURITY_AND_SCALABILITY_AUDIT.md) and the [Quality Improvements Report](QUALITY_IMPROVEMENTS.md) for details.

@@ -107,10 +107,10 @@
     {
       id: 'unsupervised-3d',
       title: 'Unsupervised 3D',
-      desc: '3D memory + environment interactions (legacy lab).',
-      href: '../../../legacy/stringball-endpoint/games.html#unsupervised-3d',
-      badges: ['3D'],
-      counted: false,
+      desc: 'First-person neon vault run: match memory tiles while a hovering drone hunts and fires back.',
+      href: '../../games/unsupervised-3d/index.html',
+      badges: ['3D', 'Action', 'Memory'],
+      counted: true,
     },
   ];
 
@@ -161,7 +161,7 @@
     const d = new Date(iso);
     if (Number.isNaN(d.getTime())) return 'Updated —';
     try {
-      const fmt = new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'short', day: '2-digit' });
+      const fmt = new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'short', day: '2-digit', timeZone: 'UTC' });
       return `Updated ${fmt.format(d)}`;
     } catch {
       return `Updated ${d.toISOString().slice(0, 10)}`;
@@ -183,7 +183,7 @@
 
     if (featuredShot) {
       featuredShot.src = exp.thumbnail || defaultFeaturedThumbnail;
-      featuredShot.alt = `Screenshot (mock) for featured build: ${exp.title || exp.id}`;
+      featuredShot.alt = `Screenshot for featured build: ${exp.title || exp.id}`;
     }
   }
 

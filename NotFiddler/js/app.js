@@ -15,6 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.app.parser.parse(text);
                 window.app._showApp(loadFile);
             })
-            .catch(err => console.error('Auto-load failed:', err));
+            .catch(() => { /* auto-load is best-effort; silently ignore failures */ });
     }
 });

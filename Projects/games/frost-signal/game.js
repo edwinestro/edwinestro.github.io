@@ -210,12 +210,14 @@
     state.ended = false;
     overlay.hidden = true;
     state.time = performance.now();
+    if (window.uetEvent) window.uetEvent('game_start', { game: 'frost-signal' });
   }
 
   function endRound(win) {
     state.running = false;
     state.paused = false;
     state.ended = true;
+    if (window.uetEvent) window.uetEvent('game_end', { game: 'frost-signal', result: win ? 'win' : 'lose' });
 
     try {
       if (window.parent && window.parent !== window) {

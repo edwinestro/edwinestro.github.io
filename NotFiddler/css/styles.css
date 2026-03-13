@@ -49,7 +49,7 @@ html, body {
     color: var(--text);
     background: var(--bg);
     overflow: hidden;
-    -webkit-font-smoothing: antialiased;
+    -webkit-font-smoothing: antialiased;\n    -moz-osx-font-smoothing: grayscale;
 }
 
 /* ---------- Scrollbar ---------- */

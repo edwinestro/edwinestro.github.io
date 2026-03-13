@@ -3,51 +3,42 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Edwin Estro — Gaming AI Development</title>
+        <title>Edwin Estro — Unsupervised 3D and Playable Game Lab</title>
         <meta
             name="description"
-            content="Gaming AI Development workspace: a playable lab of game prototypes + AI agents + experiments (curated by Edwin Estro)."
+            content="Play Unsupervised 3D first, then explore the wider game lab: a playable workspace of prototypes, AI experiments, and shipped builds curated by Edwin Estro."
         />
         <meta name="theme-color" content="#0a1020" />
-        <meta property="og:title" content="Edwin Estro — Gaming AI Development" />
-        <meta property="og:description" content="A playable workspace for game prototypes, agent experiments, and end-to-end ship-it engineering." />
+        <meta property="og:title" content="Edwin Estro — Unsupervised 3D and Playable Game Lab" />
+        <meta property="og:description" content="Launch Unsupervised 3D, then explore the rest of the playable lab of game prototypes, agent experiments, and shipped builds." />
         <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://edwinestro.github.io/" />
+        <meta property="og:image" content="https://edwinestro.github.io/assets/img/edw.jpg" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="Edwin Estro — Unsupervised 3D and Playable Game Lab" />
+        <meta name="twitter:description" content="Launch Unsupervised 3D, then explore the rest of the playable lab of game prototypes, agent experiments, and shipped builds." />
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": "Edwin Estro — Unsupervised 3D and Playable Game Lab",
+            "url": "https://edwinestro.github.io/",
+            "description": "Playable workspace led by Unsupervised 3D, with game prototypes, AI agents, and experiments.",
+            "author": {
+                "@type": "Person",
+                "name": "Edwin Estro"
+            }
+        }
+        </script>
         <link rel="preload" as="image" href="assets/img/edw.jpg" />
         <link rel="stylesheet" href="assets/css/home.css" />
         
             <!-- Microsoft Ads (Bing) UET: Consent must be set BEFORE UET initializes -->
-            <script>
-                // Set consent default FIRST (before bat.js loads)
-                window.uetq = window.uetq || [];
-                window.uetq.push('consent', 'default', { ad_storage: 'denied' });
-            </script>
-            <script>
-                // Now load and initialize UET
-                (function (w, d, t, r, u) {
-                    var f, n, i;
-                    w[u] = w[u] || [];
-                    f = function () {
-                        var o = { ti: '355052824', enableAutoSpaTracking: true };
-                        o.q = w[u];
-                        w[u] = new UET(o);
-                        w[u].push('pageLoad');
-                    };
-                    n = d.createElement(t);
-                    n.src = r;
-                    n.async = 1;
-                    n.onload = n.onreadystatechange = function () {
-                        var s = this.readyState;
-                        if (s && s !== 'loaded' && s !== 'complete') return;
-                        f();
-                        n.onload = n.onreadystatechange = null;
-                    };
-                    i = d.getElementsByTagName(t)[0];
-                    i.parentNode.insertBefore(n, i);
-                })(window, document, 'script', '//bat.bing.com/bat.js', 'uetq');
-            </script>
+            <script src="assets/js/uet-consent-default.js"></script>
+            <script src="assets/js/uet-loader.js"></script>
     </head>
     <body>
-        <a class="skip-link" href="#drops">Skip to content</a>
+        <a class="skip-link" href="#featured">Skip to content</a>
         <!-- Animated background orbs -->
         <div class="orb orb--1" aria-hidden="true"></div>
         <div class="orb orb--2" aria-hidden="true"></div>
@@ -67,12 +58,13 @@
                 </div>
 
                 <nav class="navlinks" aria-label="Primary" id="mainNav">
+                    <a href="#featured">Featured</a>
+                    <a href="#portal">Games</a>
+                    <a href="#workspaces">Workspaces</a>
                     <a href="#blog">Blog</a>
-                    <a href="#drops">Latest drops</a>
-                    <a href="#explore">Explore</a>
                     <a href="#quality">Quality</a>
                     <a href="#support">Support</a>
-                    <a class="btn primary" href="Projects/hubs/science-lab/index.html?mode=play&launch=featured&fs=1">Enter Science Lab</a>
+                    <a class="btn primary" href="Projects/games/unsupervised-3d/index.html">Play Unsupervised 3D</a>
                 </nav>
                 <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="mainNav">
                     <span></span><span></span><span></span>
@@ -83,23 +75,37 @@
         <main>
             <section class="hero">
                 <div class="container hero-grid">
-                    <div>
-                        <div class="kicker">Playable portfolio · AI-friendly loops · measurable outcomes</div>
+                    <div class="hero-copy">
+                        <div class="kicker">Featured now · Unsupervised 3D · survival vault run</div>
                         <h1 class="h1">
-                            Build games.
-                            <span class="grad">Wire agents.</span>
-                            Ship experiments.
+                            Survive the vault.
+                            <span class="grad">Read the room. Outlast the hunter.</span>
                         </h1>
                         <p class="lede">
-                            This is my Gaming AI Development workspace: a modern lab where small games become testbeds for agents, telemetry,
-                            and reliable engineering. Everything stays preserved, and the hub stays playable.
+                            Unsupervised 3D now lands with more bite: a fast, high-pressure survival run where memory checks, incoming fire,
+                            and short restart loops collide in one neon dungeon. The rest of the portal stays accessible, but the page now sells the featured run with the urgency it deserves.
                         </p>
 
                         <div class="hero-actions">
-                            <a class="btn primary" href="Projects/games/attract-ion/index.html">Play Attract‑ion</a>
-                            <a class="btn" href="Projects/hubs/science-lab/index.html">Open Game Gallery</a>
-                            <a class="btn" href="#drops">See the latest creation</a>
+                            <a class="btn primary" id="heroPlayLatest" href="Projects/games/unsupervised-3d/index.html">Play Unsupervised 3D</a>
+                            <a class="btn" href="#featured">See featured breakdown</a>
+                            <a class="btn" href="#portal">Browse game portal</a>
                             <a class="btn" href="Projects/docs/index.html">Docs / Resume</a>
+                        </div>
+
+                        <div class="hero-rail" aria-label="Featured game highlights">
+                            <article class="hero-rail-item">
+                                <div class="hero-rail-value">6 floors</div>
+                                <div class="hero-rail-label">Each climb tightens the pressure and shortens the safe read.</div>
+                            </article>
+                            <article class="hero-rail-item">
+                                <div class="hero-rail-value">Hunter on your heels</div>
+                                <div class="hero-rail-label">A drone stalks the arena while you try to keep the pattern in your head.</div>
+                            </article>
+                            <article class="hero-rail-item">
+                                <div class="hero-rail-value">Rapid retries</div>
+                                <div class="hero-rail-label">Runs restart fast, so failure turns into momentum instead of friction.</div>
+                            </article>
                         </div>
                     </div>
 
@@ -109,30 +115,153 @@
                                 <img class="avatar" src="assets/img/edw.jpg" alt="Edwin Estro with a mustache" />
                                 <div>
                                     <div class="profile-name">Edwin Estro</div>
-                                    <div class="profile-role">Gaming AI Development · Builder / Curator</div>
+                                    <div class="profile-role">Gaming AI Development · Builder / Curator / Gameplay-first shipping</div>
                                 </div>
                             </div>
+                            <p class="profile-note">The front page now reads like a summoning gate for the featured run: immediate launch, visible proof of playability, and a cleaner path into the rest of the lab after the first fight.</p>
                             <div class="stats" aria-label="Quick stats">
-                                <div class="stat"><div class="n" id="statGames">—</div><div class="l">Playable builds</div></div>
-                                <div class="stat"><div class="n" id="statCounted">—</div><div class="l">Tracked games</div></div>
-                                <div class="stat"><div class="n" id="statUpdated">—</div><div class="l">Last update</div></div>
+                                <div class="stat"><div class="n" id="statGames">—</div><div class="l">Games in portal</div></div>
+                                <div class="stat"><div class="n" id="statCounted">—</div><div class="l">Registry entries</div></div>
+                                <div class="stat"><div class="n" id="statUpdated">—</div><div class="l">Latest ship</div></div>
                             </div>
                             <div>
-                                <a class="btn primary" style="width: 100%" href="Projects/games/frost-signal/index.html">Play Frost Signal</a>
+                            <a class="btn primary feature-cta" id="featureCta" href="Projects/games/unsupervised-3d/index.html">Play featured game</a>
                             </div>
-                            <div class="feature-shot-wrap" aria-label="Attract‑ion screenshot">
-                                <div class="feature-shot-title">Attract‑ion (MVP)</div>
+                            <a class="feature-shot-wrap" id="featureSpotlight" href="Projects/games/unsupervised-3d/index.html" aria-label="Featured game spotlight">
+                                <div class="feature-shot-title" id="featureShotTitle">Unsupervised 3D</div>
                                 <img
                                     class="feature-shot"
-                                    src="Projects/hubs/science-lab/assets/attract-ion-1600x900.png"
-                                    alt="Attract‑ion screenshot showing the subatomic energy lab"
+                                    id="featureShotImage"
+                                    src="Projects/hubs/science-lab/assets/unsupervised-3d-1600x900.png"
+                                    alt="Unsupervised 3D screenshot showing the neon vault arena"
+                                    width="1600"
+                                    height="900"
                                     loading="lazy"
                                     decoding="async"
                                 />
-                                <div class="feature-shot-caption">New MVP · subatomic formation</div>
-                            </div>
+                                <div class="feature-shot-caption" id="featureShotCaption">3D · Action · Memory · Updated recently</div>
+                            </a>
                         </div>
                     </aside>
+                </div>
+            </section>
+
+            <section id="featured" class="section featured-drop" aria-label="Featured game spotlight">
+                <div class="container featured-grid">
+                    <article class="featured-command">
+                        <div class="feature-eyebrow">Featured hunt</div>
+                        <h2 class="h2 feature-heading">Unsupervised 3D now gets a proper survival showcase.</h2>
+                        <p class="sub feature-sub">The page leans into the game’s strongest trait set: immediate threat, escalating pressure, visible rules, and that addictive “one more run” pull that a good survival-action game needs.</p>
+
+                        <div class="featured-meta" aria-label="Featured game traits">
+                            <div class="featured-stat">
+                                <div class="featured-stat-value">Arena tension</div>
+                                <div class="featured-stat-label">The room feels hostile the second the run begins.</div>
+                            </div>
+                            <div class="featured-stat">
+                                <div class="featured-stat-value">Memory under fire</div>
+                                <div class="featured-stat-label">Recall is part of survival, not a side activity.</div>
+                            </div>
+                            <div class="featured-stat">
+                                <div class="featured-stat-value">Run-driven pacing</div>
+                                <div class="featured-stat-label">Short loops keep the rhythm aggressive and replayable.</div>
+                            </div>
+                        </div>
+
+                        <div class="featured-points" aria-label="Featured gameplay pillars">
+                            <article class="feature-point">
+                                <h3 class="feature-point-title">Pressure you can read</h3>
+                                <p class="feature-point-desc">The enemy threat is visible and immediate, so every dodge, shot, and pattern check feels connected to survival instead of noise.</p>
+                            </article>
+                            <article class="feature-point">
+                                <h3 class="feature-point-title">One-more-run structure</h3>
+                                <p class="feature-point-desc">The opener is quick, the stakes are legible, and defeat pushes you back into the next attempt before the energy drops.</p>
+                            </article>
+                            <article class="feature-point">
+                                <h3 class="feature-point-title">Mood that matches the loop</h3>
+                                <p class="feature-point-desc">The homepage finally frames the game like a dangerous midnight run instead of a neutral card in a larger grid.</p>
+                            </article>
+                        </div>
+
+                        <div class="hero-actions feature-actions">
+                            <a class="btn primary" id="featuredPlayCta" href="Projects/games/unsupervised-3d/index.html">Launch featured run</a>
+                            <a class="btn" href="#portal">Compare with other games</a>
+                            <a class="btn" href="Projects/hubs/science-lab/index.html">Open Science Lab hub</a>
+                        </div>
+                    </article>
+
+                    <a class="featured-stage" id="featuredStage" href="Projects/games/unsupervised-3d/index.html" aria-label="Open featured game">
+                        <div class="featured-stage-frame">
+                            <img
+                                class="featured-stage-image"
+                                id="featuredStageImage"
+                                src="Projects/hubs/science-lab/assets/unsupervised-3d-1600x900.png"
+                                alt="Unsupervised 3D screenshot showing the neon vault and target tiles"
+                                width="1600"
+                                height="900"
+                                loading="lazy"
+                                decoding="async"
+                            />
+                        </div>
+                        <div class="featured-stage-copy">
+                            <div class="featured-stage-topline">
+                                <span class="feature-shot-title" id="featuredStageKicker">Neon vault run</span>
+                                <span class="featured-stage-status" id="featuredStageStatus">Live in portal</span>
+                            </div>
+                            <div class="featured-stage-title" id="featuredStageTitle">Neon Vault — Unsupervised 3D</div>
+                            <p class="featured-stage-desc" id="featuredStageDesc">Walk a glowing 3D room, flip tiles, build pairs, and shoot back before the drone closes the gap.</p>
+                            <div class="badges featured-stage-badges" id="featuredStageBadges">
+                                <span class="badge blue">3D</span>
+                                <span class="badge">Action</span>
+                                <span class="badge">Memory</span>
+                            </div>
+                            <div class="card-cta">Launch the vault →</div>
+                        </div>
+                    </a>
+                </div>
+            </section>
+
+            <section id="portal" class="section" aria-label="Game portal">
+                <div class="container">
+                    <div class="portal-head">
+                        <div>
+                            <h2 class="h2">Game portal</h2>
+                            <p class="sub">Every surfaced game now comes from the shared registry and shows a real snapshot, title, tags, and direct launch path.</p>
+                        </div>
+                        <div class="portal-note">Playable now · screenshot-first tiles · newest ships first</div>
+                    </div>
+
+                    <div class="portal-toolbar" aria-label="Portal controls">
+                        <label class="portal-search" for="portalSearch">
+                            <span class="portal-search-label">Find a game</span>
+                            <input id="portalSearch" type="search" placeholder="Search by title, tag, or genre" autocomplete="off" />
+                        </label>
+                        <div class="portal-results" id="portalResults" aria-live="polite">Loading games…</div>
+                    </div>
+
+                    <div class="filter-row" id="portalFilters" aria-label="Game categories">
+                        <!-- JS renders filter chips here. -->
+                    </div>
+
+                    <div class="grid portal-grid" id="portalGrid" aria-label="Game portal tiles">
+                        <!-- JS renders the unified game portal here. -->
+                    </div>
+                </div>
+            </section>
+
+            <section id="preserved" class="section" aria-label="Preserved builds">
+                <div class="container">
+                    <div class="portal-head">
+                        <div>
+                            <h2 class="h2">Preserved builds</h2>
+                            <p class="sub">Older or untracked experiments still deserve a visible shelf. These are registry entries kept playable for continuity, reference, and research mode.</p>
+                        </div>
+                        <div class="portal-note">Archive lane · still launchable · lower-priority experiments</div>
+                    </div>
+
+                    <div class="grid archive-grid" id="archiveGrid" aria-label="Preserved build tiles">
+                        <!-- JS renders preserved builds here. -->
+                    </div>
                 </div>
             </section>
 
@@ -171,26 +300,15 @@
                 </div>
             </section>
 
-            <section id="drops" class="section" aria-label="Latest drops">
+            <section id="workspaces" class="section" aria-label="Workspaces">
                 <div class="container">
-                    <h2 class="h2">Latest drops</h2>
-                    <p class="sub">Auto-pulled from <span style="font-weight: 800">Projects/data/games.json</span> — sorted by last modified.</p>
+                    <h2 class="h2">Workspaces</h2>
+                    <p class="sub">The portal handles game discovery. These links are the supporting rooms around it: hub, docs, audits, tools, and preserved legacy spaces.</p>
 
-                    <div class="banner" id="dropsGrid" aria-label="Latest game cards">
-                        <!-- JS will render cards here. Kept empty to avoid stale content. -->
-                    </div>
-                </div>
-            </section>
-
-            <section id="explore" class="section" aria-label="Explore">
-                <div class="container">
-                    <h2 class="h2">Explore the lab</h2>
-                    <p class="sub">Start with the hub, then jump into individual builds. Everything is designed to be quick-to-play and easy-to-measure.</p>
-
-                    <div class="grid" aria-label="Primary links">
+                    <div class="grid" aria-label="Workspace links">
                         <a class="card big" href="Projects/hubs/science-lab/index.html">
                             <div class="card-title">Science Lab (Hub)</div>
-                            <div class="card-desc">Single launchpad for every game in this repo, with progress tracking.</div>
+                            <div class="card-desc">Single launchpad for every registered game, with featured selection and progress tracking.</div>
                             <div class="badges">
                                 <span class="badge blue">Hub</span>
                                 <span class="badge">Progress</span>
@@ -199,39 +317,19 @@
                             <div class="card-cta">Enter Lab →</div>
                         </a>
 
-                        <a class="card tall" href="Projects/games/frost-signal/index.html">
-                            <div class="card-title">Frost Signal</div>
-                            <div class="card-desc">Arcade MVP. Clear win/lose loop and auto-reporting results.</div>
+                        <a class="card" href="legacy/stringball-endpoint/games.html">
+                            <div class="card-title">Legacy Game Lab</div>
+                            <div class="card-desc">The preserved cognitive and memory experiments, including the legacy tabs that still back part of the registry.</div>
                             <div class="badges">
-                                <span class="badge good">MVP</span>
-                                <span class="badge">Arcade</span>
-                            </div>
-                            <div class="card-cta">Play →</div>
-                        </a>
-
-                        <a class="card" href="Projects/games/thermal-drift/index.html">
-                            <div class="card-title">Thermal Drift</div>
-                            <div class="card-desc">Action prototype. Survive, dodge enemies, iterate fast.</div>
-                            <div class="badges">
-                                <span class="badge">Action</span>
-                                <span class="badge">Prototype</span>
-                            </div>
-                            <div class="card-cta">Play →</div>
-                        </a>
-
-                        <a class="card" href="legacy/stringball-endpoint/maze.html">
-                            <div class="card-title">ScienceLab (Legacy 3D)</div>
-                            <div class="card-desc">The original ScienceLab 3D lab experience (v4), preserved for continuity.</div>
-                            <div class="badges">
-                                <span class="badge">3D</span>
                                 <span class="badge">Legacy</span>
+                                <span class="badge">Cognitive</span>
                             </div>
                             <div class="card-cta">Open →</div>
                         </a>
 
                         <a class="card" href="Projects/docs/index.html">
                             <div class="card-title">Docs</div>
-                            <div class="card-desc">Resume + certificates in a clean organized view.</div>
+                            <div class="card-desc">Resume, certificates, and supporting documentation in one place.</div>
                             <div class="badges">
                                 <span class="badge">Docs</span>
                             </div>
@@ -240,32 +338,22 @@
 
                         <a class="card" href="Projects/Audit/index.html">
                             <div class="card-title">Audit Hub</div>
-                            <div class="card-desc">Claude Opus automated audits: security, accessibility, and code quality.</div>
+                            <div class="card-desc">Security, accessibility, and code quality reviews for the repo and the shipped experiences.</div>
                             <div class="badges">
                                 <span class="badge blue">Quality</span>
                                 <span class="badge">Audit</span>
                             </div>
-                            <div class="card-cta">View Audits →</div>
+                            <div class="card-cta">View audits →</div>
                         </a>
 
                         <a class="card" href="NotFiddler/index.html">
                             <div class="card-title">NotFiddler</div>
-                            <div class="card-desc">A fast, privacy-first HAR file analyzer. Everything runs in your browser.</div>
+                            <div class="card-desc">A privacy-first HAR analyzer that stays entirely in the browser.</div>
                             <div class="badges">
                                 <span class="badge blue">Tool</span>
                                 <span class="badge">Privacy-first</span>
                             </div>
                             <div class="card-cta">Open →</div>
-                        </a>
-
-                        <a class="card" href="Projects/games/attract-ion/index.html">
-                            <div class="card-title">Attract‑ion</div>
-                            <div class="card-desc">Subatomic formation MVP: energy fluctuations, lepton orbitals, and hydrogen stabilization.</div>
-                            <div class="badges">
-                                <span class="badge good">MVP</span>
-                                <span class="badge">Science</span>
-                            </div>
-                            <div class="card-cta">Play →</div>
                         </a>
                     </div>
                 </div>
@@ -330,7 +418,7 @@
                     <h2 class="h2">Support</h2>
                     <p class="sub">If you’re feeling generous, consider supporting a cause that matters.</p>
                     <div class="grid" aria-label="Support links">
-                        <a class="card big" href="https://support.savethechildren.org/site/Donation2?df_id=1620&mfc_pref=T&1620.donation=form1" target="_blank" rel="noreferrer">
+                        <a class="card big" href="https://support.savethechildren.org/site/Donation2?df_id=1620&mfc_pref=T&1620.donation=form1" target="_blank" rel="noreferrer noopener">
                             <div class="card-title">Save the Children</div>
                             <div class="card-desc">Direct donation link (opens in a new tab).</div>
                             <div class="badges"><span class="badge blue">Charity</span></div>
@@ -342,13 +430,17 @@
 
             <footer class="footer" aria-label="Footer">
                 <div class="container">
-                    <div style="display: flex; flex-wrap: wrap; gap: 0.9rem; align-items: center; justify-content: space-between;">
+                    <div class="footer-inner">
                         <div>© <span id="year"></span> Edwin Estro · Gaming AI Development</div>
                         <div>
                             <a href="Projects/hubs/science-lab/index.html">Science Lab</a>
-                            <span style="opacity: 0.45"> · </span>
+                            <span class="footer-sep"> · </span>
+                            <a href="Projects/games/protein-interactions/index.html">Protein Interactions</a>
+                            <span class="footer-sep"> · </span>
+                            <a href="Projects/games/protein-simulator/index.html">Protein Simulator</a>
+                            <span class="footer-sep"> · </span>
                             <a href="Projects/Audit/index.html">Audit Hub</a>
-                            <span style="opacity: 0.45"> · </span>
+                            <span class="footer-sep"> · </span>
                             <a href="Projects/docs/index.html">Docs</a>
                         </div>
                     </div>
@@ -357,7 +449,7 @@
         </main>
 
         <!-- Cookie / consent banner (homepage only) for Microsoft Ads UET -->
-        <div class="consent-banner" id="consentBanner" role="dialog" aria-live="polite" aria-label="Cookie consent" style="display:none;">
+        <div class="consent-banner" id="consentBanner" role="dialog" aria-live="polite" aria-label="Cookie consent">
             <div class="consent-copy">
                 <div class="consent-title">Privacy & measurement</div>
                 <div class="consent-text">
@@ -365,456 +457,10 @@
                 </div>
             </div>
             <div class="consent-actions">
-                <button class="btn" type="button" onclick="window.consentChoice('denied')">Decline</button>
-                <button class="btn primary" type="button" onclick="window.consentChoice('granted')">Accept</button>
+                <button class="btn" type="button" id="consentDecline">Decline</button>
+                <button class="btn primary" type="button" id="consentAccept">Accept</button>
             </div>
         </div>
-        <script>
-            // Consent handler - globally accessible
-            window.consentChoice = function(choice) {
-                localStorage.setItem('consent.uet.ad_storage', choice);
-                window.uetq = window.uetq || [];
-                window.uetq.push('consent', 'update', { ad_storage: choice });
-                document.getElementById('consentBanner').style.display = 'none';
-            };
-
-            // Show banner if no choice saved (or ?resetconsent in URL for testing)
-            (function() {
-                var params = new URLSearchParams(window.location.search);
-                if (params.has('resetconsent')) {
-                    localStorage.removeItem('consent.uet.ad_storage');
-                }
-                var saved = localStorage.getItem('consent.uet.ad_storage');
-                var banner = document.getElementById('consentBanner');
-                if (!banner) return;
-                if (saved === 'granted' || saved === 'denied') {
-                    window.uetq = window.uetq || [];
-                    window.uetq.push('consent', 'update', { ad_storage: saved });
-                    banner.style.display = 'none';
-                } else {
-                    banner.style.display = 'flex';
-                }
-            })();
-        </script>
-        <script>
-            // Footer year
-            document.getElementById('year').textContent = String(new Date().getFullYear());
-
-            // Hamburger nav toggle
-            const navToggle = document.getElementById('navToggle');
-            const mainNav = document.getElementById('mainNav');
-            navToggle?.addEventListener('click', () => {
-                const open = mainNav.classList.toggle('open');
-                navToggle.setAttribute('aria-expanded', String(open));
-            });
-            // Close nav when a link is clicked
-            mainNav?.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
-                mainNav.classList.remove('open');
-                navToggle?.setAttribute('aria-expanded', 'false');
-            }));
-
-            // Render latest drops from Projects/data/games.json
-            const dropsGrid = document.getElementById('dropsGrid');
-            const statGames = document.getElementById('statGames');
-            const statCounted = document.getElementById('statCounted');
-            const statUpdated = document.getElementById('statUpdated');
-
-            const fmtDate = (iso) => {
-                if (!iso) return '—';
-                const d = new Date(iso);
-                if (Number.isNaN(d.valueOf())) return '—';
-                return d.toISOString().slice(0, 10);
-            };
-
-            // games.json hrefs are authored relative to the Science Lab hub; resolve them so they work from /index.html.
-            const scienceLabBaseUrl = new URL('Projects/hubs/science-lab/index.html', window.location.href);
-            const resolveHubHref = (href) => {
-                try {
-                    if (!href) return '#';
-                    return new URL(href, scienceLabBaseUrl).toString();
-                } catch {
-                    return '#';
-                }
-            };
-
-            const escapeHtml = (s) => String(s)
-                .replaceAll('&', '&amp;')
-                .replaceAll('<', '&lt;')
-                .replaceAll('>', '&gt;')
-                .replaceAll('"', '&quot;')
-                .replaceAll("'", '&#39;');
-
-            const cardHtml = (g, i) => {
-                const title = escapeHtml(g.title ?? 'Untitled');
-                const desc = escapeHtml(g.desc ?? '');
-                const href = escapeHtml(resolveHubHref(g.href));
-                const badges = Array.isArray(g.badges) ? g.badges : [];
-                const updatedAt = fmtDate(g.updatedAt);
-
-                const badgeEls = [
-                    `<span class="badge blue">Updated ${updatedAt}</span>`,
-                    ...(badges.slice(0, 3).map((b) => `<span class="badge">${escapeHtml(b)}</span>`)),
-                ].join('');
-
-                const size = i === 0 ? 'big' : '';
-                return `
-                    <a class="card ${size}" href="${href}" target="_blank" rel="noreferrer">
-                        <div class="card-title">${title}</div>
-                        <div class="card-desc">${desc}</div>
-                        <div class="badges">${badgeEls}</div>
-                        <div class="card-cta">Open →</div>
-                    </a>
-                `;
-            };
-
-            const renderDrops = async () => {
-                try {
-                    const res = await fetch('Projects/data/games.json', { cache: 'no-store' });
-                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                    const data = await res.json();
-                    const games = Array.isArray(data.games) ? data.games.slice() : [];
-
-                    // Stats
-                    const counted = games.filter((g) => g && g.counted);
-                    statGames.textContent = String(games.length);
-                    statCounted.textContent = String(counted.length);
-
-                    const latestUpdated = games
-                        .map((g) => g?.updatedAt)
-                        .filter(Boolean)
-                        .sort()
-                        .slice(-1)[0];
-                    statUpdated.textContent = fmtDate(latestUpdated);
-
-                    // Latest drops (sorted desc)
-                    games.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
-                    const top = games.slice(0, 6);
-                    dropsGrid.innerHTML = top.map(cardHtml).join('');
-
-                    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches === false) {
-                        enableTilt();
-                    }
-                } catch (err) {
-                    dropsGrid.innerHTML = `
-                        <a class="card big" href="Projects/hubs/science-lab/index.html">
-                            <div class="card-title">Science Lab (Hub)</div>
-                            <div class="card-desc">Couldn’t load Projects/data/games.json right now. Jump into the hub instead.</div>
-                            <div class="badges"><span class="badge">Fallback</span></div>
-                            <div class="card-cta">Enter Lab →</div>
-                        </a>
-                    `;
-                    statGames.textContent = '—';
-                    statCounted.textContent = '—';
-                    statUpdated.textContent = '—';
-                    console.warn('Failed to load games.json', err);
-                }
-            };
-
-            renderDrops();
-
-            // Subtle tilt on hover (desktop only)
-            const enableTilt = () => {
-                const cards = document.querySelectorAll('.card');
-                cards.forEach((c) => {
-                    if (c.dataset.tiltReady === '1') return;
-                    c.dataset.tiltReady = '1';
-
-                    let raf = null;
-                    const onMove = (e) => {
-                        const r = c.getBoundingClientRect();
-                        const px = (e.clientX - r.left) / r.width;
-                        const py = (e.clientY - r.top) / r.height;
-                        const rx = (0.5 - py) * 6;
-                        const ry = (px - 0.5) * 8;
-                        if (raf) cancelAnimationFrame(raf);
-                        raf = requestAnimationFrame(() => {
-                            c.style.transform = `translateY(-4px) scale(1.015) rotateX(${rx}deg) rotateY(${ry}deg)`;
-                        });
-                    };
-                    const onLeave = () => {
-                        if (raf) cancelAnimationFrame(raf);
-                        c.style.transform = '';
-                    };
-                    c.addEventListener('pointermove', onMove);
-                    c.addEventListener('pointerleave', onLeave);
-                });
-            };
-
-            // ─── Mouse spotlight on cards ───
-            const enableSpotlight = () => {
-                document.querySelectorAll('.card').forEach(c => {
-                    if (c.dataset.spotReady === '1') return;
-                    c.dataset.spotReady = '1';
-                    c.addEventListener('pointermove', (e) => {
-                        const r = c.getBoundingClientRect();
-                        c.style.setProperty('--spot-x', `${e.clientX - r.left}px`);
-                        c.style.setProperty('--spot-y', `${e.clientY - r.top}px`);
-                        c.style.setProperty('--spot-opacity', '1');
-                    });
-                    c.addEventListener('pointerleave', () => {
-                        c.style.setProperty('--spot-opacity', '0');
-                    });
-                });
-            };
-
-            const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-            // Tilt for the static cards; dynamic cards get tilt after renderDrops().
-            if (!reducedMotion) {
-                enableTilt();
-                enableSpotlight();
-            }
-
-            // ─── Hero text decode effect ───
-            if (!reducedMotion) {
-                const h1 = document.querySelector('.hero .h1');
-                if (h1) {
-                    const textNodes = [];
-                    // Gather direct text children (not .grad span)
-                    h1.childNodes.forEach(node => {
-                        if (node.nodeType === 3 && node.textContent.trim()) textNodes.push(node);
-                    });
-                    const gradSpan = h1.querySelector('.grad');
-                    const allTargets = gradSpan ? [...textNodes, gradSpan] : textNodes;
-
-                    allTargets.forEach(node => {
-                        const original = node.textContent;
-                        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#@$%&';
-                        let progress = 0;
-                        const speed = 2; // characters decoded per frame
-                        const delay = node === gradSpan ? 400 : 200;
-
-                        setTimeout(() => {
-                            const tick = () => {
-                                progress += speed;
-                                let result = '';
-                                for (let i = 0; i < original.length; i++) {
-                                    if (original[i] === ' ' || original[i] === '\n') { result += original[i]; continue; }
-                                    if (i < progress) result += original[i];
-                                    else result += chars[Math.floor(Math.random() * chars.length)];
-                                }
-                                node.textContent = result;
-                                if (progress < original.length) requestAnimationFrame(tick);
-                            };
-                            requestAnimationFrame(tick);
-                        }, delay);
-                    });
-                }
-            }
-
-            // ─── Scroll progress bar ───
-            const scrollProgressEl = document.getElementById('scrollProgress');
-            if (!reducedMotion && scrollProgressEl) {
-                let ticking = false;
-                const updateProgress = () => {
-                    const scrollH = document.documentElement.scrollHeight - window.innerHeight;
-                    const pct = scrollH > 0 ? (window.scrollY / scrollH) * 100 : 0;
-                    scrollProgressEl.style.width = `${pct}%`;
-                    ticking = false;
-                };
-                window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(updateProgress); } }, { passive: true });
-            }
-
-            // ─── Nav scroll shrink + scroll-spy active link ───
-            const nav = document.querySelector('.nav');
-            const sections = document.querySelectorAll('.section[id], .hero');
-            const navAnchors = document.querySelectorAll('.navlinks a[href^="#"]');
-            if (nav) {
-                let navTicking = false;
-                const onScroll = () => {
-                    // Shrink
-                    nav.classList.toggle('scrolled', window.scrollY > 60);
-
-                    // Spy
-                    let current = '';
-                    sections.forEach(s => {
-                        const top = s.getBoundingClientRect().top;
-                        if (top < window.innerHeight * 0.4) current = s.id || '';
-                    });
-                    navAnchors.forEach(a => {
-                        a.classList.toggle('active', a.getAttribute('href') === `#${current}`);
-                    });
-                    navTicking = false;
-                };
-                window.addEventListener('scroll', () => { if (!navTicking) { navTicking = true; requestAnimationFrame(onScroll); } }, { passive: true });
-            }
-
-            // ─── Scroll-reveal via IntersectionObserver ───
-            if (!reducedMotion) {
-                const observer = new IntersectionObserver((entries) => {
-                    entries.forEach(e => {
-                        if (e.isIntersecting) {
-                            e.target.classList.add('revealed');
-                            observer.unobserve(e.target);
-                        }
-                    });
-                }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-
-                const tagRevealTargets = () => {
-                    // Section headings + sub text
-                    document.querySelectorAll('.section .h2, .section .sub').forEach((el, i) => {
-                        if (el.classList.contains('revealed')) return;
-                        el.classList.add('reveal');
-                        el.style.setProperty('--d', `${i * 0.08}s`);
-                        observer.observe(el);
-                    });
-
-                    // Cards inside grids and banners
-                    document.querySelectorAll('.grid .card, .banner .card').forEach((el, i) => {
-                        if (el.classList.contains('revealed')) return;
-                        el.classList.add('reveal');
-                        el.style.setProperty('--d', `${0.06 + (i % 6) * 0.09}s`);
-                        observer.observe(el);
-                    });
-
-                    // Quality cards
-                    document.querySelectorAll('.quality-card').forEach((el, i) => {
-                        if (el.classList.contains('revealed')) return;
-                        el.classList.add('reveal');
-                        el.style.setProperty('--d', `${0.08 + i * 0.12}s`);
-                        observer.observe(el);
-                    });
-
-                    // Quality pill
-                    const pill = document.querySelector('.quality-pill');
-                    if (pill && !pill.classList.contains('revealed')) {
-                        pill.classList.add('reveal');
-                        pill.style.setProperty('--d', '0.2s');
-                        observer.observe(pill);
-                    }
-                };
-
-                // Tag static elements immediately, re-tag after drops load
-                tagRevealTargets();
-                // Re-apply after dynamic cards load
-                setTimeout(() => { tagRevealTargets(); enableTilt(); enableSpotlight(); }, 900);
-            }
-
-            // ─── Stat number count-up animation ───
-            const animateCounter = (el, end) => {
-                if (reducedMotion) { el.textContent = String(end); el.classList.add('counted'); return; }
-                const duration = 900;
-                const start = performance.now();
-                const step = (now) => {
-                    const t = Math.min((now - start) / duration, 1);
-                    const ease = 1 - Math.pow(1 - t, 3);
-                    el.textContent = String(Math.round(ease * end));
-                    if (t < 1) requestAnimationFrame(step);
-                    else { el.textContent = String(end); el.classList.add('counted'); }
-                };
-                requestAnimationFrame(step);
-            };
-
-            // Hook into renderDrops data flow: observe the stat elements for first real value
-            const hookStat = (el) => {
-                let fired = false;
-                const obs = new MutationObserver(() => {
-                    if (fired) return;
-                    const raw = el.textContent.trim();
-                    const num = parseInt(raw, 10);
-                    if (!raw || raw === '—' || raw === '0' || isNaN(num)) return;
-                    fired = true;
-                    obs.disconnect();
-                    el.textContent = '0';
-                    animateCounter(el, num);
-                });
-                obs.observe(el, { childList: true, characterData: true, subtree: true });
-            };
-            [statGames, statCounted].forEach(hookStat);
-        </script>
-
-        <!-- ─── Blog toggle ─── -->
-        <script>
-            const blogToggle = document.getElementById('blogToggle');
-            const blogBody = document.getElementById('blogBody');
-            if (blogToggle && blogBody) {
-                blogToggle.addEventListener('click', () => {
-                    const expanded = blogBody.classList.toggle('blog-expanded');
-                    blogBody.classList.toggle('blog-collapsed', !expanded);
-                    blogToggle.setAttribute('aria-expanded', String(expanded));
-                    blogToggle.textContent = expanded ? 'Show less ▴' : 'Read more ▾';
-                });
-            }
-        </script>
-
-        <!-- ─── Matrix rain canvas ─── -->
-        <script>
-            const canvas = document.getElementById('immersion');
-            const ctx = canvas.getContext('2d');
-            const mouse = { x: -9999, y: -9999 };
-            const mouseGlow = 140;
-
-            const fontSize = 15;
-            const glyphs = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&';
-            let columns = [];
-            let W, H, colCount;
-
-            const resize = () => {
-                W = canvas.width = window.innerWidth;
-                H = canvas.height = window.innerHeight;
-                const newCount = Math.ceil(W / fontSize);
-                // Preserve existing column positions on resize, add new ones
-                while (columns.length < newCount) columns.push(Math.random() * H / fontSize | 0);
-                columns.length = newCount;
-                colCount = newCount;
-            };
-
-            const tick = () => {
-                // Fade previous frame — translucent black overlay creates the trail
-                ctx.fillStyle = 'rgba(7, 10, 16, 0.06)';
-                ctx.fillRect(0, 0, W, H);
-
-                ctx.font = `${fontSize}px monospace`;
-
-                for (let i = 0; i < colCount; i++) {
-                    const x = i * fontSize;
-                    const y = columns[i] * fontSize;
-                    const ch = glyphs[Math.random() * glyphs.length | 0];
-
-                    // Cursor proximity glow
-                    const dx = x - mouse.x;
-                    const dy = y - mouse.y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-
-                    if (dist < mouseGlow) {
-                        const bright = 1 - dist / mouseGlow;
-                        ctx.fillStyle = `rgba(154, 230, 255, ${0.5 + bright * 0.5})`;
-                        ctx.shadowColor = 'rgba(154, 230, 255, 0.7)';
-                        ctx.shadowBlur = 8;
-                    } else {
-                        // Cycle through the palette for variety
-                        const hue = (i % 3 === 0) ? 160 : (i % 3 === 1) ? 190 : 220;
-                        ctx.fillStyle = `hsla(${hue}, 80%, 70%, 0.85)`;
-                        ctx.shadowColor = 'transparent';
-                        ctx.shadowBlur = 0;
-                    }
-
-                    ctx.fillText(ch, x, y);
-                    ctx.shadowBlur = 0;
-
-                    // Advance column; reset randomly to stagger the rain
-                    if (y > H && Math.random() > 0.975) {
-                        columns[i] = 0;
-                    } else {
-                        columns[i]++;
-                    }
-                }
-
-                requestAnimationFrame(tick);
-            };
-
-            window.addEventListener('pointermove', (e) => {
-                mouse.x = e.clientX;
-                mouse.y = e.clientY;
-            }, { passive: true });
-            window.addEventListener('pointerleave', () => { mouse.x = -9999; mouse.y = -9999; });
-
-            window.addEventListener('resize', resize);
-            resize();
-
-            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches === false) {
-                tick();
-            }
-        </script>
+        <script src="assets/js/home.js" defer></script>
     </body>
 </html>

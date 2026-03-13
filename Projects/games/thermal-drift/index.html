@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Thermal Drift — Prototype</title>
+  <meta name="description" content="Thermal Drift: neon survival drift game. Dodge enemies, collect ice shards, survive the airborne doom." />
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -25,7 +26,7 @@
     </header>
 
     <div class="stage" aria-label="Game stage">
-      <canvas id="game"></canvas>
+      <canvas id="game" width="1280" height="720" aria-label="Thermal Drift game canvas"></canvas>
 
       <div class="telemetry" aria-hidden="true">
         <div class="tel block tl">
@@ -91,7 +92,7 @@
           <form class="lb-submit" id="lbSubmit" hidden>
             <div class="lb-submit-title">New #1 — log your run</div>
             <div class="lb-submit-row">
-              <input id="lbName" name="name" autocomplete="nickname" maxlength="32" placeholder="Your name" />
+              <input id="lbName" name="name" autocomplete="nickname" maxlength="32" placeholder="Your name" aria-label="Player name" />
               <button class="primary" id="lbBtn" type="submit">Save</button>
             </div>
             <div class="lb-submit-hint" id="lbHint">Saved to the Excel leaderboard.</div>

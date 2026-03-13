@@ -474,8 +474,8 @@ class UIController {
 
         el.innerHTML = `
             <div class="detail-url">
-                <span class="method-badge">${entry.method}</span>${this._escapeHtml(entry.url)}
-                <span class="status-badge ${statusClass}">${entry.status} ${entry.statusText}</span>
+                <span class="method-badge">${this._escapeHtml(entry.method)}</span>${this._escapeHtml(entry.url)}
+                <span class="status-badge ${statusClass}">${this._escapeHtml(entry.status + ' ' + entry.statusText)}</span>
             </div>
 
             <div class="header-group">
@@ -610,7 +610,7 @@ class UIController {
 
         const urlDiv = document.createElement('div');
         urlDiv.className = 'detail-url';
-        urlDiv.innerHTML = `<span class="method-badge">${entry.method}</span>${this._escapeHtml(entry.url)}`;
+        urlDiv.innerHTML = `<span class="method-badge">${this._escapeHtml(entry.method)}</span>${this._escapeHtml(entry.url)}`;
         el.appendChild(urlDiv);
 
         const info = document.createElement('div');
