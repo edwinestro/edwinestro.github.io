@@ -3,6 +3,22 @@
   "generatedAt": "2026-03-11T00:00:00.000Z",
   "games": [
     {
+      "id": "agi-3d",
+      "title": "AGI 3D",
+      "desc": "Watch a living AGI entity breathe, pulse, and wobble in real-time 3D. A liquid-metal intelligence suspended in space.",
+      "href": "../../games/agi-3d/index.html",
+      "thumbnail": "assets/agi-breeder-1600x900.svg",
+      "badges": [
+        "3D",
+        "Experience",
+        "New"
+      ],
+      "counted": true,
+      "sourcePath": "Projects/games/agi-3d",
+      "createdAt": "2026-03-13T00:00:00.000Z",
+      "updatedAt": "2026-03-13T00:00:00.000Z"
+    },
+    {
       "id": "agi-breeder",
       "title": "AGI Breeder",
       "desc": "Breed candidate AGI lineages, balance capability against safety, and launch a good AGI before the lab overheats.",

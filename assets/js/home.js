@@ -168,6 +168,13 @@ const COVER_LIBRARY = {
         hook: 'Breed aligned lineages, manage crises, and launch before the lab turns on itself.',
         meta: 'Strategy simulation · weekly directives',
     },
+    'agi-3d': {
+        theme: 'vault',
+        kicker: 'Living intelligence',
+        title: 'AGI 3D',
+        hook: 'Watch a liquid-metal AGI entity breathe, pulse, and wobble in real-time 3D space.',
+        meta: '3D experience · ambient',
+    },
     'protein-interactions': {
         theme: 'science',
         kicker: 'Molecular drama',
