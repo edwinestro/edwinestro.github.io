@@ -492,6 +492,11 @@ function breedCandidate() {
   logMessage(`${child.name} was bred with ${focus.label.toLowerCase()} in generation ${child.generation}.`);
   refreshForecast();
   render();
+
+  // Show AGI forming visualization for the new offspring
+  if (typeof window.showAgiViz === 'function') {
+    window.showAgiViz(child, `${child.name} — New AGI Lineage (Gen ${child.generation})`);
+  }
 }
 
 function runProgram(programId) {
@@ -520,6 +525,11 @@ function runProgram(programId) {
   evaluateLoss();
   refreshForecast();
   render();
+
+  // Show AGI visualization after running a program on the candidate
+  if (typeof window.showAgiViz === 'function' && candidate) {
+    window.showAgiViz(candidate, `${candidate.name} — After ${program.label}`);
+  }
 }
 
 function nextWeekCompute() {
@@ -743,6 +753,10 @@ overlayRestart.addEventListener('click', resetGame);
 breedBtn.addEventListener('click', breedCandidate);
 launchBtn.addEventListener('click', launchAGI);
 endWeekBtn.addEventListener('click', endWeek);
+
+// Expose current focus candidate for the AGI viz module
+window.getAgiVizCandidate = () => getCandidate(state.activeCandidateId) || bestCandidate();
+
 sortBtn.addEventListener('click', () => {
   const order = ['score', 'risk', 'generation'];
   state.sortMode = order[(order.indexOf(state.sortMode) + 1) % order.length];
@@ -755,3 +769,111 @@ showOverlay(
   'Select two parents, choose an incubation focus, and spend weekly actions on safety, capability, resilience, and creativity. Launch before week 12 while keeping lab risk below collapse.',
   false,
 );
+
+// ─── Tutorial ───
+const TUTORIAL_STEPS = [
+  {
+    title: 'Welcome to the Lab',
+    body: 'You run a research lab trying to breed a safe, capable AGI before week 12. Each week you get actions and compute to spend on breeding and programs. If lab risk hits 100, you lose. Ready?',
+    highlight: null,
+  },
+  {
+    title: 'Your Roster',
+    body: 'These are your AGI candidates. Each one has five traits: Capability, Alignment, Resilience, Creativity, and Risk. Higher is better for the first four — but lower Risk is better. Use the buttons on each card to assign parents or focus a candidate for programs.',
+    highlight: '.roster-panel',
+  },
+  {
+    title: 'Breeding Bay',
+    body: 'Pick two different parents from the roster (click "Parent A" and "Parent B" on their cards), choose a breeding focus like Alignment Bias or Capability Surge, then click Breed. This costs 2 compute and 1 action. The offspring inherits averaged traits, shifted by your chosen focus.',
+    highlight: '.control-panel .subpanel:first-child',
+  },
+  {
+    title: 'Lab Programs',
+    body: 'Click "Focus" on a candidate card, then run programs on them here. Safety Audit lowers risk, Capability Sprint boosts power (but adds risk), Red-Team Trial builds resilience, and Dataset Remix grows creativity. Each costs actions and sometimes compute.',
+    highlight: '.control-panel .subpanel:nth-child(2)',
+  },
+  {
+    title: 'Launch Console',
+    body: 'This shows your focused candidate\'s readiness. To win, a candidate must hit: Capability ≥ 88, Alignment ≥ 90, Resilience ≥ 82, Creativity ≥ 68, and Risk ≤ 34 — while lab risk stays below 70. The checklist shows green/red for each threshold.',
+    highlight: '.launch-panel',
+  },
+  {
+    title: 'Weekly Directives',
+    body: 'Each week you get a directive from the board — a mini-goal like "keep average risk below 22" or "breed and run a program this week." Meeting it earns rewards (compute, lower risk, extra actions). Failing it raises lab risk.',
+    highlight: '.status-panel',
+  },
+  {
+    title: 'End Week',
+    body: 'When you\'ve spent your actions, click End Week. All candidates drift slightly, a random event fires, your directive is judged, and you get fresh compute. You have 12 weeks total — plan carefully!',
+    highlight: '.launch-panel',
+  },
+  {
+    title: 'Retire Dead Weight',
+    body: 'If a candidate has high risk and low potential, click Retire on their card. This removes them from the pool and lowers lab risk. You can\'t retire below 2 candidates. Keep your pool clean!',
+    highlight: '.roster-panel',
+  },
+  {
+    title: 'You\'re Ready!',
+    body: 'Breed smart, run programs strategically, meet your directives, and launch a good AGI before the lab collapses. Good luck, lab director!',
+    highlight: null,
+  },
+];
+
+let tutorialStep = 0;
+const tutOverlay = $('tutorialOverlay');
+const tutTitle = $('tutorialTitle');
+const tutBody = $('tutorialBody');
+const tutIndicator = $('tutorialIndicator');
+const tutPrev = $('tutorialPrev');
+const tutNext = $('tutorialNext');
+const tutSkip = $('tutorialSkip');
+const overlayTutorial = $('overlayTutorial');
+
+function renderTutorialStep() {
+  const step = TUTORIAL_STEPS[tutorialStep];
+  tutTitle.textContent = step.title;
+  tutBody.textContent = step.body;
+  tutPrev.hidden = tutorialStep === 0;
+  tutNext.textContent = tutorialStep === TUTORIAL_STEPS.length - 1 ? 'Start playing' : 'Next';
+
+  tutIndicator.innerHTML = TUTORIAL_STEPS.map((_, i) => {
+    const cls = i === tutorialStep ? 'active' : i < tutorialStep ? 'done' : '';
+    return `<span class="tutorial-dot ${cls}"></span>`;
+  }).join('');
+
+  document.querySelectorAll('.tutorial-highlight').forEach(el => el.classList.remove('tutorial-highlight'));
+  if (step.highlight) {
+    const target = document.querySelector(step.highlight);
+    if (target) target.classList.add('tutorial-highlight');
+  }
+}
+
+function openTutorial() {
+  tutorialStep = 0;
+  overlay.classList.add('hidden');
+  if (!state.running) resetGame();
+  tutOverlay.classList.remove('hidden');
+  renderTutorialStep();
+}
+
+function closeTutorial() {
+  tutOverlay.classList.add('hidden');
+  document.querySelectorAll('.tutorial-highlight').forEach(el => el.classList.remove('tutorial-highlight'));
+}
+
+overlayTutorial.addEventListener('click', openTutorial);
+tutNext.addEventListener('click', () => {
+  if (tutorialStep < TUTORIAL_STEPS.length - 1) {
+    tutorialStep++;
+    renderTutorialStep();
+  } else {
+    closeTutorial();
+  }
+});
+tutPrev.addEventListener('click', () => {
+  if (tutorialStep > 0) {
+    tutorialStep--;
+    renderTutorialStep();
+  }
+});
+tutSkip.addEventListener('click', closeTutorial);
