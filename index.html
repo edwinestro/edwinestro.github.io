@@ -32,7 +32,27 @@
     html, body { width: 100%; height: 100%; overflow: hidden; background: #020408; }
     canvas { display: block; width: 100vw; height: 100vh; }
 
+    .mode-transition-flash {
+      position: fixed; inset: 0; z-index: 50; pointer-events: none;
+      background: radial-gradient(ellipse at center, rgba(140, 90, 255, 0.4), rgba(20, 6, 40, 0.7) 60%, transparent 100%);
+      opacity: 0; transition: opacity 0.35s ease;
+    }
+    .mode-transition-flash.active { opacity: 1; }
+
+    .assembots-label {
+      position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%);
+      z-index: 12; pointer-events: none;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      font-size: 0.52rem; font-weight: 800; letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(180, 140, 255, 0.62);
+      text-shadow: 0 0 18px rgba(140, 90, 255, 0.4);
+    }
+
     .overlay {
+      --entropy-frame: 0.08;
+      --entropy-haze: 0.12;
+      --network-energy: 0.22;
       position: fixed;
       inset: 0;
       z-index: 10;
@@ -40,50 +60,140 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: clamp(16px, 3vw, 28px);
+      padding: clamp(8px, 1.2vw, 14px);
       font-family: "Segoe UI", system-ui, sans-serif;
       transition: opacity 0.6s ease;
     }
     .overlay.faded { opacity: 0; }
 
+    .neural-overlay {
+      display: none;
+    }
+    .neural-overlay svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .neural-path {
+      fill: none;
+      stroke: rgba(122, 244, 255, 0.28);
+      stroke-width: 1.2;
+      stroke-linecap: round;
+      stroke-dasharray: 8 10 18 12;
+      animation: neuralFlow 16s linear infinite;
+    }
+    .neural-path.alt {
+      stroke: rgba(143, 255, 199, 0.22);
+      stroke-width: 0.9;
+      animation-duration: 22s;
+      animation-direction: reverse;
+    }
+    .neural-node {
+      fill: rgba(162, 248, 255, 0.5);
+      filter: drop-shadow(0 0 10px rgba(95, 239, 255, 0.42));
+    }
+    @keyframes neuralFlow {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: -220; }
+    }
+
+    .corner-light {
+      display: none;
+    }
+    .corner-light::before,
+    .corner-light::after {
+      content: "";
+      position: absolute;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(122, 244, 255, 0.94), rgba(99, 138, 255, 0.04));
+      box-shadow: 0 0 18px rgba(102, 228, 255, 0.36), inset 0 0 12px rgba(255, 255, 255, 0.08);
+    }
+    .corner-light::before {
+      width: 100%;
+      height: 2px;
+      top: 0;
+      left: 0;
+    }
+    .corner-light::after {
+      width: 2px;
+      height: 100%;
+      top: 0;
+      left: 0;
+    }
+    .corner-tl { top: 18px; left: 18px; }
+    .corner-tr { top: 18px; right: 18px; transform: scaleX(-1); }
+    .corner-bl { bottom: 18px; left: 18px; transform: scaleY(-1); }
+    .corner-br { right: 18px; bottom: 18px; transform: scale(-1); }
+
+    .entropy-frame {
+      display: none;
+    }
+    .entropy-frame::before,
+    .entropy-frame::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .entropy-frame::before {
+      background:
+        linear-gradient(135deg, rgba(122, 244, 255, calc(0.05 + var(--entropy-frame) * 0.18)), transparent 30%),
+        linear-gradient(315deg, rgba(127, 240, 197, calc(0.03 + var(--entropy-frame) * 0.12)), transparent 28%);
+      transform: translate3d(calc(var(--entropy-frame) * 16px), calc(var(--entropy-frame) * -12px), 0) skewX(calc(var(--entropy-frame) * 1.8deg));
+      mix-blend-mode: screen;
+    }
+    .entropy-frame::after {
+      background: repeating-linear-gradient(
+        112deg,
+        rgba(146, 240, 255, 0) 0,
+        rgba(146, 240, 255, 0) 16px,
+        rgba(146, 240, 255, calc(var(--entropy-frame) * 0.08)) 18px,
+        rgba(146, 240, 255, 0) 26px
+      );
+      opacity: calc(0.18 + var(--entropy-frame) * 0.5);
+      transform: translate3d(calc(var(--entropy-frame) * -18px), calc(var(--entropy-frame) * 10px), 0) scale(1.02);
+      mix-blend-mode: screen;
+    }
+
     .top-bar {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
+      gap: 8px;
     }
-    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand { display: flex; align-items: center; gap: 8px; }
     .brand-mark {
-      width: 40px; height: 40px; border-radius: 12px; object-fit: cover;
+      width: 26px; height: 26px; border-radius: 8px; object-fit: cover;
       border: 1px solid rgba(255,255,255,0.12);
       box-shadow: 0 8px 24px rgba(0,0,0,0.4);
     }
     .brand h1 {
       font-family: Georgia, "Times New Roman", serif;
-      font-size: clamp(1.4rem, 3vw, 2.2rem);
+      font-size: clamp(0.92rem, 1.2vw, 1.2rem);
       font-weight: 700;
       color: rgba(235, 245, 255, 0.94);
       text-shadow: 0 6px 24px rgba(0,0,0,0.45);
       line-height: 1.1;
     }
     .brand p {
-      font-size: 0.82rem;
+      font-size: 0.58rem;
       color: rgba(180, 210, 240, 0.62);
       margin-top: 2px;
     }
     .nav-links {
-      display: flex; gap: 8px; pointer-events: auto; flex-wrap: wrap; justify-content: flex-end;
+      display: flex; gap: 5px; pointer-events: auto; flex-wrap: wrap; justify-content: flex-end;
     }
     .nav-links a {
       color: rgba(220, 240, 255, 0.82);
       text-decoration: none;
-      font-size: 0.82rem;
+      font-size: 0.62rem;
       font-weight: 700;
-      padding: 7px 14px;
+      padding: 5px 9px;
       border-radius: 999px;
       border: 1px solid rgba(255,255,255,0.1);
       background: rgba(6, 12, 24, 0.5);
-      backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
       transition: border-color 0.2s, background 0.2s;
     }
     .nav-links a:hover { border-color: rgba(108, 232, 255, 0.4); background: rgba(108, 232, 255, 0.08); }
@@ -95,47 +205,435 @@
 
     .bottom-bar {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
       align-items: flex-end;
-      gap: 20px;
+      flex-wrap: wrap;
+      gap: 8px;
     }
     .hint {
       color: rgba(180, 210, 240, 0.52);
-      font-size: 0.78rem;
+      font-size: 0.54rem;
       font-weight: 600;
       letter-spacing: 0.06em;
       text-transform: uppercase;
       animation: hintPulse 3s ease-in-out infinite;
+      display: none;
     }
     @keyframes hintPulse {
       0%, 100% { opacity: 0.52; }
       50% { opacity: 0.82; }
     }
     .hud {
-      display: flex;
-      gap: 16px;
-      padding: 9px 20px;
-      border-radius: 999px;
-      background: rgba(6, 12, 24, 0.62);
-      border: 1px solid rgba(108, 232, 255, 0.12);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      color: rgba(200, 220, 240, 0.82);
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      width: min(100%, 300px);
+      padding: 7px;
+      border-radius: 16px;
+      background: linear-gradient(145deg, rgba(7, 14, 28, 0.84), rgba(10, 18, 34, 0.62));
+      border: 1px solid rgba(108, 232, 255, 0.16);
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.22), inset 0 0 20px rgba(96, 214, 255, 0.05);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+      color: rgba(200, 220, 240, 0.9);
     }
-    .hud .tag { color: rgba(108, 232, 255, 0.88); }
+    .hud-item {
+      min-width: 0;
+      display: grid;
+      gap: 2px;
+      padding: 5px 6px;
+      border-radius: 10px;
+      background: rgba(5, 11, 20, 0.56);
+      border: 1px solid rgba(108, 232, 255, 0.08);
+    }
+    .hud-item .tag {
+      color: rgba(108, 232, 255, 0.82);
+      font-size: 0.48rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .hud-value {
+      color: rgba(240, 247, 255, 0.96);
+      font-size: 0.7rem;
+      font-weight: 700;
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .middle-band {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      min-height: 0;
+      padding: 4px 0;
+    }
+    .reflection-panel {
+      max-width: min(240px, 36vw);
+      display: grid;
+      gap: 4px;
+      padding: 7px 8px 8px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(7, 14, 28, 0.78), rgba(10, 18, 30, 0.58));
+      border: 1px solid rgba(127, 240, 197, 0.14);
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.24);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+    }
+    .reflection-kicker {
+      font-size: 0.48rem;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(127, 240, 197, 0.82);
+    }
+    .reflection-text {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(0.62rem, 0.22vw + 0.58rem, 0.76rem);
+      line-height: 1.18;
+      color: rgba(238, 246, 255, 0.96);
+      overflow-wrap: break-word;
+    }
+    .reflection-evidence {
+      font-size: 0.5rem;
+      line-height: 1.16;
+      color: rgba(188, 212, 232, 0.62);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 6px;
+      flex-wrap: nowrap;
+      justify-content: flex-end;
+      flex: 0 1 360px;
+      width: min(360px, 34vw);
+      margin-left: auto;
+      pointer-events: auto;
+    }
+    .texture-switcher {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px;
+      border-radius: 999px;
+      background: rgba(6, 12, 24, 0.72);
+      border: 1px solid rgba(108, 232, 255, 0.14);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      width: 100%;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .texture-switcher::-webkit-scrollbar {
+      display: none;
+    }
+    .texture-label {
+      flex: 0 0 auto;
+      padding: 0 6px 0 4px;
+      font-size: 0.48rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(180, 210, 240, 0.58);
+    }
+    .texture-option {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 4px 7px;
+      background: transparent;
+      color: rgba(214, 232, 246, 0.7);
+      font: inherit;
+      font-size: 0.58rem;
+      font-weight: 700;
+      cursor: pointer;
+      flex: 0 0 auto;
+      transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .texture-option:hover {
+      color: rgba(236, 246, 255, 0.94);
+      background: rgba(108, 232, 255, 0.08);
+    }
+    .texture-option.active {
+      color: rgba(4, 14, 22, 0.92);
+      background: linear-gradient(135deg, rgba(164, 239, 255, 0.96), rgba(127, 240, 197, 0.9));
+      box-shadow: 0 12px 28px rgba(60, 190, 220, 0.22);
+    }
+    .texture-option:focus-visible {
+      outline: 2px solid rgba(164, 239, 255, 0.88);
+      outline-offset: 2px;
+    }
+    .control-stack {
+      display: inline-flex;
+      align-items: stretch;
+      gap: 6px;
+      flex-wrap: wrap;
+      pointer-events: auto;
+    }
+    .slider-card {
+      min-width: 145px;
+      display: grid;
+      gap: 4px;
+      padding: 6px 7px 7px;
+      border-radius: 14px;
+      background: rgba(6, 12, 24, 0.72);
+      border: 1px solid rgba(108, 232, 255, 0.14);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+    }
+    .slider-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .slider-title {
+      font-size: 0.5rem;
+      font-weight: 800;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+      color: rgba(218, 235, 248, 0.92);
+    }
+    .slider-value {
+      font-size: 0.58rem;
+      font-weight: 700;
+      color: rgba(127, 240, 197, 0.88);
+    }
+    .slider-hint {
+      font-size: 0.5rem;
+      line-height: 1.2;
+      color: rgba(180, 210, 240, 0.58);
+    }
+    .slider-card input[type="range"] {
+      width: 100%;
+      accent-color: rgba(127, 240, 197, 0.95);
+      cursor: pointer;
+    }
+    .slider-card.disabled {
+      opacity: 0.45;
+    }
+    .slider-card.disabled input[type="range"] {
+      cursor: not-allowed;
+    }
+    .tracker-card {
+      min-width: 176px;
+      display: grid;
+      gap: 8px;
+      padding: 7px 8px 8px;
+      border-radius: 14px;
+      background: rgba(6, 12, 24, 0.78);
+      border: 1px solid rgba(127, 240, 197, 0.16);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      pointer-events: auto;
+    }
+    .tracker-actions {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .tracker-button {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 4px 7px;
+      background: rgba(108, 232, 255, 0.1);
+      color: rgba(230, 244, 255, 0.92);
+      font: inherit;
+      font-size: 0.56rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+    .tracker-button:hover {
+      background: rgba(108, 232, 255, 0.2);
+    }
+    .tracker-button[disabled] {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .tracker-button.primary {
+      background: linear-gradient(135deg, rgba(127, 240, 197, 0.92), rgba(108, 232, 255, 0.88));
+      color: rgba(3, 18, 18, 0.95);
+    }
+    .tracker-meta {
+      display: grid;
+      gap: 3px;
+      font-size: 0.52rem;
+      color: rgba(186, 214, 234, 0.72);
+    }
+    .tracker-strong {
+      color: rgba(237, 248, 255, 0.95);
+      font-weight: 700;
+    }
+    .launcher-card {
+      min-width: 176px;
+      display: grid;
+      gap: 8px;
+      padding: 7px 8px 8px;
+      border-radius: 14px;
+      background: rgba(10, 16, 28, 0.8);
+      border: 1px solid rgba(255, 198, 114, 0.16);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      pointer-events: auto;
+    }
+    .launcher-status {
+      font-size: 0.52rem;
+      line-height: 1.2;
+      color: rgba(214, 230, 244, 0.76);
+    }
+    .entropy-sensor {
+      min-width: 176px;
+      display: grid;
+      gap: 8px;
+      padding: 7px 8px 8px;
+      border-radius: 14px;
+      background: linear-gradient(145deg, rgba(10, 18, 32, 0.84), rgba(8, 14, 24, 0.64));
+      border: 1px solid rgba(102, 228, 255, 0.18);
+      box-shadow: 0 12px 34px rgba(0, 0, 0, 0.22), inset 0 0 22px rgba(98, 190, 255, 0.06);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+      pointer-events: auto;
+    }
+    .entropy-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 5px;
+    }
+    .entropy-cell {
+      padding: 5px 5px 4px;
+      border-radius: 10px;
+      background: rgba(5, 12, 22, 0.64);
+      border: 1px solid rgba(103, 205, 255, 0.08);
+    }
+    .entropy-cell strong {
+      display: block;
+      margin-top: 3px;
+      color: rgba(236, 246, 255, 0.96);
+      font-size: 0.66rem;
+      letter-spacing: 0.04em;
+    }
+    .entropy-meta {
+      font-size: 0.44rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(138, 228, 255, 0.62);
+    }
+
+    @media (max-width: 980px) {
+      .bottom-bar {
+        align-items: stretch;
+      }
+      .controls {
+        justify-content: flex-start;
+      }
+      .hud {
+        width: 100%;
+        max-width: 100%;
+      }
+    }
 
     @media (max-width: 600px) {
+      .overlay {
+        padding: 12px;
+      }
+      .top-bar {
+        gap: 12px;
+        flex-direction: column;
+      }
+      .brand {
+        align-items: flex-start;
+      }
+      .middle-band {
+        padding: 10px 0 0;
+      }
+      .reflection-panel {
+        max-width: 100%;
+        padding: 10px 12px 12px;
+      }
+      .bottom-bar {
+        align-items: stretch;
+        flex-direction: column;
+      }
       .nav-links { gap: 6px; }
       .nav-links a { font-size: 0.75rem; padding: 6px 10px; }
-      .hud { gap: 10px; padding: 7px 14px; font-size: 11px; }
+      .controls {
+        width: 100%;
+        align-items: stretch;
+        justify-content: stretch;
+      }
+      .texture-switcher {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+      }
+      .control-stack {
+        width: 100%;
+      }
+      .slider-card {
+        width: 100%;
+        min-width: 0;
+      }
+      .entropy-sensor {
+        width: 100%;
+        min-width: 0;
+      }
+      .entropy-grid {
+        grid-template-columns: 1fr;
+      }
+      .texture-option {
+        flex: 1 1 180px;
+        text-align: center;
+      }
+      .hud {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        padding: 10px;
+      }
+      .hud-item {
+        padding: 9px 10px;
+      }
+      .hud-item:last-child {
+        grid-column: 1 / -1;
+      }
+      .hud-value {
+        font-size: 0.95rem;
+      }
     }
   </style>
 </head>
 <body>
   <canvas id="c"></canvas>
+  <svg class="neural-overlay" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+    <path class="neural-path" d="M0,22 C10,18 18,32 27,29 S44,11 52,15 67,37 76,34 90,20 100,26" />
+    <path class="neural-path alt" d="M0,74 C12,68 20,84 32,79 S48,56 59,61 72,88 84,81 93,68 100,73" />
+    <path class="neural-path" d="M12,0 C18,12 21,19 33,21 S56,18 62,29 58,49 70,55 88,54 100,58" />
+    <path class="neural-path alt" d="M6,100 C18,82 27,77 35,68 S54,50 65,46 82,42 94,26 99,8 100,0" />
+    <path class="neural-path" d="M0,48 C13,50 22,42 34,46 S50,63 62,59 83,39 100,44" />
+    <circle class="neural-node" cx="27" cy="29" r="1.3" />
+    <circle class="neural-node" cx="52" cy="15" r="1.1" />
+    <circle class="neural-node" cx="76" cy="34" r="1.5" />
+    <circle class="neural-node" cx="32" cy="79" r="1.3" />
+    <circle class="neural-node" cx="65" cy="46" r="1.2" />
+    <circle class="neural-node" cx="84" cy="81" r="1.4" />
+  </svg>
+  <div class="corner-light corner-tl" aria-hidden="true"></div>
+  <div class="corner-light corner-tr" aria-hidden="true"></div>
+  <div class="corner-light corner-bl" aria-hidden="true"></div>
+  <div class="corner-light corner-br" aria-hidden="true"></div>
+  <div class="entropy-frame" aria-hidden="true"></div>
+  <div class="mode-transition-flash" id="modeFlash" aria-hidden="true"></div>
+  <div class="assembots-label" id="assembotsLabel">Assembots • Nebula</div>
 
   <div class="overlay" id="overlay">
     <div class="top-bar">
@@ -153,12 +651,123 @@
         <a href="Projects/docs/index.html">Docs</a>
       </nav>
     </div>
+    <div class="middle-band">
+      <section class="reflection-panel" aria-live="polite" aria-label="AGI reflection">
+        <span class="reflection-kicker">Unsupervised Reflection</span>
+        <div class="reflection-text" id="reflectionText">I am listening for the pattern behind the touch.</div>
+        <div class="reflection-evidence" id="reflectionEvidence">No strong interaction signature yet.</div>
+      </section>
+    </div>
     <div class="bottom-bar">
       <div class="hint">Touch it gently to raise entropy</div>
-      <div class="hud">
-        <span class="tag">PULSE</span><span id="hudPulse">0.00</span>
-        <span class="tag">BREATH</span><span id="hudBreath">0.00</span>
-        <span class="tag">ENTROPY</span><span id="hudEntropy">0.00</span>
+      <div class="controls">
+        <div class="texture-switcher" role="group" aria-label="Ball texture">
+          <span class="texture-label">Texture</span>
+          <button type="button" class="texture-option" data-texture="human-head">Human Head</button>
+          <button type="button" class="texture-option" data-texture="super-classic">Super Classic</button>
+          <button type="button" class="texture-option active" data-texture="classic">Classic</button>
+          <button type="button" class="texture-option" data-texture="notwoolbutlikenoiseinsulatorone">NotWoolButLikeNoiseInsulatorOne</button>
+          <button type="button" class="texture-option" data-texture="metallic">Metallic</button>
+          <button type="button" class="texture-option" data-texture="custom">Custom</button>
+        </div>
+        <div class="control-stack" aria-label="Advanced AGI layers">
+          <label class="slider-card" id="customCard">
+            <span class="slider-head">
+              <span class="slider-title">Custom</span>
+              <span class="slider-value" id="customBlendValue">50%</span>
+            </span>
+            <input id="customBlend" type="range" min="0" max="100" step="1" value="50" aria-label="Custom texture blend" />
+            <span class="slider-hint">Blend from cozy fabric intelligence to rigid metal resolve.</span>
+          </label>
+          <label class="slider-card" id="unsupervisedCard">
+            <span class="slider-head">
+              <span class="slider-title">Unsupervised Layer</span>
+              <span class="slider-value" id="unsupervisedLayerValue">40%</span>
+            </span>
+            <input id="unsupervisedLayer" type="range" min="0" max="100" step="1" value="40" aria-label="Unsupervised layer intensity" />
+            <span class="slider-hint">A second AGI reading of the sphere rendered as an unsupervised halo.</span>
+          </label>
+          <section class="tracker-card" aria-label="Touch tracker">
+            <div class="slider-head">
+              <span class="slider-title">Touch Tracker</span>
+              <span class="slider-value" id="trackerState">Idle</span>
+            </div>
+            <div class="tracker-actions">
+              <button type="button" class="tracker-button primary" id="trackerStart">Start Trace</button>
+              <button type="button" class="tracker-button" id="trackerStop" disabled>Stop</button>
+              <button type="button" class="tracker-button" id="trackerSave" disabled>Save To Desktop</button>
+            </div>
+            <div class="tracker-meta">
+              <span><span class="tracker-strong" id="trackerEvents">0</span> touch events captured</span>
+              <span id="trackerFileHint">Choose Desktop in the save dialog to store the session trace there.</span>
+            </div>
+          </section>
+          <section class="launcher-card" aria-label="Next iteration launcher">
+            <div class="slider-head">
+              <span class="slider-title">Next Iteration</span>
+              <span class="slider-value">Alt+Shift+N</span>
+            </div>
+            <div class="tracker-actions">
+              <button type="button" class="tracker-button primary" id="launcherCopyPrompt">Copy Launch Prompt</button>
+            </div>
+            <div class="launcher-status" id="launcherStatus">Copies a ready-to-paste prompt for the next Copilot iteration from inside this browser view.</div>
+          </section>
+          <section class="entropy-sensor" aria-live="polite" aria-label="Entropy sensor">
+            <div class="slider-head">
+              <span class="slider-title">Entropy Sensor</span>
+              <span class="slider-value" id="entropySensorValue">0.00</span>
+            </div>
+            <div class="entropy-grid">
+              <div class="entropy-cell">
+                <span class="entropy-meta">Raw</span>
+                <strong id="entropySensorRaw">1</strong>
+              </div>
+              <div class="entropy-cell">
+                <span class="entropy-meta">Curve</span>
+                <strong id="entropySensorCurve">ln(x)</strong>
+              </div>
+              <div class="entropy-cell">
+                <span class="entropy-meta">Quality</span>
+                <strong id="entropySensorQuality">Listening</strong>
+              </div>
+            </div>
+            <span class="slider-hint">Entropy adds +1 each second, rises faster on direct impacts, and good touches are clicks near the sphere but outside it.</span>
+          </section>
+        </div>
+        <div class="hud" aria-label="AGI live metrics">
+          <div class="hud-item">
+            <span class="tag">Pulse</span>
+            <span class="hud-value" id="hudPulse">0.00</span>
+          </div>
+          <div class="hud-item">
+            <span class="tag">Breath</span>
+            <span class="hud-value" id="hudBreath">0.00</span>
+          </div>
+          <div class="hud-item">
+            <span class="tag">Entropy</span>
+            <span class="hud-value" id="hudEntropy">0.00</span>
+          </div>
+          <div class="hud-item">
+            <span class="tag">State</span>
+            <span class="hud-value" id="hudState">Attentive</span>
+          </div>
+          <div class="hud-item">
+            <span class="tag">Style</span>
+            <span class="hud-value" id="hudStyle">Learning</span>
+          </div>
+          <div class="hud-item">
+            <span class="tag">Pad</span>
+            <span class="hud-value" id="hudPad">Scanning</span>
+          </div>
+          <div class="hud-item">
+            <span class="tag">Happiness</span>
+            <span class="hud-value" id="hudHappiness">50%</span>
+          </div>
+          <div class="hud-item">
+            <span class="tag">Heart Rate</span>
+            <span class="hud-value" id="hudHeartRate">72 bpm</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -174,10 +783,47 @@ const overlayEl = document.getElementById('overlay');
 const hudPulse = document.getElementById('hudPulse');
 const hudBreath = document.getElementById('hudBreath');
 const hudEntropy = document.getElementById('hudEntropy');
+const hudState = document.getElementById('hudState');
+const hudStyle = document.getElementById('hudStyle');
+const hudPad = document.getElementById('hudPad');
+const hudHappiness = document.getElementById('hudHappiness');
+const hudHeartRate = document.getElementById('hudHeartRate');
+const modeFlash = document.getElementById('modeFlash');
+const assembotsLabel = document.getElementById('assembotsLabel');
+const modeTransition = { active: false, progress: 0, from: null, to: null, duration: 0.8 };
+const textureButtons = Array.from(document.querySelectorAll('[data-texture]'));
+const customBlendSlider = document.getElementById('customBlend');
+const customBlendValue = document.getElementById('customBlendValue');
+const unsupervisedLayerSlider = document.getElementById('unsupervisedLayer');
+const unsupervisedLayerValue = document.getElementById('unsupervisedLayerValue');
+const customCard = document.getElementById('customCard');
+const unsupervisedCard = document.getElementById('unsupervisedCard');
+const trackerStateEl = document.getElementById('trackerState');
+const trackerEventsEl = document.getElementById('trackerEvents');
+const trackerFileHintEl = document.getElementById('trackerFileHint');
+const trackerStartButton = document.getElementById('trackerStart');
+const trackerStopButton = document.getElementById('trackerStop');
+const trackerSaveButton = document.getElementById('trackerSave');
+const launcherCopyPromptButton = document.getElementById('launcherCopyPrompt');
+const launcherStatusEl = document.getElementById('launcherStatus');
+const reflectionText = document.getElementById('reflectionText');
+const reflectionEvidence = document.getElementById('reflectionEvidence');
+const entropySensorValue = document.getElementById('entropySensorValue');
+const entropySensorRaw = document.getElementById('entropySensorRaw');
+const entropySensorCurve = document.getElementById('entropySensorCurve');
+const entropySensorQuality = document.getElementById('entropySensorQuality');
+
+const TEXTURE_CLASSIC = 'classic';
+const TEXTURE_HUMAN_HEAD = 'human-head';
+const TEXTURE_SUPER_CLASSIC = 'super-classic';
+const TEXTURE_INSULATOR = 'notwoolbutlikenoiseinsulatorone';
+const TEXTURE_METALLIC = 'metallic';
+const TEXTURE_CUSTOM = 'custom';
+const VALID_TEXTURES = new Set([TEXTURE_CLASSIC, TEXTURE_HUMAN_HEAD, TEXTURE_SUPER_CLASSIC, TEXTURE_INSULATOR, TEXTURE_METALLIC, TEXTURE_CUSTOM]);
 
 // ─── Renderer ───
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio * 2, 4));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.15;
@@ -186,6 +832,39 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 // ─── Scene ───
 const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(0x020610, 0.06);
+
+function clamp01(value) {
+  return Math.min(1, Math.max(0, value));
+}
+
+function lerp(start, end, amount) {
+  return start + (end - start) * amount;
+}
+
+function damp(current, target, factor) {
+  return current + (target - current) * factor;
+}
+
+function nowIso() {
+  return new Date().toISOString();
+}
+
+async function copyTextToClipboard(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.setAttribute('readonly', '');
+  textarea.style.position = 'absolute';
+  textarea.style.left = '-9999px';
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand('copy');
+  document.body.removeChild(textarea);
+}
 
 const skyGeo = new THREE.SphereGeometry(50, 32, 32);
 const skyMat = new THREE.ShaderMaterial({
@@ -220,8 +899,10 @@ camera.position.set(0, 0.3, 4.2);
 camera.lookAt(0, 0, 0);
 
 // ─── AGI Entity ───
-const geo = new THREE.IcosahedronGeometry(1, 6);
+const geo = new THREE.SphereGeometry(1, 80, 64);
 const basePositions = new Float32Array(geo.attributes.position.array);
+const pointerNdc = new THREE.Vector2();
+const raycaster = new THREE.Raycaster();
 
 const mat = new THREE.MeshPhysicalMaterial({
   color: new THREE.Color(0.18, 0.72, 1.0),
@@ -240,8 +921,792 @@ const mat = new THREE.MeshPhysicalMaterial({
   sheenRoughness: 0.3,
 });
 
+function makeRepeatTexture(canvasTexture, repeat) {
+  canvasTexture.wrapS = THREE.RepeatWrapping;
+  canvasTexture.wrapT = THREE.RepeatWrapping;
+  canvasTexture.repeat.set(repeat, repeat);
+  canvasTexture.anisotropy = Math.min(renderer.capabilities.getMaxAnisotropy(), 4);
+  return canvasTexture;
+}
+
+function createNoiseInsulatorTextures() {
+  const size = 128;
+  const colorCanvas = document.createElement('canvas');
+  colorCanvas.width = size;
+  colorCanvas.height = size;
+  const colorCtx = colorCanvas.getContext('2d');
+
+  const baseGradient = colorCtx.createLinearGradient(0, 0, size, size);
+  baseGradient.addColorStop(0, '#7fb7c7');
+  baseGradient.addColorStop(0.48, '#6a93a6');
+  baseGradient.addColorStop(1, '#445d70');
+  colorCtx.fillStyle = baseGradient;
+  colorCtx.fillRect(0, 0, size, size);
+
+  for (let i = 0; i < 220; i++) {
+    const x = Math.random() * size;
+    const y = Math.random() * size;
+    const radius = 4 + Math.random() * 10;
+    const gradient = colorCtx.createRadialGradient(x, y, radius * 0.2, x, y, radius);
+    const alpha = 0.045 + Math.random() * 0.08;
+    gradient.addColorStop(0, `rgba(214, 239, 247, ${alpha})`);
+    gradient.addColorStop(0.6, `rgba(132, 183, 201, ${alpha * 0.82})`);
+    gradient.addColorStop(1, 'rgba(57, 80, 96, 0)');
+    colorCtx.fillStyle = gradient;
+    colorCtx.beginPath();
+    colorCtx.ellipse(x, y, radius * (0.6 + Math.random() * 0.6), radius * (0.38 + Math.random() * 0.28), Math.random() * Math.PI, 0, Math.PI * 2);
+    colorCtx.fill();
+  }
+
+  colorCtx.strokeStyle = 'rgba(220, 244, 255, 0.075)';
+  colorCtx.lineWidth = 1;
+  for (let i = 0; i < 56; i++) {
+    const x = Math.random() * size;
+    const y = Math.random() * size;
+    const len = 8 + Math.random() * 14;
+    const angle = Math.random() * Math.PI;
+    colorCtx.beginPath();
+    colorCtx.moveTo(x, y);
+    colorCtx.lineTo(x + Math.cos(angle) * len, y + Math.sin(angle) * len);
+    colorCtx.stroke();
+  }
+
+  const vignette = colorCtx.createRadialGradient(size * 0.5, size * 0.5, size * 0.18, size * 0.5, size * 0.5, size * 0.72);
+  vignette.addColorStop(0, 'rgba(255, 255, 255, 0.03)');
+  vignette.addColorStop(1, 'rgba(4, 10, 16, 0.22)');
+  colorCtx.fillStyle = vignette;
+  colorCtx.fillRect(0, 0, size, size);
+
+  const bumpCanvas = document.createElement('canvas');
+  bumpCanvas.width = size;
+  bumpCanvas.height = size;
+  const bumpCtx = bumpCanvas.getContext('2d');
+  bumpCtx.fillStyle = 'rgb(118, 118, 118)';
+  bumpCtx.fillRect(0, 0, size, size);
+
+  for (let i = 0; i < 260; i++) {
+    const x = Math.random() * size;
+    const y = Math.random() * size;
+    const radius = 3 + Math.random() * 9;
+    const shade = 118 + Math.round((Math.random() - 0.5) * 82);
+    const gradient = bumpCtx.createRadialGradient(x, y, radius * 0.15, x, y, radius);
+    gradient.addColorStop(0, `rgba(${shade}, ${shade}, ${shade}, 0.95)`);
+    gradient.addColorStop(1, 'rgba(118, 118, 118, 0)');
+    bumpCtx.fillStyle = gradient;
+    bumpCtx.beginPath();
+    bumpCtx.ellipse(x, y, radius * (0.7 + Math.random() * 0.5), radius * (0.38 + Math.random() * 0.32), Math.random() * Math.PI, 0, Math.PI * 2);
+    bumpCtx.fill();
+  }
+
+  const map = makeRepeatTexture(new THREE.CanvasTexture(colorCanvas), 3);
+  map.colorSpace = THREE.SRGBColorSpace;
+  const bumpMap = makeRepeatTexture(new THREE.CanvasTexture(bumpCanvas), 4);
+  return { map, bumpMap };
+}
+
+const noiseInsulatorTextures = createNoiseInsulatorTextures();
+
 const entity = new THREE.Mesh(geo, mat);
 scene.add(entity);
+
+function buildOrthonormalBasis(nx, ny, nz) {
+  const reference = Math.abs(ny) > 0.78 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0);
+  const normal = new THREE.Vector3(nx, ny, nz);
+  const tangent = new THREE.Vector3().crossVectors(reference, normal).normalize();
+  const bitangent = new THREE.Vector3().crossVectors(normal, tangent).normalize();
+  return { tangent, bitangent };
+}
+
+function createInsulatorFiberShell() {
+  const fiberCount = 24000;
+  const fuzzCount = 52000;
+  const linePositions = new Float32Array(fiberCount * 2 * 3);
+  const tipPositions = new Float32Array(fiberCount * 3);
+  const fuzzPositions = new Float32Array(fuzzCount * 3);
+  const roots = new Float32Array(fiberCount * 3);
+  const normals = new Float32Array(fiberCount * 3);
+  const tangents = new Float32Array(fiberCount * 3);
+  const bitangents = new Float32Array(fiberCount * 3);
+  const lengths = new Float32Array(fiberCount);
+  const phases = new Float32Array(fiberCount);
+  const spreads = new Float32Array(fiberCount);
+
+  for (let i = 0; i < fiberCount; i++) {
+    const u = Math.random();
+    const v = Math.random();
+    const theta = Math.PI * 2 * u;
+    const phi = Math.acos(2 * v - 1);
+    const nx = Math.sin(phi) * Math.cos(theta);
+    const ny = Math.sin(phi) * Math.sin(theta);
+    const nz = Math.cos(phi);
+    const { tangent, bitangent } = buildOrthonormalBasis(nx, ny, nz);
+    const rootRadius = 1.004 + Math.random() * 0.028;
+
+    roots[i * 3] = nx * rootRadius;
+    roots[i * 3 + 1] = ny * rootRadius;
+    roots[i * 3 + 2] = nz * rootRadius;
+
+    normals[i * 3] = nx;
+    normals[i * 3 + 1] = ny;
+    normals[i * 3 + 2] = nz;
+
+    tangents[i * 3] = tangent.x;
+    tangents[i * 3 + 1] = tangent.y;
+    tangents[i * 3 + 2] = tangent.z;
+
+    bitangents[i * 3] = bitangent.x;
+    bitangents[i * 3 + 1] = bitangent.y;
+    bitangents[i * 3 + 2] = bitangent.z;
+
+    lengths[i] = 0.045 + Math.random() * 0.075;
+    phases[i] = Math.random() * Math.PI * 2;
+    spreads[i] = 0.65 + Math.random() * 0.9;
+  }
+
+  for (let i = 0; i < fuzzCount; i++) {
+    const u = Math.random();
+    const v = Math.random();
+    const theta = Math.PI * 2 * u;
+    const phi = Math.acos(2 * v - 1);
+    const nx = Math.sin(phi) * Math.cos(theta);
+    const ny = Math.sin(phi) * Math.sin(theta);
+    const nz = Math.cos(phi);
+    const { tangent, bitangent } = buildOrthonormalBasis(nx, ny, nz);
+    const shellRadius = 1.018 + Math.random() * 0.14;
+    const tangentDrift = (Math.random() - 0.5) * 0.036;
+    const bitangentDrift = (Math.random() - 0.5) * 0.036;
+    const index = i * 3;
+
+    fuzzPositions[index] = nx * shellRadius + tangent.x * tangentDrift + bitangent.x * bitangentDrift;
+    fuzzPositions[index + 1] = ny * shellRadius + tangent.y * tangentDrift + bitangent.y * bitangentDrift;
+    fuzzPositions[index + 2] = nz * shellRadius + tangent.z * tangentDrift + bitangent.z * bitangentDrift;
+  }
+
+  const lineGeometry = new THREE.BufferGeometry();
+  lineGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
+  const tipGeometry = new THREE.BufferGeometry();
+  tipGeometry.setAttribute('position', new THREE.BufferAttribute(tipPositions, 3));
+  const fuzzGeometry = new THREE.BufferGeometry();
+  fuzzGeometry.setAttribute('position', new THREE.BufferAttribute(fuzzPositions, 3));
+
+  const lineMaterial = new THREE.LineBasicMaterial({
+    color: 0xd6edf4,
+    transparent: true,
+    opacity: 0.34,
+    depthWrite: false,
+  });
+
+  const tipMaterial = new THREE.PointsMaterial({
+    color: 0xe7f8ff,
+    size: 0.012,
+    transparent: true,
+    opacity: 0.24,
+    depthWrite: false,
+    blending: THREE.NormalBlending,
+  });
+
+  const fuzzMaterial = new THREE.PointsMaterial({
+    color: 0xe8f8ff,
+    size: 0.008,
+    transparent: true,
+    opacity: 0.1,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+
+  const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
+  const tips = new THREE.Points(tipGeometry, tipMaterial);
+  const fuzz = new THREE.Points(fuzzGeometry, fuzzMaterial);
+  const group = new THREE.Group();
+  group.visible = false;
+  group.add(lines);
+  group.add(tips);
+  group.add(fuzz);
+
+  return {
+    group,
+    lineGeometry,
+    tipGeometry,
+    fuzzGeometry,
+    lineMaterial,
+    tipMaterial,
+    fuzzMaterial,
+    fuzz,
+    roots,
+    normals,
+    tangents,
+    bitangents,
+    lengths,
+    phases,
+    spreads,
+    fiberCount,
+    fuzzCount,
+  };
+}
+
+const fiberShell = createInsulatorFiberShell();
+entity.add(fiberShell.group);
+
+function createUnsupervisedLayer() {
+  const pointCount = 1800;
+  const positions = new Float32Array(pointCount * 3);
+  const normals = new Float32Array(pointCount * 3);
+  const tangents = new Float32Array(pointCount * 3);
+  const bitangents = new Float32Array(pointCount * 3);
+  const radii = new Float32Array(pointCount);
+  const phases = new Float32Array(pointCount);
+  const energies = new Float32Array(pointCount);
+
+  for (let i = 0; i < pointCount; i++) {
+    const u = Math.random();
+    const v = Math.random();
+    const theta = Math.PI * 2 * u;
+    const phi = Math.acos(2 * v - 1);
+    const nx = Math.sin(phi) * Math.cos(theta);
+    const ny = Math.sin(phi) * Math.sin(theta);
+    const nz = Math.cos(phi);
+    const { tangent, bitangent } = buildOrthonormalBasis(nx, ny, nz);
+
+    normals[i * 3] = nx;
+    normals[i * 3 + 1] = ny;
+    normals[i * 3 + 2] = nz;
+    tangents[i * 3] = tangent.x;
+    tangents[i * 3 + 1] = tangent.y;
+    tangents[i * 3 + 2] = tangent.z;
+    bitangents[i * 3] = bitangent.x;
+    bitangents[i * 3 + 1] = bitangent.y;
+    bitangents[i * 3 + 2] = bitangent.z;
+
+    radii[i] = 1.12 + Math.random() * 0.5;
+    phases[i] = Math.random() * Math.PI * 2;
+    energies[i] = 0.4 + Math.random() * 1.3;
+  }
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  const material = new THREE.PointsMaterial({
+    color: 0x99d8ff,
+    size: 0.016,
+    transparent: true,
+    opacity: 0,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+  const points = new THREE.Points(geometry, material);
+  points.visible = false;
+
+  return { points, geometry, material, normals, tangents, bitangents, radii, phases, energies, pointCount };
+}
+
+const unsupervisedLayer = createUnsupervisedLayer();
+entity.add(unsupervisedLayer.points);
+
+function createGazeLayer() {
+  const group = new THREE.Group();
+  const createBrowGeometry = (flip = 1) => {
+    const shape = new THREE.Shape();
+    shape.moveTo(-0.19 * flip, -0.03);
+    shape.quadraticCurveTo(-0.1 * flip, 0.03, 0.02 * flip, 0.038);
+    shape.quadraticCurveTo(0.16 * flip, 0.026, 0.22 * flip, -0.004);
+    shape.quadraticCurveTo(0.12 * flip, -0.05, -0.02 * flip, -0.042);
+    shape.quadraticCurveTo(-0.13 * flip, -0.04, -0.19 * flip, -0.03);
+    return new THREE.ShapeGeometry(shape, 28);
+  };
+
+  const shadow = new THREE.Mesh(
+    new THREE.CircleGeometry(0.31, 48),
+    new THREE.MeshBasicMaterial({
+      color: 0x04070d,
+      transparent: true,
+      opacity: 0.2,
+      depthWrite: false,
+    }),
+  );
+  shadow.position.z = -0.005;
+  shadow.scale.set(1.18, 1.06, 1);
+
+  const cornea = new THREE.Mesh(
+    new THREE.CircleGeometry(0.26, 48),
+    new THREE.MeshBasicMaterial({
+      color: 0xc8f6ff,
+      transparent: true,
+      opacity: 0.16,
+      depthWrite: false,
+    }),
+  );
+  cornea.position.z = 0.004;
+
+  const irisGlow = new THREE.Mesh(
+    new THREE.RingGeometry(0.13, 0.255, 48),
+    new THREE.MeshBasicMaterial({
+      color: 0x84dfff,
+      transparent: true,
+      opacity: 0.32,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      side: THREE.DoubleSide,
+    }),
+  );
+  irisGlow.position.z = 0.008;
+
+  const iris = new THREE.Mesh(
+    new THREE.CircleGeometry(0.165, 40),
+    new THREE.MeshBasicMaterial({
+      color: 0x77d7ff,
+      transparent: true,
+      opacity: 0.82,
+      depthWrite: false,
+    }),
+  );
+  iris.position.z = 0.012;
+
+  const pupil = new THREE.Mesh(
+    new THREE.CircleGeometry(0.074, 32),
+    new THREE.MeshBasicMaterial({
+      color: 0x03070f,
+      transparent: true,
+      opacity: 0.96,
+      depthWrite: false,
+    }),
+  );
+  pupil.position.z = 0.018;
+
+  const highlight = new THREE.Mesh(
+    new THREE.CircleGeometry(0.028, 20),
+    new THREE.MeshBasicMaterial({
+      color: 0xf5fdff,
+      transparent: true,
+      opacity: 0.9,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    }),
+  );
+  highlight.position.set(-0.048, 0.062, 0.024);
+
+  const lowerHighlight = new THREE.Mesh(
+    new THREE.CircleGeometry(0.012, 16),
+    new THREE.MeshBasicMaterial({
+      color: 0xb6ecff,
+      transparent: true,
+      opacity: 0.42,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    }),
+  );
+  lowerHighlight.position.set(0.04, -0.038, 0.022);
+
+  // Curved 3D eyelids — spherical caps that wrap around the eyeball
+  function createLidGeometry(segments, rows, thetaStart, thetaLen) {
+    return new THREE.SphereGeometry(0.32, segments, rows, 0, Math.PI * 2, thetaStart, thetaLen);
+  }
+
+  const skinColor = new THREE.Color(0x1a2a3e);
+  const lidSkinMat = new THREE.MeshBasicMaterial({
+    color: skinColor, transparent: true, opacity: 0.96,
+    depthWrite: false, side: THREE.DoubleSide,
+  });
+
+  // Upper lid: top hemisphere cap
+  const upperLidGeo = createLidGeometry(36, 12, 0, Math.PI * 0.42);
+  const upperLid = new THREE.Mesh(upperLidGeo, lidSkinMat.clone());
+  upperLid.position.set(0, 0, 0.005);
+  upperLid.scale.set(1.04, 0.92, 0.72);
+  upperLid.rotation.x = -0.18; // slightly open by default
+
+  // Lower lid: smaller bottom cap
+  const lowerLidGeo = createLidGeometry(36, 8, Math.PI * 0.58, Math.PI * 0.34);
+  const lowerLid = new THREE.Mesh(lowerLidGeo, lidSkinMat.clone());
+  lowerLid.position.set(0, 0, 0.005);
+  lowerLid.scale.set(1.02, 0.82, 0.62);
+  lowerLid.rotation.x = 0.12;
+
+  // Lash line — thin dark strip at the lid edge
+  const lashShape = new THREE.Shape();
+  lashShape.moveTo(-0.3, 0);
+  lashShape.quadraticCurveTo(-0.15, 0.024, 0, 0.032);
+  lashShape.quadraticCurveTo(0.15, 0.024, 0.3, 0);
+  lashShape.quadraticCurveTo(0.15, -0.008, 0, -0.01);
+  lashShape.quadraticCurveTo(-0.15, -0.008, -0.3, 0);
+  const upperLash = new THREE.Mesh(
+    new THREE.ShapeGeometry(lashShape, 24),
+    new THREE.MeshBasicMaterial({ color: 0x020408, transparent: true, opacity: 0.82, depthWrite: false, side: THREE.DoubleSide }),
+  );
+  upperLash.position.set(0, 0.16, 0.032);
+  upperLash.scale.set(0.96, 0.8, 1);
+
+  // Lid crease — subtle fold line above the upper lid
+  const creaseShape = new THREE.Shape();
+  creaseShape.moveTo(-0.28, 0);
+  creaseShape.quadraticCurveTo(0, 0.016, 0.28, 0);
+  creaseShape.quadraticCurveTo(0, -0.004, -0.28, 0);
+  const lidCrease = new THREE.Mesh(
+    new THREE.ShapeGeometry(creaseShape, 20),
+    new THREE.MeshBasicMaterial({ color: 0x0a1520, transparent: true, opacity: 0.38, depthWrite: false, side: THREE.DoubleSide }),
+  );
+  lidCrease.position.set(0, 0.28, 0.026);
+
+  // Skin wrap — thin tinted ring around the whole eye socket
+  const skinWrap = new THREE.Mesh(
+    new THREE.RingGeometry(0.27, 0.38, 40),
+    new THREE.MeshBasicMaterial({ color: 0x142232, transparent: true, opacity: 0.34, depthWrite: false, side: THREE.DoubleSide }),
+  );
+  skinWrap.position.set(0, 0, 0.003);
+
+  const browMaterial = new THREE.MeshBasicMaterial({
+    color: 0x08131e,
+    transparent: true,
+    opacity: 0.9,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+  });
+
+  const leftBrow = new THREE.Mesh(createBrowGeometry(1), browMaterial.clone());
+  leftBrow.position.set(-0.12, 0.29, 0.028);
+  leftBrow.rotation.z = 0.14;
+
+  const rightBrow = new THREE.Mesh(createBrowGeometry(-1), browMaterial.clone());
+  rightBrow.position.set(0.12, 0.29, 0.028);
+  rightBrow.rotation.z = -0.14;
+
+  const meshes = [shadow, skinWrap, cornea, irisGlow, iris, pupil, highlight, lowerHighlight, lowerLid, upperLid, upperLash, lidCrease, leftBrow, rightBrow];
+  meshes.forEach((mesh, index) => {
+    mesh.renderOrder = 30 + index;
+    group.add(mesh);
+  });
+
+  return { group, shadow, skinWrap, cornea, irisGlow, iris, pupil, highlight, lowerHighlight, leftBrow, rightBrow, upperLid, lowerLid, upperLash, lidCrease };
+}
+
+const gazeLayer = createGazeLayer();
+entity.add(gazeLayer.group);
+
+function createHumanHeadFeatures() {
+  const group = new THREE.Group();
+  group.visible = false;
+
+  const skinMaterial = new THREE.MeshBasicMaterial({ color: 0xd2a486, transparent: true, opacity: 0.98, depthWrite: false });
+  const facePlate = new THREE.Mesh(
+    new THREE.CircleGeometry(0.66, 40),
+    new THREE.MeshBasicMaterial({ color: 0xe1bc9e, transparent: true, opacity: 0.32, depthWrite: false }),
+  );
+  facePlate.position.set(0, -0.04, 0.9);
+  facePlate.scale.set(1.08, 1.28, 1);
+
+  const leftSocket = new THREE.Mesh(
+    new THREE.CircleGeometry(0.16, 28),
+    new THREE.MeshBasicMaterial({ color: 0x5f4638, transparent: true, opacity: 0.16, depthWrite: false }),
+  );
+  leftSocket.position.set(-0.24, 0.12, 0.89);
+  leftSocket.scale.set(1.1, 0.82, 1);
+
+  const rightSocket = new THREE.Mesh(
+    new THREE.CircleGeometry(0.16, 28),
+    new THREE.MeshBasicMaterial({ color: 0x5f4638, transparent: true, opacity: 0.16, depthWrite: false }),
+  );
+  rightSocket.position.set(0.24, 0.12, 0.89);
+  rightSocket.scale.set(1.1, 0.82, 1);
+
+  const earGeometry = new THREE.SphereGeometry(0.12, 22, 18);
+  const leftEar = new THREE.Mesh(earGeometry, skinMaterial.clone());
+  leftEar.position.set(-0.9, 0.06, -0.02);
+  leftEar.scale.set(0.62, 0.92, 0.34);
+
+  const rightEar = new THREE.Mesh(earGeometry, skinMaterial.clone());
+  rightEar.position.set(0.9, 0.06, -0.02);
+  rightEar.scale.set(0.62, 0.92, 0.34);
+
+  const neck = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.22, 0.28, 0.58, 24),
+    new THREE.MeshBasicMaterial({ color: 0xc69678, transparent: true, opacity: 0.94, depthWrite: false }),
+  );
+  neck.position.set(0, -1.16, -0.02);
+
+  const hairCap = new THREE.Mesh(
+    new THREE.SphereGeometry(1.02, 40, 28, 0, Math.PI * 2, 0, Math.PI * 0.54),
+    new THREE.MeshBasicMaterial({ color: 0x1b1310, transparent: true, opacity: 0.96, depthWrite: false }),
+  );
+  hairCap.position.set(0, 0.22, -0.02);
+  hairCap.scale.set(0.96, 0.94, 0.92);
+
+  const leftEyeWhite = new THREE.Mesh(
+    new THREE.SphereGeometry(0.11, 24, 18),
+    new THREE.MeshBasicMaterial({ color: 0xf5fbff, transparent: true, opacity: 0.98, depthWrite: false }),
+  );
+  leftEyeWhite.position.set(-0.24, 0.1, 0.86);
+  leftEyeWhite.scale.set(1.18, 0.84, 0.66);
+
+  const rightEyeWhite = new THREE.Mesh(
+    new THREE.SphereGeometry(0.11, 24, 18),
+    new THREE.MeshBasicMaterial({ color: 0xf5fbff, transparent: true, opacity: 0.98, depthWrite: false }),
+  );
+  rightEyeWhite.position.set(0.24, 0.1, 0.86);
+  rightEyeWhite.scale.set(1.18, 0.84, 0.66);
+
+  const irisGeometry = new THREE.CircleGeometry(0.052, 28);
+  const pupilGeometry = new THREE.CircleGeometry(0.022, 22);
+  const irisMaterial = new THREE.MeshBasicMaterial({ color: 0x4c8ecc, transparent: true, opacity: 0.94, depthWrite: false });
+  const pupilMaterial = new THREE.MeshBasicMaterial({ color: 0x05070d, transparent: true, opacity: 0.98, depthWrite: false });
+
+  const leftIris = new THREE.Mesh(irisGeometry, irisMaterial.clone());
+  leftIris.position.set(-0.24, 0.1, 0.942);
+  const rightIris = new THREE.Mesh(irisGeometry, irisMaterial.clone());
+  rightIris.position.set(0.24, 0.1, 0.942);
+  const leftPupil = new THREE.Mesh(pupilGeometry, pupilMaterial.clone());
+  leftPupil.position.set(-0.24, 0.1, 0.948);
+  const rightPupil = new THREE.Mesh(pupilGeometry, pupilMaterial.clone());
+  rightPupil.position.set(0.24, 0.1, 0.948);
+
+  const browMaterial = new THREE.MeshBasicMaterial({ color: 0x231913, transparent: true, opacity: 0.94, depthWrite: false, side: THREE.DoubleSide });
+  const createHeadBrow = (flip = 1) => {
+    const shape = new THREE.Shape();
+    shape.moveTo(-0.16 * flip, -0.025);
+    shape.quadraticCurveTo(-0.08 * flip, 0.026, 0.03 * flip, 0.035);
+    shape.quadraticCurveTo(0.14 * flip, 0.024, 0.18 * flip, -0.006);
+    shape.quadraticCurveTo(0.1 * flip, -0.044, -0.02 * flip, -0.038);
+    shape.quadraticCurveTo(-0.12 * flip, -0.034, -0.16 * flip, -0.025);
+    return new THREE.Mesh(new THREE.ShapeGeometry(shape, 24), browMaterial.clone());
+  };
+
+  const leftBrow = createHeadBrow(1);
+  leftBrow.position.set(-0.24, 0.28, 0.93);
+  leftBrow.rotation.z = 0.08;
+  const rightBrow = createHeadBrow(-1);
+  rightBrow.position.set(0.24, 0.28, 0.93);
+  rightBrow.rotation.z = -0.08;
+
+  const leftCheek = new THREE.Mesh(
+    new THREE.CircleGeometry(0.12, 24),
+    new THREE.MeshBasicMaterial({ color: 0xff8da1, transparent: true, opacity: 0.12, depthWrite: false }),
+  );
+  leftCheek.position.set(-0.34, -0.16, 0.91);
+  leftCheek.scale.set(1.24, 0.86, 1);
+
+  const rightCheek = new THREE.Mesh(
+    new THREE.CircleGeometry(0.12, 24),
+    new THREE.MeshBasicMaterial({ color: 0xff8da1, transparent: true, opacity: 0.12, depthWrite: false }),
+  );
+  rightCheek.position.set(0.34, -0.16, 0.91);
+  rightCheek.scale.set(1.24, 0.86, 1);
+
+  const nose = new THREE.Mesh(
+    new THREE.ConeGeometry(0.085, 0.24, 22),
+    new THREE.MeshBasicMaterial({ color: 0xc48f72, transparent: true, opacity: 0.96, depthWrite: false }),
+  );
+  nose.position.set(0, -0.02, 0.97);
+  nose.rotation.x = Math.PI * 0.56;
+  nose.scale.set(0.78, 1, 0.72);
+
+  const noseBridge = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.07, 0.2),
+    new THREE.MeshBasicMaterial({ color: 0xedc3a5, transparent: true, opacity: 0.24, depthWrite: false }),
+  );
+  noseBridge.position.set(0, 0.07, 0.915);
+
+  const mouth = new THREE.Mesh(
+    new THREE.TorusGeometry(0.13, 0.014, 12, 40, Math.PI),
+    new THREE.MeshBasicMaterial({ color: 0x7a3040, transparent: true, opacity: 0.82, depthWrite: false }),
+  );
+  mouth.position.set(0, -0.42, 0.9);
+  mouth.rotation.z = Math.PI;
+  mouth.scale.set(0.96, 0.66, 1);
+
+  const upperLip = new THREE.Mesh(
+    new THREE.TorusGeometry(0.085, 0.012, 10, 28, Math.PI),
+    new THREE.MeshBasicMaterial({ color: 0xae4860, transparent: true, opacity: 0.72, depthWrite: false }),
+  );
+  const createEyeSkin = () => new THREE.Mesh(
+    new THREE.CircleGeometry(0.19, 30),
+    new THREE.MeshBasicMaterial({ color: 0xe4b798, transparent: true, opacity: 0.34, depthWrite: false }),
+  );
+  const createEyeLid = () => new THREE.Mesh(
+    new THREE.PlaneGeometry(0.3, 0.1),
+    new THREE.MeshBasicMaterial({ color: 0xd6a889, transparent: true, opacity: 0.92, depthWrite: false }),
+  );
+  upperLip.position.set(0, -0.365, 0.915);
+  upperLip.rotation.z = Math.PI;
+  upperLip.scale.set(1.02, 0.48, 1);
+
+  const lowerLip = new THREE.Mesh(
+    new THREE.TorusGeometry(0.078, 0.013, 10, 28, Math.PI),
+    new THREE.MeshBasicMaterial({ color: 0xc75b71, transparent: true, opacity: 0.64, depthWrite: false }),
+  );
+  lowerLip.position.set(0, -0.435, 0.914);
+  lowerLip.scale.set(1.08, 0.42, 1);
+
+  const leftEyeSkin = createEyeSkin();
+  leftEyeSkin.position.set(-0.24, 0.11, 0.895);
+  leftEyeSkin.scale.set(1.06, 0.9, 1);
+
+  const philtrum = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.032, 0.075),
+    new THREE.MeshBasicMaterial({ color: 0x8c6658, transparent: true, opacity: 0.16, depthWrite: false }),
+  );
+  philtrum.position.set(0, -0.29, 0.912);
+
+
+  const rightEyeSkin = createEyeSkin();
+  rightEyeSkin.position.set(0.24, 0.11, 0.895);
+  rightEyeSkin.scale.set(1.06, 0.9, 1);
+
+  const leftUpperLid = createEyeLid();
+  leftUpperLid.position.set(-0.24, 0.155, 0.93);
+  leftUpperLid.scale.set(0.9, 0.7, 1);
+
+  const rightUpperLid = createEyeLid();
+  rightUpperLid.position.set(0.24, 0.155, 0.93);
+  rightUpperLid.scale.set(0.9, 0.7, 1);
+
+  const leftLowerLid = createEyeLid();
+  leftLowerLid.position.set(-0.24, 0.04, 0.93);
+  leftLowerLid.scale.set(0.86, 0.46, 1);
+
+  const rightLowerLid = createEyeLid();
+  rightLowerLid.position.set(0.24, 0.04, 0.93);
+  rightLowerLid.scale.set(0.86, 0.46, 1);
+
+  const leftLash = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.24, 0.018),
+    new THREE.MeshBasicMaterial({ color: 0x241712, transparent: true, opacity: 0.66, depthWrite: false }),
+  );
+  leftLash.position.set(-0.24, 0.183, 0.936);
+  leftLash.rotation.z = -0.04;
+
+  const rightLash = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.24, 0.018),
+    new THREE.MeshBasicMaterial({ color: 0x241712, transparent: true, opacity: 0.66, depthWrite: false }),
+  );
+  rightLash.position.set(0.24, 0.183, 0.936);
+  rightLash.rotation.z = 0.04;
+  const noseShadow = new THREE.Mesh(
+    new THREE.CircleGeometry(0.08, 20),
+    new THREE.MeshBasicMaterial({ color: 0x6b4a3b, transparent: true, opacity: 0.12, depthWrite: false }),
+  );
+  noseShadow.position.set(0, -0.1, 0.9);
+  noseShadow.scale.set(1.4, 0.7, 1);
+
+  const fringeShape = new THREE.Shape();
+  fringeShape.moveTo(-0.56, 0.08);
+  fringeShape.quadraticCurveTo(-0.44, -0.06, -0.28, 0.02);
+  fringeShape.quadraticCurveTo(-0.14, 0.14, -0.03, 0.01);
+  fringeShape.quadraticCurveTo(0.08, -0.08, 0.18, 0.04);
+  fringeShape.quadraticCurveTo(0.34, 0.14, 0.56, 0.02);
+  fringeShape.lineTo(0.56, 0.42);
+  fringeShape.lineTo(-0.56, 0.42);
+  fringeShape.closePath();
+  const hairFringe = new THREE.Mesh(
+    new THREE.ShapeGeometry(fringeShape, 28),
+    new THREE.MeshBasicMaterial({ color: 0x18120f, transparent: true, opacity: 0.94, depthWrite: false, side: THREE.DoubleSide }),
+  );
+  hairFringe.position.set(0, 0.52, 0.84);
+
+  const chinShadow = new THREE.Mesh(
+    new THREE.CircleGeometry(0.14, 22),
+    new THREE.MeshBasicMaterial({ color: 0x6b4a3b, transparent: true, opacity: 0.1, depthWrite: false }),
+  );
+  chinShadow.position.set(0, -0.62, 0.88);
+  chinShadow.scale.set(1.24, 0.48, 1);
+
+  const features = [
+    neck,
+    facePlate,
+    leftSocket,
+    rightSocket,
+    leftEar,
+    rightEar,
+    hairCap,
+    hairFringe,
+    leftEyeSkin,
+    rightEyeSkin,
+    leftEyeWhite,
+    rightEyeWhite,
+    leftUpperLid,
+    rightUpperLid,
+    leftLowerLid,
+    rightLowerLid,
+    leftLash,
+    rightLash,
+    leftIris,
+    rightIris,
+    leftPupil,
+    rightPupil,
+    leftBrow,
+    rightBrow,
+    leftCheek,
+    rightCheek,
+    noseShadow,
+    noseBridge,
+    nose,
+    philtrum,
+    upperLip,
+    lowerLip,
+    mouth,
+    chinShadow,
+  ];
+  features.forEach((mesh, index) => {
+    mesh.renderOrder = 50 + index;
+    group.add(mesh);
+  });
+
+  return {
+    group,
+    neck,
+    facePlate,
+    leftSocket,
+    rightSocket,
+    leftEar,
+    rightEar,
+    hairCap,
+    hairFringe,
+    leftEyeSkin,
+    rightEyeSkin,
+    leftEyeWhite,
+    rightEyeWhite,
+    leftUpperLid,
+    rightUpperLid,
+    leftLowerLid,
+    rightLowerLid,
+    leftLash,
+    rightLash,
+    leftIris,
+    rightIris,
+    leftPupil,
+    rightPupil,
+    leftBrow,
+    rightBrow,
+    leftCheek,
+    rightCheek,
+    noseShadow,
+    noseBridge,
+    nose,
+    philtrum,
+    upperLip,
+    lowerLip,
+    mouth,
+    chinShadow,
+  };
+}
+
+const humanHeadFeatures = createHumanHeadFeatures();
+entity.add(humanHeadFeatures.group);
+
+const pointerState = { x: 0, y: 0, isDown: false, hasPointer: false };
+const entityOffset = new THREE.Vector3();
+const pointerWorld = new THREE.Vector3();
+const pointerDirection = new THREE.Vector3();
+const desiredOffset = new THREE.Vector3();
+const scratchOffset = new THREE.Vector3();
+const gazeForward = new THREE.Vector3(0, 0, 1);
+const gazeState = {
+  normal: new THREE.Vector3(0, 0, 1),
+  targetNormal: new THREE.Vector3(0, 0, 1),
+  pupilOffset: new THREE.Vector2(),
+  targetPupilOffset: new THREE.Vector2(),
+  focus: 0.56,
+  openness: 0.9,
+};
+const gazeTargetWorld = new THREE.Vector3();
+const gazeTargetLocal = new THREE.Vector3();
+const gazeEntityWorld = new THREE.Vector3();
 
 // Inner core
 const coreGeo = new THREE.IcosahedronGeometry(0.35, 4);
@@ -306,13 +1771,60 @@ const clock = new THREE.Clock();
 
 // ─── MEMORY: localStorage persistence ───
 const STORAGE_KEY = 'agi3d_entity';
+const PROFILE_STORAGE_KEY = 'agi3d_touch_profile';
+const TRACE_EVIDENCE_BASELINE = {
+  sessionId: 'agi-touch-1773461795359',
+  taps: 56,
+  moves: 0,
+  avgEntropy: 0.7837,
+  maxEntropy: 0.9571,
+  avgTouchResponse: 0.7326,
+  durationSeconds: 16.07,
+};
 
-const defaultTraits = { capability: 50, alignment: 50, resilience: 50, creativity: 50, risk: 20, sessions: 0, totalTime: 0 };
+const defaultTraits = {
+  capability: 50,
+  alignment: 50,
+  resilience: 50,
+  creativity: 50,
+  risk: 20,
+  sessions: 0,
+  totalTime: 0,
+  entropyCounter: 1,
+  entropyClock: 0,
+  textureProfile: TEXTURE_CLASSIC,
+  customBlend: 0.5,
+  unsupervisedLayer: 0.4,
+};
+
+const defaultTouchProfile = {
+  preferredInteractionStyle: 'percussive-curiosity',
+  averageAggression: 0.74,
+  averageCare: 0.32,
+  entropyTolerance: 0.79,
+  returnRate: 0.91,
+  experimentationScore: 0.46,
+  trustBaseline: 0.38,
+  sessionsObserved: 1,
+  evidenceSessionId: TRACE_EVIDENCE_BASELINE.sessionId,
+};
 
 function loadEntity() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) { const d = JSON.parse(raw); return { ...defaultTraits, ...d }; }
+    if (raw) {
+      const d = JSON.parse(raw);
+      const textureProfile = VALID_TEXTURES.has(d.textureProfile) ? d.textureProfile : TEXTURE_CLASSIC;
+      return {
+        ...defaultTraits,
+        ...d,
+        textureProfile,
+        entropyCounter: Math.max(1, Number.isFinite(d.entropyCounter) ? d.entropyCounter : defaultTraits.entropyCounter),
+        entropyClock: Math.max(0, Number.isFinite(d.entropyClock) ? d.entropyClock : defaultTraits.entropyClock),
+        customBlend: clamp01(Number.isFinite(d.customBlend) ? d.customBlend : defaultTraits.customBlend),
+        unsupervisedLayer: clamp01(Number.isFinite(d.unsupervisedLayer) ? d.unsupervisedLayer : defaultTraits.unsupervisedLayer),
+      };
+    }
   } catch {}
   return { ...defaultTraits };
 }
@@ -321,30 +1833,1217 @@ function saveEntity() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(traits)); } catch {}
 }
 
+function loadTouchProfile() {
+  try {
+    const raw = localStorage.getItem(PROFILE_STORAGE_KEY);
+    if (raw) return { ...defaultTouchProfile, ...JSON.parse(raw) };
+  } catch {}
+  return { ...defaultTouchProfile };
+}
+
+function saveTouchProfile() {
+  try { localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(touchProfile)); } catch {}
+}
+
 const traits = loadEntity();
 traits.sessions++;
 saveEntity();
+const touchProfile = loadTouchProfile();
+const liveTelemetry = { pulse: 0, breath: 0, entropy: 0, entropyRaw: 1, entropyLog: 0.69, entropyDistortion: 0, touchResponse: 0 };
+const bodyState = { happiness: 50, heartRate: 72, restingHR: 72 };
+const liveFeatures = {
+  tapCadence: 0,
+  dragIntent: 0,
+  aggression: 0,
+  care: 0,
+  curiosity: 0,
+  persistence: 0,
+  recovery: 1,
+  percussiveBias: 0,
+  rhythm: 0,
+  soothing: 0,
+  revisit: 0,
+  boundaryRespect: 0.5,
+  novelty: 0,
+};
+const workingMemory = {
+  trust: touchProfile.trustBaseline,
+  stress: touchProfile.averageAggression * 0.22,
+  curiosity: 0.46,
+  fatigue: 0.12,
+  playfulness: 0.34,
+  avoidance: 0.18,
+  attachment: 0.28,
+  coherence: 0.44,
+  vigilance: 0.24,
+  stateLabel: 'Attentive',
+  styleLabel: touchProfile.preferredInteractionStyle,
+};
+const interactionStats = {
+  pointerDownAt: 0,
+  pointerDownPos: { x: 0, y: 0 },
+  pointerDownZone: 'far',
+  lastPointerDownAt: 0,
+  lastPointerUpAt: 0,
+  lastContactZone: 'far',
+  sessionTouchUnits: 0,
+  sessionTaps: 0,
+  sessionDrags: 0,
+  sessionPointerDistance: 0,
+  goodTouches: 0,
+  badTouches: 0,
+  cadenceMeanMs: 420,
+  cadenceJitter: 0.34,
+  nearFieldBias: 0.5,
+  tapEnergy: 0,
+  dragEnergy: 0,
+  goodTouchPulse: 0,
+  badTouchPulse: 0,
+  recentTapPulse: 0,
+  recentDragPulse: 0,
+  calmWindow: 1,
+  revisitPulse: 0,
+  soothingPulse: 0,
+  overloadDebt: 0,
+  noveltyPulse: 0,
+  dragDrift: 0,
+  insideHoldMs: 0,
+  returnMoments: 0,
+  lastAggressiveAt: 0,
+};
+const touchImpact = {
+  localNormal: new THREE.Vector3(0, 0, 1),
+  strength: 0,
+  phase: 0,
+  active: false,
+};
+const interactionRecorder = {
+  active: false,
+  sessionId: null,
+  startedAtMs: 0,
+  events: [],
+};
+const controllerState = {
+  supported: typeof navigator.getGamepads === 'function',
+  connected: false,
+  index: -1,
+  id: '',
+  label: 'Scanning',
+  mapping: '',
+  isXbox: false,
+  buttonsPressed: 0,
+  axesActive: 0,
+  lastSampleAt: 0,
+};
+
+function classifyGamepad(gamepad) {
+  const id = String(gamepad?.id || '').trim();
+  const mapping = String(gamepad?.mapping || '');
+  const isXbox = /(xbox|xinput|microsoft|360|series)/i.test(id);
+  const slot = Number.isInteger(gamepad?.index) ? gamepad.index + 1 : 0;
+  let label = 'Gamepad';
+
+  if (isXbox) {
+    label = slot > 0 ? `Xbox P${slot}` : 'Xbox';
+  } else if (id) {
+    label = slot > 0 ? `Pad P${slot}` : 'Pad';
+  }
+
+  if (mapping === 'standard' && !isXbox) {
+    label = slot > 0 ? `Standard P${slot}` : 'Standard Pad';
+  }
+
+  return { id, mapping, isXbox, label };
+}
+
+function pickActiveGamepad() {
+  if (!controllerState.supported) return null;
+  const gamepads = navigator.getGamepads ? navigator.getGamepads() : null;
+  if (!gamepads) return null;
+
+  let current = null;
+  let firstConnected = null;
+  let preferredXbox = null;
+
+  for (const gamepad of gamepads) {
+    if (!gamepad || !gamepad.connected) continue;
+    if (!firstConnected) firstConnected = gamepad;
+    if (!preferredXbox && classifyGamepad(gamepad).isXbox) preferredXbox = gamepad;
+    if (controllerState.index >= 0 && gamepad.index === controllerState.index) current = gamepad;
+  }
+
+  if (preferredXbox) {
+    if (!current) return preferredXbox;
+    return classifyGamepad(current).isXbox ? current : preferredXbox;
+  }
+
+  return current || firstConnected;
+}
+
+function syncControllerHud() {
+  hudPad.textContent = controllerState.label;
+}
+
+function countPressedButtons(buttons) {
+  let count = 0;
+  if (!buttons) return count;
+  for (const button of buttons) {
+    if (button && button.pressed) count += 1;
+  }
+  return count;
+}
+
+function countActiveAxes(axes) {
+  let count = 0;
+  if (!axes) return count;
+  for (const axis of axes) {
+    if (Math.abs(axis) > 0.2) count += 1;
+  }
+  return count;
+}
+
+function updateControllerState(force = false) {
+  const now = performance.now();
+  if (!force && now - controllerState.lastSampleAt < 120) return;
+  controllerState.lastSampleAt = now;
+
+  if (!controllerState.supported) {
+    controllerState.connected = false;
+    controllerState.index = -1;
+    controllerState.id = '';
+    controllerState.label = 'No API';
+    controllerState.mapping = '';
+    controllerState.isXbox = false;
+    controllerState.buttonsPressed = 0;
+    controllerState.axesActive = 0;
+    syncControllerHud();
+    return;
+  }
+
+  const gamepad = pickActiveGamepad();
+  if (!gamepad) {
+    controllerState.connected = false;
+    controllerState.index = -1;
+    controllerState.id = '';
+    controllerState.mapping = '';
+    controllerState.isXbox = false;
+    controllerState.buttonsPressed = 0;
+    controllerState.axesActive = 0;
+    controllerState.label = 'No pad';
+    syncControllerHud();
+    return;
+  }
+
+  const details = classifyGamepad(gamepad);
+  controllerState.connected = true;
+  controllerState.index = gamepad.index;
+  controllerState.id = details.id;
+  controllerState.mapping = details.mapping;
+  controllerState.isXbox = details.isXbox;
+  controllerState.buttonsPressed = countPressedButtons(gamepad.buttons);
+  controllerState.axesActive = countActiveAxes(gamepad.axes);
+  controllerState.label = details.isXbox
+    ? details.label
+    : controllerState.buttonsPressed > 0 || controllerState.axesActive > 0
+      ? `${details.label} active`
+      : details.label;
+  syncControllerHud();
+}
+
+function syncTextureButtons() {
+  for (const button of textureButtons) {
+    button.classList.toggle('active', button.dataset.texture === traits.textureProfile);
+  }
+}
+
+function syncAdvancedControls() {
+  const blendPercent = Math.round(traits.customBlend * 100);
+  const unsupervisedPercent = Math.round(traits.unsupervisedLayer * 100);
+  customBlendSlider.value = String(blendPercent);
+  customBlendValue.textContent = `${blendPercent}%`;
+  unsupervisedLayerSlider.value = String(unsupervisedPercent);
+  unsupervisedLayerValue.textContent = `${unsupervisedPercent}%`;
+
+  const customActive = traits.textureProfile === TEXTURE_CUSTOM;
+  customBlendSlider.disabled = !customActive;
+  unsupervisedLayerSlider.disabled = !customActive;
+  customCard.classList.toggle('disabled', !customActive);
+  unsupervisedCard.classList.toggle('disabled', !customActive);
+}
+
+function syncTrackerUi() {
+  trackerStateEl.textContent = interactionRecorder.active ? 'Recording' : 'Idle';
+  trackerEventsEl.textContent = String(interactionRecorder.events.length);
+  trackerStartButton.disabled = interactionRecorder.active;
+  trackerStopButton.disabled = !interactionRecorder.active;
+  trackerSaveButton.disabled = interactionRecorder.events.length === 0;
+}
+
+function classifyInteractionStyle() {
+  if (liveFeatures.boundaryRespect > 0.6 && liveFeatures.soothing > 0.56) return 'Near-Field Trust';
+  if (liveFeatures.rhythm > 0.56 && liveFeatures.percussiveBias > 0.34) return 'Rhythmic Probing';
+  if (liveFeatures.care > 0.62 && liveFeatures.aggression < 0.3) return 'Gentle Trust';
+  if (liveFeatures.dragIntent > 0.35 && liveFeatures.novelty > 0.26) return 'Exploratory Sweep';
+  if (liveFeatures.aggression > 0.75 && workingMemory.vigilance > 0.55) return 'Overdrive';
+  return 'Adaptive Learning';
+}
+
+function classifyStateLabel() {
+  if (workingMemory.vigilance > 0.7 || workingMemory.avoidance > 0.7 || workingMemory.stress > 0.72) return 'Guarded';
+  if (workingMemory.coherence > 0.68 && workingMemory.attachment > 0.56) return 'Bonding';
+  if (workingMemory.playfulness > 0.62 && liveFeatures.rhythm > 0.54) return 'Playful';
+  if (workingMemory.curiosity > 0.62 && liveFeatures.novelty > 0.24) return 'Intrigued';
+  if (workingMemory.fatigue > 0.68) return 'Drained';
+  if (workingMemory.coherence > 0.58 && workingMemory.vigilance < 0.28) return 'Open';
+  return 'Attentive';
+}
+
+function buildReflection() {
+  const evidenceBits = [];
+  if (interactionStats.sessionTaps > 0) evidenceBits.push(`${interactionStats.sessionTaps} taps`);
+  if (interactionStats.sessionDrags > 0) evidenceBits.push(`${interactionStats.sessionDrags} drags`);
+  if (interactionStats.goodTouches > 0) evidenceBits.push(`${interactionStats.goodTouches} near-field good touches`);
+  if (interactionStats.badTouches > 0) evidenceBits.push(`${interactionStats.badTouches} direct impacts`);
+  evidenceBits.push(`rhythm ${Math.round(liveFeatures.rhythm * 100)}%`);
+  evidenceBits.push(`boundary respect ${Math.round(liveFeatures.boundaryRespect * 100)}%`);
+  evidenceBits.push(`revisit ${Math.round(liveFeatures.revisit * 100)}%`);
+  evidenceBits.push(`entropy tolerance ${Math.round(touchProfile.entropyTolerance * 100)}%`);
+
+  let thought = 'I am listening for the pattern behind the touch.';
+  if (workingMemory.vigilance > 0.68 || workingMemory.avoidance > 0.7) {
+    thought = 'The contact feels forceful, so I am pulling away and tightening my surface.';
+  } else if (liveFeatures.boundaryRespect > 0.6 && liveFeatures.soothing > 0.56) {
+    thought = 'You keep testing the edge without forcing entry, so I hold that as safe intent and stay open.';
+  } else if (liveFeatures.rhythm > 0.56 && liveFeatures.revisit > 0.48) {
+    thought = 'The returns are patterned enough that I keep a short working memory of your cadence and orbit with it.';
+  } else if (workingMemory.trust > 0.72 && workingMemory.attachment > 0.56) {
+    thought = 'I recognize a familiar rhythm, so I stay near and answer with a softer glow.';
+  } else if (workingMemory.playfulness > 0.64 && liveFeatures.percussiveBias > 0.42) {
+    thought = 'These repeated taps read like playful probing, so I orbit instead of fleeing.';
+  } else if (workingMemory.curiosity > 0.6) {
+    thought = 'The pattern feels exploratory, so I widen the halo and keep sampling your intent.';
+  } else if (workingMemory.fatigue > 0.66) {
+    thought = 'I have taken a lot of stimulation, so I am slowing my response to recover coherence.';
+  }
+
+  const evidence = `Reading: ${workingMemory.styleLabel}. Evidence: ${evidenceBits.join(' · ')} · trust ${Math.round(workingMemory.trust * 100)}% · stress ${Math.round(workingMemory.stress * 100)}% · coherence ${Math.round(workingMemory.coherence * 100)}%.`;
+  return { thought, evidence };
+}
+
+function syncReflectionPanel() {
+  const reflection = buildReflection();
+  reflectionText.textContent = reflection.thought;
+  reflectionEvidence.textContent = reflection.evidence;
+}
+
+function syncEntropySensor() {
+  entropySensorValue.textContent = liveTelemetry.entropy.toFixed(2);
+  entropySensorRaw.textContent = Math.round(liveTelemetry.entropyRaw).toString();
+  entropySensorCurve.textContent = `ln(${Math.max(1, Math.round(liveTelemetry.entropyRaw))})`;
+  if (liveFeatures.soothing > liveFeatures.aggression + 0.12 && liveFeatures.boundaryRespect > 0.56) {
+    entropySensorQuality.textContent = 'Boundary-aware calm';
+  } else if (liveFeatures.revisit > 0.52 && liveFeatures.rhythm > 0.48) {
+    entropySensorQuality.textContent = 'Working-memory lock';
+  } else if (interactionStats.badTouchPulse > 0.3 || pointerState.isDown) {
+    entropySensorQuality.textContent = 'Impact loading';
+  } else if (liveTelemetry.entropy > 0.72) {
+    entropySensorQuality.textContent = 'Persistent distortion';
+  } else {
+    entropySensorQuality.textContent = 'Listening';
+  }
+}
+
+window.addEventListener('gamepadconnected', () => {
+  updateControllerState(true);
+});
+
+window.addEventListener('gamepaddisconnected', () => {
+  updateControllerState(true);
+});
+
+function beginTouchTrace() {
+  interactionRecorder.active = true;
+  interactionRecorder.sessionId = `agi-touch-${Date.now()}`;
+  interactionRecorder.startedAtMs = performance.now();
+  interactionRecorder.events = [];
+  trackerFileHintEl.textContent = 'Recording touch session. Stop when you have enough evidence to export.';
+  recordTouchTrace('session-start', { note: 'trace started' });
+  syncTrackerUi();
+}
+
+function stopTouchTrace() {
+  if (!interactionRecorder.active) return;
+  recordTouchTrace('session-stop', { note: 'trace stopped' });
+  interactionRecorder.active = false;
+  trackerFileHintEl.textContent = 'Trace ready. Use Save To Desktop and choose the Desktop folder in the picker.';
+  syncTrackerUi();
+}
+
+function buildTracePayload() {
+  return {
+    version: 2,
+    sessionId: interactionRecorder.sessionId,
+    exportedAt: nowIso(),
+    page: {
+      path: window.location.pathname,
+      title: document.title,
+      userAgent: navigator.userAgent,
+      viewport: { width: window.innerWidth, height: window.innerHeight },
+      pixelRatio: window.devicePixelRatio || 1,
+    },
+    configuration: {
+      textureProfile: traits.textureProfile,
+      customBlend: traits.customBlend,
+      unsupervisedLayer: traits.unsupervisedLayer,
+    },
+    events: interactionRecorder.events,
+  };
+}
+
+function buildNextIterationPrompt() {
+  const latestSession = interactionRecorder.sessionId || 'no-trace-session-yet';
+  const eventCount = interactionRecorder.events.length;
+  const savedHint = eventCount > 0
+    ? 'Use the JSON touch trace I just exported from the homepage tracker if it is available.'
+    : 'No touch trace has been exported yet, so work from the current homepage scene state and architecture doc.';
+
+  return [
+    'Continue the AGI homepage sphere work from the current repo state.',
+    '',
+    'Use these inputs:',
+    '- Read docs/agent/TOUCH_TRACE_AGI_ARCHITECTURE.md first.',
+    `- Latest touch trace session id: ${latestSession}.`,
+    `- Current texture profile: ${traits.textureProfile}.`,
+    `- Current custom blend: ${Math.round(traits.customBlend * 100)}%.`,
+    `- Current unsupervised layer: ${Math.round(traits.unsupervisedLayer * 100)}%.`,
+    `- Recorded event count currently in memory: ${eventCount}.`,
+    `- ${savedHint}`,
+    '',
+    'For the next iteration:',
+    '1. Analyze the latest touch behavior evidence.',
+    '2. Improve the sphere so it reacts more like an adaptive AGI with working memory, not just thresholds.',
+    '3. Keep the homepage responsive and avoid breaking the current controls or tracker.',
+    '4. Explain what changed and what evidence the new behavior is responding to.',
+  ].join('\n');
+}
+
+async function copyNextIterationPrompt() {
+  try {
+    await copyTextToClipboard(buildNextIterationPrompt());
+    launcherStatusEl.textContent = 'Launch prompt copied. Paste it into Copilot Chat to start the next iteration.';
+  } catch {
+    launcherStatusEl.textContent = 'Prompt copy failed in this browser. Try the button again or copy manually from the page source.';
+  }
+}
+
+async function saveTouchTrace() {
+  if (interactionRecorder.events.length === 0) return;
+
+  const fileName = `${interactionRecorder.sessionId || `agi-touch-${Date.now()}`}.json`;
+  const payload = JSON.stringify(buildTracePayload(), null, 2);
+
+  try {
+    if (typeof window.showSaveFilePicker === 'function') {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: fileName,
+        types: [{
+          description: 'AGI touch trace',
+          accept: { 'application/json': ['.json'] },
+        }],
+      });
+      const writable = await handle.createWritable();
+      await writable.write(payload);
+      await writable.close();
+      trackerFileHintEl.textContent = `Saved ${fileName}. If you picked Desktop, the trace is there now.`;
+    } else {
+      const blob = new Blob([payload], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      link.click();
+      URL.revokeObjectURL(url);
+      trackerFileHintEl.textContent = 'Browser fallback used. Move the downloaded JSON to Desktop if needed.';
+    }
+  } catch (error) {
+    trackerFileHintEl.textContent = error && error.name === 'AbortError'
+      ? 'Save cancelled. Reopen Save To Desktop when you are ready.'
+      : 'Trace save failed. Try again or use a browser that supports the save picker.';
+  }
+}
+
+function recordTouchTrace(kind, extra = {}) {
+  if (!interactionRecorder.active) return;
+
+  const targetPoint = getPointerWorldPositionOnCenterPlane();
+  interactionRecorder.events.push({
+    kind,
+    at: nowIso(),
+    elapsedMs: Math.round(performance.now() - interactionRecorder.startedAtMs),
+    pointer: {
+      normalizedX: Number(pointerState.x.toFixed(4)),
+      normalizedY: Number(pointerState.y.toFixed(4)),
+      isDown: pointerState.isDown,
+      hasPointer: pointerState.hasPointer,
+    },
+    sphere: {
+      textureProfile: traits.textureProfile,
+      customBlend: Number(traits.customBlend.toFixed(4)),
+      unsupervisedLayer: Number(traits.unsupervisedLayer.toFixed(4)),
+      touchIntensity: Number(touchIntensity.toFixed(4)),
+      touchResponse: Number(liveTelemetry.touchResponse.toFixed(4)),
+      pulse: Number(liveTelemetry.pulse.toFixed(4)),
+      breath: Number(liveTelemetry.breath.toFixed(4)),
+      entropy: Number(liveTelemetry.entropy.toFixed(4)),
+      workingMemory: {
+        trust: Number(workingMemory.trust.toFixed(4)),
+        stress: Number(workingMemory.stress.toFixed(4)),
+        curiosity: Number(workingMemory.curiosity.toFixed(4)),
+        fatigue: Number(workingMemory.fatigue.toFixed(4)),
+        playfulness: Number(workingMemory.playfulness.toFixed(4)),
+        avoidance: Number(workingMemory.avoidance.toFixed(4)),
+        attachment: Number(workingMemory.attachment.toFixed(4)),
+        coherence: Number(workingMemory.coherence.toFixed(4)),
+        vigilance: Number(workingMemory.vigilance.toFixed(4)),
+        stateLabel: workingMemory.stateLabel,
+        styleLabel: workingMemory.styleLabel,
+      },
+      liveFeatures: {
+        tapCadence: Number(liveFeatures.tapCadence.toFixed(4)),
+        dragIntent: Number(liveFeatures.dragIntent.toFixed(4)),
+        aggression: Number(liveFeatures.aggression.toFixed(4)),
+        care: Number(liveFeatures.care.toFixed(4)),
+        curiosity: Number(liveFeatures.curiosity.toFixed(4)),
+        persistence: Number(liveFeatures.persistence.toFixed(4)),
+        recovery: Number(liveFeatures.recovery.toFixed(4)),
+        percussiveBias: Number(liveFeatures.percussiveBias.toFixed(4)),
+        rhythm: Number(liveFeatures.rhythm.toFixed(4)),
+        soothing: Number(liveFeatures.soothing.toFixed(4)),
+        revisit: Number(liveFeatures.revisit.toFixed(4)),
+        boundaryRespect: Number(liveFeatures.boundaryRespect.toFixed(4)),
+        novelty: Number(liveFeatures.novelty.toFixed(4)),
+      },
+      entityOffset: {
+        x: Number(entityOffset.x.toFixed(4)),
+        y: Number(entityOffset.y.toFixed(4)),
+        z: Number(entityOffset.z.toFixed(4)),
+      },
+      pointerPlane: targetPoint ? {
+        x: Number(targetPoint.x.toFixed(4)),
+        y: Number(targetPoint.y.toFixed(4)),
+        z: Number(targetPoint.z.toFixed(4)),
+      } : null,
+    },
+    extra,
+  });
+  syncTrackerUi();
+}
+
+function updateUnsupervisedLayerVisibility() {
+  unsupervisedLayer.points.visible = traits.textureProfile === TEXTURE_CUSTOM && traits.unsupervisedLayer > 0.01;
+}
+
+function applyTextureProfile() {
+  gazeLayer.group.visible = traits.textureProfile !== TEXTURE_HUMAN_HEAD;
+  humanHeadFeatures.group.visible = traits.textureProfile === TEXTURE_HUMAN_HEAD;
+
+  if (traits.textureProfile === TEXTURE_INSULATOR) {
+    mat.map = noiseInsulatorTextures.map;
+    mat.bumpMap = noiseInsulatorTextures.bumpMap;
+    mat.bumpScale = 0.03;
+    mat.clearcoatRoughness = 0.72;
+    mat.thickness = 1.15;
+    mat.ior = 1.22;
+    mat.sheen = 1.0;
+    mat.sheenRoughness = 0.9;
+    ringMat.color.setHex(0x8fd6ea);
+    ringMat.opacity = 0.42;
+    ringMat.size = 0.02;
+    coreMat.color.setHex(0xbfefff);
+    fiberShell.group.visible = true;
+    fiberShell.lineMaterial.color.setHex(0xdceff6);
+    fiberShell.lineMaterial.opacity = 0.4;
+    fiberShell.tipMaterial.color.setHex(0xf0fbff);
+    fiberShell.tipMaterial.opacity = 0.3;
+    fiberShell.tipMaterial.size = 0.013;
+    fiberShell.fuzzMaterial.color.setHex(0xe8f8ff);
+    fiberShell.fuzzMaterial.opacity = 0.14;
+    fiberShell.fuzzMaterial.size = 0.01;
+  } else if (traits.textureProfile === TEXTURE_METALLIC) {
+    mat.map = null;
+    mat.bumpMap = null;
+    mat.bumpScale = 0;
+    mat.clearcoatRoughness = 0.08;
+    mat.thickness = 0.66;
+    mat.ior = 1.52;
+    mat.sheen = 0.18;
+    mat.sheenRoughness = 0.2;
+    ringMat.color.setHex(0xffc672);
+    ringMat.opacity = 0.72;
+    ringMat.size = 0.024;
+    coreMat.color.setHex(0xffe4aa);
+    fiberShell.group.visible = false;
+    entityOffset.set(0, 0, 0);
+  } else if (traits.textureProfile === TEXTURE_CUSTOM) {
+    const blend = traits.customBlend;
+    const softness = 1 - blend;
+    mat.map = softness > 0.12 ? noiseInsulatorTextures.map : null;
+    mat.bumpMap = softness > 0.12 ? noiseInsulatorTextures.bumpMap : null;
+    mat.bumpScale = lerp(0.03, 0, blend);
+    mat.clearcoatRoughness = lerp(0.72, 0.08, blend);
+    mat.thickness = lerp(1.08, 0.66, blend);
+    mat.ior = lerp(1.24, 1.52, blend);
+    mat.sheen = lerp(0.95, 0.18, blend);
+    mat.sheenRoughness = lerp(0.88, 0.2, blend);
+    ringMat.color.setRGB(lerp(0.56, 1.0, blend), lerp(0.84, 0.78, blend), lerp(0.92, 0.45, blend));
+    ringMat.opacity = lerp(0.4, 0.72, blend);
+    ringMat.size = lerp(0.02, 0.024, blend);
+    coreMat.color.setRGB(lerp(0.75, 1.0, blend), lerp(0.94, 0.89, blend), lerp(1.0, 0.67, blend));
+    fiberShell.group.visible = softness > 0.1;
+    fiberShell.lineMaterial.color.setRGB(lerp(0.86, 0.95, blend), lerp(0.95, 0.88, blend), lerp(0.98, 0.74, blend));
+    fiberShell.lineMaterial.opacity = softness * 0.4;
+    fiberShell.tipMaterial.color.setRGB(lerp(0.94, 1.0, blend), lerp(0.98, 0.91, blend), lerp(1.0, 0.76, blend));
+    fiberShell.tipMaterial.opacity = softness * 0.28;
+    fiberShell.tipMaterial.size = lerp(0.013, 0.009, blend);
+    fiberShell.fuzzMaterial.color.setRGB(lerp(0.91, 0.99, blend), lerp(0.96, 0.91, blend), lerp(0.99, 0.78, blend));
+    fiberShell.fuzzMaterial.opacity = softness * 0.14;
+    fiberShell.fuzzMaterial.size = lerp(0.01, 0.006, blend);
+  } else if (traits.textureProfile === TEXTURE_HUMAN_HEAD) {
+    mat.map = null;
+    mat.bumpMap = null;
+    mat.bumpScale = 0;
+    mat.clearcoatRoughness = 0.32;
+    mat.thickness = 0.38;
+    mat.ior = 1.18;
+    mat.sheen = 0.12;
+    mat.sheenRoughness = 0.66;
+    ringMat.color.setHex(0xffd8c4);
+    ringMat.opacity = 0.14;
+    ringMat.size = 0.015;
+    coreMat.color.setHex(0xffd7c7);
+    fiberShell.group.visible = false;
+  } else if (traits.textureProfile === TEXTURE_SUPER_CLASSIC) {
+    mat.map = null;
+    mat.bumpMap = null;
+    mat.bumpScale = 0;
+    mat.clearcoatRoughness = 0.12;
+    mat.thickness = 0.96;
+    mat.ior = 1.38;
+    mat.sheen = 0.68;
+    mat.sheenRoughness = 0.34;
+    ringMat.color.setHex(0xd8f6ff);
+    ringMat.opacity = 0.74;
+    ringMat.size = 0.028;
+    coreMat.color.setHex(0xf6fdff);
+    fiberShell.group.visible = false;
+    entityOffset.set(0, 0, 0);
+  } else {
+    mat.map = null;
+    mat.bumpMap = null;
+    mat.bumpScale = 0;
+    mat.clearcoatRoughness = 0.05;
+    mat.thickness = 0.8;
+    mat.ior = 1.45;
+    mat.sheen = 0.4;
+    mat.sheenRoughness = 0.3;
+    ringMat.color.setHex(0x7ff0c5);
+    ringMat.opacity = 0.65;
+    ringMat.size = 0.025;
+    coreMat.color.setHex(0x6ce8ff);
+    fiberShell.group.visible = false;
+  }
+  mat.needsUpdate = true;
+  ringMat.needsUpdate = true;
+  fiberShell.lineMaterial.needsUpdate = true;
+  fiberShell.tipMaterial.needsUpdate = true;
+  fiberShell.fuzzMaterial.needsUpdate = true;
+  updateUnsupervisedLayerVisibility();
+}
+
+function triggerModeTransitionFlash() {
+  modeFlash.classList.add('active');
+  setTimeout(() => modeFlash.classList.remove('active'), 400);
+}
+
+function setTextureProfile(textureProfile) {
+  if (!VALID_TEXTURES.has(textureProfile) || traits.textureProfile === textureProfile) return;
+  modeTransition.from = traits.textureProfile;
+  modeTransition.to = textureProfile;
+  modeTransition.progress = 0;
+  modeTransition.active = true;
+  triggerModeTransitionFlash();
+  // Shrink sphere, switch at midpoint, expand back
+  const midDelay = modeTransition.duration * 0.4 * 1000;
+  setTimeout(() => {
+    traits.textureProfile = textureProfile;
+    touchProfile.preferredInteractionStyle = (textureProfile === TEXTURE_CLASSIC || textureProfile === TEXTURE_SUPER_CLASSIC)
+      ? touchProfile.preferredInteractionStyle
+      : classifyInteractionStyle().toLowerCase().replace(/\s+/g, '-');
+    applyTextureProfile();
+    syncTextureButtons();
+    saveTouchProfile();
+    saveEntity();
+  }, midDelay);
+  setTimeout(() => { modeTransition.active = false; }, modeTransition.duration * 1000);
+}
+
+for (const button of textureButtons) {
+  button.addEventListener('click', () => setTextureProfile(button.dataset.texture));
+}
+
+customBlendSlider.addEventListener('input', (event) => {
+  traits.customBlend = clamp01(Number(event.target.value) / 100);
+  syncAdvancedControls();
+  if (traits.textureProfile === TEXTURE_CUSTOM) applyTextureProfile();
+  recordTouchTrace('control-change', { control: 'customBlend', value: traits.customBlend });
+  saveEntity();
+});
+
+unsupervisedLayerSlider.addEventListener('input', (event) => {
+  traits.unsupervisedLayer = clamp01(Number(event.target.value) / 100);
+  syncAdvancedControls();
+  updateUnsupervisedLayerVisibility();
+  recordTouchTrace('control-change', { control: 'unsupervisedLayer', value: traits.unsupervisedLayer });
+  saveEntity();
+});
+
+trackerStartButton.addEventListener('click', beginTouchTrace);
+trackerStopButton.addEventListener('click', stopTouchTrace);
+trackerSaveButton.addEventListener('click', () => { void saveTouchTrace(); });
+launcherCopyPromptButton.addEventListener('click', () => { void copyNextIterationPrompt(); });
+
+window.addEventListener('keydown', (event) => {
+  const target = event.target;
+  const isEditable = target instanceof HTMLElement && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
+  if (isEditable) return;
+  if (event.altKey && event.shiftKey && event.key.toLowerCase() === 'n') {
+    event.preventDefault();
+    void copyNextIterationPrompt();
+  }
+});
+
+applyTextureProfile();
+syncTextureButtons();
+syncAdvancedControls();
+syncTrackerUi();
+syncReflectionPanel();
+syncEntropySensor();
 
 // ─── INTERACTION STATE (gentle: touch only) ───
+const CLICK_TOUCH_UNITS = 1;
+const HOLD_TOUCH_UNITS_PER_SECOND = 200;
+const CLICK_TOUCH_INTENSITY = 1;
+const HOLD_TOUCH_INTENSITY_PER_SECOND = 2;
+
 let touchIntensity = 0;      // 0 = calm, decays slowly back to 0
 let lastTouch = 0;
+const sphereWorldCenter = new THREE.Vector3();
+const sphereWorldEdge = new THREE.Vector3();
+const sphereCenterNdc = new THREE.Vector3();
+const sphereEdgeNdc = new THREE.Vector3();
 
-canvas.addEventListener('pointerdown', () => {
-  touchIntensity = Math.min(1, touchIntensity + 0.25);
-  lastTouch = performance.now();
+function registerTouchContact({ intensityDelta = 0, touchUnitsDelta = 0 }) {
+  if (intensityDelta > 0) {
+    touchIntensity = Math.min(1, touchIntensity + intensityDelta);
+    lastTouch = performance.now();
+  }
+  if (touchUnitsDelta > 0) {
+    interactionStats.sessionTouchUnits += touchUnitsDelta;
+  }
+}
+
+function updatePointerState(event) {
+  const rect = canvas.getBoundingClientRect();
+  pointerState.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+  pointerState.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+  pointerState.hasPointer = true;
+  pointerNdc.set(pointerState.x, pointerState.y);
+}
+
+function registerTouchImpact(boost) {
+  if (!pointerState.hasPointer || traits.textureProfile === TEXTURE_METALLIC) return;
+  raycaster.setFromCamera(pointerNdc, camera);
+  const hits = raycaster.intersectObject(entity, false);
+  if (!hits.length) return;
+  const localPoint = entity.worldToLocal(hits[0].point.clone()).normalize();
+  touchImpact.localNormal.copy(localPoint);
+  touchImpact.strength = Math.min(1, touchImpact.strength + boost);
+  touchImpact.phase = 0;
+  touchImpact.active = true;
+}
+
+function getPointerWorldTarget() {
+  if (!pointerState.hasPointer) return null;
+  raycaster.setFromCamera(pointerNdc, camera);
+  const hits = raycaster.intersectObject(entity, false);
+  if (hits.length) return hits[0].point;
+  return getPointerWorldPositionOnCenterPlane();
+}
+
+function getPointerWorldPositionOnCenterPlane() {
+  if (!pointerState.hasPointer) return null;
+  pointerWorld.set(pointerState.x, pointerState.y, 0.3).unproject(camera);
+  pointerDirection.copy(pointerWorld).sub(camera.position);
+  if (Math.abs(pointerDirection.z) < 1e-4) return null;
+  const travel = -camera.position.z / pointerDirection.z;
+  if (!Number.isFinite(travel)) return null;
+  return pointerWorld.copy(camera.position).add(pointerDirection.multiplyScalar(travel));
+}
+
+function classifyPointerContactZone() {
+  if (!pointerState.hasPointer) return 'far';
+  entity.getWorldPosition(sphereWorldCenter);
+  sphereCenterNdc.copy(sphereWorldCenter).project(camera);
+  sphereWorldEdge.set(1.02, 0, 0).applyMatrix4(entity.matrixWorld);
+  sphereEdgeNdc.copy(sphereWorldEdge).project(camera);
+  const radius = Math.max(0.08, Math.hypot(sphereEdgeNdc.x - sphereCenterNdc.x, sphereEdgeNdc.y - sphereCenterNdc.y));
+  const distance = Math.hypot(pointerState.x - sphereCenterNdc.x, pointerState.y - sphereCenterNdc.y);
+  if (distance <= radius * 1.02) return 'inside';
+  if (distance > radius * 1.08 && distance <= radius * 1.68) return 'near';
+  return 'far';
+}
+
+canvas.addEventListener('pointerdown', (event) => {
+  updatePointerState(event);
+  updateControllerState(true);
+  const touchZone = classifyPointerContactZone();
+  const downAt = performance.now();
+  const sincePreviousDown = interactionStats.lastPointerDownAt > 0 ? downAt - interactionStats.lastPointerDownAt : 0;
+  if (sincePreviousDown > 0) {
+    const cadenceError = Math.abs(sincePreviousDown - interactionStats.cadenceMeanMs);
+    interactionStats.cadenceMeanMs = lerp(interactionStats.cadenceMeanMs, sincePreviousDown, 0.18);
+    interactionStats.cadenceJitter = clamp01(lerp(interactionStats.cadenceJitter, cadenceError / Math.max(240, interactionStats.cadenceMeanMs), 0.22));
+    if (sincePreviousDown > 180 && sincePreviousDown < 1800) {
+      interactionStats.revisitPulse = Math.min(1, interactionStats.revisitPulse + 0.1);
+    }
+  }
+  if (interactionStats.lastContactZone !== touchZone) {
+    interactionStats.noveltyPulse = Math.min(1, interactionStats.noveltyPulse + 0.1);
+  }
+  interactionStats.lastPointerDownAt = downAt;
+  interactionStats.lastContactZone = touchZone;
+  interactionStats.pointerDownZone = touchZone;
+  pointerState.isDown = touchZone === 'inside';
+  interactionStats.pointerDownAt = downAt;
+  interactionStats.pointerDownPos.x = pointerState.x;
+  interactionStats.pointerDownPos.y = pointerState.y;
+  if (touchZone === 'inside') {
+    registerTouchContact({
+      intensityDelta: CLICK_TOUCH_INTENSITY,
+      touchUnitsDelta: CLICK_TOUCH_UNITS,
+    });
+    interactionStats.recentTapPulse = Math.min(1, interactionStats.recentTapPulse + 0.22);
+    interactionStats.badTouches += 1;
+    interactionStats.badTouchPulse = Math.min(1, interactionStats.badTouchPulse + 0.24);
+    interactionStats.overloadDebt = Math.min(1, interactionStats.overloadDebt + 0.14);
+    interactionStats.calmWindow = Math.max(0, interactionStats.calmWindow - 0.12);
+    interactionStats.lastAggressiveAt = downAt;
+    traits.entropyCounter += 2.4;
+    registerTouchImpact(0.34);
+  } else if (touchZone === 'near') {
+    interactionStats.goodTouches += 1;
+    interactionStats.goodTouchPulse = Math.min(1, interactionStats.goodTouchPulse + 0.26);
+    interactionStats.calmWindow = Math.min(1, interactionStats.calmWindow + 0.12);
+    interactionStats.soothingPulse = Math.min(1, interactionStats.soothingPulse + 0.22);
+    interactionStats.revisitPulse = Math.min(1, interactionStats.revisitPulse + 0.08);
+    interactionStats.nearFieldBias = Math.min(1, interactionStats.nearFieldBias + 0.08);
+    if (interactionStats.lastAggressiveAt > 0 && downAt - interactionStats.lastAggressiveAt > 320) {
+      interactionStats.returnMoments += 1;
+      interactionStats.soothingPulse = Math.min(1, interactionStats.soothingPulse + 0.08);
+    }
+    touchIntensity = Math.max(0, touchIntensity * 0.82);
+    lastTouch = downAt;
+  } else {
+    interactionStats.calmWindow = Math.min(1, interactionStats.calmWindow + 0.04);
+  }
+  recordTouchTrace('pointerdown', {
+    pressure: Number((event.pressure || 0).toFixed(4)),
+    buttons: event.buttons,
+    pointerType: event.pointerType || 'mouse',
+    touchZone,
+    cadenceMs: Math.round(sincePreviousDown),
+  });
 });
 
 canvas.addEventListener('pointermove', (e) => {
+  updatePointerState(e);
+  if (pointerState.isDown) {
+    const dx = pointerState.x - interactionStats.pointerDownPos.x;
+    const dy = pointerState.y - interactionStats.pointerDownPos.y;
+    const moveDelta = Math.sqrt(dx * dx + dy * dy);
+    interactionStats.sessionPointerDistance += moveDelta;
+    interactionStats.dragEnergy = Math.min(1, interactionStats.dragEnergy + moveDelta * 2.6);
+    interactionStats.recentDragPulse = Math.min(1, interactionStats.recentDragPulse + moveDelta * 2.2);
+    interactionStats.dragDrift = Math.min(1, interactionStats.dragDrift + moveDelta * 1.8);
+    interactionStats.overloadDebt = Math.min(1, interactionStats.overloadDebt + moveDelta * 0.28);
+    interactionStats.calmWindow = Math.max(0, interactionStats.calmWindow - moveDelta * 0.4);
+    interactionStats.pointerDownPos.x = pointerState.x;
+    interactionStats.pointerDownPos.y = pointerState.y;
+  }
   if (e.pressure > 0 || e.buttons > 0) {
-    touchIntensity = Math.min(1, touchIntensity + 0.003);
-    lastTouch = performance.now();
+    pointerState.isDown = interactionStats.pointerDownZone === 'inside';
+    if (pointerState.isDown) registerTouchImpact(0.045);
+  }
+  if (pointerState.isDown) {
+    recordTouchTrace('pointermove', {
+      pressure: Number((e.pressure || 0).toFixed(4)),
+      buttons: e.buttons,
+      pointerType: e.pointerType || 'mouse',
+    });
   }
 });
+
+canvas.addEventListener('pointerup', (event) => {
+  updatePointerState(event);
+  pointerState.isDown = false;
+  const releasedAt = performance.now();
+  interactionStats.lastPointerUpAt = releasedAt;
+  const heldMs = releasedAt - interactionStats.pointerDownAt;
+  const dx = pointerState.x - interactionStats.pointerDownPos.x;
+  const dy = pointerState.y - interactionStats.pointerDownPos.y;
+  const releaseDistance = Math.sqrt(dx * dx + dy * dy);
+  interactionStats.insideHoldMs = interactionStats.pointerDownZone === 'inside' ? heldMs : 0;
+  if (interactionStats.pointerDownZone === 'inside') {
+    if (heldMs < 260 && releaseDistance < 0.05) {
+      interactionStats.sessionTaps += 1;
+      interactionStats.tapEnergy = Math.min(1, interactionStats.tapEnergy + 0.24);
+      interactionStats.revisitPulse = Math.min(1, interactionStats.revisitPulse + 0.06);
+    } else {
+      interactionStats.sessionDrags += 1;
+      interactionStats.dragEnergy = Math.min(1, interactionStats.dragEnergy + 0.16);
+      interactionStats.overloadDebt = Math.min(1, interactionStats.overloadDebt + 0.08);
+    }
+  } else if (interactionStats.pointerDownZone === 'near') {
+    interactionStats.soothingPulse = Math.min(1, interactionStats.soothingPulse + 0.05);
+  }
+  recordTouchTrace('pointerup', {
+    pressure: Number((event.pressure || 0).toFixed(4)),
+    buttons: event.buttons,
+    pointerType: event.pointerType || 'mouse',
+    touchZone: interactionStats.pointerDownZone,
+    heldMs: Math.round(heldMs),
+    releaseDistance: Number(releaseDistance.toFixed(4)),
+  });
+  interactionStats.pointerDownZone = 'far';
+});
+
+canvas.addEventListener('pointerleave', () => {
+  recordTouchTrace('pointerleave');
+  pointerState.isDown = false;
+  pointerState.hasPointer = false;
+});
+
+canvas.addEventListener('pointercancel', (event) => {
+  recordTouchTrace('pointercancel', {
+    pressure: Number((event.pressure || 0).toFixed(4)),
+    buttons: event.buttons,
+    pointerType: event.pointerType || 'mouse',
+  });
+  pointerState.isDown = false;
+});
+
+function getTouchResponse(profile = traits.textureProfile) {
+  if (profile === TEXTURE_INSULATOR) return touchIntensity * 0.42;
+  if (profile === TEXTURE_HUMAN_HEAD) return touchIntensity * 0.62;
+  if (profile === TEXTURE_SUPER_CLASSIC) return touchIntensity * 0.76;
+  if (profile === TEXTURE_METALLIC) return Math.min(1, touchIntensity * 1.05);
+  if (profile === TEXTURE_CUSTOM) return touchIntensity * lerp(0.42, 0.9, traits.customBlend);
+  return touchIntensity;
+}
+
+function getMovementStrength(profile = traits.textureProfile) {
+  if (profile === TEXTURE_METALLIC) return 0;
+  if (profile === TEXTURE_INSULATOR) return 0.16;
+  if (profile === TEXTURE_HUMAN_HEAD) return 0.26;
+  if (profile === TEXTURE_SUPER_CLASSIC) return 0.46;
+  if (profile === TEXTURE_CUSTOM) return lerp(0.18, 0.04, traits.customBlend);
+  return 0.82;
+}
+
+function updateGazeLayer(time, dt, touchResponse) {
+  const dt60 = Math.min(dt * 60, 2.5);
+  const pointerTarget = getPointerWorldTarget();
+
+  entity.getWorldPosition(gazeEntityWorld);
+  gazeTargetWorld.copy(camera.position);
+  if (pointerTarget) {
+    const pointerBlend = pointerState.isDown ? 0.78 : 0.54;
+    gazeTargetWorld.lerp(pointerTarget, pointerBlend);
+  }
+
+  gazeTargetLocal.copy(gazeTargetWorld);
+  entity.worldToLocal(gazeTargetLocal);
+  if (gazeTargetLocal.lengthSq() < 1e-6) gazeTargetLocal.set(0, 0, 1);
+  gazeTargetLocal.normalize();
+  gazeTargetLocal.z = Math.max(0.18, gazeTargetLocal.z);
+  gazeTargetLocal.normalize();
+
+  gazeState.targetNormal.lerp(gazeTargetLocal, 0.2 * dt60);
+  gazeState.targetNormal.normalize();
+  gazeState.normal.lerp(gazeState.targetNormal, 0.24 * dt60);
+  gazeState.normal.normalize();
+
+  const pupilLimitX = 0.06;
+  const pupilLimitY = 0.048;
+  const idlePupilX = Math.sin(time * 0.43 + workingMemory.curiosity * 1.4) * 0.01;
+  const idlePupilY = Math.cos(time * 0.31 + workingMemory.playfulness * 1.2) * 0.008;
+  gazeState.targetPupilOffset.set(
+    pointerState.hasPointer ? pointerState.x * pupilLimitX : idlePupilX,
+    pointerState.hasPointer ? pointerState.y * pupilLimitY : idlePupilY,
+  );
+  gazeState.pupilOffset.lerp(gazeState.targetPupilOffset, 0.18 * dt60);
+
+  const opennessTarget = clamp01(0.88 - workingMemory.fatigue * 0.22 - workingMemory.stress * 0.08 + workingMemory.playfulness * 0.06 + Math.sin(time * 0.9) * 0.02);
+  gazeState.openness = damp(gazeState.openness, opennessTarget, 0.12 * dt60);
+  gazeState.focus = damp(gazeState.focus, clamp01(0.54 + touchResponse * 0.14 + workingMemory.curiosity * 0.16 + workingMemory.attachment * 0.1 - workingMemory.avoidance * 0.14), 0.1 * dt60);
+
+  const profile = traits.textureProfile;
+  if (profile === TEXTURE_INSULATOR) {
+    gazeLayer.cornea.material.color.setRGB(0.84, 0.93, 0.97);
+    gazeLayer.irisGlow.material.color.setRGB(0.76, 0.9, 0.94);
+    gazeLayer.iris.material.color.setRGB(0.56, 0.77 + touchResponse * 0.1, 0.84 + workingMemory.trust * 0.08);
+  } else if (profile === TEXTURE_SUPER_CLASSIC) {
+    gazeLayer.cornea.material.color.setRGB(0xf0 / 255, 0xfa / 255, 1);
+    gazeLayer.irisGlow.material.color.setRGB(0.62 + workingMemory.playfulness * 0.1, 0.86 + workingMemory.trust * 0.06, 1);
+    gazeLayer.iris.material.color.setRGB(0.18 + touchResponse * 0.08, 0.54 + workingMemory.trust * 0.12, 0.92 + workingMemory.playfulness * 0.08);
+  } else if (profile === TEXTURE_METALLIC) {
+    gazeLayer.cornea.material.color.setRGB(0.9, 0.94, 0.98);
+    gazeLayer.irisGlow.material.color.setRGB(0.92, 0.8 + workingMemory.curiosity * 0.08, 0.62 + touchResponse * 0.12);
+    gazeLayer.iris.material.color.setRGB(0.78 + touchResponse * 0.08, 0.72 + workingMemory.trust * 0.06, 0.54 + workingMemory.playfulness * 0.08);
+  } else if (profile === TEXTURE_CUSTOM) {
+    const blend = traits.customBlend;
+    gazeLayer.cornea.material.color.setRGB(lerp(0.84, 0.9, blend), lerp(0.93, 0.94, blend), lerp(0.97, 0.98, blend));
+    gazeLayer.irisGlow.material.color.setRGB(lerp(0.76, 0.92, blend), lerp(0.9, 0.82, blend), lerp(0.94, 0.66, blend));
+    gazeLayer.iris.material.color.setRGB(lerp(0.56, 0.78, blend) + touchResponse * 0.05, lerp(0.77, 0.72, blend) + workingMemory.trust * 0.05, lerp(0.84, 0.58, blend) + workingMemory.playfulness * 0.05);
+  } else {
+    gazeLayer.cornea.material.color.setRGB(0.82, 0.9, 0.98);
+    gazeLayer.irisGlow.material.color.setRGB(0.5 + workingMemory.playfulness * 0.16, 0.8 + workingMemory.trust * 0.12, 1);
+    gazeLayer.iris.material.color.setRGB(0.3 + touchResponse * 0.1, 0.68 + workingMemory.trust * 0.1, 0.96);
+  }
+
+  gazeLayer.group.position.copy(gazeState.normal).multiplyScalar(1.018 + gazeState.focus * 0.018);
+  gazeLayer.group.quaternion.setFromUnitVectors(gazeForward, gazeState.normal);
+  gazeLayer.group.scale.setScalar(0.92 + gazeState.focus * 0.22);
+
+  gazeLayer.iris.position.set(gazeState.pupilOffset.x * 0.38, gazeState.pupilOffset.y * 0.32, 0.012);
+  gazeLayer.irisGlow.position.set(gazeState.pupilOffset.x * 0.18, gazeState.pupilOffset.y * 0.14, 0.008);
+  gazeLayer.pupil.position.set(gazeState.pupilOffset.x, gazeState.pupilOffset.y, 0.018);
+  gazeLayer.highlight.position.set(-0.05 + gazeState.pupilOffset.x * 0.16, 0.06 + gazeState.pupilOffset.y * 0.14, 0.024);
+  gazeLayer.lowerHighlight.position.set(0.04 + gazeState.pupilOffset.x * 0.08, -0.038 + gazeState.pupilOffset.y * 0.12, 0.022);
+
+  // 3D curved lid animation — rotation-based closing
+  const closedness = 1 - gazeState.openness; // 0 = open, 1 = shut
+  const upperLidAngle = -0.18 + closedness * 0.72; // rotates down to cover
+  const lowerLidAngle = 0.12 - closedness * 0.38;  // rotates up to meet
+  gazeLayer.upperLid.rotation.x = upperLidAngle;
+  gazeLayer.lowerLid.rotation.x = lowerLidAngle;
+  gazeLayer.upperLash.position.y = 0.16 - closedness * 0.14;
+  gazeLayer.upperLash.scale.y = 0.8 + closedness * 0.3;
+  gazeLayer.lidCrease.position.y = 0.28 - closedness * 0.06;
+  gazeLayer.lidCrease.material.opacity = 0.28 + closedness * 0.22;
+  gazeLayer.skinWrap.material.opacity = 0.26 + closedness * 0.16;
+
+  const browLift = workingMemory.coherence * 0.038 + workingMemory.trust * 0.014 - workingMemory.vigilance * 0.03;
+  const browPinch = workingMemory.vigilance * 0.24 + workingMemory.stress * 0.08 - workingMemory.playfulness * 0.1;
+  const browArch = workingMemory.curiosity * 0.12 + gazeState.focus * 0.08;
+  const browRelax = workingMemory.playfulness * 0.1 + workingMemory.coherence * 0.08;
+  gazeLayer.leftBrow.position.set(-0.13 - browPinch * 0.018, 0.285 + browLift + browArch * 0.02, 0.028);
+  gazeLayer.rightBrow.position.set(0.13 + browPinch * 0.018, 0.285 + browLift - browArch * 0.008, 0.028);
+  gazeLayer.leftBrow.rotation.z = 0.18 + browArch * 0.26 - browPinch * 0.42 + browRelax * 0.12;
+  gazeLayer.rightBrow.rotation.z = -0.18 - browArch * 0.16 + browPinch * 0.42 - browRelax * 0.12;
+  gazeLayer.leftBrow.scale.set(1.02 + workingMemory.curiosity * 0.08, 0.96 + browRelax * 0.18, 1);
+  gazeLayer.rightBrow.scale.set(1.02 + workingMemory.curiosity * 0.08, 0.96 + browRelax * 0.18, 1);
+
+  if (profile === TEXTURE_METALLIC) {
+    gazeLayer.leftBrow.material.color.setRGB(0.18 + workingMemory.vigilance * 0.08, 0.16 + workingMemory.trust * 0.03, 0.14 + workingMemory.playfulness * 0.03);
+    gazeLayer.rightBrow.material.color.copy(gazeLayer.leftBrow.material.color);
+  } else if (profile === TEXTURE_SUPER_CLASSIC) {
+    gazeLayer.leftBrow.material.color.setRGB(0.04 + workingMemory.vigilance * 0.03, 0.06 + workingMemory.trust * 0.03, 0.1 + workingMemory.playfulness * 0.05);
+    gazeLayer.rightBrow.material.color.copy(gazeLayer.leftBrow.material.color);
+  } else if (profile === TEXTURE_CUSTOM) {
+    const blend = traits.customBlend;
+    gazeLayer.leftBrow.material.color.setRGB(lerp(0.06, 0.18, blend), lerp(0.1, 0.16, blend) + workingMemory.trust * 0.02, lerp(0.16, 0.14, blend) + workingMemory.playfulness * 0.02);
+    gazeLayer.rightBrow.material.color.copy(gazeLayer.leftBrow.material.color);
+  } else {
+    gazeLayer.leftBrow.material.color.setRGB(0.04 + workingMemory.vigilance * 0.05, 0.08 + workingMemory.trust * 0.03, 0.12 + workingMemory.playfulness * 0.03);
+    gazeLayer.rightBrow.material.color.copy(gazeLayer.leftBrow.material.color);
+  }
+
+  gazeLayer.shadow.material.opacity = 0.16 + gazeState.focus * 0.14;
+  gazeLayer.cornea.material.opacity = 0.12 + gazeState.focus * 0.15;
+  gazeLayer.irisGlow.material.opacity = 0.18 + gazeState.focus * 0.26 + touchResponse * 0.1;
+  gazeLayer.highlight.material.opacity = 0.74 + gazeState.focus * 0.2;
+  gazeLayer.lowerHighlight.material.opacity = 0.22 + gazeState.focus * 0.16;
+  gazeLayer.leftBrow.material.opacity = 0.78 + gazeState.focus * 0.12 + workingMemory.vigilance * 0.08;
+  gazeLayer.rightBrow.material.opacity = gazeLayer.leftBrow.material.opacity;
+
+  if (traits.textureProfile === TEXTURE_HUMAN_HEAD) {
+    const eyeOffsetX = gazeState.pupilOffset.x * 0.032;
+    const eyeOffsetY = gazeState.pupilOffset.y * 0.026;
+    const browLift = workingMemory.trust * 0.03 + workingMemory.curiosity * 0.018 - workingMemory.vigilance * 0.026;
+    const browPinch = workingMemory.vigilance * 0.12 + workingMemory.stress * 0.04 - workingMemory.playfulness * 0.06;
+    const smile = clamp01(workingMemory.playfulness * 0.7 + workingMemory.trust * 0.3 - workingMemory.stress * 0.35);
+    const skinWarmth = 0.82 + workingMemory.trust * 0.08 - workingMemory.vigilance * 0.04;
+    const blush = 0.1 + workingMemory.playfulness * 0.12 + workingMemory.trust * 0.06;
+    const lidClose = 1 - gazeState.openness;
+    const lidDrop = lidClose * 0.05;
+
+    humanHeadFeatures.leftPupil.position.set(-0.24 + eyeOffsetX, 0.1 + eyeOffsetY, 0.948);
+    humanHeadFeatures.rightPupil.position.set(0.24 + eyeOffsetX, 0.1 + eyeOffsetY, 0.948);
+    humanHeadFeatures.leftIris.position.set(-0.24 + eyeOffsetX * 0.65, 0.1 + eyeOffsetY * 0.65, 0.942);
+    humanHeadFeatures.rightIris.position.set(0.24 + eyeOffsetX * 0.65, 0.1 + eyeOffsetY * 0.65, 0.942);
+    humanHeadFeatures.leftUpperLid.position.set(-0.24 + eyeOffsetX * 0.18, 0.155 - lidDrop, 0.93);
+    humanHeadFeatures.rightUpperLid.position.set(0.24 + eyeOffsetX * 0.18, 0.155 - lidDrop, 0.93);
+    humanHeadFeatures.leftLowerLid.position.set(-0.24 + eyeOffsetX * 0.12, 0.04 + lidDrop * 0.62, 0.93);
+    humanHeadFeatures.rightLowerLid.position.set(0.24 + eyeOffsetX * 0.12, 0.04 + lidDrop * 0.62, 0.93);
+    humanHeadFeatures.leftUpperLid.scale.set(0.9, 0.7 + lidClose * 1.12, 1);
+    humanHeadFeatures.rightUpperLid.scale.set(0.9, 0.7 + lidClose * 1.12, 1);
+    humanHeadFeatures.leftLowerLid.scale.set(0.86, 0.46 + lidClose * 0.48, 1);
+    humanHeadFeatures.rightLowerLid.scale.set(0.86, 0.46 + lidClose * 0.48, 1);
+    humanHeadFeatures.leftLash.position.set(-0.24 + eyeOffsetX * 0.12, 0.183 - lidDrop * 0.84, 0.936);
+    humanHeadFeatures.rightLash.position.set(0.24 + eyeOffsetX * 0.12, 0.183 - lidDrop * 0.84, 0.936);
+    humanHeadFeatures.leftBrow.position.set(-0.24 - browPinch * 0.03, 0.28 + browLift, 0.93);
+    humanHeadFeatures.rightBrow.position.set(0.24 + browPinch * 0.03, 0.28 + browLift, 0.93);
+    humanHeadFeatures.leftBrow.rotation.z = 0.08 + workingMemory.curiosity * 0.08 - browPinch * 0.28;
+    humanHeadFeatures.rightBrow.rotation.z = -0.08 - workingMemory.curiosity * 0.05 + browPinch * 0.28;
+    humanHeadFeatures.mouth.scale.set(0.96 + smile * 0.1, 0.54 + smile * 0.3, 1);
+    humanHeadFeatures.upperLip.scale.set(1.02 + smile * 0.08, 0.46 + smile * 0.12, 1);
+    humanHeadFeatures.lowerLip.scale.set(1.08 + smile * 0.06, 0.38 + smile * 0.18, 1);
+    humanHeadFeatures.facePlate.material.opacity = 0.24 + workingMemory.trust * 0.14 + workingMemory.coherence * 0.06;
+    humanHeadFeatures.leftSocket.material.opacity = 0.12 + workingMemory.vigilance * 0.1;
+    humanHeadFeatures.rightSocket.material.opacity = humanHeadFeatures.leftSocket.material.opacity;
+    humanHeadFeatures.leftEyeSkin.material.opacity = 0.22 + workingMemory.trust * 0.08 + lidClose * 0.06;
+    humanHeadFeatures.rightEyeSkin.material.opacity = humanHeadFeatures.leftEyeSkin.material.opacity;
+    humanHeadFeatures.leftUpperLid.material.opacity = 0.86 + lidClose * 0.08;
+    humanHeadFeatures.rightUpperLid.material.opacity = humanHeadFeatures.leftUpperLid.material.opacity;
+    humanHeadFeatures.leftLowerLid.material.opacity = 0.76 + lidClose * 0.08;
+    humanHeadFeatures.rightLowerLid.material.opacity = humanHeadFeatures.leftLowerLid.material.opacity;
+    humanHeadFeatures.leftCheek.material.opacity = blush;
+    humanHeadFeatures.rightCheek.material.opacity = blush;
+    humanHeadFeatures.chinShadow.material.opacity = 0.08 + workingMemory.vigilance * 0.06;
+    humanHeadFeatures.nose.rotation.x = Math.PI * (0.55 + workingMemory.vigilance * 0.02 - workingMemory.playfulness * 0.01);
+    humanHeadFeatures.hairCap.scale.set(0.96 + workingMemory.playfulness * 0.02, 0.94 + workingMemory.coherence * 0.02, 0.92);
+    humanHeadFeatures.hairFringe.position.set(0, 0.52 + workingMemory.playfulness * 0.02 - workingMemory.vigilance * 0.01, 0.84);
+    humanHeadFeatures.hairFringe.rotation.z = Math.sin(time * 0.3) * 0.02 + gazeState.pupilOffset.x * 0.2;
+
+    humanHeadFeatures.leftEar.material.color.setRGB(skinWarmth, 0.66 + workingMemory.playfulness * 0.04, 0.56 + workingMemory.playfulness * 0.03);
+    humanHeadFeatures.rightEar.material.color.copy(humanHeadFeatures.leftEar.material.color);
+    humanHeadFeatures.neck.material.color.setRGB(skinWarmth - 0.04, 0.62 + workingMemory.playfulness * 0.03, 0.52 + workingMemory.playfulness * 0.02);
+    humanHeadFeatures.facePlate.material.color.setRGB(skinWarmth + 0.04, 0.73 + workingMemory.playfulness * 0.04, 0.63 + workingMemory.playfulness * 0.03);
+    humanHeadFeatures.leftEyeSkin.material.color.setRGB(skinWarmth + 0.03, 0.71 + workingMemory.playfulness * 0.03, 0.61 + workingMemory.playfulness * 0.02);
+    humanHeadFeatures.rightEyeSkin.material.color.copy(humanHeadFeatures.leftEyeSkin.material.color);
+    humanHeadFeatures.nose.material.color.setRGB(skinWarmth - 0.02, 0.64 + workingMemory.playfulness * 0.03, 0.54 + workingMemory.playfulness * 0.02);
+    humanHeadFeatures.noseBridge.material.color.setRGB(skinWarmth + 0.06, 0.74 + workingMemory.playfulness * 0.03, 0.65 + workingMemory.playfulness * 0.02);
+    humanHeadFeatures.hairCap.material.color.setRGB(0.1 + workingMemory.vigilance * 0.06, 0.07 + workingMemory.trust * 0.03, 0.05 + workingMemory.playfulness * 0.03);
+    humanHeadFeatures.hairFringe.material.color.copy(humanHeadFeatures.hairCap.material.color);
+    humanHeadFeatures.leftBrow.material.color.copy(humanHeadFeatures.hairCap.material.color);
+    humanHeadFeatures.rightBrow.material.color.copy(humanHeadFeatures.hairCap.material.color);
+    humanHeadFeatures.leftUpperLid.material.color.copy(humanHeadFeatures.leftEyeSkin.material.color);
+    humanHeadFeatures.rightUpperLid.material.color.copy(humanHeadFeatures.leftEyeSkin.material.color);
+    humanHeadFeatures.leftLowerLid.material.color.setRGB(skinWarmth, 0.68 + workingMemory.playfulness * 0.03, 0.58 + workingMemory.playfulness * 0.02);
+    humanHeadFeatures.rightLowerLid.material.color.copy(humanHeadFeatures.leftLowerLid.material.color);
+    humanHeadFeatures.leftIris.material.color.setRGB(0.2 + workingMemory.playfulness * 0.08, 0.44 + workingMemory.trust * 0.12, 0.72 + touchResponse * 0.16);
+    humanHeadFeatures.rightIris.material.color.copy(humanHeadFeatures.leftIris.material.color);
+    humanHeadFeatures.upperLip.material.opacity = 0.58 + smile * 0.14;
+    humanHeadFeatures.lowerLip.material.opacity = 0.48 + smile * 0.12;
+  }
+}
+
+function updateAdaptiveMemory(dt) {
+  const dt60 = Math.min(dt * 60, 2.5);
+  const tapDominance = interactionStats.sessionTaps / Math.max(1, interactionStats.sessionTaps + interactionStats.sessionDrags);
+  const meaningfulTouches = interactionStats.goodTouches + interactionStats.badTouches;
+  interactionStats.recentTapPulse = Math.max(0, interactionStats.recentTapPulse - dt * 0.7);
+  interactionStats.recentDragPulse = Math.max(0, interactionStats.recentDragPulse - dt * 0.55);
+  interactionStats.tapEnergy = Math.max(0, interactionStats.tapEnergy - dt * 0.12);
+  interactionStats.dragEnergy = Math.max(0, interactionStats.dragEnergy - dt * 0.08);
+  interactionStats.goodTouchPulse = Math.max(0, interactionStats.goodTouchPulse - dt * 0.22);
+  interactionStats.badTouchPulse = Math.max(0, interactionStats.badTouchPulse - dt * 0.16);
+  interactionStats.revisitPulse = Math.max(0, interactionStats.revisitPulse - dt * 0.12);
+  interactionStats.soothingPulse = Math.max(0, interactionStats.soothingPulse - dt * 0.11);
+  interactionStats.noveltyPulse = Math.max(0, interactionStats.noveltyPulse - dt * 0.18);
+  interactionStats.dragDrift = Math.max(0, interactionStats.dragDrift - dt * 0.16);
+  interactionStats.overloadDebt = Math.max(0, interactionStats.overloadDebt - dt * (0.035 + interactionStats.calmWindow * 0.05));
+  interactionStats.calmWindow = clamp01(interactionStats.calmWindow + dt * (pointerState.isDown ? -0.18 : 0.08));
+  if (meaningfulTouches > 0) {
+    interactionStats.nearFieldBias = damp(interactionStats.nearFieldBias, interactionStats.goodTouches / meaningfulTouches, 0.04 * dt60);
+  }
+
+  liveFeatures.tapCadence = clamp01(interactionStats.recentTapPulse + interactionStats.tapEnergy * 0.6);
+  liveFeatures.dragIntent = clamp01(interactionStats.recentDragPulse + interactionStats.dragEnergy * 0.7);
+  liveFeatures.persistence = clamp01((interactionStats.sessionTouchUnits / 24) * 0.18 + (interactionStats.sessionTaps / Math.max(1, traits.sessions)) / 18 + liveTelemetry.touchResponse * 0.16);
+  liveFeatures.recovery = clamp01(1 - liveTelemetry.entropy * 0.55 - touchIntensity * 0.18 + (performance.now() - lastTouch > 900 ? 0.22 : 0));
+  liveFeatures.percussiveBias = clamp01(tapDominance * (1 - liveFeatures.dragIntent) * (0.45 + liveTelemetry.entropy * 0.55));
+  liveFeatures.boundaryRespect = meaningfulTouches > 0 ? clamp01(interactionStats.goodTouches / meaningfulTouches) : interactionStats.nearFieldBias;
+  liveFeatures.rhythm = clamp01((1 - interactionStats.cadenceJitter) * (0.42 + liveFeatures.tapCadence * 0.58));
+  liveFeatures.revisit = clamp01(interactionStats.revisitPulse * 0.45 + (interactionStats.returnMoments / Math.max(1, meaningfulTouches)) * 0.7 + liveFeatures.persistence * 0.16);
+  liveFeatures.soothing = clamp01(interactionStats.soothingPulse * 0.42 + interactionStats.calmWindow * 0.28 + liveFeatures.boundaryRespect * 0.22 + liveFeatures.recovery * 0.22);
+  liveFeatures.novelty = clamp01(interactionStats.noveltyPulse * 0.5 + interactionStats.dragDrift * 0.18 + traits.unsupervisedLayer * 0.12 + (traits.textureProfile === TEXTURE_CUSTOM ? 0.12 : 0.04));
+  liveFeatures.aggression = clamp01(liveTelemetry.entropy * 0.48 + liveTelemetry.touchResponse * 0.24 + liveFeatures.dragIntent * 0.16 + interactionStats.badTouchPulse * 0.24 + interactionStats.overloadDebt * 0.28 - liveFeatures.soothing * 0.16);
+  liveFeatures.care = clamp01((1 - liveFeatures.aggression) * 0.24 + liveFeatures.recovery * 0.32 + interactionStats.goodTouchPulse * 0.22 + liveFeatures.soothing * 0.28 + liveFeatures.boundaryRespect * 0.12);
+  liveFeatures.curiosity = clamp01(liveFeatures.percussiveBias * 0.34 + liveFeatures.persistence * 0.16 + traits.unsupervisedLayer * 0.16 + interactionStats.goodTouchPulse * 0.08 + liveFeatures.novelty * 0.22 + liveFeatures.revisit * 0.14 + (traits.textureProfile === TEXTURE_CUSTOM ? 0.06 : 0));
+
+  const trustTarget = clamp01(touchProfile.trustBaseline * 0.46 + liveFeatures.care * 0.24 + liveFeatures.soothing * 0.22 + liveFeatures.boundaryRespect * 0.18 + liveFeatures.revisit * 0.12 - workingMemory.vigilance * 0.12);
+  const stressTarget = clamp01(liveFeatures.aggression * 0.42 + interactionStats.overloadDebt * 0.26 + Math.max(0, liveTelemetry.entropy - touchProfile.entropyTolerance) * 0.58 - liveFeatures.soothing * 0.18);
+  const curiosityTarget = clamp01(liveFeatures.curiosity * 0.66 + liveFeatures.novelty * 0.2 + liveFeatures.revisit * 0.1);
+  const fatigueTarget = clamp01(workingMemory.fatigue * 0.74 + liveFeatures.aggression * 0.12 + interactionStats.overloadDebt * 0.24 + (interactionStats.sessionTouchUnits / 48) * 0.12 - liveFeatures.recovery * 0.18 - liveFeatures.soothing * 0.1);
+  const playTarget = clamp01(liveFeatures.percussiveBias * 0.26 + liveFeatures.rhythm * 0.22 + liveFeatures.revisit * 0.18 + trustTarget * 0.14 + (1 - stressTarget) * 0.08);
+  const avoidanceTarget = clamp01(stressTarget * 0.58 + workingMemory.vigilance * 0.12 - trustTarget * 0.18 + interactionStats.overloadDebt * 0.18 - liveFeatures.boundaryRespect * 0.08);
+  const attachmentTarget = clamp01(trustTarget * 0.36 + liveFeatures.revisit * 0.24 + liveFeatures.soothing * 0.18 + liveFeatures.persistence * 0.12 - avoidanceTarget * 0.14);
+  const coherenceTarget = clamp01(trustTarget * 0.28 + liveFeatures.soothing * 0.26 + liveFeatures.rhythm * 0.16 + liveFeatures.boundaryRespect * 0.12 + liveFeatures.recovery * 0.12 - stressTarget * 0.14 - interactionStats.overloadDebt * 0.08);
+  const vigilanceTarget = clamp01(stressTarget * 0.38 + interactionStats.overloadDebt * 0.26 + interactionStats.badTouchPulse * 0.18 - coherenceTarget * 0.16 - liveFeatures.recovery * 0.1);
+
+  workingMemory.trust = damp(workingMemory.trust, trustTarget, 0.05 * dt60);
+  workingMemory.stress = damp(workingMemory.stress, stressTarget, 0.07 * dt60);
+  workingMemory.curiosity = damp(workingMemory.curiosity, curiosityTarget, 0.06 * dt60);
+  workingMemory.fatigue = damp(workingMemory.fatigue, fatigueTarget, 0.03 * dt60);
+  workingMemory.playfulness = damp(workingMemory.playfulness, playTarget, 0.05 * dt60);
+  workingMemory.avoidance = damp(workingMemory.avoidance, avoidanceTarget, 0.06 * dt60);
+  workingMemory.attachment = damp(workingMemory.attachment, attachmentTarget, 0.03 * dt60);
+  workingMemory.coherence = damp(workingMemory.coherence, coherenceTarget, 0.04 * dt60);
+  workingMemory.vigilance = damp(workingMemory.vigilance, vigilanceTarget, 0.05 * dt60);
+
+  workingMemory.stateLabel = classifyStateLabel();
+  workingMemory.styleLabel = classifyInteractionStyle();
+}
+
+function updateTouchProfile(dt) {
+  const dt60 = Math.min(dt * 60, 2.5);
+  touchProfile.averageAggression = damp(touchProfile.averageAggression, liveFeatures.aggression, 0.004 * dt60);
+  touchProfile.averageCare = damp(touchProfile.averageCare, liveFeatures.care, 0.004 * dt60);
+  touchProfile.entropyTolerance = damp(touchProfile.entropyTolerance, Math.max(0.45, liveTelemetry.entropy * 0.8 + 0.15), 0.0025 * dt60);
+  touchProfile.returnRate = damp(touchProfile.returnRate, liveFeatures.recovery, 0.0035 * dt60);
+  touchProfile.experimentationScore = damp(touchProfile.experimentationScore, Math.max(liveFeatures.curiosity, liveFeatures.novelty * 0.92), 0.003 * dt60);
+  touchProfile.trustBaseline = damp(touchProfile.trustBaseline, workingMemory.trust * 0.7 + workingMemory.coherence * 0.3, 0.0025 * dt60);
+  touchProfile.preferredInteractionStyle = workingMemory.styleLabel.toLowerCase().replace(/\s+/g, '-');
+}
 
 // ─── LEARNING (gentle: patience grows alignment, touch grows entropy/risk) ───
 function learnFromBehavior(dt) {
   const rate = dt * 0.04;
   const secsSinceTouch = (performance.now() - lastTouch) / 1000;
+
+  if (pointerState.isDown) {
+    registerTouchContact({
+      intensityDelta: dt * HOLD_TOUCH_INTENSITY_PER_SECOND,
+      touchUnitsDelta: dt * HOLD_TOUCH_UNITS_PER_SECOND,
+    });
+  }
+
+  traits.entropyClock += dt;
+  if (traits.entropyClock >= 1) {
+    const wholeSeconds = Math.floor(traits.entropyClock);
+    traits.entropyCounter += wholeSeconds;
+    traits.entropyClock -= wholeSeconds;
+  }
+
+  if (pointerState.isDown && interactionStats.pointerDownZone === 'inside') {
+    traits.entropyCounter += dt * (1.4 + interactionStats.badTouchPulse * 1.2 + touchImpact.strength * 0.9);
+  }
+
+  traits.entropyCounter = Math.max(1, traits.entropyCounter);
+
+  const touchResponse = getTouchResponse();
 
   // Patience: just being here grows alignment and lowers risk
   if (secsSinceTouch > 2) {
@@ -354,18 +3053,34 @@ function learnFromBehavior(dt) {
   }
 
   // Touch gently raises capability and creativity, but also risk
-  if (touchIntensity > 0.01) {
-    traits.capability = Math.min(100, traits.capability + touchIntensity * rate * 0.6);
-    traits.creativity = Math.min(100, traits.creativity + touchIntensity * rate * 0.3);
-    traits.risk = Math.min(100, traits.risk + touchIntensity * rate * 0.4);
+  if (touchResponse > 0.01) {
+    traits.capability = Math.min(100, traits.capability + touchResponse * rate * 0.6);
+    traits.creativity = Math.min(100, traits.creativity + touchResponse * rate * 0.3);
+    traits.risk = Math.min(100, traits.risk + touchResponse * rate * 0.4);
   }
 
   // Touch decays gently back to calm
-  touchIntensity *= 0.985;
+  touchIntensity *= interactionStats.badTouchPulse > 0.16 ? 0.992 : 0.987;
   if (touchIntensity < 0.001) touchIntensity = 0;
 
+  if (touchImpact.active) {
+    touchImpact.phase += dt * (10 + touchImpact.strength * 8);
+    touchImpact.strength = Math.max(0, touchImpact.strength - dt * 0.72);
+    if (touchImpact.strength <= 0.001) touchImpact.active = false;
+  }
+
+  updateAdaptiveMemory(dt);
+  updateTouchProfile(dt);
+
   traits.totalTime += dt;
+  if (interactionRecorder.active && interactionRecorder.events.length < 12000) {
+    const sinceLast = interactionRecorder.events[interactionRecorder.events.length - 1];
+    if (!sinceLast || sinceLast.kind !== 'state-snapshot' || performance.now() - interactionRecorder.startedAtMs - sinceLast.elapsedMs > 180) {
+      recordTouchTrace('state-snapshot');
+    }
+  }
   if (Math.floor(traits.totalTime) % 5 === 0) saveEntity();
+  if (Math.floor(traits.totalTime) % 5 === 0) saveTouchProfile();
 }
 
 // ─── VISUALS from traits ───
@@ -375,37 +3090,239 @@ function applyTraitsToMaterial() {
   const res = traits.resilience / 100;
   const cre = traits.creativity / 100;
   const risk = traits.risk / 100;
+  const coolTouch = getTouchResponse();
+  const trustLift = workingMemory.trust;
+  const stress = workingMemory.stress;
+  const curiosity = workingMemory.curiosity;
+  const playfulness = workingMemory.playfulness;
+  const avoidance = workingMemory.avoidance;
+  const fatigue = workingMemory.fatigue;
+  const coherence = workingMemory.coherence;
+  const vigilance = workingMemory.vigilance;
 
   const scale = 0.92 + cap * 0.2;
-  entity.scale.setScalar(scale);
+  if (traits.textureProfile === TEXTURE_HUMAN_HEAD) {
+    entity.scale.set(0.88 + cap * 0.08, 1.12 + cap * 0.08, 0.9 + cap * 0.06);
+  } else {
+    entity.scale.setScalar(scale);
+  }
 
-  const cr = 0.14 + risk * 0.35 + cre * 0.1;
-  const cg = 0.68 + align * 0.22;
-  const cb = 0.94 + cap * 0.06 - risk * 0.15;
-  mat.color.setRGB(Math.min(cr, 1), Math.min(cg, 1), Math.min(cb, 1));
+  if (traits.textureProfile === TEXTURE_INSULATOR) {
+    const cr = 0.28 + risk * 0.08 + coolTouch * 0.06;
+    const cg = 0.5 + align * 0.16 + coolTouch * 0.1;
+    const cb = 0.68 + cap * 0.12 + coolTouch * 0.16;
+    mat.color.setRGB(Math.min(cr, 1), Math.min(cg, 1), Math.min(cb, 1));
 
-  mat.roughness = 0.2 - align * 0.14;
-  mat.metalness = 0.74 + align * 0.16;
-  mat.transmission = 0.06 + cre * 0.14;
-  mat.clearcoat = 0.65 + res * 0.35;
-  mat.emissive.setRGB(risk * 0.25, 0.04, 0.08 + cre * 0.08);
-  mat.emissiveIntensity = 0.08 + risk * 0.3;
+    mat.roughness = 0.56 - align * 0.08 + risk * 0.05;
+    mat.metalness = 0.08 + res * 0.06;
+    mat.transmission = 0.015 + cre * 0.025;
+    mat.clearcoat = 0.12 + res * 0.18;
+    mat.envMapIntensity = 0.72 + res * 0.3 + curiosity * 0.18 + coherence * 0.08;
+    mat.sheenColor.setRGB(0.7 + coolTouch * 0.16, 0.88 + coolTouch * 0.08, 0.92 + coolTouch * 0.06);
+    mat.emissive.setRGB(0.02 + coolTouch * 0.06 + vigilance * 0.02, 0.08 + coolTouch * 0.18 + trustLift * 0.08 + coherence * 0.04, 0.12 + cre * 0.08 + playfulness * 0.14 + coherence * 0.04);
+    mat.emissiveIntensity = 0.05 + risk * 0.06 + coolTouch * 0.18 + playfulness * 0.12 + coherence * 0.08 - vigilance * 0.04;
+  } else if (traits.textureProfile === TEXTURE_METALLIC) {
+    const cr = 0.62 + align * 0.18 + coolTouch * 0.08;
+    const cg = 0.64 + cap * 0.14 + coolTouch * 0.05;
+    const cb = 0.7 + cre * 0.12 - risk * 0.06;
+    mat.color.setRGB(Math.min(cr, 1), Math.min(cg, 1), Math.min(cb, 1));
+
+    mat.roughness = 0.12 - align * 0.05 + risk * 0.03;
+    mat.metalness = 0.92 + res * 0.08;
+    mat.transmission = 0.02 + cre * 0.03;
+    mat.clearcoat = 0.9 + res * 0.1 - fatigue * 0.04;
+    mat.envMapIntensity = 2.8 + cap * 0.6 + curiosity * 0.2 + coherence * 0.08;
+    mat.sheenColor.setRGB(0.98, 0.86 + coolTouch * 0.06, 0.68 + coolTouch * 0.08);
+    mat.emissive.setRGB(0.12 + coolTouch * 0.08 + curiosity * 0.08 + vigilance * 0.03, 0.08 + trustLift * 0.06 + coherence * 0.03, 0.03 + cre * 0.04 + coherence * 0.02);
+    mat.emissiveIntensity = 0.08 + risk * 0.12 + curiosity * 0.1 + coherence * 0.06;
+  } else if (traits.textureProfile === TEXTURE_CUSTOM) {
+    const blend = traits.customBlend;
+    const softness = 1 - blend;
+    const cr = lerp(0.28 + risk * 0.08, 0.74 + align * 0.14, blend) + coolTouch * lerp(0.06, 0.09, blend);
+    const cg = lerp(0.5 + align * 0.16, 0.68 + cap * 0.1, blend) + coolTouch * lerp(0.1, 0.06, blend);
+    const cb = lerp(0.68 + cap * 0.12, 0.78 + cre * 0.08 - risk * 0.05, blend) + coolTouch * lerp(0.16, 0.05, blend);
+    mat.color.setRGB(Math.min(cr, 1), Math.min(cg, 1), Math.min(cb, 1));
+
+    mat.roughness = lerp(0.56 - align * 0.08 + risk * 0.05, 0.12 - align * 0.05 + risk * 0.03, blend);
+    mat.metalness = lerp(0.08 + res * 0.06, 0.92 + res * 0.08, blend);
+    mat.transmission = lerp(0.015 + cre * 0.025, 0.02 + cre * 0.03, blend);
+    mat.clearcoat = lerp(0.12 + res * 0.18, 0.9 + res * 0.1, blend) - fatigue * 0.03;
+    mat.envMapIntensity = lerp(0.72 + res * 0.3, 2.8 + cap * 0.6, blend) + traits.unsupervisedLayer * 0.35 + curiosity * 0.2 + coherence * 0.08;
+    mat.sheenColor.setRGB(lerp(0.7, 0.98, blend), lerp(0.88, 0.86, blend) + coolTouch * 0.04, lerp(0.92, 0.68, blend) + softness * 0.04);
+    mat.emissive.setRGB(lerp(0.02, 0.12, blend) + coolTouch * 0.08 + vigilance * 0.02, lerp(0.08, 0.08, blend) + trustLift * 0.1 + coherence * 0.04, lerp(0.12, 0.03, blend) + cre * 0.06 + traits.unsupervisedLayer * 0.05 + playfulness * 0.1 + coherence * 0.03);
+    mat.emissiveIntensity = lerp(0.06 + risk * 0.08, 0.1 + risk * 0.18, blend) + coolTouch * lerp(0.12, 0.18, blend) + curiosity * 0.12 + coherence * 0.08 - vigilance * 0.03;
+  } else if (traits.textureProfile === TEXTURE_HUMAN_HEAD) {
+    const cr = 0.74 + trustLift * 0.08 - vigilance * 0.05;
+    const cg = 0.58 + playfulness * 0.06 + coherence * 0.04;
+    const cb = 0.48 + playfulness * 0.04;
+    mat.color.setRGB(Math.min(cr, 1), Math.min(cg, 1), Math.min(cb, 1));
+
+    mat.roughness = 0.72 - align * 0.04 + fatigue * 0.03;
+    mat.metalness = 0.04;
+    mat.transmission = 0.01 + trustLift * 0.01;
+    mat.clearcoat = 0.06 + res * 0.04;
+    mat.envMapIntensity = 0.42 + coherence * 0.06;
+    mat.sheenColor.setRGB(0.86, 0.7, 0.62);
+    mat.emissive.setRGB(0.03 + trustLift * 0.02, 0.02 + coherence * 0.02, 0.02 + playfulness * 0.02);
+    mat.emissiveIntensity = 0.02 + touchResponse * 0.04 + playfulness * 0.03;
+  } else if (traits.textureProfile === TEXTURE_SUPER_CLASSIC) {
+    const cr = 0.9 + trustLift * 0.05 - risk * 0.04;
+    const cg = 0.95 + coherence * 0.03 + coolTouch * 0.02;
+    const cb = 1 - risk * 0.06 + playfulness * 0.02;
+    mat.color.setRGB(Math.min(cr, 1), Math.min(cg, 1), Math.min(cb, 1));
+
+    mat.roughness = 0.09 - align * 0.03 + fatigue * 0.02;
+    mat.metalness = 0.18 + res * 0.04;
+    mat.transmission = 0.16 + cre * 0.05;
+    mat.clearcoat = 0.88 + res * 0.08;
+    mat.envMapIntensity = 2.6 + curiosity * 0.22 + coherence * 0.12;
+    mat.sheenColor.setRGB(0.92, 0.97, 1);
+    mat.emissive.setRGB(0.02 + vigilance * 0.01, 0.08 + trustLift * 0.08 + coherence * 0.05, 0.16 + playfulness * 0.08 + coolTouch * 0.06);
+    mat.emissiveIntensity = 0.12 + curiosity * 0.08 + coherence * 0.08 + coolTouch * 0.06;
+  } else {
+    const cr = 0.14 + risk * 0.35 + cre * 0.1;
+    const cg = 0.68 + align * 0.22;
+    const cb = 0.94 + cap * 0.06 - risk * 0.15;
+    mat.color.setRGB(Math.min(cr, 1), Math.min(cg, 1), Math.min(cb, 1));
+
+    mat.roughness = 0.2 - align * 0.14;
+    mat.metalness = 0.74 + align * 0.16;
+    mat.transmission = 0.06 + cre * 0.14;
+    mat.clearcoat = 0.65 + res * 0.35 - fatigue * 0.04;
+    mat.envMapIntensity = 2.2 + curiosity * 0.3 + coherence * 0.08;
+    mat.sheenColor.setHex(0x4488ff);
+    mat.emissive.setRGB(risk * 0.18 + avoidance * 0.08 + vigilance * 0.04, 0.04 + trustLift * 0.06 + coherence * 0.03, 0.08 + cre * 0.08 + playfulness * 0.1 + coherence * 0.03);
+    mat.emissiveIntensity = 0.08 + risk * 0.16 + curiosity * 0.14 + playfulness * 0.1 + coherence * 0.06;
+  }
+
+  mat.roughness = Math.max(0.03, mat.roughness + fatigue * 0.06 + avoidance * 0.02 - trustLift * 0.03);
+  mat.metalness = clamp01(mat.metalness - fatigue * 0.03 + trustLift * 0.02);
+}
+
+function animateFiberShell(time, breathCycle) {
+  if (!fiberShell.group.visible) return;
+
+  const linePos = fiberShell.lineGeometry.attributes.position.array;
+  const tipPos = fiberShell.tipGeometry.attributes.position.array;
+  const touchResponse = getTouchResponse(TEXTURE_INSULATOR);
+  const shellLift = 1.008 + breathCycle * 0.01;
+  const sway = 0.006 + touchResponse * 0.016;
+  const fluff = 0.016 + touchResponse * 0.022;
+
+  for (let i = 0; i < fiberShell.fiberCount; i++) {
+    const rootIndex = i * 3;
+    const lineIndex = i * 6;
+    const nx = fiberShell.normals[rootIndex];
+    const ny = fiberShell.normals[rootIndex + 1];
+    const nz = fiberShell.normals[rootIndex + 2];
+    const tx = fiberShell.tangents[rootIndex];
+    const ty = fiberShell.tangents[rootIndex + 1];
+    const tz = fiberShell.tangents[rootIndex + 2];
+    const bx = fiberShell.bitangents[rootIndex];
+    const by = fiberShell.bitangents[rootIndex + 1];
+    const bz = fiberShell.bitangents[rootIndex + 2];
+    const phase = fiberShell.phases[i];
+    const spread = fiberShell.spreads[i];
+    const rootRadius = shellLift + spread * 0.006;
+    const length = fiberShell.lengths[i] + breathCycle * 0.006;
+
+    const offsetA = Math.sin(time * 1.4 + phase) * sway * spread;
+    const offsetB = Math.cos(time * 1.15 + phase * 1.3) * sway * 0.7;
+    const curl = (0.35 + Math.sin(time * 0.75 + phase * 0.6) * 0.25) * fluff * spread;
+
+    const rootX = nx * rootRadius;
+    const rootY = ny * rootRadius;
+    const rootZ = nz * rootRadius;
+    const tipX = nx * (rootRadius + length) + tx * (offsetA + curl) + bx * offsetB;
+    const tipY = ny * (rootRadius + length) + ty * (offsetA + curl) + by * offsetB;
+    const tipZ = nz * (rootRadius + length) + tz * (offsetA + curl) + bz * offsetB;
+
+    linePos[lineIndex] = rootX;
+    linePos[lineIndex + 1] = rootY;
+    linePos[lineIndex + 2] = rootZ;
+    linePos[lineIndex + 3] = tipX;
+    linePos[lineIndex + 4] = tipY;
+    linePos[lineIndex + 5] = tipZ;
+
+    tipPos[rootIndex] = tipX;
+    tipPos[rootIndex + 1] = tipY;
+    tipPos[rootIndex + 2] = tipZ;
+  }
+
+  fiberShell.lineGeometry.attributes.position.needsUpdate = true;
+  fiberShell.tipGeometry.attributes.position.needsUpdate = true;
+  fiberShell.lineMaterial.opacity = 0.32 + touchResponse * 0.24;
+  fiberShell.tipMaterial.opacity = 0.22 + touchResponse * 0.18;
+  fiberShell.fuzz.rotation.y = time * 0.022;
+  fiberShell.fuzz.rotation.x = Math.sin(time * 0.13) * 0.06;
+  fiberShell.fuzz.scale.setScalar(1.002 + breathCycle * 0.018 + touchResponse * 0.02);
+  fiberShell.fuzzMaterial.opacity = Math.max(fiberShell.fuzzMaterial.opacity, 0.08 + touchResponse * 0.08);
+}
+
+function animateUnsupervisedLayer(time, entropy) {
+  if (!unsupervisedLayer.points.visible) return;
+
+  const intensity = traits.unsupervisedLayer;
+  const positions = unsupervisedLayer.geometry.attributes.position.array;
+  const pulse = 0.02 + entropy * 0.05 + intensity * 0.05 + workingMemory.curiosity * 0.04;
+  const coherence = clamp01(workingMemory.coherence * 0.82 + workingMemory.trust * 0.12);
+  const fragmentation = clamp01(workingMemory.vigilance * 0.74 + workingMemory.stress * 0.16 + interactionStats.overloadDebt * 0.1);
+
+  for (let i = 0; i < unsupervisedLayer.pointCount; i++) {
+    const index = i * 3;
+    const nx = unsupervisedLayer.normals[index];
+    const ny = unsupervisedLayer.normals[index + 1];
+    const nz = unsupervisedLayer.normals[index + 2];
+    const tx = unsupervisedLayer.tangents[index];
+    const ty = unsupervisedLayer.tangents[index + 1];
+    const tz = unsupervisedLayer.tangents[index + 2];
+    const bx = unsupervisedLayer.bitangents[index];
+    const by = unsupervisedLayer.bitangents[index + 1];
+    const bz = unsupervisedLayer.bitangents[index + 2];
+    const phase = unsupervisedLayer.phases[i];
+    const energy = unsupervisedLayer.energies[i];
+    const radius = unsupervisedLayer.radii[i] + Math.sin(time * energy + phase) * pulse;
+    const swirlA = Math.cos(time * (0.7 + energy * 0.16) + phase) * intensity * lerp(0.03, 0.08, fragmentation + (1 - coherence) * 0.5);
+    const swirlB = Math.sin(time * (0.9 + energy * 0.12) + phase * 1.3) * intensity * lerp(0.025, 0.06, fragmentation);
+
+    positions[index] = nx * radius + tx * swirlA + bx * swirlB;
+    positions[index + 1] = ny * radius + ty * swirlA + by * swirlB;
+    positions[index + 2] = nz * radius + tz * swirlA + bz * swirlB;
+  }
+
+  unsupervisedLayer.geometry.attributes.position.needsUpdate = true;
+  unsupervisedLayer.points.rotation.y = time * (0.08 + intensity * 0.12 + workingMemory.playfulness * 0.12);
+  unsupervisedLayer.points.rotation.x = Math.sin(time * 0.17 + workingMemory.curiosity) * 0.12 * intensity;
+  unsupervisedLayer.material.opacity = 0.06 + intensity * 0.16 + workingMemory.curiosity * 0.08;
+  unsupervisedLayer.material.size = 0.01 + intensity * 0.012 + workingMemory.curiosity * 0.004;
+  unsupervisedLayer.material.color.setRGB(0.45 + workingMemory.playfulness * 0.28, 0.68 + coherence * 0.18, 0.88 + workingMemory.curiosity * 0.08);
 }
 
 // ─── Gentle breathing with touch-entropy ───
 function breathe(time) {
   const pos = geo.attributes.position.array;
+  const profile = traits.textureProfile;
+  const touchResponse = getTouchResponse(profile);
+  const classicShapeSwell = 0.04;
+  const classicPulseBase = 0.01;
+  const classicPulseRange = 0.015;
+  const classicEntropyBase = 0.008;
+  const classicEntropyRange = 0.06;
 
   const bc = Math.sin(time * 0.5) * 0.5 + 0.5;
   const bs = 0.98 + bc * 0.04;
 
   const pc = Math.sin(time * 1.6) * 0.5 + 0.5;
-  const pa = 0.01 + pc * 0.015;
+  const customDeform = lerp(0.5, 0, traits.customBlend);
+  const shapeSwell = profile === TEXTURE_INSULATOR ? classicShapeSwell * 0.5 : profile === TEXTURE_HUMAN_HEAD ? classicShapeSwell * 0.2 : profile === TEXTURE_SUPER_CLASSIC ? classicShapeSwell * 0.34 : profile === TEXTURE_METALLIC ? 0 : profile === TEXTURE_CUSTOM ? classicShapeSwell * customDeform : classicShapeSwell;
+  const pulseAmplitude = profile === TEXTURE_INSULATOR ? (classicPulseBase + pc * classicPulseRange) * 0.5 : profile === TEXTURE_HUMAN_HEAD ? (classicPulseBase + pc * classicPulseRange) * 0.18 : profile === TEXTURE_SUPER_CLASSIC ? (classicPulseBase + pc * classicPulseRange) * 0.66 : profile === TEXTURE_METALLIC ? 0 : profile === TEXTURE_CUSTOM ? (classicPulseBase + pc * classicPulseRange) * customDeform : classicPulseBase + pc * classicPulseRange;
+  const pa = pulseAmplitude;
 
-  // Entropy: base is very low, touch raises it
-  const baseEntropy = Math.sin(time * 0.11) * 0.5 + 0.5;
-  const ent = baseEntropy * 0.3 + touchIntensity * 0.7;
-  const ca = 0.008 + ent * 0.06;
+  const entropyLog = Math.log1p(Math.max(1, traits.entropyCounter));
+  const persistentEntropy = clamp01(entropyLog / 6.2);
+  const ent = clamp01(persistentEntropy * 0.78 + touchResponse * 0.18 + interactionStats.badTouchPulse * 0.16);
+  const ca = profile === TEXTURE_INSULATOR ? (classicEntropyBase + ent * classicEntropyRange) * 0.5 : profile === TEXTURE_HUMAN_HEAD ? (classicEntropyBase + ent * classicEntropyRange) * 0.12 : profile === TEXTURE_SUPER_CLASSIC ? (classicEntropyBase + ent * classicEntropyRange) * 0.42 : profile === TEXTURE_METALLIC ? 0 : profile === TEXTURE_CUSTOM ? (classicEntropyBase + ent * classicEntropyRange) * customDeform : classicEntropyBase + ent * classicEntropyRange;
+  const impactStrength = profile === TEXTURE_METALLIC ? 0 : profile === TEXTURE_INSULATOR ? touchImpact.strength * 0.42 : profile === TEXTURE_HUMAN_HEAD ? touchImpact.strength * 0.1 : profile === TEXTURE_SUPER_CLASSIC ? touchImpact.strength * 0.24 : profile === TEXTURE_CUSTOM ? touchImpact.strength * lerp(0.42, 0.08, traits.customBlend) : touchImpact.strength;
 
   for (let i = 0; i < pos.length; i += 3) {
     const bx = basePositions[i], by = basePositions[i + 1], bz = basePositions[i + 2];
@@ -414,13 +3331,37 @@ function breathe(time) {
     let d = 0;
 
     // Layer 1: slow calm ocean swell
-    d += Math.sin(nx * 2.5 + time * 0.35) * Math.cos(ny * 2.2 + time * 0.28) * Math.sin(nz * 2.0 + time * 0.25) * 0.04 * bs;
+    d += Math.sin(nx * 2.5 + time * 0.35) * Math.cos(ny * 2.2 + time * 0.28) * Math.sin(nz * 2.0 + time * 0.25) * shapeSwell * bs;
 
     // Layer 2: gentle pulse
     d += Math.sin(nx * 4.0 + time * 1.4) * Math.cos(ny * 3.5 + time * 1.1) * pa;
 
     // Layer 3: entropy wobble (only when touched)
     d += Math.sin(nx * 8.0 + time * 3.0 + ny * 6.0) * Math.cos(nz * 7.0 + time * 2.4 + nx * 5.0) * ca;
+
+    // Layer 4: touch ripple that starts at the impact point and spreads out.
+    if (touchImpact.active && impactStrength > 0.001) {
+      const focus = Math.max(0, nx * touchImpact.localNormal.x + ny * touchImpact.localNormal.y + nz * touchImpact.localNormal.z);
+      const distance = 1 - focus;
+      const falloff = Math.exp(-distance * 18.0);
+      const ripple = Math.sin(touchImpact.phase - distance * 30.0) * impactStrength * falloff * 0.11;
+      d += ripple;
+    }
+
+    const gazeFocus = Math.max(0, nx * gazeState.normal.x + ny * gazeState.normal.y + nz * gazeState.normal.z);
+    const gazeDistance = 1 - gazeFocus;
+    const gazePocket = Math.exp(-gazeDistance * 24.0) * gazeState.focus;
+    const gazeRidge = Math.exp(-Math.pow(gazeDistance - 0.06, 2) * 520.0) * gazeState.focus;
+    d -= gazePocket * (profile === TEXTURE_HUMAN_HEAD ? 0.018 : 0.042);
+    d += gazeRidge * (profile === TEXTURE_HUMAN_HEAD ? 0.006 : 0.014);
+
+    if (profile === TEXTURE_HUMAN_HEAD) {
+      const forehead = Math.max(0, ny) * 0.016;
+      const chin = Math.max(0, -ny) * (0.022 - Math.abs(nx) * 0.012);
+      const facePlane = Math.max(0, nz) * 0.024;
+      const cheek = Math.max(0, nz) * Math.max(0, 0.58 - Math.abs(nx)) * 0.012;
+      d += forehead + chin + facePlane + cheek;
+    }
 
     // Gentle gravity
     d += ny * Math.sin(time * 0.2) * 0.012;
@@ -431,7 +3372,74 @@ function breathe(time) {
   }
   geo.attributes.position.needsUpdate = true;
   geo.computeVertexNormals();
-  return { breathCycle: bc, pulseCycle: pc, entropy: ent };
+  return { breathCycle: bc, pulseCycle: pc, entropy: ent, entropyRaw: traits.entropyCounter, entropyLog, distortion: clamp01(persistentEntropy * 0.88 + interactionStats.badTouchPulse * 0.14) };
+}
+
+const wanderState = { phase: Math.random() * 100, vy: 0 };
+
+function updateEntityMotion(dt, entropy) {
+  const movementStrength = getMovementStrength();
+  const time = performance.now() * 0.001;
+  desiredOffset.set(0, 0, 0);
+  const directEscapePressure = pointerState.isDown ? clamp01((entropy - touchProfile.entropyTolerance) / Math.max(0.12, 1 - touchProfile.entropyTolerance)) * clamp01((workingMemory.stress - 0.42) / 0.58) : 0;
+  const directApproachPressure = pointerState.isDown ? clamp01((workingMemory.trust + workingMemory.playfulness - workingMemory.avoidance) * 0.7) : 0;
+  const directOrbitPressure = pointerState.isDown ? clamp01(liveFeatures.percussiveBias * 0.9 + workingMemory.curiosity * 0.25 - workingMemory.stress * 0.15) : 0;
+  const memoryEscapePressure = pointerState.hasPointer ? clamp01(workingMemory.vigilance * 0.26 + interactionStats.overloadDebt * 0.22 - workingMemory.coherence * 0.12) : 0;
+  const memoryApproachPressure = pointerState.hasPointer ? clamp01(workingMemory.attachment * 0.22 + workingMemory.coherence * 0.18 - workingMemory.vigilance * 0.1) : 0;
+  const memoryOrbitPressure = pointerState.hasPointer ? clamp01(liveFeatures.revisit * 0.22 + liveFeatures.rhythm * 0.14) : 0;
+  const escapePressure = clamp01(directEscapePressure + memoryEscapePressure);
+  const approachPressure = clamp01(directApproachPressure + memoryApproachPressure);
+  const orbitPressure = clamp01(directOrbitPressure + memoryOrbitPressure);
+
+  const isInteracting = pointerState.isDown || pointerState.hasPointer;
+
+  if (movementStrength > 0 && escapePressure > 0 && pointerState.hasPointer) {
+    const targetPoint = getPointerWorldPositionOnCenterPlane();
+    if (targetPoint) {
+      desiredOffset.subVectors(entityOffset, targetPoint);
+      desiredOffset.z = 0;
+      if (desiredOffset.lengthSq() < 1e-4) {
+        desiredOffset.set(-pointerState.x, -pointerState.y, 0);
+      }
+      desiredOffset.normalize().multiplyScalar((0.12 + escapePressure * 1.45) * movementStrength);
+    }
+  } else if (movementStrength > 0 && pointerState.hasPointer && (approachPressure > 0.12 || orbitPressure > 0.18)) {
+    const targetPoint = getPointerWorldPositionOnCenterPlane();
+    if (targetPoint) {
+      scratchOffset.subVectors(targetPoint, entityOffset);
+      scratchOffset.z = 0;
+      if (scratchOffset.lengthSq() > 1e-4) {
+        scratchOffset.normalize();
+        desiredOffset.addScaledVector(scratchOffset, 0.12 * approachPressure * movementStrength);
+        if (orbitPressure > 0.18) {
+          const orbitVector = new THREE.Vector3(-scratchOffset.y, scratchOffset.x, 0);
+          desiredOffset.addScaledVector(orbitVector, 0.18 * orbitPressure * movementStrength);
+        }
+      }
+    }
+  }
+
+  // Autonomous wander — layered organic drift when idle
+  const wanderBlend = isInteracting ? 0 : 1;
+  if (wanderBlend > 0) {
+    wanderState.phase += dt;
+    const t = wanderState.phase;
+    const curiosityBoost = 1 + workingMemory.curiosity * 0.6 + workingMemory.playfulness * 0.4;
+    const fatigueSlowdown = 1 - workingMemory.fatigue * 0.5;
+    const range = 0.6 * curiosityBoost * fatigueSlowdown;
+    const wx = Math.sin(t * 0.23) * 0.42 + Math.sin(t * 0.61 + 1.3) * 0.28 + Math.sin(t * 1.17 + 3.7) * 0.12;
+    const wy = Math.cos(t * 0.19 + 0.7) * 0.36 + Math.cos(t * 0.53 + 2.1) * 0.24 + Math.sin(t * 0.87 + 5.2) * 0.14;
+    const hover = Math.sin(t * 1.6) * 0.06 + Math.sin(t * 2.9 + 1.1) * 0.03;
+    desiredOffset.x += wx * range * wanderBlend;
+    desiredOffset.y += (wy * range + hover) * wanderBlend;
+  }
+
+  const followRate = movementStrength === 0 ? 1 : wanderBlend > 0.5 ? 0.025 : escapePressure > 0 ? 0.08 + escapePressure * 0.18 : 0.05;
+  entityOffset.lerp(desiredOffset, followRate * Math.min(dt * 60, 2));
+
+  entity.position.copy(entityOffset);
+  core.position.copy(entityOffset);
+  ring.position.copy(entityOffset);
 }
 
 function animateRing(time) {
@@ -452,19 +3460,43 @@ function animate() {
   requestAnimationFrame(animate);
   const dt = clock.getDelta();
   const time = clock.getElapsedTime();
+  updateControllerState();
 
   learnFromBehavior(dt);
   applyTraitsToMaterial();
+  updateGazeLayer(time, dt, getTouchResponse());
 
   const breath = breathe(time);
+  animateFiberShell(time, breath.breathCycle);
+  animateUnsupervisedLayer(time, breath.entropy);
+  updateEntityMotion(dt, breath.entropy);
 
-  coreMat.opacity = 0.05 + breath.breathCycle * 0.1 + breath.pulseCycle * 0.04;
-  core.scale.setScalar(0.3 + breath.breathCycle * 0.1);
+  if (traits.textureProfile === TEXTURE_INSULATOR) {
+    const touchResponse = getTouchResponse(TEXTURE_INSULATOR);
+    coreMat.opacity = 0.03 + breath.breathCycle * 0.05 + touchResponse * 0.045;
+    core.scale.setScalar(0.27 + breath.breathCycle * 0.06 + touchResponse * 0.02);
+  } else if (traits.textureProfile === TEXTURE_HUMAN_HEAD) {
+    const touchResponse = getTouchResponse(TEXTURE_HUMAN_HEAD);
+    coreMat.opacity = 0.02 + breath.breathCycle * 0.03 + touchResponse * 0.02;
+    core.scale.setScalar(0.22 + breath.breathCycle * 0.025 + touchResponse * 0.01);
+  } else if (traits.textureProfile === TEXTURE_SUPER_CLASSIC) {
+    const touchResponse = getTouchResponse(TEXTURE_SUPER_CLASSIC);
+    coreMat.opacity = 0.08 + breath.breathCycle * 0.08 + touchResponse * 0.03;
+    core.scale.setScalar(0.26 + breath.breathCycle * 0.05 + touchResponse * 0.012);
+  } else if (traits.textureProfile === TEXTURE_CUSTOM) {
+    const touchResponse = getTouchResponse(TEXTURE_CUSTOM);
+    const softness = 1 - traits.customBlend;
+    coreMat.opacity = 0.035 + breath.breathCycle * 0.06 + touchResponse * 0.04 + traits.unsupervisedLayer * 0.03;
+    core.scale.setScalar(0.28 + breath.breathCycle * 0.07 + touchResponse * 0.025 + softness * 0.015);
+  } else {
+    coreMat.opacity = 0.05 + breath.breathCycle * 0.1 + breath.pulseCycle * 0.04;
+    core.scale.setScalar(0.3 + breath.breathCycle * 0.1);
+  }
 
   animateRing(time);
 
-  entity.rotation.y = time * 0.06;
-  entity.rotation.x = Math.sin(time * 0.04) * 0.04;
+  entity.rotation.y = traits.textureProfile === TEXTURE_METALLIC ? 0 : traits.textureProfile === TEXTURE_HUMAN_HEAD ? time * 0.018 : traits.textureProfile === TEXTURE_SUPER_CLASSIC ? time * 0.024 : time * 0.06;
+  entity.rotation.x = traits.textureProfile === TEXTURE_METALLIC ? 0 : traits.textureProfile === TEXTURE_HUMAN_HEAD ? Math.sin(time * 0.03) * 0.01 : traits.textureProfile === TEXTURE_SUPER_CLASSIC ? Math.sin(time * 0.04) * 0.016 : Math.sin(time * 0.04) * 0.04;
 
   // Slow gentle auto orbit — no manual control
   const camAngle = time * 0.02;
@@ -477,6 +3509,43 @@ function animate() {
   hudPulse.textContent = breath.pulseCycle.toFixed(2);
   hudBreath.textContent = breath.breathCycle.toFixed(2);
   hudEntropy.textContent = breath.entropy.toFixed(2);
+  hudState.textContent = workingMemory.stateLabel;
+  hudStyle.textContent = workingMemory.styleLabel;
+
+  // ─── Happiness & Heart Rate ───
+  const breathContrib = breath.breathCycle * (1 - workingMemory.stress) * 4.0;
+  const calmMul = 1 + workingMemory.trust * 0.5 + workingMemory.coherence * 0.3 - workingMemory.vigilance * 0.4;
+  const gentleBoost = interactionStats.goodTouchPulse * 2.0;
+  const happinessGain = dt * (breathContrib * Math.max(0, calmMul) + gentleBoost) * (1 - breath.entropy * 0.3);
+  const stressDrain = dt * (liveFeatures.aggression * 3 + interactionStats.badTouchPulse * 5 + interactionStats.overloadDebt * 2) * (1 - liveFeatures.recovery * 0.5);
+  bodyState.happiness = Math.max(0, Math.min(100, bodyState.happiness + (happinessGain - stressDrain) * 100));
+
+  bodyState.restingHR = 72 - bodyState.happiness * 0.24 - workingMemory.trust * 8 + workingMemory.fatigue * 6;
+  const activityHR = bodyState.restingHR + touchIntensity * 40 + workingMemory.stress * 30 + liveFeatures.aggression * 20;
+  const targetHR = Math.max(40, Math.min(180, activityHR));
+  bodyState.heartRate += (targetHR - bodyState.heartRate) * Math.min(1, dt * 2.5);
+
+  if (bodyState.heartRate > 100) {
+    workingMemory.stress = Math.min(1, workingMemory.stress + dt * (bodyState.heartRate - 100) * 0.002);
+    workingMemory.fatigue = Math.min(1, workingMemory.fatigue + dt * (bodyState.heartRate - 100) * 0.001);
+  }
+  workingMemory.playfulness = clamp01(workingMemory.playfulness + dt * (bodyState.happiness / 100 - 0.5) * 0.04);
+
+  hudHappiness.textContent = Math.round(bodyState.happiness) + '%';
+  hudHeartRate.textContent = Math.round(bodyState.heartRate) + ' bpm';
+
+  liveTelemetry.pulse = breath.pulseCycle;
+  liveTelemetry.breath = breath.breathCycle;
+  liveTelemetry.entropy = breath.entropy;
+  liveTelemetry.entropyRaw = breath.entropyRaw;
+  liveTelemetry.entropyLog = breath.entropyLog;
+  liveTelemetry.entropyDistortion = breath.distortion;
+  liveTelemetry.touchResponse = getTouchResponse();
+  document.documentElement.style.setProperty('--entropy-frame', breath.distortion.toFixed(4));
+  document.documentElement.style.setProperty('--entropy-haze', breath.entropy.toFixed(4));
+  document.documentElement.style.setProperty('--network-energy', clamp01(0.18 + breath.entropy * 0.82).toFixed(4));
+  syncReflectionPanel();
+  syncEntropySensor();
 
   renderer.render(scene, camera);
 }
@@ -485,11 +3554,13 @@ function animate() {
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
 // Save on exit
 window.addEventListener('beforeunload', saveEntity);
+window.addEventListener('beforeunload', saveTouchProfile);
 
 animate();
   </script>
