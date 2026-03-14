@@ -29,7 +29,7 @@
   <script src="assets/js/uet-loader.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { width: 100%; height: 100%; overflow: hidden; background: #020408; cursor: pointer; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #020408; }
     canvas { display: block; width: 100vw; height: 100vh; }
 
     .overlay {
@@ -154,7 +154,7 @@
       </nav>
     </div>
     <div class="bottom-bar">
-      <div class="hint">Click anywhere to enter fullscreen</div>
+      <div class="hint">Touch it gently to raise entropy</div>
       <div class="hud">
         <span class="tag">PULSE</span><span id="hudPulse">0.00</span>
         <span class="tag">BREATH</span><span id="hudBreath">0.00</span>
@@ -325,116 +325,50 @@ const traits = loadEntity();
 traits.sessions++;
 saveEntity();
 
-// ─── INTERACTION STATE ───
-let mouseNDC = { x: 0, y: 0 };
-let mouseSpeed = 0;
-let prevMouseX = 0, prevMouseY = 0;
-let proximity = 0;          // 0 = far, 1 = touching
-let clickRipple = 0;        // decays to 0
-let lastInteraction = performance.now();
-let idleFactor = 0;         // 0 = active, 1 = deep sleep
-let dragMode = false;
-let dragAngle = 0;
-let camAutoOrbit = true;
+// ─── INTERACTION STATE (gentle: touch only) ───
+let touchIntensity = 0;      // 0 = calm, decays slowly back to 0
+let lastTouch = 0;
 
-// Interaction scoring (accumulated per frame)
-let framePatience = 0;
-let frameAggression = 0;
-let frameCuriosity = 0;
+canvas.addEventListener('pointerdown', () => {
+  touchIntensity = Math.min(1, touchIntensity + 0.25);
+  lastTouch = performance.now();
+});
 
 canvas.addEventListener('pointermove', (e) => {
-  const nx = (e.clientX / window.innerWidth) * 2 - 1;
-  const ny = -(e.clientY / window.innerHeight) * 2 + 1;
-  const dx = e.clientX - prevMouseX;
-  const dy = e.clientY - prevMouseY;
-  mouseSpeed = Math.sqrt(dx * dx + dy * dy);
-  prevMouseX = e.clientX;
-  prevMouseY = e.clientY;
-  mouseNDC.x = nx;
-  mouseNDC.y = ny;
-  lastInteraction = performance.now();
-
-  if (dragMode) {
-    dragAngle += dx * 0.005;
-    camAutoOrbit = false;
+  if (e.pressure > 0 || e.buttons > 0) {
+    touchIntensity = Math.min(1, touchIntensity + 0.003);
+    lastTouch = performance.now();
   }
 });
 
-canvas.addEventListener('pointerdown', (e) => {
-  if (e.button === 0) {
-    clickRipple = 1.0;
-    lastInteraction = performance.now();
-    frameAggression += 0.3;
-  }
-  if (e.button === 2 || e.pointerType === 'touch') {
-    dragMode = true;
-  }
-});
-
-canvas.addEventListener('pointerup', () => { dragMode = false; });
-canvas.addEventListener('pointerleave', () => { dragMode = false; });
-canvas.addEventListener('contextmenu', (e) => e.preventDefault());
-
-canvas.addEventListener('wheel', (e) => {
-  const zoomDelta = e.deltaY * 0.002;
-  camera.position.z = Math.max(2.5, Math.min(7, camera.position.z + zoomDelta));
-  lastInteraction = performance.now();
-  frameCuriosity += 0.15;
-}, { passive: true });
-
-// ─── LEARNING: trait evolution per frame ───
+// ─── LEARNING (gentle: patience grows alignment, touch grows entropy/risk) ───
 function learnFromBehavior(dt) {
-  const rate = dt * 0.08;
+  const rate = dt * 0.04;
+  const secsSinceTouch = (performance.now() - lastTouch) / 1000;
 
-  // Patience: watching without touching increases alignment
-  const idleSeconds = (performance.now() - lastInteraction) / 1000;
-  idleFactor = Math.min(1, idleSeconds / 30);
-  if (idleSeconds > 3 && idleSeconds < 60) {
-    framePatience += dt * 0.5;
+  // Patience: just being here grows alignment and lowers risk
+  if (secsSinceTouch > 2) {
+    traits.alignment = Math.min(100, traits.alignment + rate * 0.4);
+    traits.resilience = Math.min(100, traits.resilience + rate * 0.15);
+    traits.risk = Math.max(0, traits.risk - rate * 0.2);
   }
 
-  // Apply accumulated scores
-  traits.alignment = Math.min(100, traits.alignment + framePatience * rate * 0.6);
-  traits.capability = Math.min(100, traits.capability + frameAggression * rate * 1.2);
-  traits.risk = Math.min(100, Math.max(0, traits.risk + frameAggression * rate * 0.8 - framePatience * rate * 0.3));
-  traits.creativity = Math.min(100, traits.creativity + frameCuriosity * rate * 0.9);
-  traits.resilience = Math.min(100, traits.resilience + (1 - idleFactor) * rate * 0.2);
+  // Touch gently raises capability and creativity, but also risk
+  if (touchIntensity > 0.01) {
+    traits.capability = Math.min(100, traits.capability + touchIntensity * rate * 0.6);
+    traits.creativity = Math.min(100, traits.creativity + touchIntensity * rate * 0.3);
+    traits.risk = Math.min(100, traits.risk + touchIntensity * rate * 0.4);
+  }
 
-  // Decay scores
-  framePatience *= 0.92;
-  frameAggression *= 0.88;
-  frameCuriosity *= 0.9;
+  // Touch decays gently back to calm
+  touchIntensity *= 0.985;
+  if (touchIntensity < 0.001) touchIntensity = 0;
 
-  // Track total time
   traits.totalTime += dt;
-
-  // Save every 5 seconds
   if (Math.floor(traits.totalTime) % 5 === 0) saveEntity();
 }
 
-// ─── INTERACTION → VISUALS ───
-function applyInteractionToBreath(time) {
-  // Proximity: how close is cursor to center?
-  proximity = 1 - Math.min(1, Math.sqrt(mouseNDC.x * mouseNDC.x + mouseNDC.y * mouseNDC.y));
-
-  // Click ripple decays
-  clickRipple *= 0.94;
-}
-
-function interactionBreathModifiers() {
-  // Extra wobble from proximity + speed
-  const proximityWobble = proximity * 0.04;
-  const speedWobble = Math.min(mouseSpeed * 0.0003, 0.05);
-  const rippleWobble = clickRipple * 0.12;
-  const sleepDampen = 1 - idleFactor * 0.6;
-
-  return {
-    extraAmplitude: (proximityWobble + speedWobble + rippleWobble) * sleepDampen,
-    extraSpeed: proximity * 0.8 + clickRipple * 2.0,
-    breathDampen: 1 - idleFactor * 0.4,
-  };
-}
-
+// ─── VISUALS from traits ───
 function applyTraitsToMaterial() {
   const cap = traits.capability / 100;
   const align = traits.alignment / 100;
@@ -442,50 +376,55 @@ function applyTraitsToMaterial() {
   const cre = traits.creativity / 100;
   const risk = traits.risk / 100;
 
-  // Size evolves with capability
-  const scale = 0.9 + cap * 0.25;
+  const scale = 0.92 + cap * 0.2;
   entity.scale.setScalar(scale);
 
-  // Color: alignment = cyan, risk = red, creativity = purple shift
-  const cr = 0.14 + risk * 0.5 + cre * 0.15;
-  const cg = 0.65 + align * 0.25;
-  const cb = 0.92 + cap * 0.08 - risk * 0.2;
+  const cr = 0.14 + risk * 0.35 + cre * 0.1;
+  const cg = 0.68 + align * 0.22;
+  const cb = 0.94 + cap * 0.06 - risk * 0.15;
   mat.color.setRGB(Math.min(cr, 1), Math.min(cg, 1), Math.min(cb, 1));
 
-  mat.roughness = 0.22 - align * 0.16;
-  mat.metalness = 0.72 + align * 0.18;
-  mat.transmission = 0.05 + cre * 0.18;
-  mat.clearcoat = 0.6 + res * 0.4;
-  mat.emissive.setRGB(risk * 0.35, 0.05, 0.1 + cre * 0.1);
-  mat.emissiveIntensity = 0.1 + risk * 0.4;
+  mat.roughness = 0.2 - align * 0.14;
+  mat.metalness = 0.74 + align * 0.16;
+  mat.transmission = 0.06 + cre * 0.14;
+  mat.clearcoat = 0.65 + res * 0.35;
+  mat.emissive.setRGB(risk * 0.25, 0.04, 0.08 + cre * 0.08);
+  mat.emissiveIntensity = 0.08 + risk * 0.3;
 }
 
-// Override breathe with interaction-aware version
-const breatheWithInteraction = function(time) {
-  const mods = interactionBreathModifiers();
+// ─── Gentle breathing with touch-entropy ───
+function breathe(time) {
   const pos = geo.attributes.position.array;
-  const bc = Math.sin(time * 0.6) * 0.5 + 0.5;
-  const bs = (0.97 + bc * 0.06) * mods.breathDampen;
-  const pc = Math.sin(time * 2.2) * 0.5 + 0.5;
-  const pa = (0.015 + pc * 0.025) + mods.extraAmplitude;
-  const ent = Math.sin(time * 0.13) * 0.5 + 0.5;
-  const ca = 0.02 + ent * 0.04 + mods.extraAmplitude * 0.5;
-  const sp = 1 + mods.extraSpeed;
+
+  const bc = Math.sin(time * 0.5) * 0.5 + 0.5;
+  const bs = 0.98 + bc * 0.04;
+
+  const pc = Math.sin(time * 1.6) * 0.5 + 0.5;
+  const pa = 0.01 + pc * 0.015;
+
+  // Entropy: base is very low, touch raises it
+  const baseEntropy = Math.sin(time * 0.11) * 0.5 + 0.5;
+  const ent = baseEntropy * 0.3 + touchIntensity * 0.7;
+  const ca = 0.008 + ent * 0.06;
 
   for (let i = 0; i < pos.length; i += 3) {
     const bx = basePositions[i], by = basePositions[i + 1], bz = basePositions[i + 2];
     const len = Math.sqrt(bx * bx + by * by + bz * bz);
     const nx = bx / len, ny = by / len, nz = bz / len;
     let d = 0;
-    d += Math.sin(nx * 3.0 + time * 0.5 * sp) * Math.cos(ny * 2.8 + time * 0.4 * sp) * Math.sin(nz * 2.5 + time * 0.35 * sp) * 0.06 * bs;
-    d += Math.sin(nx * 5.5 + time * 2.0 * sp) * Math.cos(ny * 4.8 + time * 1.6 * sp) * pa;
-    d += Math.sin(nx * 9.0 + time * 3.5 * sp + ny * 7.0) * Math.cos(nz * 8.0 + time * 2.8 * sp + nx * 6.0) * ca;
-    d += ny * Math.sin(time * 0.3) * 0.02;
-    // Click ripple: radial wave from front
-    if (clickRipple > 0.01) {
-      const wave = Math.sin(len * 12 - time * 8) * clickRipple * 0.08;
-      d += wave;
-    }
+
+    // Layer 1: slow calm ocean swell
+    d += Math.sin(nx * 2.5 + time * 0.35) * Math.cos(ny * 2.2 + time * 0.28) * Math.sin(nz * 2.0 + time * 0.25) * 0.04 * bs;
+
+    // Layer 2: gentle pulse
+    d += Math.sin(nx * 4.0 + time * 1.4) * Math.cos(ny * 3.5 + time * 1.1) * pa;
+
+    // Layer 3: entropy wobble (only when touched)
+    d += Math.sin(nx * 8.0 + time * 3.0 + ny * 6.0) * Math.cos(nz * 7.0 + time * 2.4 + nx * 5.0) * ca;
+
+    // Gentle gravity
+    d += ny * Math.sin(time * 0.2) * 0.012;
+
     pos[i] = bx * bs + nx * d;
     pos[i + 1] = by * bs + ny * d;
     pos[i + 2] = bz * bs + nz * d;
@@ -493,57 +432,48 @@ const breatheWithInteraction = function(time) {
   geo.attributes.position.needsUpdate = true;
   geo.computeVertexNormals();
   return { breathCycle: bc, pulseCycle: pc, entropy: ent };
-};
+}
 
 function animateRing(time) {
   const pos = ring.geometry.attributes.position.array;
   for (let i = 0; i < ringCount; i++) {
-    const a = (i / ringCount) * Math.PI * 2 + time * 0.08 * ringVel[i];
-    const r = 1.8 + Math.sin(time * 0.5 + i * 0.1) * 0.15;
+    const a = (i / ringCount) * Math.PI * 2 + time * 0.06 * ringVel[i];
+    const r = 1.8 + Math.sin(time * 0.4 + i * 0.08) * 0.1;
     pos[i * 3] = Math.cos(a) * r;
-    pos[i * 3 + 1] = Math.sin(time * 0.7 + i * 0.05) * 0.08;
+    pos[i * 3 + 1] = Math.sin(time * 0.5 + i * 0.04) * 0.06;
     pos[i * 3 + 2] = Math.sin(a) * r;
   }
   ring.geometry.attributes.position.needsUpdate = true;
-  ring.rotation.y = time * 0.04;
+  ring.rotation.y = time * 0.03;
 }
 
-// ─── Enhanced animate loop ───
-function animateEnhanced() {
-  requestAnimationFrame(animateEnhanced);
+// ─── Animate loop ───
+function animate() {
+  requestAnimationFrame(animate);
   const dt = clock.getDelta();
   const time = clock.getElapsedTime();
 
-  applyInteractionToBreath(time);
   learnFromBehavior(dt);
   applyTraitsToMaterial();
 
-  const breath = breatheWithInteraction(time);
-  // Core glow
-  coreMat.opacity = 0.06 + breath.breathCycle * 0.12 + breath.pulseCycle * 0.06 + clickRipple * 0.15;
-  core.scale.setScalar(0.3 + breath.breathCycle * 0.12 + clickRipple * 0.2);
+  const breath = breathe(time);
+
+  coreMat.opacity = 0.05 + breath.breathCycle * 0.1 + breath.pulseCycle * 0.04;
+  core.scale.setScalar(0.3 + breath.breathCycle * 0.1);
 
   animateRing(time);
-  entity.rotation.y = time * 0.08;
-  entity.rotation.x = Math.sin(time * 0.05) * 0.06;
 
-  // Camera: auto orbit or drag
-  let camAngle;
-  if (camAutoOrbit) {
-    camAngle = time * 0.03;
-  } else {
-    camAngle = dragAngle;
-    // Slowly drift back to auto after 10s idle
-    if ((performance.now() - lastInteraction) / 1000 > 10) camAutoOrbit = true;
-  }
-  const baseDist = camera.position.z || 4.2;
-  const camR = baseDist + Math.sin(time * 0.15) * 0.2 * (1 - idleFactor * 0.8);
+  entity.rotation.y = time * 0.06;
+  entity.rotation.x = Math.sin(time * 0.04) * 0.04;
+
+  // Slow gentle auto orbit — no manual control
+  const camAngle = time * 0.02;
+  const camR = 4.2 + Math.sin(time * 0.1) * 0.2;
   camera.position.x = Math.sin(camAngle) * camR;
   camera.position.z = Math.cos(camAngle) * camR;
-  camera.position.y = 0.3 + Math.sin(time * 0.12) * 0.25 * (1 - idleFactor * 0.7);
+  camera.position.y = 0.25 + Math.sin(time * 0.08) * 0.15;
   camera.lookAt(0, 0, 0);
 
-  // HUD
   hudPulse.textContent = breath.pulseCycle.toFixed(2);
   hudBreath.textContent = breath.breathCycle.toFixed(2);
   hudEntropy.textContent = breath.entropy.toFixed(2);
@@ -558,24 +488,10 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// ─── Fullscreen on click ───
-canvas.addEventListener('click', () => {
-  if (document.fullscreenElement) {
-    document.exitFullscreen();
-  } else {
-    document.documentElement.requestFullscreen().catch(() => {});
-  }
-});
-
-document.addEventListener('fullscreenchange', () => {
-  overlayEl.classList.toggle('faded', !!document.fullscreenElement);
-  document.body.style.cursor = document.fullscreenElement ? 'none' : 'pointer';
-});
-
 // Save on exit
 window.addEventListener('beforeunload', saveEntity);
 
-animateEnhanced();
+animate();
   </script>
 </body>
 </html>
