@@ -72,7 +72,7 @@ const portalFilters = document.getElementById('portalFilters');
 const portalResults = document.getElementById('portalResults');
 const archiveGrid = document.getElementById('archiveGrid');
 
-const FEATURED_GAME_ID = 'unsupervised-3d';
+const FEATURED_GAME_ID = 'agi-3d';
 
 let loadedGames = [];
 let portalGames = [];
