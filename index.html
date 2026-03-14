@@ -2793,7 +2793,7 @@ function updateGazeLayer(time, dt, touchResponse) {
   );
   gazeState.pupilOffset.lerp(gazeState.targetPupilOffset, 0.18 * dt60);
 
-  const opennessTarget = clamp01(0.88 - workingMemory.fatigue * 0.22 - workingMemory.stress * 0.08 + workingMemory.playfulness * 0.06 + Math.sin(time * 0.9) * 0.02);
+  const opennessTarget = clamp01(0.88 - workingMemory.fatigue * 0.22 - workingMemory.stress * 0.14 + workingMemory.playfulness * 0.06 - interactionStats.badTouchPulse * 0.35 - touchIntensity * 0.12 + Math.sin(time * 0.9) * 0.02);
   gazeState.openness = damp(gazeState.openness, opennessTarget, 0.12 * dt60);
   gazeState.focus = damp(gazeState.focus, clamp01(0.54 + touchResponse * 0.14 + workingMemory.curiosity * 0.16 + workingMemory.attachment * 0.1 - workingMemory.avoidance * 0.14), 0.1 * dt60);
 
@@ -2831,17 +2831,42 @@ function updateGazeLayer(time, dt, touchResponse) {
   gazeLayer.highlight.position.set(-0.05 + gazeState.pupilOffset.x * 0.16, 0.06 + gazeState.pupilOffset.y * 0.14, 0.024);
   gazeLayer.lowerHighlight.position.set(0.04 + gazeState.pupilOffset.x * 0.08, -0.038 + gazeState.pupilOffset.y * 0.12, 0.022);
 
-  // 3D curved lid animation — rotation-based closing
+  // 3D curved lid animation — rotation-based closing + reactive discomfort
   const closedness = 1 - gazeState.openness; // 0 = open, 1 = shut
-  const upperLidAngle = -0.18 + closedness * 0.72; // rotates down to cover
-  const lowerLidAngle = 0.12 - closedness * 0.38;  // rotates up to meet
+
+  // Flinch: sudden squint on impact
+  const flinch = clamp01(interactionStats.badTouchPulse * 1.4 + touchImpact.strength * 0.8);
+  // Stress twitch: subtle lid tremor under high stress/vigilance
+  const twitch = workingMemory.stress > 0.5 ? Math.sin(time * 18 + workingMemory.vigilance * 40) * (workingMemory.stress - 0.5) * 0.06 : 0;
+  // Discomfort tightening
+  const discomfort = clamp01(workingMemory.vigilance * 0.3 + interactionStats.overloadDebt * 0.4);
+
+  const effectiveClosedness = clamp01(closedness + flinch * 0.5 + discomfort * 0.2);
+  const upperLidAngle = -0.18 + effectiveClosedness * 0.72 + twitch;
+  const lowerLidAngle = 0.12 - effectiveClosedness * 0.38 - twitch * 0.6;
   gazeLayer.upperLid.rotation.x = upperLidAngle;
   gazeLayer.lowerLid.rotation.x = lowerLidAngle;
-  gazeLayer.upperLash.position.y = 0.16 - closedness * 0.14;
-  gazeLayer.upperLash.scale.y = 0.8 + closedness * 0.3;
-  gazeLayer.lidCrease.position.y = 0.28 - closedness * 0.06;
-  gazeLayer.lidCrease.material.opacity = 0.28 + closedness * 0.22;
-  gazeLayer.skinWrap.material.opacity = 0.26 + closedness * 0.16;
+  gazeLayer.upperLash.position.y = 0.16 - effectiveClosedness * 0.14;
+  gazeLayer.upperLash.scale.y = 0.8 + effectiveClosedness * 0.3;
+  gazeLayer.lidCrease.position.y = 0.28 - effectiveClosedness * 0.06;
+  gazeLayer.lidCrease.material.opacity = 0.28 + effectiveClosedness * 0.22 + discomfort * 0.12;
+
+  // Skin wrap reacts: reddens under stress, tightens under discomfort
+  const skinStressR = 0.08 + workingMemory.stress * 0.14 + flinch * 0.08;
+  const skinBaseG = 0.13 - workingMemory.stress * 0.04;
+  const skinBaseB = 0.24 - workingMemory.stress * 0.08;
+  gazeLayer.skinWrap.material.color.setRGB(
+    Math.min(1, skinStressR), Math.max(0, skinBaseG), Math.max(0, skinBaseB)
+  );
+  gazeLayer.skinWrap.material.opacity = 0.26 + effectiveClosedness * 0.16 + discomfort * 0.14;
+
+  // Upper lid skin tints pinkish under strain
+  gazeLayer.upperLid.material.color.setRGB(
+    0.1 + workingMemory.stress * 0.12 + flinch * 0.06,
+    0.17 - workingMemory.stress * 0.04,
+    0.24 - workingMemory.stress * 0.06
+  );
+  gazeLayer.lowerLid.material.color.copy(gazeLayer.upperLid.material.color);
 
   const browLift = workingMemory.coherence * 0.038 + workingMemory.trust * 0.014 - workingMemory.vigilance * 0.03;
   const browPinch = workingMemory.vigilance * 0.24 + workingMemory.stress * 0.08 - workingMemory.playfulness * 0.1;
