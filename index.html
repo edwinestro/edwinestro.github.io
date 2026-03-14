@@ -1,472 +1,581 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Edwin Estro — AGI 3D and Playable Game Lab</title>
-        <meta
-            name="description"
-            content="Watch AGI take form in real-time 3D, then explore the wider game lab: a playable workspace of prototypes, AI experiments, and shipped builds curated by Edwin Estro."
-        />
-        <meta name="theme-color" content="#0a1020" />
-        <meta property="og:title" content="Edwin Estro — AGI 3D and Playable Game Lab" />
-        <meta property="og:description" content="Watch a living AGI breathe in 3D, then explore the rest of the playable lab of game prototypes, agent experiments, and shipped builds." />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://edwinestro.github.io/" />
-        <meta property="og:image" content="https://edwinestro.github.io/assets/img/edw.jpg" />
-        <meta name="twitter:card" content="summary" />
-        <meta name="twitter:title" content="Edwin Estro — AGI 3D and Playable Game Lab" />
-        <meta name="twitter:description" content="Watch a living AGI breathe in 3D, then explore the rest of the playable lab of game prototypes, agent experiments, and shipped builds." />
-        <script type="application/ld+json">
-        {
-            "@context": "https://schema.org",
-            "@type": "WebSite",
-            "name": "Edwin Estro — AGI 3D and Playable Game Lab",
-            "url": "https://edwinestro.github.io/",
-            "description": "A living AGI breathes in real-time 3D, with game prototypes, AI agents, and experiments.",
-            "author": {
-                "@type": "Person",
-                "name": "Edwin Estro"
-            }
-        }
-        </script>
-        <link rel="preload" as="image" href="assets/img/edw.jpg" />
-        <link rel="stylesheet" href="assets/css/home.css" />
-        
-            <!-- Microsoft Ads (Bing) UET: Consent must be set BEFORE UET initializes -->
-            <script src="assets/js/uet-consent-default.js"></script>
-            <script src="assets/js/uet-loader.js"></script>
-    </head>
-    <body>
-        <a class="skip-link" href="#featured">Skip to content</a>
-        <!-- Animated background orbs -->
-        <div class="orb orb--1" aria-hidden="true"></div>
-        <div class="orb orb--2" aria-hidden="true"></div>
-        <div class="orb orb--3" aria-hidden="true"></div>
-        <!-- Scroll progress bar -->
-        <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
-        <canvas id="immersion" aria-hidden="true"></canvas>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edwin Estro — AGI 3D</title>
+  <meta name="description" content="Watch AGI take form in real-time 3D. A living liquid-metal intelligence breathing in space. Click to enter fullscreen." />
+  <meta name="theme-color" content="#020408" />
+  <meta property="og:title" content="Edwin Estro — AGI 3D" />
+  <meta property="og:description" content="A living AGI entity breathes, pulses, and wobbles in real-time 3D. Click to go fullscreen." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://edwinestro.github.io/" />
+  <meta property="og:image" content="https://edwinestro.github.io/assets/img/edw.jpg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Edwin Estro — AGI 3D" />
+  <meta name="twitter:description" content="A living AGI entity breathes, pulses, and wobbles in real-time 3D." />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Edwin Estro — AGI 3D",
+    "url": "https://edwinestro.github.io/",
+    "description": "A living AGI breathes in real-time 3D.",
+    "author": { "@type": "Person", "name": "Edwin Estro" }
+  }
+  </script>
+  <!-- Microsoft Ads (Bing) UET -->
+  <script src="assets/js/uet-consent-default.js"></script>
+  <script src="assets/js/uet-loader.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #020408; cursor: pointer; }
+    canvas { display: block; width: 100vw; height: 100vh; }
 
-        <header class="nav" role="banner">
-            <div class="nav-inner container">
-                <div class="brand" aria-label="Site brand">
-                    <img class="brand-mark" src="assets/img/edw.jpg" alt="Edwin Estro with a mustache" />
-                    <div class="brand-text">
-                        <div class="brand-title">Gaming AI Development</div>
-                        <div class="brand-sub">Edwin Estro · games, agents, experiments</div>
-                    </div>
-                </div>
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: clamp(16px, 3vw, 28px);
+      font-family: "Segoe UI", system-ui, sans-serif;
+      transition: opacity 0.6s ease;
+    }
+    .overlay.faded { opacity: 0; }
 
-                <nav class="navlinks" aria-label="Primary" id="mainNav">
-                    <a href="#featured">Featured</a>
-                    <a href="#portal">Games</a>
-                    <a href="#workspaces">Workspaces</a>
-                    <a href="#blog">Blog</a>
-                    <a href="#quality">Quality</a>
-                    <a href="#support">Support</a>
-                    <a class="btn primary" href="Projects/games/agi-3d/index.html">Experience AGI 3D</a>
-                </nav>
-                <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="mainNav">
-                    <span></span><span></span><span></span>
-                </button>
-            </div>
-        </header>
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-mark {
+      width: 40px; height: 40px; border-radius: 12px; object-fit: cover;
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    .brand h1 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.4rem, 3vw, 2.2rem);
+      font-weight: 700;
+      color: rgba(235, 245, 255, 0.94);
+      text-shadow: 0 6px 24px rgba(0,0,0,0.45);
+      line-height: 1.1;
+    }
+    .brand p {
+      font-size: 0.82rem;
+      color: rgba(180, 210, 240, 0.62);
+      margin-top: 2px;
+    }
+    .nav-links {
+      display: flex; gap: 8px; pointer-events: auto; flex-wrap: wrap; justify-content: flex-end;
+    }
+    .nav-links a {
+      color: rgba(220, 240, 255, 0.82);
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(6, 12, 24, 0.5);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .nav-links a:hover { border-color: rgba(108, 232, 255, 0.4); background: rgba(108, 232, 255, 0.08); }
+    .nav-links a.primary {
+      color: rgba(255, 245, 230, 0.96);
+      border-color: rgba(108, 232, 255, 0.3);
+      background: linear-gradient(135deg, rgba(108, 232, 255, 0.18), rgba(127, 240, 197, 0.08));
+    }
 
-        <main>
-            <section class="hero">
-                <div class="container hero-grid">
-                    <div class="hero-copy">
-                        <div class="kicker">Featured now · AGI 3D · living intelligence</div>
-                        <h1 class="h1">
-                            Watch it breathe.
-                            <span class="grad">A living AGI, forming in real time.</span>
-                        </h1>
-                        <p class="lede">
-                            AGI 3D renders a liquid-metal intelligence suspended in space — breathing, pulsing, and wobbling as it takes shape.
-                            No menus, no score. Just the entity and a slow orbit around something that feels alive.
-                        </p>
+    .bottom-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 20px;
+    }
+    .hint {
+      color: rgba(180, 210, 240, 0.52);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      animation: hintPulse 3s ease-in-out infinite;
+    }
+    @keyframes hintPulse {
+      0%, 100% { opacity: 0.52; }
+      50% { opacity: 0.82; }
+    }
+    .hud {
+      display: flex;
+      gap: 16px;
+      padding: 9px 20px;
+      border-radius: 999px;
+      background: rgba(6, 12, 24, 0.62);
+      border: 1px solid rgba(108, 232, 255, 0.12);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: rgba(200, 220, 240, 0.82);
+    }
+    .hud .tag { color: rgba(108, 232, 255, 0.88); }
 
-                        <div class="hero-actions">
-                            <a class="btn primary" id="heroPlayLatest" href="Projects/games/agi-3d/index.html">Experience AGI 3D</a>
-                            <a class="btn" href="#featured">See featured breakdown</a>
-                            <a class="btn" href="#portal">Browse game portal</a>
-                            <a class="btn" href="Projects/docs/index.html">Docs / Resume</a>
-                        </div>
+    @media (max-width: 600px) {
+      .nav-links { gap: 6px; }
+      .nav-links a { font-size: 0.75rem; padding: 6px 10px; }
+      .hud { gap: 10px; padding: 7px 14px; font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="c"></canvas>
 
-                        <div class="hero-rail" aria-label="Featured game highlights">
-                            <article class="hero-rail-item">
-                                <div class="hero-rail-value">Liquid metal</div>
-                                <div class="hero-rail-label">A wobbling, reflective sphere that reacts to breath cycles and entropy.</div>
-                            </article>
-                            <article class="hero-rail-item">
-                                <div class="hero-rail-value">Real-time 3D</div>
-                                <div class="hero-rail-label">Three.js with physical materials, clearcoat, transmission, and ACES tone mapping.</div>
-                            </article>
-                            <article class="hero-rail-item">
-                                <div class="hero-rail-value">Just breathe</div>
-                                <div class="hero-rail-label">No controls needed. The camera orbits slowly while the entity pulses with life.</div>
-                            </article>
-                        </div>
-                    </div>
-
-                    <aside class="panel" aria-label="Profile">
-                        <div class="profile">
-                            <div class="profile-top">
-                                <img class="avatar" src="assets/img/edw.jpg" alt="Edwin Estro with a mustache" />
-                                <div>
-                                    <div class="profile-name">Edwin Estro</div>
-                                    <div class="profile-role">Gaming AI Development · Builder / Curator / Gameplay-first shipping</div>
-                                </div>
-                            </div>
-                            <p class="profile-note">The front page now showcases AGI 3D: a breathing liquid-metal intelligence rendered in real-time. The rest of the lab stays accessible below.</p>
-                            <div class="stats" aria-label="Quick stats">
-                                <div class="stat"><div class="n" id="statGames">—</div><div class="l">Games in portal</div></div>
-                                <div class="stat"><div class="n" id="statCounted">—</div><div class="l">Registry entries</div></div>
-                                <div class="stat"><div class="n" id="statUpdated">—</div><div class="l">Latest ship</div></div>
-                            </div>
-                            <div>
-                            <a class="btn primary feature-cta" id="featureCta" href="Projects/games/unsupervised-3d/index.html">Play featured game</a>
-                            </div>
-                            <a class="feature-shot-wrap" id="featureSpotlight" href="Projects/games/unsupervised-3d/index.html" aria-label="Featured game spotlight">
-                                <div class="feature-shot-title" id="featureShotTitle">Unsupervised 3D</div>
-                                <div class="feature-shot-frame" id="featureShotFrame">
-                                    <img
-                                        class="feature-shot"
-                                        id="featureShotImage"
-                                        src="Projects/hubs/science-lab/assets/unsupervised-3d-1600x900.png"
-                                        alt="Unsupervised 3D cover art"
-                                        width="1600"
-                                        height="900"
-                                        loading="lazy"
-                                        decoding="async"
-                                    />
-                                    <div class="feature-cover" id="featureShotCover" aria-hidden="true"></div>
-                                </div>
-                                <div class="feature-shot-caption" id="featureShotCaption">3D · Action · Memory · Updated recently</div>
-                            </a>
-                        </div>
-                    </aside>
-                </div>
-            </section>
-
-            <section id="featured" class="section featured-drop" aria-label="Featured game spotlight">
-                <div class="container featured-grid">
-                    <article class="featured-command">
-                        <div class="feature-eyebrow">Featured hunt</div>
-                        <h2 class="h2 feature-heading">Unsupervised 3D now gets a proper survival showcase.</h2>
-                        <p class="sub feature-sub">The page leans into the game’s strongest trait set: immediate threat, escalating pressure, visible rules, and that addictive “one more run” pull that a good survival-action game needs.</p>
-
-                        <div class="featured-meta" aria-label="Featured game traits">
-                            <div class="featured-stat">
-                                <div class="featured-stat-value">Arena tension</div>
-                                <div class="featured-stat-label">The room feels hostile the second the run begins.</div>
-                            </div>
-                            <div class="featured-stat">
-                                <div class="featured-stat-value">Memory under fire</div>
-                                <div class="featured-stat-label">Recall is part of survival, not a side activity.</div>
-                            </div>
-                            <div class="featured-stat">
-                                <div class="featured-stat-value">Run-driven pacing</div>
-                                <div class="featured-stat-label">Short loops keep the rhythm aggressive and replayable.</div>
-                            </div>
-                        </div>
-
-                        <div class="featured-points" aria-label="Featured gameplay pillars">
-                            <article class="feature-point">
-                                <h3 class="feature-point-title">Pressure you can read</h3>
-                                <p class="feature-point-desc">The enemy threat is visible and immediate, so every dodge, shot, and pattern check feels connected to survival instead of noise.</p>
-                            </article>
-                            <article class="feature-point">
-                                <h3 class="feature-point-title">One-more-run structure</h3>
-                                <p class="feature-point-desc">The opener is quick, the stakes are legible, and defeat pushes you back into the next attempt before the energy drops.</p>
-                            </article>
-                            <article class="feature-point">
-                                <h3 class="feature-point-title">Mood that matches the loop</h3>
-                                <p class="feature-point-desc">The homepage finally frames the game like a dangerous midnight run instead of a neutral card in a larger grid.</p>
-                            </article>
-                        </div>
-
-                        <div class="hero-actions feature-actions">
-                            <a class="btn primary" id="featuredPlayCta" href="Projects/games/unsupervised-3d/index.html">Launch featured run</a>
-                            <a class="btn" href="#portal">Compare with other games</a>
-                            <a class="btn" href="Projects/hubs/science-lab/index.html">Open Science Lab hub</a>
-                        </div>
-                    </article>
-
-                    <a class="featured-stage" id="featuredStage" href="Projects/games/unsupervised-3d/index.html" aria-label="Open featured game">
-                        <div class="featured-stage-frame">
-                            <div class="featured-stage-visual" id="featuredStageVisual">
-                                <img
-                                    class="featured-stage-image"
-                                    id="featuredStageImage"
-                                    src="Projects/hubs/science-lab/assets/unsupervised-3d-1600x900.png"
-                                    alt="Unsupervised 3D cover art"
-                                    width="1600"
-                                    height="900"
-                                    loading="lazy"
-                                    decoding="async"
-                                />
-                                <div class="feature-cover feature-cover-large" id="featuredStageCover" aria-hidden="true"></div>
-                            </div>
-                        </div>
-                        <div class="featured-stage-copy">
-                            <div class="featured-stage-topline">
-                                <span class="feature-shot-title" id="featuredStageKicker">Neon vault run</span>
-                                <span class="featured-stage-status" id="featuredStageStatus">Live in portal</span>
-                            </div>
-                            <div class="featured-stage-title" id="featuredStageTitle">Neon Vault — Unsupervised 3D</div>
-                            <p class="featured-stage-desc" id="featuredStageDesc">Walk a glowing 3D room, flip tiles, build pairs, and shoot back before the drone closes the gap.</p>
-                            <div class="badges featured-stage-badges" id="featuredStageBadges">
-                                <span class="badge blue">3D</span>
-                                <span class="badge">Action</span>
-                                <span class="badge">Memory</span>
-                            </div>
-                            <div class="card-cta">Launch the vault →</div>
-                        </div>
-                    </a>
-                </div>
-            </section>
-
-            <section id="portal" class="section" aria-label="Game portal">
-                <div class="container">
-                    <div class="portal-head">
-                        <div>
-                            <h2 class="h2">Game portal</h2>
-                            <p class="sub">Every surfaced game now comes from the shared registry and gets a curated cover treatment, clear tags, and a direct launch path.</p>
-                        </div>
-                        <div class="portal-note">Playable now · curated covers and gifs · newest ships first</div>
-                    </div>
-
-                    <div class="portal-toolbar" aria-label="Portal controls">
-                        <label class="portal-search" for="portalSearch">
-                            <span class="portal-search-label">Find a game</span>
-                            <input id="portalSearch" type="search" placeholder="Search by title, tag, or genre" autocomplete="off" />
-                        </label>
-                        <div class="portal-results" id="portalResults" aria-live="polite">Loading games…</div>
-                    </div>
-
-                    <div class="filter-row" id="portalFilters" aria-label="Game categories">
-                        <!-- JS renders filter chips here. -->
-                    </div>
-
-                    <div class="grid portal-grid" id="portalGrid" aria-label="Game portal tiles">
-                        <!-- JS renders the unified game portal here. -->
-                    </div>
-                </div>
-            </section>
-
-            <section id="preserved" class="section" aria-label="Preserved builds">
-                <div class="container">
-                    <div class="portal-head">
-                        <div>
-                            <h2 class="h2">Preserved builds</h2>
-                            <p class="sub">Older or untracked experiments still deserve a visible shelf. These are registry entries kept playable for continuity, reference, and research mode.</p>
-                        </div>
-                        <div class="portal-note">Archive lane · still launchable · lower-priority experiments</div>
-                    </div>
-
-                    <div class="grid archive-grid" id="archiveGrid" aria-label="Preserved build tiles">
-                        <!-- JS renders preserved builds here. -->
-                    </div>
-                </div>
-            </section>
-
-            <!-- ─── Blog ─── -->
-            <section id="blog" class="section" aria-label="Blog">
-                <div class="container">
-                    <h2 class="h2">Blog</h2>
-                    <p class="sub">Thoughts on game development, AI experiments, and building in public.</p>
-
-                    <article class="blog-featured">
-                        <div class="blog-meta">
-                            <time datetime="2026-02-24">Feb 24, 2026</time>
-                            <span class="badge blue">Featured</span>
-                        </div>
-                        <h3 class="blog-title">Building Attract‑ion: Lessons from Subatomic Game Design</h3>
-                        <div class="blog-body blog-collapsed" id="blogBody">
-                            <p>The main idea behind Attract‑ion is to understand how attraction works at the subatomic level. Electrons orbit semi-independently around the nucleus, while the nucleus itself is being affected by leptons and quarks that influence the electron's behavior in subtle but critical ways.</p>
-                            <p>The goal of the game is to maintain electron stability by applying a synthetic pull force — this is you, the player, applying the pull — when the electron is about to fall out of orbit. But you can't just pull recklessly: exceed the force and the electron might collide with the nucleus, ending the run.</p>
-                            <p>It's a balance act at the smallest scale imaginable. The energy fluctuations are real-time, the lepton orbitals shift unpredictably, and you have to read the field and react. Think of it as a tug-of-war where the rope is an electromagnetic bond and the stakes are hydrogen stabilization.</p>
-                            <p>Building this taught me a lot about translating physics concepts into game feel. The challenge isn't simulating accuracy — it's making the player <em>feel</em> the tension of an electron on the edge of its orbital, one wrong tap away from collapse or collision.</p>
-                        </div>
-                        <button class="blog-toggle" id="blogToggle" aria-expanded="false" aria-controls="blogBody">Read more ▾</button>
-                    </article>
-
-                    <div class="blog-archive">
-                        <h3 class="blog-archive-heading">Archive</h3>
-                        <ul class="blog-archive-list">
-                            <li>
-                                <a href="#blog">
-                                    <time datetime="2026-02-24">2026-02-24</time>
-                                    <span>Building Attract‑ion: Lessons from Subatomic Game Design</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </section>
-
-            <section id="workspaces" class="section" aria-label="Workspaces">
-                <div class="container">
-                    <h2 class="h2">Workspaces</h2>
-                    <p class="sub">The portal handles game discovery. These links are the supporting rooms around it: hub, docs, audits, tools, and preserved legacy spaces.</p>
-
-                    <div class="grid" aria-label="Workspace links">
-                        <a class="card big" href="Projects/hubs/science-lab/index.html">
-                            <div class="card-title">Science Lab (Hub)</div>
-                            <div class="card-desc">Single launchpad for every registered game, with featured selection and progress tracking.</div>
-                            <div class="badges">
-                                <span class="badge blue">Hub</span>
-                                <span class="badge">Progress</span>
-                                <span class="badge">Preserved</span>
-                            </div>
-                            <div class="card-cta">Enter Lab →</div>
-                        </a>
-
-                        <a class="card" href="legacy/stringball-endpoint/games.html">
-                            <div class="card-title">Legacy Game Lab</div>
-                            <div class="card-desc">The preserved cognitive and memory experiments, including the legacy tabs that still back part of the registry.</div>
-                            <div class="badges">
-                                <span class="badge">Legacy</span>
-                                <span class="badge">Cognitive</span>
-                            </div>
-                            <div class="card-cta">Open →</div>
-                        </a>
-
-                        <a class="card" href="Projects/docs/index.html">
-                            <div class="card-title">Docs</div>
-                            <div class="card-desc">Resume, certificates, and supporting documentation in one place.</div>
-                            <div class="badges">
-                                <span class="badge">Docs</span>
-                            </div>
-                            <div class="card-cta">Open →</div>
-                        </a>
-
-                        <a class="card" href="Projects/Audit/index.html">
-                            <div class="card-title">Audit Hub</div>
-                            <div class="card-desc">Security, accessibility, and code quality reviews for the repo and the shipped experiences.</div>
-                            <div class="badges">
-                                <span class="badge blue">Quality</span>
-                                <span class="badge">Audit</span>
-                            </div>
-                            <div class="card-cta">View audits →</div>
-                        </a>
-
-                        <a class="card" href="NotFiddler/index.html">
-                            <div class="card-title">NotFiddler</div>
-                            <div class="card-desc">A privacy-first HAR analyzer that stays entirely in the browser.</div>
-                            <div class="badges">
-                                <span class="badge blue">Tool</span>
-                                <span class="badge">Privacy-first</span>
-                            </div>
-                            <div class="card-cta">Open →</div>
-                        </a>
-                    </div>
-                </div>
-            </section>
-
-            <section id="quality" class="section" aria-label="Quality">
-                <div class="container">
-                    <div class="quality-head">
-                        <div>
-                            <h2 class="h2">Quality layer model</h2>
-                            <p class="sub">The goal is to make every build playable, readable, and resilient — even when it’s “just a prototype.”</p>
-                        </div>
-                        <div class="quality-pill">Playable · Readable · Resilient</div>
-                    </div>
-                    <div class="quality-grid" aria-label="Quality steps">
-                        <article class="quality-card clarity">
-                            <div class="quality-num">01</div>
-                            <h3 class="quality-title">Clarity</h3>
-                            <p class="quality-desc">Readable hierarchy, inclusive UX, and “you don’t need instructions” energy.</p>
-                            <ul class="quality-list">
-                                <li>Self-guided UI with obvious next actions</li>
-                                <li>Accessible contrast and motion-safe patterns</li>
-                                <li>Readable typography and feedback-first states</li>
-                            </ul>
-                        </article>
-                        <article class="quality-card craft">
-                            <div class="quality-num">02</div>
-                            <h3 class="quality-title">Craft</h3>
-                            <p class="quality-desc">Responsive layouts, performance, and a clean architecture that survives refactors.</p>
-                            <ul class="quality-list">
-                                <li>Plays cleanly on mobile → ultrawide</li>
-                                <li>Lightweight assets and predictable frame time</li>
-                                <li>Modular components with clear ownership</li>
-                            </ul>
-                        </article>
-                        <article class="quality-card trust">
-                            <div class="quality-num">03</div>
-                            <h3 class="quality-title">Trust</h3>
-                            <p class="quality-desc">Secure defaults, privacy awareness, and resilient engineering habits.</p>
-                            <ul class="quality-list">
-                                <li>Least-privilege inputs and safe defaults</li>
-                                <li>Privacy-first data collection</li>
-                                <li>Clear error handling and recovery paths</li>
-                            </ul>
-                        </article>
-                        <article class="quality-card measure">
-                            <div class="quality-num">04</div>
-                            <h3 class="quality-title">Measurement</h3>
-                            <p class="quality-desc">Clear events and outcomes so agents (and humans) can iterate with confidence.</p>
-                            <ul class="quality-list">
-                                <li>Human-auditable events and outcomes</li>
-                                <li>Easy experiments with rollback paths</li>
-                                <li>Iteration-ready metrics for every build</li>
-                            </ul>
-                        </article>
-                    </div>
-                </div>
-            </section>
-
-            <section id="support" class="section" aria-label="Support">
-                <div class="container">
-                    <h2 class="h2">Support</h2>
-                    <p class="sub">If you’re feeling generous, consider supporting a cause that matters.</p>
-                    <div class="grid" aria-label="Support links">
-                        <a class="card big" href="https://support.savethechildren.org/site/Donation2?df_id=1620&mfc_pref=T&1620.donation=form1" target="_blank" rel="noreferrer noopener">
-                            <div class="card-title">Save the Children</div>
-                            <div class="card-desc">Direct donation link (opens in a new tab).</div>
-                            <div class="badges"><span class="badge blue">Charity</span></div>
-                            <div class="card-cta">Donate →</div>
-                        </a>
-                    </div>
-                </div>
-            </section>
-
-            <footer class="footer" aria-label="Footer">
-                <div class="container">
-                    <div class="footer-inner">
-                        <div>© <span id="year"></span> Edwin Estro · Gaming AI Development</div>
-                        <div>
-                            <a href="Projects/hubs/science-lab/index.html">Science Lab</a>
-                            <span class="footer-sep"> · </span>
-                            <a href="Projects/games/protein-interactions/index.html">Protein Interactions</a>
-                            <span class="footer-sep"> · </span>
-                            <a href="Projects/games/protein-simulator/index.html">Protein Simulator</a>
-                            <span class="footer-sep"> · </span>
-                            <a href="Projects/Audit/index.html">Audit Hub</a>
-                            <span class="footer-sep"> · </span>
-                            <a href="Projects/docs/index.html">Docs</a>
-                        </div>
-                    </div>
-                </div>
-            </footer>
-        </main>
-
-        <!-- Cookie / consent banner (homepage only) for Microsoft Ads UET -->
-        <div class="consent-banner" id="consentBanner" role="dialog" aria-live="polite" aria-label="Cookie consent">
-            <div class="consent-copy">
-                <div class="consent-title">Privacy & measurement</div>
-                <div class="consent-text">
-                    We use Microsoft Ads (Bing) UET to measure visits and improve the site. You can accept or decline ad storage.
-                </div>
-            </div>
-            <div class="consent-actions">
-                <button class="btn" type="button" id="consentDecline">Decline</button>
-                <button class="btn primary" type="button" id="consentAccept">Accept</button>
-            </div>
+  <div class="overlay" id="overlay">
+    <div class="top-bar">
+      <div class="brand">
+        <img class="brand-mark" src="assets/img/edw.jpg" alt="Edwin Estro" />
+        <div>
+          <h1>AGI 3D</h1>
+          <p>Edwin Estro · living intelligence</p>
         </div>
-        <script src="assets/js/home.js" defer></script>
-    </body>
+      </div>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="portal.html">Portal</a>
+        <a href="Projects/games/agi-breeder/index.html">AGI Breeder</a>
+        <a href="Projects/games/unsupervised-3d/index.html">Unsupervised 3D</a>
+        <a href="Projects/docs/index.html">Docs</a>
+      </nav>
+    </div>
+    <div class="bottom-bar">
+      <div class="hint">Click anywhere to enter fullscreen</div>
+      <div class="hud">
+        <span class="tag">PULSE</span><span id="hudPulse">0.00</span>
+        <span class="tag">BREATH</span><span id="hudBreath">0.00</span>
+        <span class="tag">ENTROPY</span><span id="hudEntropy">0.00</span>
+      </div>
+    </div>
+  </div>
+
+  <script type="importmap">
+  { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }
+  </script>
+  <script type="module">
+import * as THREE from 'three';
+
+const canvas = document.getElementById('c');
+const overlayEl = document.getElementById('overlay');
+const hudPulse = document.getElementById('hudPulse');
+const hudBreath = document.getElementById('hudBreath');
+const hudEntropy = document.getElementById('hudEntropy');
+
+// ─── Renderer ───
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+// ─── Scene ───
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x020610, 0.06);
+
+const skyGeo = new THREE.SphereGeometry(50, 32, 32);
+const skyMat = new THREE.ShaderMaterial({
+  side: THREE.BackSide,
+  uniforms: {
+    colorTop: { value: new THREE.Color(0x0a1a30) },
+    colorBot: { value: new THREE.Color(0x020408) },
+  },
+  vertexShader: `
+    varying vec3 vWorldPos;
+    void main() {
+      vec4 wp = modelMatrix * vec4(position, 1.0);
+      vWorldPos = wp.xyz;
+      gl_Position = projectionMatrix * viewMatrix * wp;
+    }
+  `,
+  fragmentShader: `
+    uniform vec3 colorTop;
+    uniform vec3 colorBot;
+    varying vec3 vWorldPos;
+    void main() {
+      float h = normalize(vWorldPos).y * 0.5 + 0.5;
+      gl_FragColor = vec4(mix(colorBot, colorTop, h), 1.0);
+    }
+  `,
+});
+scene.add(new THREE.Mesh(skyGeo, skyMat));
+
+// ─── Camera ───
+const camera = new THREE.PerspectiveCamera(48, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(0, 0.3, 4.2);
+camera.lookAt(0, 0, 0);
+
+// ─── AGI Entity ───
+const geo = new THREE.IcosahedronGeometry(1, 6);
+const basePositions = new Float32Array(geo.attributes.position.array);
+
+const mat = new THREE.MeshPhysicalMaterial({
+  color: new THREE.Color(0.18, 0.72, 1.0),
+  metalness: 0.88,
+  roughness: 0.08,
+  clearcoat: 1.0,
+  clearcoatRoughness: 0.05,
+  transmission: 0.12,
+  thickness: 0.8,
+  ior: 1.45,
+  envMapIntensity: 2.2,
+  emissive: new THREE.Color(0x0a2244),
+  emissiveIntensity: 0.2,
+  sheen: 0.4,
+  sheenColor: new THREE.Color(0x4488ff),
+  sheenRoughness: 0.3,
+});
+
+const entity = new THREE.Mesh(geo, mat);
+scene.add(entity);
+
+// Inner core
+const coreGeo = new THREE.IcosahedronGeometry(0.35, 4);
+const coreMat = new THREE.MeshBasicMaterial({ color: 0x6ce8ff, transparent: true, opacity: 0.12 });
+const core = new THREE.Mesh(coreGeo, coreMat);
+scene.add(core);
+
+// Particle ring
+const ringCount = 360;
+const ringGeo2 = new THREE.BufferGeometry();
+const ringPos = new Float32Array(ringCount * 3);
+const ringVel = new Float32Array(ringCount);
+for (let i = 0; i < ringCount; i++) {
+  const a = (i / ringCount) * Math.PI * 2;
+  const r = 1.8 + Math.random() * 0.5;
+  ringPos[i * 3] = Math.cos(a) * r;
+  ringPos[i * 3 + 1] = (Math.random() - 0.5) * 0.12;
+  ringPos[i * 3 + 2] = Math.sin(a) * r;
+  ringVel[i] = 0.3 + Math.random() * 0.7;
+}
+ringGeo2.setAttribute('position', new THREE.BufferAttribute(ringPos, 3));
+const ringMat = new THREE.PointsMaterial({
+  color: 0x7ff0c5, size: 0.025, transparent: true, opacity: 0.65,
+  blending: THREE.AdditiveBlending, depthWrite: false,
+});
+const ring = new THREE.Points(ringGeo2, ringMat);
+scene.add(ring);
+
+// Dust motes
+const dustCount = 600;
+const dustGeo = new THREE.BufferGeometry();
+const dustPos = new Float32Array(dustCount * 3);
+for (let i = 0; i < dustCount; i++) {
+  dustPos[i * 3] = (Math.random() - 0.5) * 16;
+  dustPos[i * 3 + 1] = (Math.random() - 0.5) * 10;
+  dustPos[i * 3 + 2] = (Math.random() - 0.5) * 16;
+}
+dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
+const dustMat = new THREE.PointsMaterial({
+  color: 0x4466aa, size: 0.015, transparent: true, opacity: 0.35,
+  blending: THREE.AdditiveBlending, depthWrite: false,
+});
+scene.add(new THREE.Points(dustGeo, dustMat));
+
+// ─── Lighting ───
+const key = new THREE.DirectionalLight(0xffffff, 2.0);
+key.position.set(4, 5, 6);
+scene.add(key);
+const rim = new THREE.DirectionalLight(0x6ce8ff, 1.4);
+rim.position.set(-4, 2, -5);
+scene.add(rim);
+const bottom = new THREE.PointLight(0xff7bc1, 0.9, 10);
+bottom.position.set(0, -4, 2);
+scene.add(bottom);
+const fill = new THREE.PointLight(0x7ff0c5, 0.5, 8);
+fill.position.set(3, -1, -3);
+scene.add(fill);
+scene.add(new THREE.AmbientLight(0x1a2a44, 0.5));
+
+// ─── Clock ───
+const clock = new THREE.Clock();
+
+// ─── MEMORY: localStorage persistence ───
+const STORAGE_KEY = 'agi3d_entity';
+
+const defaultTraits = { capability: 50, alignment: 50, resilience: 50, creativity: 50, risk: 20, sessions: 0, totalTime: 0 };
+
+function loadEntity() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) { const d = JSON.parse(raw); return { ...defaultTraits, ...d }; }
+  } catch {}
+  return { ...defaultTraits };
+}
+
+function saveEntity() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(traits)); } catch {}
+}
+
+const traits = loadEntity();
+traits.sessions++;
+saveEntity();
+
+// ─── INTERACTION STATE ───
+let mouseNDC = { x: 0, y: 0 };
+let mouseSpeed = 0;
+let prevMouseX = 0, prevMouseY = 0;
+let proximity = 0;          // 0 = far, 1 = touching
+let clickRipple = 0;        // decays to 0
+let lastInteraction = performance.now();
+let idleFactor = 0;         // 0 = active, 1 = deep sleep
+let dragMode = false;
+let dragAngle = 0;
+let camAutoOrbit = true;
+
+// Interaction scoring (accumulated per frame)
+let framePatience = 0;
+let frameAggression = 0;
+let frameCuriosity = 0;
+
+canvas.addEventListener('pointermove', (e) => {
+  const nx = (e.clientX / window.innerWidth) * 2 - 1;
+  const ny = -(e.clientY / window.innerHeight) * 2 + 1;
+  const dx = e.clientX - prevMouseX;
+  const dy = e.clientY - prevMouseY;
+  mouseSpeed = Math.sqrt(dx * dx + dy * dy);
+  prevMouseX = e.clientX;
+  prevMouseY = e.clientY;
+  mouseNDC.x = nx;
+  mouseNDC.y = ny;
+  lastInteraction = performance.now();
+
+  if (dragMode) {
+    dragAngle += dx * 0.005;
+    camAutoOrbit = false;
+  }
+});
+
+canvas.addEventListener('pointerdown', (e) => {
+  if (e.button === 0) {
+    clickRipple = 1.0;
+    lastInteraction = performance.now();
+    frameAggression += 0.3;
+  }
+  if (e.button === 2 || e.pointerType === 'touch') {
+    dragMode = true;
+  }
+});
+
+canvas.addEventListener('pointerup', () => { dragMode = false; });
+canvas.addEventListener('pointerleave', () => { dragMode = false; });
+canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+canvas.addEventListener('wheel', (e) => {
+  const zoomDelta = e.deltaY * 0.002;
+  camera.position.z = Math.max(2.5, Math.min(7, camera.position.z + zoomDelta));
+  lastInteraction = performance.now();
+  frameCuriosity += 0.15;
+}, { passive: true });
+
+// ─── LEARNING: trait evolution per frame ───
+function learnFromBehavior(dt) {
+  const rate = dt * 0.08;
+
+  // Patience: watching without touching increases alignment
+  const idleSeconds = (performance.now() - lastInteraction) / 1000;
+  idleFactor = Math.min(1, idleSeconds / 30);
+  if (idleSeconds > 3 && idleSeconds < 60) {
+    framePatience += dt * 0.5;
+  }
+
+  // Apply accumulated scores
+  traits.alignment = Math.min(100, traits.alignment + framePatience * rate * 0.6);
+  traits.capability = Math.min(100, traits.capability + frameAggression * rate * 1.2);
+  traits.risk = Math.min(100, Math.max(0, traits.risk + frameAggression * rate * 0.8 - framePatience * rate * 0.3));
+  traits.creativity = Math.min(100, traits.creativity + frameCuriosity * rate * 0.9);
+  traits.resilience = Math.min(100, traits.resilience + (1 - idleFactor) * rate * 0.2);
+
+  // Decay scores
+  framePatience *= 0.92;
+  frameAggression *= 0.88;
+  frameCuriosity *= 0.9;
+
+  // Track total time
+  traits.totalTime += dt;
+
+  // Save every 5 seconds
+  if (Math.floor(traits.totalTime) % 5 === 0) saveEntity();
+}
+
+// ─── INTERACTION → VISUALS ───
+function applyInteractionToBreath(time) {
+  // Proximity: how close is cursor to center?
+  proximity = 1 - Math.min(1, Math.sqrt(mouseNDC.x * mouseNDC.x + mouseNDC.y * mouseNDC.y));
+
+  // Click ripple decays
+  clickRipple *= 0.94;
+}
+
+function interactionBreathModifiers() {
+  // Extra wobble from proximity + speed
+  const proximityWobble = proximity * 0.04;
+  const speedWobble = Math.min(mouseSpeed * 0.0003, 0.05);
+  const rippleWobble = clickRipple * 0.12;
+  const sleepDampen = 1 - idleFactor * 0.6;
+
+  return {
+    extraAmplitude: (proximityWobble + speedWobble + rippleWobble) * sleepDampen,
+    extraSpeed: proximity * 0.8 + clickRipple * 2.0,
+    breathDampen: 1 - idleFactor * 0.4,
+  };
+}
+
+function applyTraitsToMaterial() {
+  const cap = traits.capability / 100;
+  const align = traits.alignment / 100;
+  const res = traits.resilience / 100;
+  const cre = traits.creativity / 100;
+  const risk = traits.risk / 100;
+
+  // Size evolves with capability
+  const scale = 0.9 + cap * 0.25;
+  entity.scale.setScalar(scale);
+
+  // Color: alignment = cyan, risk = red, creativity = purple shift
+  const cr = 0.14 + risk * 0.5 + cre * 0.15;
+  const cg = 0.65 + align * 0.25;
+  const cb = 0.92 + cap * 0.08 - risk * 0.2;
+  mat.color.setRGB(Math.min(cr, 1), Math.min(cg, 1), Math.min(cb, 1));
+
+  mat.roughness = 0.22 - align * 0.16;
+  mat.metalness = 0.72 + align * 0.18;
+  mat.transmission = 0.05 + cre * 0.18;
+  mat.clearcoat = 0.6 + res * 0.4;
+  mat.emissive.setRGB(risk * 0.35, 0.05, 0.1 + cre * 0.1);
+  mat.emissiveIntensity = 0.1 + risk * 0.4;
+}
+
+// Override breathe with interaction-aware version
+const breatheWithInteraction = function(time) {
+  const mods = interactionBreathModifiers();
+  const pos = geo.attributes.position.array;
+  const bc = Math.sin(time * 0.6) * 0.5 + 0.5;
+  const bs = (0.97 + bc * 0.06) * mods.breathDampen;
+  const pc = Math.sin(time * 2.2) * 0.5 + 0.5;
+  const pa = (0.015 + pc * 0.025) + mods.extraAmplitude;
+  const ent = Math.sin(time * 0.13) * 0.5 + 0.5;
+  const ca = 0.02 + ent * 0.04 + mods.extraAmplitude * 0.5;
+  const sp = 1 + mods.extraSpeed;
+
+  for (let i = 0; i < pos.length; i += 3) {
+    const bx = basePositions[i], by = basePositions[i + 1], bz = basePositions[i + 2];
+    const len = Math.sqrt(bx * bx + by * by + bz * bz);
+    const nx = bx / len, ny = by / len, nz = bz / len;
+    let d = 0;
+    d += Math.sin(nx * 3.0 + time * 0.5 * sp) * Math.cos(ny * 2.8 + time * 0.4 * sp) * Math.sin(nz * 2.5 + time * 0.35 * sp) * 0.06 * bs;
+    d += Math.sin(nx * 5.5 + time * 2.0 * sp) * Math.cos(ny * 4.8 + time * 1.6 * sp) * pa;
+    d += Math.sin(nx * 9.0 + time * 3.5 * sp + ny * 7.0) * Math.cos(nz * 8.0 + time * 2.8 * sp + nx * 6.0) * ca;
+    d += ny * Math.sin(time * 0.3) * 0.02;
+    // Click ripple: radial wave from front
+    if (clickRipple > 0.01) {
+      const wave = Math.sin(len * 12 - time * 8) * clickRipple * 0.08;
+      d += wave;
+    }
+    pos[i] = bx * bs + nx * d;
+    pos[i + 1] = by * bs + ny * d;
+    pos[i + 2] = bz * bs + nz * d;
+  }
+  geo.attributes.position.needsUpdate = true;
+  geo.computeVertexNormals();
+  return { breathCycle: bc, pulseCycle: pc, entropy: ent };
+};
+
+function animateRing(time) {
+  const pos = ring.geometry.attributes.position.array;
+  for (let i = 0; i < ringCount; i++) {
+    const a = (i / ringCount) * Math.PI * 2 + time * 0.08 * ringVel[i];
+    const r = 1.8 + Math.sin(time * 0.5 + i * 0.1) * 0.15;
+    pos[i * 3] = Math.cos(a) * r;
+    pos[i * 3 + 1] = Math.sin(time * 0.7 + i * 0.05) * 0.08;
+    pos[i * 3 + 2] = Math.sin(a) * r;
+  }
+  ring.geometry.attributes.position.needsUpdate = true;
+  ring.rotation.y = time * 0.04;
+}
+
+// ─── Enhanced animate loop ───
+function animateEnhanced() {
+  requestAnimationFrame(animateEnhanced);
+  const dt = clock.getDelta();
+  const time = clock.getElapsedTime();
+
+  applyInteractionToBreath(time);
+  learnFromBehavior(dt);
+  applyTraitsToMaterial();
+
+  const breath = breatheWithInteraction(time);
+  // Core glow
+  coreMat.opacity = 0.06 + breath.breathCycle * 0.12 + breath.pulseCycle * 0.06 + clickRipple * 0.15;
+  core.scale.setScalar(0.3 + breath.breathCycle * 0.12 + clickRipple * 0.2);
+
+  animateRing(time);
+  entity.rotation.y = time * 0.08;
+  entity.rotation.x = Math.sin(time * 0.05) * 0.06;
+
+  // Camera: auto orbit or drag
+  let camAngle;
+  if (camAutoOrbit) {
+    camAngle = time * 0.03;
+  } else {
+    camAngle = dragAngle;
+    // Slowly drift back to auto after 10s idle
+    if ((performance.now() - lastInteraction) / 1000 > 10) camAutoOrbit = true;
+  }
+  const baseDist = camera.position.z || 4.2;
+  const camR = baseDist + Math.sin(time * 0.15) * 0.2 * (1 - idleFactor * 0.8);
+  camera.position.x = Math.sin(camAngle) * camR;
+  camera.position.z = Math.cos(camAngle) * camR;
+  camera.position.y = 0.3 + Math.sin(time * 0.12) * 0.25 * (1 - idleFactor * 0.7);
+  camera.lookAt(0, 0, 0);
+
+  // HUD
+  hudPulse.textContent = breath.pulseCycle.toFixed(2);
+  hudBreath.textContent = breath.breathCycle.toFixed(2);
+  hudEntropy.textContent = breath.entropy.toFixed(2);
+
+  renderer.render(scene, camera);
+}
+
+// ─── Resize ───
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ─── Fullscreen on click ───
+canvas.addEventListener('click', () => {
+  if (document.fullscreenElement) {
+    document.exitFullscreen();
+  } else {
+    document.documentElement.requestFullscreen().catch(() => {});
+  }
+});
+
+document.addEventListener('fullscreenchange', () => {
+  overlayEl.classList.toggle('faded', !!document.fullscreenElement);
+  document.body.style.cursor = document.fullscreenElement ? 'none' : 'pointer';
+});
+
+// Save on exit
+window.addEventListener('beforeunload', saveEntity);
+
+animateEnhanced();
+  </script>
+</body>
 </html>
