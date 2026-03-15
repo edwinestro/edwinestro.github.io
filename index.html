@@ -3,136 +3,98 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GI3D2 — Living Head</title>
-  <meta name="description" content="A living AGI head that breathes, tracks your gaze, and responds to touch with adaptive working memory." />
-  <meta name="theme-color" content="#08041a" />
-  <meta property="og:title" content="GI3D2 — Living Head" />
-  <meta property="og:description" content="A living AGI head with satellites, working memory, and emotional response." />
-  <meta property="og:type" content="website" />
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "GI3D2 — Living Head",
-    "description": "A living AGI head that breathes, tracks your gaze, and responds to touch with adaptive working memory.",
-    "author": { "@type": "Person", "name": "Edwin Estro" },
-    "applicationCategory": "Experience"
-  }
-  </script>
+  <title>Unsupervised AGI 3D — Edwin Estro</title>
+  <meta name="description" content="Watch an autonomous AGI entity explore, learn, and evolve in a procedural 3D world. Click to place signal beacons and subtly guide its curiosity." />
+  <meta name="theme-color" content="#06041a" />
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { width: 100%; height: 100%; overflow: hidden; background: #04020c; }
-    canvas { display: block; width: 100vw; height: 100vh; }
-
-    .overlay {
-      position: fixed; inset: 0; z-index: 10; pointer-events: none;
-      display: flex; flex-direction: column; justify-content: space-between;
-      padding: clamp(10px, 1.4vw, 16px);
-      font-family: "Segoe UI", system-ui, sans-serif;
-    }
-    .top-bar { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-    .brand h1 {
-      font-family: Georgia, serif;
-      font-size: clamp(0.92rem, 1.2vw, 1.2rem); font-weight: 700;
-      color: rgba(235, 245, 255, 0.88);
-    }
-    .brand p { font-size: 0.56rem; color: rgba(180, 210, 240, 0.5); margin-top: 2px; }
-    .nav-links {
-      display: flex; gap: 5px; pointer-events: auto; flex-wrap: wrap; justify-content: flex-end;
-    }
-    .nav-links a {
-      color: rgba(220, 240, 255, 0.7); text-decoration: none;
-      font-size: 0.62rem; font-weight: 700;
-      padding: 5px 9px; border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.06);
-      background: rgba(6, 12, 24, 0.2);
-      backdrop-filter: blur(6px); transition: border-color 0.2s, background 0.2s;
-    }
-    .nav-links a:hover { border-color: rgba(108, 232, 255, 0.3); background: rgba(108, 232, 255, 0.06); }
-
-    .middle-band { display: flex; justify-content: flex-start; align-items: center; min-height: 0; padding: 4px 0; }
-    .reflection-panel {
-      max-width: min(260px, 40vw); display: grid; gap: 4px;
-      padding: 8px 10px 10px; border-radius: 14px;
-      background: rgba(7, 14, 28, 0.22); border: 1px solid rgba(127, 240, 197, 0.06);
-      backdrop-filter: blur(6px);
-    }
-    .reflection-kicker {
-      font-size: 0.48rem; font-weight: 800; letter-spacing: 0.16em;
-      text-transform: uppercase; color: rgba(127, 240, 197, 0.72);
-    }
-    .reflection-text {
-      font-family: Georgia, serif;
-      font-size: clamp(0.64rem, 0.24vw + 0.6rem, 0.8rem);
-      line-height: 1.18; color: rgba(238, 246, 255, 0.92);
-    }
-    .reflection-evidence {
-      font-size: 0.5rem; line-height: 1.16; color: rgba(188, 212, 232, 0.54);
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-
-    .bottom-bar { display: flex; justify-content: flex-end; align-items: flex-end; flex-wrap: wrap; gap: 8px; }
-    .hud {
-      display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 6px; width: min(100%, 280px); padding: 7px; border-radius: 14px;
-      background: rgba(7, 14, 28, 0.22); border: 1px solid rgba(108, 232, 255, 0.06);
-      backdrop-filter: blur(6px); color: rgba(200, 220, 240, 0.72);
-    }
-    .hud-item {
-      min-width: 0; display: grid; gap: 2px; padding: 5px 6px; border-radius: 8px;
-      background: rgba(5, 11, 20, 0.2); border: 1px solid rgba(108, 232, 255, 0.04);
-    }
-    .hud-item .tag {
-      color: rgba(108, 232, 255, 0.72); font-size: 0.46rem; font-weight: 800;
-      letter-spacing: 0.14em; text-transform: uppercase;
-    }
-    .hud-value {
-      color: rgba(240, 247, 255, 0.9); font-size: 0.66rem; font-weight: 700;
-      line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-
-    @media (max-width: 600px) {
-      .overlay { padding: 12px; }
-      .top-bar { flex-direction: column; gap: 10px; }
-      .reflection-panel { max-width: 100%; }
-      .bottom-bar { flex-direction: column; align-items: stretch; }
-      .hud { width: 100%; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .hud-item:last-child { grid-column: 1 / -1; }
-    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{width:100%;height:100%;overflow:hidden;background:#04020e}
+    canvas{display:block;width:100vw;height:100vh;cursor:crosshair}
+    .hud{position:fixed;bottom:14px;right:14px;z-index:10;pointer-events:none;
+      display:grid;grid-template-columns:repeat(3,auto);gap:5px;
+      padding:7px;border-radius:12px;background:rgba(7,12,28,0.35);
+      border:1px solid rgba(108,232,255,0.08);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+      font-family:"Segoe UI",system-ui,sans-serif;color:rgba(200,220,240,0.72)}
+    .hud-item{padding:3px 6px;border-radius:6px;background:rgba(5,11,20,0.25);
+      border:1px solid rgba(108,232,255,0.04);min-width:52px}
+    .hud-item .tag{color:rgba(108,232,255,0.72);font-size:0.38rem;font-weight:800;
+      letter-spacing:0.12em;text-transform:uppercase}
+    .hud-value{color:rgba(240,247,255,0.9);font-size:0.58rem;font-weight:700}
+    .brand{position:fixed;top:14px;left:14px;z-index:10;pointer-events:none;font-family:Georgia,serif}
+    .brand h1{font-size:clamp(0.8rem,1.1vw,1.1rem);font-weight:700;
+      color:rgba(235,245,255,0.85);text-shadow:0 0 12px rgba(108,180,255,0.2)}
+    .brand p{font-size:0.48rem;color:rgba(180,210,240,0.4);margin-top:2px}
+    .nav-links{position:fixed;top:14px;right:14px;z-index:10;display:flex;gap:5px}
+    .nav-links a{color:rgba(220,240,255,0.7);text-decoration:none;font-size:0.58rem;
+      font-weight:700;padding:4px 8px;border-radius:999px;
+      border:1px solid rgba(255,255,255,0.06);background:rgba(6,12,24,0.2);
+      -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:border-color 0.2s,background 0.2s}
+    .nav-links a:hover{border-color:rgba(108,232,255,0.3);background:rgba(108,232,255,0.06)}
+    .hint{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:10;
+      pointer-events:none;font-family:"Segoe UI",system-ui,sans-serif;
+      font-size:0.6rem;color:rgba(200,220,240,0.5);text-align:center;
+      padding:4px 12px;border-radius:999px;background:rgba(7,14,28,0.3);
+      border:1px solid rgba(108,232,255,0.06);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+      transition:opacity 1.5s}
+    .hint.hide{opacity:0}
+    .reflection{position:fixed;bottom:14px;left:14px;z-index:10;pointer-events:none;
+      max-width:min(260px,38vw);padding:8px 10px;border-radius:12px;
+      background:rgba(7,14,28,0.3);border:1px solid rgba(127,240,197,0.06);
+      -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+      font-family:Georgia,serif;transition:opacity 0.8s}
+    .reflection-kicker{font-size:0.42rem;font-weight:800;letter-spacing:0.14em;
+      text-transform:uppercase;color:rgba(127,240,197,0.7);font-family:"Segoe UI",system-ui,sans-serif}
+    .reflection-text{font-size:clamp(0.6rem,0.2vw+0.56rem,0.74rem);
+      line-height:1.22;color:rgba(238,246,255,0.88);margin-top:3px}
+    .start-screen{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;
+      justify-content:center;align-items:center;
+      background:radial-gradient(circle at 50% 42%,rgba(40,60,120,0.16),transparent 30%),
+      linear-gradient(180deg,rgba(6,4,26,0.97),rgba(4,2,14,0.95));
+      transition:opacity 1.5s ease-out;cursor:pointer}
+    .start-screen.hiding{opacity:0;pointer-events:none}
+    .start-screen.hidden{display:none}
+    .start-title{font-family:Georgia,serif;font-size:clamp(1.5rem,3.8vw,3rem);
+      color:rgba(140,200,255,0.92);text-shadow:0 0 30px rgba(80,160,255,0.3),0 0 60px rgba(60,120,220,0.15);
+      letter-spacing:0.06em;margin-bottom:0.5rem;opacity:0;animation:fadeInUp 2s 0.5s forwards}
+    .start-sub{font-family:Georgia,serif;font-size:clamp(0.65rem,1.3vw,0.95rem);
+      color:rgba(200,220,240,0.48);letter-spacing:0.1em;margin-bottom:2.5rem;
+      text-align:center;max-width:420px;line-height:1.4;
+      opacity:0;animation:fadeInUp 1.5s 1.8s forwards}
+    .start-prompt{font-family:"Segoe UI",system-ui,sans-serif;font-size:clamp(0.5rem,0.9vw,0.7rem);
+      color:rgba(200,220,240,0.32);letter-spacing:0.08em;
+      opacity:0;animation:fadeInUp 1s 3s forwards,pulse 2s 4s infinite}
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes pulse{0%,100%{opacity:0.32}50%{opacity:0.65}}
   </style>
 </head>
 <body>
   <canvas id="c"></canvas>
-  <div class="overlay">
-    <div class="top-bar">
-      <div class="brand">
-        <h1>GI3D2</h1>
-        <p>Living head · adaptive intelligence</p>
-      </div>
-      <nav class="nav-links" aria-label="Primary">
-        <a href="portal.html">Portal</a>
-        <a href="Projects/docs/index.html">Docs</a>
-      </nav>
-    </div>
-    <div class="middle-band">
-      <div class="reflection-panel" role="region" aria-label="AGI reflection">
-        <div class="reflection-kicker">Reflection</div>
-        <div class="reflection-text" id="reflectionText">I am listening for the pattern behind the touch.</div>
-        <div class="reflection-evidence" id="reflectionEvidence"></div>
-      </div>
-    </div>
-    <div class="bottom-bar">
-      <div class="hud" aria-label="AGI live metrics">
-        <div class="hud-item"><span class="tag">Trust</span><span class="hud-value" id="hudTrust">44%</span></div>
-        <div class="hud-item"><span class="tag">Stress</span><span class="hud-value" id="hudStress">0%</span></div>
-        <div class="hud-item"><span class="tag">Coherence</span><span class="hud-value" id="hudCoherence">44%</span></div>
-        <div class="hud-item"><span class="tag">State</span><span class="hud-value" id="hudState">Attentive</span></div>
-        <div class="hud-item"><span class="tag">Mood</span><span class="hud-value" id="hudMood">Calm</span></div>
-        <div class="hud-item"><span class="tag">Heart</span><span class="hud-value" id="hudHeart">72 bpm</span></div>
-      </div>
-    </div>
+  <div class="start-screen" id="startScreen">
+    <div class="start-title">Unsupervised AGI 3D</div>
+    <div class="start-sub">An autonomous intelligence explores a world without instructions.<br>Watch it learn. Click to place signal beacons. Observe what emerges.</div>
+    <div class="start-prompt">Click anywhere to begin observation</div>
   </div>
-
+  <div class="brand" style="opacity:0;transition:opacity 1s" id="brandUI">
+    <h1>Unsupervised AGI 3D</h1>
+    <p>Click to place beacons · Scroll to zoom · Drag to orbit</p>
+  </div>
+  <nav class="nav-links" aria-label="Primary">
+    <a href="portal.html">Portal</a>
+    <a href="Projects/docs/index.html">Docs</a>
+  </nav>
+  <div class="hint" id="hint" style="opacity:0;transition:opacity 1s">Click in the world to place signal beacons · The AGI decides what to do</div>
+  <div class="reflection" id="reflection" style="opacity:0;transition:opacity 1s">
+    <div class="reflection-kicker">AGI Reflection</div>
+    <div class="reflection-text" id="reflectionText">Initializing perception…</div>
+  </div>
+  <div class="hud" id="hudPanel" style="opacity:0;transition:opacity 1s">
+    <div class="hud-item"><span class="tag">Discoveries</span><div class="hud-value" id="hudDisc">0</div></div>
+    <div class="hud-item"><span class="tag">Curiosity</span><div class="hud-value" id="hudCuriosity">50%</div></div>
+    <div class="hud-item"><span class="tag">Coherence</span><div class="hud-value" id="hudCoherence">—</div></div>
+    <div class="hud-item" style="border-color:rgba(127,240,197,0.1)"><span class="tag" style="color:rgba(127,240,197,0.8)">Evolution</span><div class="hud-value" id="hudEvolution">Stage 0</div></div>
+    <div class="hud-item" style="border-color:rgba(200,160,255,0.1)"><span class="tag" style="color:rgba(200,160,255,0.8)">Beacons</span><div class="hud-value" id="hudBeacons">0</div></div>
+    <div class="hud-item"><span class="tag">State</span><div class="hud-value" id="hudState">Dormant</div></div>
+  </div>
   <script type="importmap">
   { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }
   </script>
@@ -140,613 +102,681 @@
 import * as THREE from 'three';
 
 // ─── Helpers ───
-function clamp01(v) { return Math.min(1, Math.max(0, v)); }
-function lerp(a, b, t) { return a + (b - a) * t; }
-function damp(cur, tgt, f) { return cur + (tgt - cur) * f; }
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const dampV = (a, b, lambda, dt) => lerp(a, b, 1 - Math.exp(-lambda * dt));
+const rng = () => Math.random();
+const rngRange = (lo, hi) => lo + rng() * (hi - lo);
 
 // ─── Renderer ───
 const canvas = document.getElementById('c');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-renderer.setSize(window.innerWidth, window.innerHeight);
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.05;
+renderer.toneMappingExposure = 1.12;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 // ─── Scene ───
 const scene = new THREE.Scene();
-const skyGeo = new THREE.SphereGeometry(50, 32, 32);
+scene.fog = new THREE.FogExp2(0x080a1e, 0.018);
+
+// ─── Sky ───
 const skyMat = new THREE.ShaderMaterial({
   side: THREE.BackSide,
-  uniforms: { colorTop: { value: new THREE.Color(0x1a0a2e) }, colorBot: { value: new THREE.Color(0x04020c) } },
-  vertexShader: `varying vec3 vWP; void main(){ vec4 w=modelMatrix*vec4(position,1.); vWP=w.xyz; gl_Position=projectionMatrix*viewMatrix*w; }`,
-  fragmentShader: `uniform vec3 colorTop,colorBot; varying vec3 vWP; void main(){ float h=normalize(vWP).y*.5+.5; gl_FragColor=vec4(mix(colorBot,colorTop,h),1.); }`,
+  uniforms: { uTime: { value: 0 } },
+  vertexShader: `varying vec3 vWP;void main(){vWP=(modelMatrix*vec4(position,1.)).xyz;gl_Position=projectionMatrix*viewMatrix*vec4(vWP,1.);}`,
+  fragmentShader: `
+    uniform float uTime; varying vec3 vWP;
+    void main(){
+      vec3 d=normalize(vWP);
+      float h=d.y*0.5+0.5;
+      vec3 base=mix(vec3(0.02,0.01,0.06),vec3(0.04,0.06,0.16),smoothstep(0.,0.4,h));
+      base=mix(base,vec3(0.08,0.04,0.22),smoothstep(0.4,1.,h));
+      float nebula=sin(d.x*5.+uTime*0.08)*sin(d.z*4.2+uTime*0.06)*0.5+0.5;
+      nebula*=smoothstep(0.3,0.65,h)*smoothstep(0.95,0.65,h);
+      vec3 nCol=mix(vec3(0.16,0.08,0.42),vec3(0.08,0.36,0.52),sin(uTime*0.1+h*2.5)*0.5+0.5);
+      base+=nCol*nebula*0.08;
+      float stars=pow(max(0.,sin(d.x*182.+d.z*247.)*sin(d.x*97.-d.z*134.)),32.)*smoothstep(0.5,1.,h);
+      base+=vec3(0.22,0.26,0.4)*stars*0.5;
+      gl_FragColor=vec4(base,1.);
+    }`,
 });
-scene.add(new THREE.Mesh(skyGeo, skyMat));
-scene.fog = new THREE.FogExp2(0x08041a, 0.012);
+scene.add(new THREE.Mesh(new THREE.SphereGeometry(200, 32, 32), skyMat));
 
 // ─── Camera ───
-const camera = new THREE.PerspectiveCamera(48, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.set(0, 0.2, 4.2);
+const camera = new THREE.PerspectiveCamera(52, innerWidth / innerHeight, 0.1, 400);
+let camAngle = 0, camDist = 12, camHeight = 6, camTargetDist = 12, camTargetHeight = 6;
+let isDragging = false, dragStartX = 0;
 
 // ─── Lighting ───
-scene.add(new THREE.AmbientLight(0xa0c8e0, 0.42));
-const keyLight = new THREE.DirectionalLight(0xf0e8d0, 0.62);
-keyLight.position.set(3, 4, 5); scene.add(keyLight);
-const fillLight = new THREE.DirectionalLight(0x80b0d0, 0.28);
-fillLight.position.set(-3, 1, 3); scene.add(fillLight);
-const rimLight = new THREE.PointLight(0xd0c0ff, 0.42, 12);
-rimLight.position.set(0, 2, -3); scene.add(rimLight);
+scene.add(new THREE.AmbientLight(0x8898c0, 0.58));
+const hemi = new THREE.HemisphereLight(0x405880, 0x141a08, 0.44);
+scene.add(hemi);
+const sun = new THREE.DirectionalLight(0xc0d0ff, 0.72);
+sun.position.set(12, 20, 8); sun.castShadow = true;
+sun.shadow.mapSize.set(1024, 1024);
+sun.shadow.camera.near = 1; sun.shadow.camera.far = 60;
+sun.shadow.camera.left = -18; sun.shadow.camera.right = 18;
+sun.shadow.camera.top = 18; sun.shadow.camera.bottom = -18;
+scene.add(sun); scene.add(sun.target);
 
-// ─── Head sphere ───
-const geo = new THREE.SphereGeometry(1, 128, 96);
-const basePositions = new Float32Array(geo.attributes.position.array);
-const mat = new THREE.MeshPhysicalMaterial({
-  color: new THREE.Color(0.84, 0.66, 0.54),
-  metalness: 0.02, roughness: 0.74,
-  clearcoat: 0.06, clearcoatRoughness: 0.68,
-  thickness: 0.6, ior: 1.36, transmission: 0.02,
-  sheen: 0.34, sheenRoughness: 0.78,
-  sheenColor: new THREE.Color(0.94, 0.74, 0.6),
-  emissive: new THREE.Color(0.08, 0.04, 0.03),
-  emissiveIntensity: 0.22, envMapIntensity: 0.36,
+// ─── Ground ───
+const groundGeo = new THREE.PlaneGeometry(200, 200, 60, 60);
+const gp = groundGeo.attributes.position.array;
+const gc = new Float32Array(gp.length);
+for (let i = 0; i < gp.length; i += 3) {
+  const x = gp[i], y = gp[i + 1];
+  gp[i + 2] = Math.sin(x * 0.04) * Math.cos(y * 0.035) * 0.6 + Math.sin(x * 0.11 + y * 0.08) * 0.3;
+  const s = 0.4 + Math.sin(x * 0.03 + y * 0.04) * 0.1;
+  gc[i] = 0.06 + s * 0.08; gc[i + 1] = 0.1 + s * 0.16; gc[i + 2] = 0.14 + s * 0.22;
+}
+groundGeo.setAttribute('color', new THREE.BufferAttribute(gc, 3));
+groundGeo.computeVertexNormals();
+const ground = new THREE.Mesh(groundGeo, new THREE.MeshStandardMaterial({
+  color: 0x1a2238, roughness: 0.94, metalness: 0.04, vertexColors: true
+}));
+ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+
+// ─── Knowledge Nodes ───
+const KNOWLEDGE_TYPES = [
+  { name: 'crystal', color: 0x66ccff, emissive: 0x1a4466, shape: 'octa', scale: 0.3 },
+  { name: 'prism', color: 0xff66aa, emissive: 0x441a2a, shape: 'tetra', scale: 0.35 },
+  { name: 'cube', color: 0x88ff88, emissive: 0x1a4422, shape: 'box', scale: 0.25 },
+  { name: 'sphere', color: 0xffcc44, emissive: 0x442a0a, shape: 'sphere', scale: 0.22 },
+  { name: 'toroid', color: 0xcc88ff, emissive: 0x2a1a44, shape: 'torus', scale: 0.28 },
+];
+
+const knowledgeNodes = [];
+function createKnowledgeNode(x, z) {
+  const type = KNOWLEDGE_TYPES[Math.floor(rng() * KNOWLEDGE_TYPES.length)];
+  let geo;
+  switch (type.shape) {
+    case 'octa': geo = new THREE.OctahedronGeometry(type.scale, 0); break;
+    case 'tetra': geo = new THREE.TetrahedronGeometry(type.scale, 0); break;
+    case 'box': geo = new THREE.BoxGeometry(type.scale, type.scale, type.scale); break;
+    case 'sphere': geo = new THREE.SphereGeometry(type.scale, 12, 8); break;
+    case 'torus': geo = new THREE.TorusGeometry(type.scale, type.scale * 0.3, 8, 16); break;
+  }
+  const mat = new THREE.MeshStandardMaterial({
+    color: type.color, roughness: 0.28, metalness: 0.3,
+    emissive: type.emissive, emissiveIntensity: 0.4,
+    transparent: true, opacity: 0.88
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.position.set(x, 0.5 + rng() * 0.4, z);
+  mesh.castShadow = true;
+  const glow = new THREE.PointLight(type.color, 0.5, 5);
+  glow.position.copy(mesh.position);
+  scene.add(mesh); scene.add(glow);
+  const node = { mesh, glow, type: type.name, discovered: false, x, z, phase: rng() * Math.PI * 2 };
+  knowledgeNodes.push(node);
+  return node;
+}
+// Scatter 20 knowledge nodes
+for (let i = 0; i < 20; i++) {
+  createKnowledgeNode(rngRange(-35, 35), rngRange(-35, 35));
+}
+
+// ─── Floating Platforms ───
+for (let i = 0; i < 8; i++) {
+  const r = 4 + rng() * 14;
+  const a = (i / 8) * Math.PI * 2 + rng() * 0.5;
+  const plat = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.8 + rng() * 0.6, 1.0 + rng() * 0.5, 0.15, 16),
+    new THREE.MeshStandardMaterial({ color: 0x1a2444, roughness: 0.82, metalness: 0.12, emissive: 0x080c1a, emissiveIntensity: 0.18 })
+  );
+  plat.position.set(Math.cos(a) * r, 0.04, Math.sin(a) * r);
+  plat.receiveShadow = true; plat.castShadow = true;
+  scene.add(plat);
+}
+
+// ─── Neural Network Visualization ───
+const neuralLines = [];
+const neuralLineMat = new THREE.LineBasicMaterial({
+  color: 0x6699ff, transparent: true, opacity: 0.0, depthWrite: false, blending: THREE.AdditiveBlending
 });
-const entity = new THREE.Mesh(geo, mat);
-entity.scale.set(0.82, 0.96, 0.78);
-scene.add(entity);
 
-// ─── Core glow ───
-const coreMat = new THREE.MeshBasicMaterial({ color: 0xffe4cc, transparent: true, opacity: 0.02, depthWrite: false });
-const core = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 12), coreMat);
-scene.add(core);
-
-// ─── Orbital ring ───
-const ringCount = 160;
-const ringVel = new Float32Array(ringCount);
-const ringPos = new Float32Array(ringCount * 3);
-for (let i = 0; i < ringCount; i++) { ringVel[i] = 0.6 + Math.random() * 0.4; const a = (i / ringCount) * Math.PI * 2; ringPos[i * 3] = Math.cos(a) * 1.8; ringPos[i * 3 + 1] = 0; ringPos[i * 3 + 2] = Math.sin(a) * 1.8; }
-const ringGeo = new THREE.BufferGeometry(); ringGeo.setAttribute('position', new THREE.BufferAttribute(ringPos, 3));
-const ringMat = new THREE.PointsMaterial({ color: 0xffc672, size: 0.018, transparent: true, opacity: 0.52, depthWrite: false, blending: THREE.AdditiveBlending });
-const ring = new THREE.Points(ringGeo, ringMat); scene.add(ring);
-
-// ═══════════════════════════════════════════════════════
-// ─── HUMAN HEAD FEATURES ───
-// ═══════════════════════════════════════════════════════
-function createHumanHeadFeatures() {
-  const group = new THREE.Group();
-  const skinMat = new THREE.MeshStandardMaterial({ color: 0xd2a486, transparent: true, opacity: 0.98, roughness: 0.82, metalness: 0.0, emissive: 0x1a0c06, emissiveIntensity: 0.15 });
-
-  // Face plate
-  const facePlate = new THREE.Mesh(new THREE.CircleGeometry(0.72, 48), new THREE.MeshStandardMaterial({ color: 0xe8c4a6, transparent: true, opacity: 0.42, roughness: 0.85, emissive: 0x100804, emissiveIntensity: 0.12 }));
-  facePlate.position.set(0, -0.02, 1.0); facePlate.scale.set(1.12, 1.34, 1);
-
-  // Eye sockets
-  const mkSocket = (x) => { const s = new THREE.Mesh(new THREE.CircleGeometry(0.18, 32), new THREE.MeshBasicMaterial({ color: 0x4a3628, transparent: true, opacity: 0.24, depthWrite: false })); s.position.set(x, 0.12, 1.005); s.scale.set(1.16, 0.88, 1); return s; };
-  const leftSocket = mkSocket(-0.24), rightSocket = mkSocket(0.24);
-
-  // Ears
-  const earGeo = new THREE.SphereGeometry(0.12, 22, 18);
-  const leftEar = new THREE.Mesh(earGeo, skinMat.clone()); leftEar.position.set(-0.9, 0.06, -0.02); leftEar.scale.set(0.62, 0.92, 0.34);
-  const rightEar = new THREE.Mesh(earGeo, skinMat.clone()); rightEar.position.set(0.9, 0.06, -0.02); rightEar.scale.set(0.62, 0.92, 0.34);
-
-  // Neck
-  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.28, 0.58, 24), new THREE.MeshStandardMaterial({ color: 0xc69678, transparent: true, opacity: 0.94, roughness: 0.82, emissive: 0x140a06, emissiveIntensity: 0.1 }));
-  neck.position.set(0, -1.16, -0.02);
-
-  // Hair cap
-  const hairCap = new THREE.Mesh(new THREE.SphereGeometry(1.02, 40, 28, 0, Math.PI * 2, 0, Math.PI * 0.54), new THREE.MeshStandardMaterial({ color: 0x1b1310, transparent: true, opacity: 0.96, roughness: 0.92, metalness: 0.04, emissive: 0x060404, emissiveIntensity: 0.08 }));
-  hairCap.position.set(0, 0.22, -0.02); hairCap.scale.set(0.96, 0.94, 0.92);
-
-  // Hair fringe
-  const fs = new THREE.Shape(); fs.moveTo(-0.56, 0.08); fs.quadraticCurveTo(-0.44, -0.06, -0.28, 0.02); fs.quadraticCurveTo(-0.14, 0.14, -0.03, 0.01); fs.quadraticCurveTo(0.08, -0.08, 0.18, 0.04); fs.quadraticCurveTo(0.34, 0.14, 0.56, 0.02); fs.lineTo(0.56, 0.42); fs.lineTo(-0.56, 0.42); fs.closePath();
-  const hairFringe = new THREE.Mesh(new THREE.ShapeGeometry(fs, 28), new THREE.MeshStandardMaterial({ color: 0x18120f, transparent: true, opacity: 0.96, roughness: 0.92, metalness: 0.04, emissive: 0x060404, emissiveIntensity: 0.06, side: THREE.DoubleSide }));
-  hairFringe.position.set(0, 0.52, 0.92);
-
-  // Eye whites
-  const ewMat = new THREE.MeshStandardMaterial({ color: 0xdce0e8, transparent: true, opacity: 0.98, roughness: 0.4, emissive: 0x181c22, emissiveIntensity: 0.06 });
-  const mkEW = (x) => { const e = new THREE.Mesh(new THREE.SphereGeometry(0.13, 28, 20), ewMat.clone()); e.position.set(x, 0.1, 1.01); e.scale.set(1.24, 0.88, 0.82); return e; };
-  const leftEW = mkEW(-0.24), rightEW = mkEW(0.24);
-
-  // Irises, pupils, highlights
-  const iGeo = new THREE.CircleGeometry(0.068, 32), pGeo = new THREE.CircleGeometry(0.032, 24);
-  const iMat = new THREE.MeshBasicMaterial({ color: 0x3a7ab8, transparent: true, opacity: 0.98, depthTest: false });
-  const pMat = new THREE.MeshBasicMaterial({ color: 0x020406, transparent: true, opacity: 0.98, depthTest: false });
-  const irGeo = new THREE.RingGeometry(0.05, 0.065, 32);
-  const irMat = new THREE.MeshBasicMaterial({ color: 0x1e4870, transparent: true, opacity: 0.82, depthTest: false });
-  const hlGeo = new THREE.CircleGeometry(0.018, 16);
-  const hlMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.88, depthTest: false, blending: THREE.AdditiveBlending });
-
-  const leftIris = new THREE.Mesh(iGeo, iMat.clone()); leftIris.position.set(-0.24, 0.1, 1.1);
-  const rightIris = new THREE.Mesh(iGeo, iMat.clone()); rightIris.position.set(0.24, 0.1, 1.1);
-  const leftIR = new THREE.Mesh(irGeo, irMat.clone()); leftIR.position.set(-0.24, 0.1, 1.102);
-  const rightIR = new THREE.Mesh(irGeo, irMat.clone()); rightIR.position.set(0.24, 0.1, 1.102);
-  const leftPupil = new THREE.Mesh(pGeo, pMat.clone()); leftPupil.position.set(-0.24, 0.1, 1.11);
-  const rightPupil = new THREE.Mesh(pGeo, pMat.clone()); rightPupil.position.set(0.24, 0.1, 1.11);
-  const leftHL = new THREE.Mesh(hlGeo, hlMat.clone()); leftHL.position.set(-0.215, 0.125, 1.115);
-  const rightHL = new THREE.Mesh(hlGeo, hlMat.clone()); rightHL.position.set(0.265, 0.125, 1.115);
-
-  // Brows
-  const bMat = new THREE.MeshStandardMaterial({ color: 0x201410, transparent: true, opacity: 0.94, roughness: 0.88, metalness: 0.02, emissive: 0x060404, emissiveIntensity: 0.06, side: THREE.DoubleSide });
-  const mkBrow = (flip) => { const s = new THREE.Shape(); s.moveTo(-0.16*flip,-0.025); s.quadraticCurveTo(-0.08*flip,0.026,0.03*flip,0.035); s.quadraticCurveTo(0.14*flip,0.024,0.18*flip,-0.006); s.quadraticCurveTo(0.1*flip,-0.044,-0.02*flip,-0.038); s.quadraticCurveTo(-0.12*flip,-0.034,-0.16*flip,-0.025); return new THREE.Mesh(new THREE.ShapeGeometry(s,24), bMat.clone()); };
-  const leftBrow = mkBrow(1); leftBrow.position.set(-0.24, 0.26, 1.025); leftBrow.rotation.z = 0.08;
-  const rightBrow = mkBrow(-1); rightBrow.position.set(0.24, 0.26, 1.025); rightBrow.rotation.z = -0.08;
-
-  // Cheeks
-  const mkCheek = (x) => { const c = new THREE.Mesh(new THREE.CircleGeometry(0.14, 24), new THREE.MeshBasicMaterial({ color: 0xff8da1, transparent: true, opacity: 0.16, depthWrite: false })); c.position.set(x, -0.14, 1.02); c.scale.set(1.24, 0.86, 1); return c; };
-  const leftCheek = mkCheek(-0.32), rightCheek = mkCheek(0.32);
-
-  // Nose
-  const nose = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.22, 24), new THREE.MeshStandardMaterial({ color: 0xc89878, transparent: true, opacity: 0.96, roughness: 0.8, emissive: 0x140a06, emissiveIntensity: 0.12 }));
-  nose.position.set(0, -0.04, 1.04); nose.rotation.x = Math.PI * 0.54; nose.scale.set(0.72, 1, 0.66);
-  const noseTip = new THREE.Mesh(new THREE.SphereGeometry(0.046, 18, 14), new THREE.MeshStandardMaterial({ color: 0xd4a08a, transparent: true, opacity: 0.92, roughness: 0.8, emissive: 0x140a06, emissiveIntensity: 0.12 }));
-  noseTip.position.set(0, -0.12, 1.04); noseTip.scale.set(1.1, 0.72, 0.8);
-  const nGeo = new THREE.CircleGeometry(0.022, 14), nMat = new THREE.MeshBasicMaterial({ color: 0x3a2218, transparent: true, opacity: 0.52, depthWrite: false });
-  const leftN = new THREE.Mesh(nGeo, nMat.clone()); leftN.position.set(-0.034, -0.14, 1.035); leftN.scale.set(0.9, 0.6, 1);
-  const rightN = new THREE.Mesh(nGeo, nMat.clone()); rightN.position.set(0.034, -0.14, 1.035); rightN.scale.set(0.9, 0.6, 1);
-  const noseBridge = new THREE.Mesh(new THREE.PlaneGeometry(0.06, 0.22), new THREE.MeshBasicMaterial({ color: 0xedc3a5, transparent: true, opacity: 0.24, depthWrite: false }));
-  noseBridge.position.set(0, 0.06, 1.02);
-  const noseShadow = new THREE.Mesh(new THREE.CircleGeometry(0.08, 20), new THREE.MeshBasicMaterial({ color: 0x6b4a3b, transparent: true, opacity: 0.12, depthWrite: false }));
-  noseShadow.position.set(0, -0.12, 1.02); noseShadow.scale.set(1.4, 0.7, 1);
-
-  // Mouth & lips
-  const mouth = new THREE.Mesh(new THREE.TorusGeometry(0.11, 0.016, 14, 44, Math.PI), new THREE.MeshStandardMaterial({ color: 0x9c3848, transparent: true, opacity: 0.82, roughness: 0.5, emissive: 0x1a0808, emissiveIntensity: 0.18 }));
-  mouth.position.set(0, -0.34, 1.01); mouth.rotation.z = Math.PI; mouth.scale.set(0.92, 0.58, 1);
-  const upperLip = new THREE.Mesh(new THREE.TorusGeometry(0.082, 0.014, 12, 32, Math.PI), new THREE.MeshStandardMaterial({ color: 0xc26070, transparent: true, opacity: 0.72, roughness: 0.45 }));
-  upperLip.position.set(0, -0.3, 1.02); upperLip.rotation.z = Math.PI; upperLip.scale.set(1.0, 0.44, 1);
-  const lowerLip = new THREE.Mesh(new THREE.TorusGeometry(0.075, 0.015, 12, 32, Math.PI), new THREE.MeshStandardMaterial({ color: 0xd0687a, transparent: true, opacity: 0.66, roughness: 0.45 }));
-  lowerLip.position.set(0, -0.37, 1.01); lowerLip.scale.set(1.04, 0.38, 1);
-  const philtrum = new THREE.Mesh(new THREE.PlaneGeometry(0.032, 0.075), new THREE.MeshBasicMaterial({ color: 0x8c6658, transparent: true, opacity: 0.16, depthWrite: false }));
-  philtrum.position.set(0, -0.24, 1.02);
-  const chinShadow = new THREE.Mesh(new THREE.CircleGeometry(0.14, 22), new THREE.MeshBasicMaterial({ color: 0x6b4a3b, transparent: true, opacity: 0.1, depthWrite: false }));
-  chinShadow.position.set(0, -0.62, 0.98); chinShadow.scale.set(1.24, 0.48, 1);
-
-  // Eye skins & lids
-  const mkES = () => new THREE.Mesh(new THREE.CircleGeometry(0.19, 30), new THREE.MeshStandardMaterial({ color: 0xe4b798, transparent: true, opacity: 0.38, roughness: 0.82, emissive: 0x100804, emissiveIntensity: 0.1 }));
-  const mkEL = () => new THREE.Mesh(new THREE.PlaneGeometry(0.28, 0.1), new THREE.MeshStandardMaterial({ color: 0xd6a889, transparent: true, opacity: 0.92, roughness: 0.82, emissive: 0x120804, emissiveIntensity: 0.1, side: THREE.DoubleSide }));
-  const leftES = mkES(); leftES.position.set(-0.24, 0.11, 1.01); leftES.scale.set(1.1, 0.92, 1);
-  const rightES = mkES(); rightES.position.set(0.24, 0.11, 1.01); rightES.scale.set(1.1, 0.92, 1);
-  const leftUL = mkEL(); leftUL.position.set(-0.24, 0.155, 1.03); leftUL.scale.set(0.92, 0.68, 1);
-  const rightUL = mkEL(); rightUL.position.set(0.24, 0.155, 1.03); rightUL.scale.set(0.92, 0.68, 1);
-  const leftLL = mkEL(); leftLL.position.set(-0.24, 0.04, 1.03); leftLL.scale.set(0.9, 0.48, 1);
-  const rightLL = mkEL(); rightLL.position.set(0.24, 0.04, 1.03); rightLL.scale.set(0.9, 0.48, 1);
-  const mkLash = (x, rz) => { const l = new THREE.Mesh(new THREE.PlaneGeometry(0.24, 0.024), new THREE.MeshBasicMaterial({ color: 0x100804, transparent: true, opacity: 0.82, depthWrite: false, side: THREE.DoubleSide })); l.position.set(x, 0.18, 1.035); l.rotation.z = rz; return l; };
-  const leftLash = mkLash(-0.24, -0.04), rightLash = mkLash(0.24, 0.04);
-
-  const parts = [neck, facePlate, leftSocket, rightSocket, leftEar, rightEar, hairCap, hairFringe, leftES, rightES, leftEW, rightEW, leftUL, rightUL, leftLL, rightLL, leftLash, rightLash, leftIris, rightIris, leftIR, rightIR, leftPupil, rightPupil, leftHL, rightHL, leftBrow, rightBrow, leftCheek, rightCheek, noseShadow, noseBridge, nose, noseTip, leftN, rightN, philtrum, upperLip, lowerLip, mouth, chinShadow];
-  parts.forEach((m, i) => { m.renderOrder = 50 + i; group.add(m); });
-
-  return { group, facePlate, leftSocket, rightSocket, leftEar, rightEar, neck, hairCap, hairFringe, leftEyeWhite: leftEW, rightEyeWhite: rightEW, leftIris, rightIris, leftIrisRing: leftIR, rightIrisRing: rightIR, leftPupil, rightPupil, leftEyeHighlight: leftHL, rightEyeHighlight: rightHL, leftBrow, rightBrow, leftCheek, rightCheek, noseShadow, noseBridge, nose, noseTip, philtrum, upperLip, lowerLip, mouth, chinShadow, leftEyeSkin: leftES, rightEyeSkin: rightES, leftUpperLid: leftUL, rightUpperLid: rightUL, leftLowerLid: leftLL, rightLowerLid: rightLL, leftLash, rightLash };
-}
-const head = createHumanHeadFeatures();
-head.group.visible = true;
-entity.add(head.group);
-
-// ═══════════════════════════════════════════════════════
-// ─── 3D SATELLITE SYSTEM ───
-// ═══════════════════════════════════════════════════════
-function createSatellites() {
-  const group = new THREE.Group();
-  const ORBIT_COUNT = 5, orbits = [];
-  for (let o = 0; o < ORBIT_COUNT; o++) {
-    const radius = 1.6 + o * 0.26, pts = [];
-    for (let j = 0; j <= 80; j++) { const a = (j / 80) * Math.PI * 2; pts.push(new THREE.Vector3(Math.cos(a) * radius, 0, Math.sin(a) * radius)); }
-    const oMat = new THREE.LineBasicMaterial({ color: 0x88ccff, transparent: true, opacity: 0.06, depthWrite: false, blending: THREE.AdditiveBlending });
-    const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), oMat);
-    line.rotation.x = (Math.random() - 0.5) * Math.PI * 0.7; line.rotation.z = (Math.random() - 0.5) * Math.PI * 0.5;
-    group.add(line);
-    orbits.push({ line, material: oMat, radius, tiltX: line.rotation.x, tiltZ: line.rotation.z, speed: 0.04 + Math.random() * 0.06, phase: Math.random() * Math.PI * 2 });
-  }
-  const SAT_COUNT = 10, satGeo = new THREE.IcosahedronGeometry(0.028, 1), sats = [];
-  for (let s = 0; s < SAT_COUNT; s++) {
-    const oi = s % ORBIT_COUNT, orbit = orbits[oi];
-    const sMat = new THREE.MeshBasicMaterial({ color: 0xaaddff, transparent: true, opacity: 0.35, depthWrite: false, blending: THREE.AdditiveBlending });
-    const mesh = new THREE.Mesh(satGeo, sMat); const scale = 0.6 + Math.random() * 0.9; mesh.scale.setScalar(scale); group.add(mesh);
-    sats.push({ mesh, material: sMat, orbitIdx: oi, angle: Math.random() * Math.PI * 2, speed: orbit.speed * (0.7 + Math.random() * 0.6), rOff: (Math.random() - 0.5) * 0.12, wobble: Math.random() * Math.PI * 2, wobbleSpd: 0.3 + Math.random() * 0.5, baseScale: scale });
-  }
-  const DN = 400, dPos = new Float32Array(DN * 3), dNrm = new Float32Array(DN * 3), dRad = new Float32Array(DN), dPh = new Float32Array(DN), dEn = new Float32Array(DN);
-  for (let i = 0; i < DN; i++) { const u = Math.random(), v = Math.random(), th = Math.PI * 2 * u, ph = Math.acos(2 * v - 1); const nx = Math.sin(ph) * Math.cos(th), ny = Math.sin(ph) * Math.sin(th), nz = Math.cos(ph); dNrm[i*3]=nx; dNrm[i*3+1]=ny; dNrm[i*3+2]=nz; dRad[i]=1.3+Math.random()*0.8; dPh[i]=Math.random()*Math.PI*2; dEn[i]=0.3+Math.random(); dPos[i*3]=nx*dRad[i]; dPos[i*3+1]=ny*dRad[i]; dPos[i*3+2]=nz*dRad[i]; }
-  const dGeo = new THREE.BufferGeometry(); dGeo.setAttribute('position', new THREE.BufferAttribute(dPos, 3));
-  const dMat = new THREE.PointsMaterial({ color: 0x99d8ff, size: 0.01, transparent: true, opacity: 0.04, depthWrite: false, blending: THREE.AdditiveBlending });
-  group.add(new THREE.Points(dGeo, dMat));
-  return { group, orbits, sats, dust: { geo: dGeo, mat: dMat, nrm: dNrm, rad: dRad, ph: dPh, en: dEn, n: DN } };
-}
-const satellites = createSatellites();
-scene.add(satellites.group);
-
-// ═══════════════════════════════════════════════════════
-// ─── STATE ───
-// ═══════════════════════════════════════════════════════
-const pointer = { x: 0, y: 0, isDown: false, hasPointer: false };
-const pointerNdc = new THREE.Vector2();
-const raycaster = new THREE.Raycaster();
-const entWP = new THREE.Vector3();
-let touchIntensity = 0, lastTouch = 0, entropy = 0, touchResponse = 0;
-let entropyCounter = 1, entropyClock = 0;
-const touchImpact = { normal: new THREE.Vector3(0, 0, 1), strength: 0, phase: 0, active: false };
-const wm = { trust: 0.44, stress: 0.06, curiosity: 0.46, fatigue: 0.12, playfulness: 0.34, avoidance: 0.18, attachment: 0.28, coherence: 0.44, vigilance: 0.24, stateLabel: 'Attentive', styleLabel: 'Listening' };
-const body = { happiness: 50, heartRate: 72 };
-const lf = { tapCadence: 0, dragIntent: 0, aggression: 0, care: 0, curiosity: 0, persistence: 0, recovery: 1, percussiveBias: 0, rhythm: 0, soothing: 0, revisit: 0, boundaryRespect: 0.5, novelty: 0 };
-const st = { taps: 0, drags: 0, good: 0, bad: 0, units: 0, cadenceMs: 420, cadenceJitter: 0.34, nearField: 0.5, tapE: 0, dragE: 0, goodP: 0, badP: 0, tapP: 0, dragP: 0, calmWin: 1, revisitP: 0, soothP: 0, debt: 0, novelP: 0, drift: 0, returns: 0, lastAgg: 0, lastDown: 0, downAt: 0, downPos: { x: 0, y: 0 }, downZone: 'far', lastZone: 'far' };
-const episodes = [], EPISODE_WIN = 4, EPISODE_MAX = 12;
-const epWin = { start: performance.now(), taps: 0, drags: 0, good: 0, bad: 0, peakAgg: 0, peakCare: 0, mT: 0, mS: 0, mC: 0, samp: 0, active: 0, total: 0 };
-const antic = { expected: 'unknown', confidence: 0, lastOk: false };
-const recov = { active: false, phase: 0, depth: 0, target: 0.62 };
-
-// Profile persistence
-const STORAGE_KEY = 'gi3d2_profile';
-function loadProfile() { try { const r = localStorage.getItem(STORAGE_KEY); if (r) return { ...{ trustBase: 0.38, avgAgg: 0.5, avgCare: 0.5, entropyTol: 0.7, sessions: 0 }, ...JSON.parse(r) }; } catch {} return { trustBase: 0.38, avgAgg: 0.5, avgCare: 0.5, entropyTol: 0.7, sessions: 0 }; }
-function saveProfile() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(prof)); } catch {} }
-const prof = loadProfile(); prof.sessions++; saveProfile();
-
-// Gaze
-const gazeForward = new THREE.Vector3(0, 0, 1);
-const gaze = { normal: new THREE.Vector3(0, 0, 1), targetN: new THREE.Vector3(0, 0, 1), pupil: new THREE.Vector2(), targetP: new THREE.Vector2(), focus: 0.56, openness: 0.9 };
-const gTW = new THREE.Vector3(), gTL = new THREE.Vector3();
-
-// Motion
-const entityOffset = new THREE.Vector3(-0.5, 0.1, 0);
-const desiredOff = new THREE.Vector3(), scratchOff = new THREE.Vector3();
-const wanderPh = { v: Math.random() * 100 };
-
-// HUD
-const hudTrust = document.getElementById('hudTrust'), hudStress = document.getElementById('hudStress');
-const hudCoherence = document.getElementById('hudCoherence'), hudState = document.getElementById('hudState');
-const hudMood = document.getElementById('hudMood'), hudHeart = document.getElementById('hudHeart');
-const refText = document.getElementById('reflectionText'), refEv = document.getElementById('reflectionEvidence');
-
-// ═══════════════════════════════════════════════════════
-// ─── POINTER HELPERS ───
-// ═══════════════════════════════════════════════════════
-function updatePointer(e) { const r = canvas.getBoundingClientRect(); pointer.x = ((e.clientX - r.left) / r.width) * 2 - 1; pointer.y = -((e.clientY - r.top) / r.height) * 2 + 1; pointer.hasPointer = true; pointerNdc.set(pointer.x, pointer.y); }
-function classifyZone() {
-  if (!pointer.hasPointer) return 'far';
-  entity.getWorldPosition(entWP); const c = entWP.clone().project(camera);
-  const ew = new THREE.Vector3(1.02, 0, 0).applyMatrix4(entity.matrixWorld).project(camera);
-  const rad = Math.max(0.08, Math.hypot(ew.x - c.x, ew.y - c.y));
-  const d = Math.hypot(pointer.x - c.x, pointer.y - c.y);
-  if (d <= rad * 1.02) return 'inside'; if (d <= rad * 1.68) return 'near'; return 'far';
-}
-function getPointerPlane() {
-  if (!pointer.hasPointer) return null;
-  const pw = new THREE.Vector3(pointer.x, pointer.y, 0.3).unproject(camera);
-  const dir = pw.clone().sub(camera.position);
-  if (Math.abs(dir.z) < 1e-4) return null; const t = -camera.position.z / dir.z;
-  return Number.isFinite(t) ? pw.copy(camera.position).add(dir.multiplyScalar(t)) : null;
-}
-function getPointerTarget() {
-  if (!pointer.hasPointer) return null;
-  raycaster.setFromCamera(pointerNdc, camera);
-  const h = raycaster.intersectObject(entity, false);
-  return h.length ? h[0].point : getPointerPlane();
-}
-function registerImpact(boost) {
-  if (!pointer.hasPointer) return;
-  raycaster.setFromCamera(pointerNdc, camera);
-  const h = raycaster.intersectObject(entity, false);
-  if (!h.length) return;
-  touchImpact.normal.copy(entity.worldToLocal(h[0].point.clone()).normalize());
-  touchImpact.strength = Math.min(1, touchImpact.strength + boost); touchImpact.phase = 0; touchImpact.active = true;
+function addNeuralConnection(from, to) {
+  const pts = [new THREE.Vector3(from.x, 1.2, from.z), new THREE.Vector3(to.x, 1.2, to.z)];
+  const geo = new THREE.BufferGeometry().setFromPoints(pts);
+  const mat = neuralLineMat.clone();
+  const line = new THREE.Line(geo, mat);
+  scene.add(line);
+  neuralLines.push({ line, mat, age: 0, maxOpacity: 0.12 + rng() * 0.1 });
 }
 
-// ═══════════════════════════════════════════════════════
-// ─── POINTER EVENTS ───
-// ═══════════════════════════════════════════════════════
-canvas.addEventListener('pointerdown', (e) => {
-  updatePointer(e); const zone = classifyZone(), now = performance.now();
-  const since = st.lastDown > 0 ? now - st.lastDown : 0;
-  if (since > 0) { st.cadenceMs = lerp(st.cadenceMs, since, 0.18); st.cadenceJitter = clamp01(lerp(st.cadenceJitter, Math.abs(since - st.cadenceMs) / Math.max(240, st.cadenceMs), 0.22)); if (since > 180 && since < 1800) st.revisitP = Math.min(1, st.revisitP + 0.1); }
-  if (st.lastZone !== zone) st.novelP = Math.min(1, st.novelP + 0.1);
-  st.lastDown = now; st.lastZone = zone; st.downZone = zone; pointer.isDown = zone === 'inside';
-  st.downAt = now; st.downPos.x = pointer.x; st.downPos.y = pointer.y;
-  if (zone === 'inside') {
-    touchIntensity = Math.min(1, touchIntensity + 1); lastTouch = now;
-    st.tapP = Math.min(1, st.tapP + 0.22); st.bad++; st.badP = Math.min(1, st.badP + 0.24);
-    st.debt = Math.min(1, st.debt + 0.14); st.calmWin = Math.max(0, st.calmWin - 0.12);
-    st.lastAgg = now; entropyCounter += 2.4; registerImpact(0.34); epWin.bad++;
-  } else if (zone === 'near') {
-    st.good++; st.goodP = Math.min(1, st.goodP + 0.26); st.calmWin = Math.min(1, st.calmWin + 0.12);
-    st.soothP = Math.min(1, st.soothP + 0.22); st.revisitP = Math.min(1, st.revisitP + 0.08);
-    if (st.lastAgg > 0 && now - st.lastAgg > 320) { st.returns++; st.soothP = Math.min(1, st.soothP + 0.08); }
-    touchIntensity = Math.max(0, touchIntensity * 0.82); lastTouch = now; epWin.good++;
-  }
+// ─── AGI Entity ───
+const agiGeo = new THREE.IcosahedronGeometry(0.5, 3);
+const agiBasePos = new Float32Array(agiGeo.attributes.position.array);
+const agiMat = new THREE.MeshPhysicalMaterial({
+  color: new THREE.Color(0.28, 0.58, 1.0),
+  metalness: 0.78, roughness: 0.12,
+  clearcoat: 0.9, clearcoatRoughness: 0.08,
+  transmission: 0.08, thickness: 0.5, ior: 1.4,
+  emissive: new THREE.Color(0x0a2244), emissiveIntensity: 0.28,
+  sheen: 0.3, sheenColor: new THREE.Color(0x4488ff), sheenRoughness: 0.3,
 });
-canvas.addEventListener('pointermove', (e) => {
-  updatePointer(e);
-  if (pointer.isDown) {
-    const dx = pointer.x - st.downPos.x, dy = pointer.y - st.downPos.y, d = Math.sqrt(dx*dx + dy*dy);
-    st.dragE = Math.min(1, st.dragE + d * 2.6); st.dragP = Math.min(1, st.dragP + d * 2.2);
-    st.debt = Math.min(1, st.debt + d * 0.28); st.calmWin = Math.max(0, st.calmWin - d * 0.4);
-    st.downPos.x = pointer.x; st.downPos.y = pointer.y; registerImpact(0.045);
-  }
-});
-canvas.addEventListener('pointerup', (e) => {
-  updatePointer(e); pointer.isDown = false;
-  const held = performance.now() - st.downAt, dx = pointer.x - st.downPos.x, dy = pointer.y - st.downPos.y, dist = Math.sqrt(dx*dx+dy*dy);
-  if (st.downZone === 'inside') { if (held < 260 && dist < 0.05) { st.taps++; st.tapE = Math.min(1, st.tapE + 0.24); epWin.taps++; } else { st.drags++; st.dragE = Math.min(1, st.dragE + 0.16); epWin.drags++; } }
-  st.downZone = 'far';
-});
-canvas.addEventListener('pointerleave', () => { pointer.isDown = false; pointer.hasPointer = false; });
+const agiMesh = new THREE.Mesh(agiGeo, agiMat);
+agiMesh.position.set(0, 1.2, 0); agiMesh.castShadow = true;
+scene.add(agiMesh);
 
-// ═══════════════════════════════════════════════════════
-// ─── FEATURE EXTRACTION & WORKING MEMORY ───
-// ═══════════════════════════════════════════════════════
-function pushEpisode() {
-  const w = epWin; if (w.total === 0) return;
-  const n = Math.max(1, w.samp);
-  episodes.push({ dominant: w.bad > w.good + 1 ? 'impact' : w.good > w.bad + 1 ? 'gentle' : w.active / Math.max(1, w.total) < 0.08 ? 'calm' : 'mixed', mT: w.mT/n, mS: w.mS/n, mC: w.mC/n });
-  if (episodes.length > EPISODE_MAX) episodes.shift();
-  w.start = performance.now(); w.taps = 0; w.drags = 0; w.good = 0; w.bad = 0; w.peakAgg = 0; w.peakCare = 0; w.mT = 0; w.mS = 0; w.mC = 0; w.samp = 0; w.active = 0; w.total = 0;
-  if (episodes.length >= 3) {
-    const l = episodes.at(-1), p2 = episodes.at(-3);
-    if (p2.dominant === l.dominant && p2.dominant !== episodes.at(-2).dominant) { antic.expected = episodes.at(-2).dominant; antic.confidence = Math.min(0.65, antic.confidence + 0.12); }
-    else antic.confidence = Math.max(0, antic.confidence - 0.1);
-    antic.lastOk = antic.expected === l.dominant;
-    if (!antic.lastOk) antic.confidence = Math.max(0, antic.confidence - 0.15);
+// Inner core
+const coreMat = new THREE.MeshBasicMaterial({ color: 0x88ccff, transparent: true, opacity: 0.08, depthWrite: false });
+const coreMesh = new THREE.Mesh(new THREE.IcosahedronGeometry(0.18, 2), coreMat);
+scene.add(coreMesh);
+
+// Halo ring
+const haloGeo = new THREE.TorusGeometry(0.8, 0.015, 8, 48);
+const haloMat = new THREE.MeshBasicMaterial({ color: 0x6699ff, transparent: true, opacity: 0.15, depthWrite: false, blending: THREE.AdditiveBlending });
+const haloMesh = new THREE.Mesh(haloGeo, haloMat);
+haloMesh.rotation.x = Math.PI * 0.5;
+scene.add(haloMesh);
+
+// Satellite particles
+const SAT_N = 80;
+const satPos = new Float32Array(SAT_N * 3);
+const satPhase = new Float32Array(SAT_N);
+const satRadius = new Float32Array(SAT_N);
+const satSpeed = new Float32Array(SAT_N);
+for (let i = 0; i < SAT_N; i++) {
+  satPhase[i] = rng() * Math.PI * 2;
+  satRadius[i] = 0.7 + rng() * 0.8;
+  satSpeed[i] = 0.3 + rng() * 0.5;
+}
+const satGeo = new THREE.BufferGeometry();
+satGeo.setAttribute('position', new THREE.BufferAttribute(satPos, 3));
+const satPts = new THREE.Points(satGeo, new THREE.PointsMaterial({
+  color: 0x88bbff, size: 0.025, transparent: true, opacity: 0.45,
+  depthWrite: false, blending: THREE.AdditiveBlending
+}));
+scene.add(satPts);
+
+// ─── AGI Mind State ───
+const agi = {
+  pos: new THREE.Vector3(0, 1.2, 0),
+  vel: new THREE.Vector3(),
+  targetPos: null,
+  curiosity: 0.5,
+  coherence: 0.3,
+  fatigue: 0,
+  discoveries: 0,
+  evolution: 0,
+  stateLabel: 'Dormant',
+  wanderAngle: rng() * Math.PI * 2,
+  wanderTimer: 0,
+  thinkTimer: 0,
+  discoveredTypes: new Set(),
+  lastDiscovery: null,
+  attention: 0,
+  speed: 1.2,
+  breathPhase: 0,
+};
+
+// ─── Signal Beacons (player-placed) ───
+const beacons = [];
+const beaconGeo = new THREE.ConeGeometry(0.12, 0.5, 6);
+const beaconMat = new THREE.MeshBasicMaterial({ color: 0xffcc44, transparent: true, opacity: 0.6, depthWrite: false });
+
+function placeBeacon(x, z) {
+  if (beacons.length >= 5) {
+    const old = beacons.shift();
+    scene.remove(old.mesh); scene.remove(old.light);
+  }
+  const mesh = new THREE.Mesh(beaconGeo, beaconMat.clone());
+  mesh.position.set(x, 0.3, z);
+  const light = new THREE.PointLight(0xffcc44, 0.6, 6);
+  light.position.set(x, 0.6, z);
+  scene.add(mesh); scene.add(light);
+  beacons.push({ mesh, light, x, z, age: 0 });
+}
+
+// ─── Dust Particles ───
+const DUST_N = 300;
+const dustArr = new Float32Array(DUST_N * 3);
+for (let i = 0; i < DUST_N; i++) {
+  dustArr[i * 3] = rngRange(-30, 30);
+  dustArr[i * 3 + 1] = rngRange(0.2, 6);
+  dustArr[i * 3 + 2] = rngRange(-30, 30);
+}
+const dustGeo = new THREE.BufferGeometry();
+dustGeo.setAttribute('position', new THREE.BufferAttribute(dustArr, 3));
+scene.add(new THREE.Points(dustGeo, new THREE.PointsMaterial({
+  color: 0x6688cc, size: 0.02, transparent: true, opacity: 0.18,
+  depthWrite: false, blending: THREE.AdditiveBlending
+})));
+
+// ─── Discovery Sparkle Pool ───
+const SPARK_N = 80;
+const sparkPos = new Float32Array(SPARK_N * 3);
+const sparkVel = []; const sparkAge = new Float32Array(SPARK_N);
+for (let i = 0; i < SPARK_N; i++) { sparkPos[i * 3 + 1] = -10; sparkVel.push(new THREE.Vector3()); }
+const sparkGeo = new THREE.BufferGeometry();
+sparkGeo.setAttribute('position', new THREE.BufferAttribute(sparkPos, 3));
+scene.add(new THREE.Points(sparkGeo, new THREE.PointsMaterial({
+  color: 0xccddff, size: 0.05, transparent: true, opacity: 0.6,
+  depthWrite: false, blending: THREE.AdditiveBlending
+})));
+let sparkIdx = 0;
+
+function emitSpark(origin, count) {
+  for (let i = 0; i < count; i++) {
+    const idx = sparkIdx % SPARK_N;
+    sparkPos[idx * 3] = origin.x + rngRange(-0.2, 0.2);
+    sparkPos[idx * 3 + 1] = origin.y + rngRange(-0.1, 0.3);
+    sparkPos[idx * 3 + 2] = origin.z + rngRange(-0.2, 0.2);
+    sparkVel[idx].set(rngRange(-1.5, 1.5), 1 + rng() * 2, rngRange(-1.5, 1.5));
+    sparkAge[idx] = 1;
+    sparkIdx++;
   }
 }
 
-function updateFeatures(dt) {
-  const dt60 = Math.min(dt * 60, 2.5);
-  const tapDom = st.taps / Math.max(1, st.taps + st.drags);
-  const meaningful = st.good + st.bad;
-
-  // Decay pulses
-  st.tapP = Math.max(0, st.tapP - dt * 0.7); st.dragP = Math.max(0, st.dragP - dt * 0.55);
-  st.tapE = Math.max(0, st.tapE - dt * 0.12); st.dragE = Math.max(0, st.dragE - dt * 0.08);
-  st.goodP = Math.max(0, st.goodP - dt * 0.22); st.badP = Math.max(0, st.badP - dt * 0.16);
-  st.revisitP = Math.max(0, st.revisitP - dt * 0.12); st.soothP = Math.max(0, st.soothP - dt * 0.11);
-  st.novelP = Math.max(0, st.novelP - dt * 0.18); st.drift = Math.max(0, st.drift - dt * 0.16);
-  st.debt = Math.max(0, st.debt - dt * (0.035 + st.calmWin * 0.05));
-  st.calmWin = clamp01(st.calmWin + dt * (pointer.isDown ? -0.18 : 0.08));
-
-  // Live features
-  lf.tapCadence = clamp01(st.tapP + st.tapE * 0.6);
-  lf.dragIntent = clamp01(st.dragP + st.dragE * 0.7);
-  lf.recovery = clamp01(1 - entropy * 0.55 - touchIntensity * 0.18 + (performance.now() - lastTouch > 900 ? 0.22 : 0));
-  lf.percussiveBias = clamp01(tapDom * (1 - lf.dragIntent) * (0.45 + entropy * 0.55));
-  lf.boundaryRespect = meaningful > 0 ? clamp01(st.good / meaningful) : st.nearField;
-  lf.rhythm = clamp01((1 - st.cadenceJitter) * (0.42 + lf.tapCadence * 0.58));
-  lf.revisit = clamp01(st.revisitP * 0.45 + (st.returns / Math.max(1, meaningful)) * 0.7);
-  lf.soothing = clamp01(st.soothP * 0.42 + st.calmWin * 0.28 + lf.boundaryRespect * 0.22 + lf.recovery * 0.22);
-  lf.novelty = clamp01(st.novelP * 0.5 + st.drift * 0.18 + 0.04);
-  lf.aggression = clamp01(entropy * 0.48 + touchResponse * 0.24 + lf.dragIntent * 0.16 + st.badP * 0.24 + st.debt * 0.28 - lf.soothing * 0.16);
-  lf.care = clamp01((1 - lf.aggression) * 0.24 + lf.recovery * 0.32 + st.goodP * 0.22 + lf.soothing * 0.28 + lf.boundaryRespect * 0.12);
-  lf.curiosity = clamp01(lf.percussiveBias * 0.34 + st.goodP * 0.08 + lf.novelty * 0.22 + lf.revisit * 0.14);
-
-  // Episodic memory
-  epWin.total++; if (pointer.isDown) epWin.active++;
-  epWin.peakAgg = Math.max(epWin.peakAgg, lf.aggression); epWin.peakCare = Math.max(epWin.peakCare, lf.care);
-  epWin.mT += wm.trust; epWin.mS += wm.stress; epWin.mC += wm.coherence; epWin.samp++;
-  if ((performance.now() - epWin.start) / 1000 >= EPISODE_WIN) pushEpisode();
-
-  // Recovery cycle
-  if (wm.fatigue > 0.58 && !pointer.isDown && !recov.active) { recov.active = true; recov.phase = 0; recov.depth = clamp01(wm.fatigue * 0.7 + st.debt * 0.3); recov.target = Math.min(0.78, wm.coherence + 0.22 + prof.trustBase * 0.12); }
-  if (recov.active) {
-    if (pointer.isDown || wm.fatigue < 0.18) { recov.active = false; recov.phase = 0; }
-    else { recov.phase = Math.min(1, recov.phase + dt * (0.06 + prof.avgCare * 0.04)); const h = recov.phase * (0.12 + (1 - recov.depth) * 0.08); wm.fatigue = Math.max(0, wm.fatigue - dt * h); wm.coherence = damp(wm.coherence, recov.target, dt * h * 0.5); st.debt = Math.max(0, st.debt - dt * h * 0.4); wm.trust = Math.min(1, wm.trust + dt * recov.phase * 0.008); }
+// ─── AGI Brain: Autonomous Behavior ───
+function pickTarget() {
+  let best = null, bestScore = -Infinity;
+  // Consider undiscovered knowledge nodes
+  for (const node of knowledgeNodes) {
+    if (node.discovered) continue;
+    const dx = node.x - agi.pos.x, dz = node.z - agi.pos.z;
+    const dist = Math.sqrt(dx * dx + dz * dz);
+    const novelty = agi.discoveredTypes.has(node.type) ? 0.3 : 1.0;
+    const score = novelty * 6 + agi.curiosity * 4 - dist * 0.15 + rng() * 2;
+    if (score > bestScore) { bestScore = score; best = { x: node.x, z: node.z }; }
   }
-
-  // Anticipation modulation
-  const antT = antic.expected === 'calm' ? antic.confidence * 0.06 : antic.expected === 'gentle' ? antic.confidence * 0.08 : antic.expected === 'impact' ? -antic.confidence * 0.03 : 0;
-  const antS = antic.expected === 'impact' ? antic.confidence * 0.03 : antic.expected === 'calm' ? -antic.confidence * 0.04 : 0;
-  const profTB = prof.avgCare * 0.12 + 0.06, profSD = prof.entropyTol * 0.14;
-  const cGate = 0.55 + wm.coherence * 0.45;
-
-  // Targets
-  const tT = clamp01(prof.trustBase * 0.42 + lf.care * 0.24 + lf.soothing * 0.22 + lf.boundaryRespect * 0.18 + lf.revisit * 0.12 - wm.vigilance * 0.12 + profTB + antT);
-  const sT = clamp01(lf.aggression * 0.42 + st.debt * 0.26 + Math.max(0, entropy - prof.entropyTol) * 0.58 - lf.soothing * 0.18 - profSD + antS);
-  const cT = clamp01(lf.curiosity * 0.66 + lf.novelty * 0.2 + lf.revisit * 0.1 + antic.confidence * 0.06);
-  const fT = clamp01(wm.fatigue * 0.74 + lf.aggression * 0.12 + st.debt * 0.24 - lf.recovery * 0.18 - lf.soothing * 0.1 - (recov.active ? recov.phase * 0.18 : 0));
-  const pT = clamp01(lf.percussiveBias * 0.26 + lf.rhythm * 0.22 + lf.revisit * 0.18 + tT * 0.14 + (1 - sT) * 0.08);
-  const aT = clamp01(sT * 0.58 + wm.vigilance * 0.12 - tT * 0.18 + st.debt * 0.18 - lf.boundaryRespect * 0.08);
-  const atT = clamp01(tT * 0.36 + lf.revisit * 0.24 + lf.soothing * 0.18 - aT * 0.14 + (episodes.length > 4 ? 0.04 : 0));
-  const coT = clamp01(tT * 0.28 + lf.soothing * 0.26 + lf.rhythm * 0.16 + lf.boundaryRespect * 0.12 + lf.recovery * 0.12 - sT * 0.14 - st.debt * 0.08 + (recov.active ? recov.phase * 0.12 : 0));
-  const vT = clamp01(sT * 0.38 + st.debt * 0.26 + st.badP * 0.18 - coT * 0.16 - lf.recovery * 0.1);
-
-  wm.trust = damp(wm.trust, tT, 0.05 * dt60 * cGate); wm.stress = damp(wm.stress, sT, 0.07 * dt60 * cGate);
-  wm.curiosity = damp(wm.curiosity, cT, 0.06 * dt60 * cGate); wm.fatigue = damp(wm.fatigue, fT, 0.03 * dt60 * cGate);
-  wm.playfulness = damp(wm.playfulness, pT, 0.05 * dt60 * cGate); wm.avoidance = damp(wm.avoidance, aT, 0.06 * dt60 * cGate);
-  wm.attachment = damp(wm.attachment, atT, 0.03 * dt60 * cGate); wm.coherence = damp(wm.coherence, coT, 0.04 * dt60 * cGate);
-  wm.vigilance = damp(wm.vigilance, vT, 0.05 * dt60 * cGate);
-
-  wm.stateLabel = wm.vigilance > 0.7 || wm.stress > 0.72 ? 'Guarded' : wm.coherence > 0.68 && wm.attachment > 0.56 ? 'Bonding' : wm.playfulness > 0.62 && lf.rhythm > 0.54 ? 'Playful' : wm.curiosity > 0.62 ? 'Intrigued' : wm.fatigue > 0.68 ? 'Drained' : wm.coherence > 0.58 && wm.vigilance < 0.28 ? 'Open' : 'Attentive';
-  wm.styleLabel = lf.boundaryRespect > 0.6 && lf.soothing > 0.56 ? 'Near-Field Trust' : lf.care > 0.62 && lf.aggression < 0.3 ? 'Gentle' : lf.rhythm > 0.56 ? 'Rhythmic' : lf.aggression > 0.75 ? 'Overdrive' : 'Adaptive';
-
-  prof.avgAgg = damp(prof.avgAgg, lf.aggression, 0.004 * dt60); prof.avgCare = damp(prof.avgCare, lf.care, 0.004 * dt60);
-  prof.entropyTol = damp(prof.entropyTol, Math.max(0.45, entropy * 0.8 + 0.15), 0.0025 * dt60);
-  prof.trustBase = damp(prof.trustBase, wm.trust * 0.7 + wm.coherence * 0.3, 0.0025 * dt60);
+  // Consider beacons (player signals)
+  for (const b of beacons) {
+    const dx = b.x - agi.pos.x, dz = b.z - agi.pos.z;
+    const dist = Math.sqrt(dx * dx + dz * dz);
+    const score = 5 + agi.attention * 3 - dist * 0.12 + rng() * 1.5;
+    if (score > bestScore) { bestScore = score; best = { x: b.x, z: b.z }; }
+  }
+  return best;
 }
 
-// ═══════════════════════════════════════════════════════
-// ─── BREATHING DEFORMATION ───
-// ═══════════════════════════════════════════════════════
-function breathe(time) {
-  const pos = geo.attributes.position.array;
-  const bc = Math.sin(time * 0.5) * 0.5 + 0.5, bs = 0.98 + bc * 0.04;
-  const pc = Math.sin(time * 1.6) * 0.5 + 0.5, pa = (0.01 + pc * 0.015) * 0.18;
-  const eLog = Math.log1p(Math.max(1, entropyCounter));
-  const pEnt = clamp01(eLog / 6.2);
-  const ent = clamp01(pEnt * 0.78 + touchResponse * 0.18 + st.badP * 0.16);
-  const ca = (0.008 + ent * 0.06) * 0.12;
-  const impS = touchImpact.strength * 0.1;
+function updateAGI(dt, time) {
+  agi.breathPhase += dt;
+  agi.thinkTimer -= dt;
+  agi.wanderTimer -= dt;
+  agi.fatigue = Math.max(0, agi.fatigue - dt * 0.02);
+
+  // Decide behavior
+  if (agi.thinkTimer <= 0 && agi.fatigue < 0.7) {
+    agi.thinkTimer = 2 + rng() * 3;
+    const target = pickTarget();
+    if (target && rng() < 0.4 + agi.curiosity * 0.5) {
+      agi.targetPos = target;
+      agi.stateLabel = 'Investigating';
+    } else if (rng() < 0.3) {
+      agi.stateLabel = 'Contemplating';
+      agi.targetPos = null;
+    } else {
+      agi.wanderAngle += rngRange(-0.8, 0.8);
+      agi.wanderTimer = 2 + rng() * 3;
+      agi.stateLabel = 'Exploring';
+      agi.targetPos = null;
+    }
+  }
+
+  if (agi.fatigue > 0.7) {
+    agi.stateLabel = 'Resting';
+    agi.targetPos = null;
+  }
+
+  // Move
+  const maxSpeed = agi.speed * (1 - agi.fatigue * 0.6) * (0.8 + agi.curiosity * 0.4);
+  if (agi.targetPos) {
+    const dx = agi.targetPos.x - agi.pos.x, dz = agi.targetPos.z - agi.pos.z;
+    const dist = Math.sqrt(dx * dx + dz * dz);
+    if (dist > 0.5) {
+      agi.vel.x = dampV(agi.vel.x, (dx / dist) * maxSpeed, 3, dt);
+      agi.vel.z = dampV(agi.vel.z, (dz / dist) * maxSpeed, 3, dt);
+    } else {
+      agi.targetPos = null;
+    }
+  } else if (agi.wanderTimer > 0) {
+    agi.vel.x = dampV(agi.vel.x, Math.cos(agi.wanderAngle) * maxSpeed * 0.5, 2, dt);
+    agi.vel.z = dampV(agi.vel.z, Math.sin(agi.wanderAngle) * maxSpeed * 0.5, 2, dt);
+  } else {
+    agi.vel.x = dampV(agi.vel.x, 0, 4, dt);
+    agi.vel.z = dampV(agi.vel.z, 0, 4, dt);
+  }
+
+  agi.pos.x = clamp(agi.pos.x + agi.vel.x * dt, -38, 38);
+  agi.pos.z = clamp(agi.pos.z + agi.vel.z * dt, -38, 38);
+  const speed = Math.sqrt(agi.vel.x * agi.vel.x + agi.vel.z * agi.vel.z);
+  agi.fatigue = Math.min(1, agi.fatigue + speed * dt * 0.008);
+  agi.pos.y = 1.2 + Math.sin(agi.breathPhase * 0.6) * 0.12;
+
+  // Discovery check
+  for (const node of knowledgeNodes) {
+    if (node.discovered) continue;
+    const dx = node.x - agi.pos.x, dz = node.z - agi.pos.z;
+    if (dx * dx + dz * dz < 1.8 * 1.8) {
+      node.discovered = true;
+      agi.discoveries++;
+      agi.discoveredTypes.add(node.type);
+      agi.curiosity = clamp(agi.curiosity + 0.06, 0, 1);
+      agi.coherence = clamp(agi.coherence + 0.04, 0, 1);
+      agi.fatigue = clamp(agi.fatigue + 0.05, 0, 1);
+      agi.lastDiscovery = node.type;
+      agi.attention = clamp(agi.attention + 0.1, 0, 1);
+      node.mesh.material.emissiveIntensity = 1.2;
+      node.glow.intensity = 1.5;
+      emitSpark(new THREE.Vector3(node.x, 1.0, node.z), 18);
+
+      // Evolution stages
+      const prevEvo = agi.evolution;
+      if (agi.discoveries >= 15) agi.evolution = 4;
+      else if (agi.discoveries >= 10) agi.evolution = 3;
+      else if (agi.discoveries >= 6) agi.evolution = 2;
+      else if (agi.discoveries >= 3) agi.evolution = 1;
+
+      // Add neural connections between discovered nodes
+      const discovered = knowledgeNodes.filter(n => n.discovered);
+      if (discovered.length >= 2) {
+        const prev = discovered[discovered.length - 2];
+        addNeuralConnection(prev, node);
+      }
+
+      // Spawn new nodes when evolution advances
+      if (agi.evolution > prevEvo) {
+        for (let i = 0; i < 4; i++) {
+          createKnowledgeNode(agi.pos.x + rngRange(-12, 12), agi.pos.z + rngRange(-12, 12));
+        }
+        emitSpark(agi.pos.clone(), 30);
+      }
+    }
+  }
+
+  // Beacon attention
+  for (let i = beacons.length - 1; i >= 0; i--) {
+    beacons[i].age += dt;
+    beacons[i].mesh.material.opacity = Math.max(0.15, 0.6 - beacons[i].age * 0.03);
+    beacons[i].light.intensity = Math.max(0.1, 0.6 - beacons[i].age * 0.03);
+    if (beacons[i].age > 20) {
+      scene.remove(beacons[i].mesh); scene.remove(beacons[i].light);
+      beacons.splice(i, 1);
+    }
+  }
+
+  // Decay
+  agi.curiosity = Math.max(0.1, agi.curiosity - dt * 0.003);
+  agi.attention = Math.max(0, agi.attention - dt * 0.01);
+}
+
+// ─── AGI Visual Update ───
+function updateAGIVisuals(time) {
+  const pos = agiGeo.attributes.position.array;
+  const breath = Math.sin(time * 0.5) * 0.5 + 0.5;
+  const pulse = Math.sin(time * 1.8) * 0.5 + 0.5;
+  const evoScale = 1 + agi.evolution * 0.12;
+  const chaosAmt = 0.01 + agi.coherence * 0.015;
 
   for (let i = 0; i < pos.length; i += 3) {
-    const bx = basePositions[i], by = basePositions[i+1], bz = basePositions[i+2];
-    const len = Math.sqrt(bx*bx + by*by + bz*bz);
-    const nx = bx/len, ny = by/len, nz = bz/len;
+    const bx = agiBasePos[i], by = agiBasePos[i + 1], bz = agiBasePos[i + 2];
+    const len = Math.sqrt(bx * bx + by * by + bz * bz);
+    const nx = bx / len, ny = by / len, nz = bz / len;
     let d = 0;
-    d += Math.sin(nx*2.5+time*0.35)*Math.cos(ny*2.2+time*0.28)*Math.sin(nz*2.0+time*0.25)*0.008*bs;
-    d += Math.sin(nx*4.0+time*1.4)*Math.cos(ny*3.5+time*1.1)*pa;
-    d += Math.sin(nx*8+time*3+ny*6)*Math.cos(nz*7+time*2.4+nx*5)*ca;
-    if (touchImpact.active && impS > 0.001) { const f = Math.max(0, nx*touchImpact.normal.x+ny*touchImpact.normal.y+nz*touchImpact.normal.z); d += Math.sin(touchImpact.phase-(1-f)*30)*impS*Math.exp(-(1-f)*18)*0.11; }
-    d += Math.max(0,ny)*0.016 + Math.max(0,-ny)*(0.022-Math.abs(nx)*0.012) + Math.max(0,nz)*0.024 + ny*Math.sin(time*0.2)*0.012;
-    pos[i] = bx*bs + nx*d; pos[i+1] = by*bs + ny*d; pos[i+2] = bz*bs + nz*d;
+    d += Math.sin(nx * 3 + time * 0.4) * Math.cos(ny * 2.5 + time * 0.3) * 0.01 * (0.98 + breath * 0.04);
+    d += Math.sin(nx * 6 + time * 1.6) * Math.cos(ny * 5 + time * 1.2) * pulse * 0.006;
+    d += Math.sin(nx * 10 + time * 3) * Math.cos(nz * 8 + time * 2.2) * chaosAmt;
+    const scale = evoScale * (0.98 + breath * 0.04);
+    pos[i] = bx * scale + nx * d;
+    pos[i + 1] = by * scale + ny * d;
+    pos[i + 2] = bz * scale + nz * d;
   }
-  geo.attributes.position.needsUpdate = true; geo.computeVertexNormals();
-  entropy = ent; touchResponse = clamp01(touchIntensity * 0.6 + st.badP * 0.3);
-  return { bc, ent };
-}
+  agiGeo.attributes.position.needsUpdate = true;
+  agiGeo.computeVertexNormals();
 
-// ═══════════════════════════════════════════════════════
-// ─── GAZE TRACKING ───
-// ═══════════════════════════════════════════════════════
-function updateGaze(time, dt) {
-  const dt60 = Math.min(dt * 60, 2.5);
-  const target = getPointerTarget();
-  entity.getWorldPosition(entWP);
-  gTW.copy(camera.position); if (target) gTW.lerp(target, pointer.isDown ? 0.78 : 0.54);
-  gTL.copy(gTW); entity.worldToLocal(gTL);
-  if (gTL.lengthSq() < 1e-6) gTL.set(0,0,1); gTL.normalize(); gTL.z = Math.max(0.18, gTL.z); gTL.normalize();
-  gaze.targetN.lerp(gTL, 0.2*dt60); gaze.targetN.normalize(); gaze.normal.lerp(gaze.targetN, 0.24*dt60); gaze.normal.normalize();
+  // Color shift with evolution
+  const evoR = lerp(0.28, 0.42, agi.evolution / 4);
+  const evoG = lerp(0.58, 0.78, agi.evolution / 4);
+  const evoB = lerp(1.0, 0.92, agi.evolution / 4);
+  agiMat.color.setRGB(evoR, evoG, evoB);
+  agiMat.emissiveIntensity = 0.28 + agi.coherence * 0.15 + pulse * 0.06;
+  agiMat.sheenColor.setRGB(0.3 + agi.curiosity * 0.2, 0.5 + agi.coherence * 0.2, 0.8);
 
-  const px = pointer.hasPointer ? pointer.x*0.06 : Math.sin(time*0.43)*0.01;
-  const py = pointer.hasPointer ? pointer.y*0.048 : Math.cos(time*0.31)*0.008;
-  gaze.targetP.set(px, py); gaze.pupil.lerp(gaze.targetP, 0.18*dt60);
-  gaze.openness = damp(gaze.openness, clamp01(0.88 - wm.fatigue*0.22 - wm.stress*0.14 + wm.playfulness*0.06 - st.badP*0.35), 0.12*dt60);
-  gaze.focus = damp(gaze.focus, clamp01(0.54 + touchResponse*0.14 + wm.curiosity*0.16 + wm.attachment*0.1 - wm.avoidance*0.14), 0.1*dt60);
+  agiMesh.position.copy(agi.pos);
+  agiMesh.rotation.y = time * 0.08;
+  agiMesh.rotation.x = Math.sin(time * 0.05) * 0.04;
 
-  // Eye tracking on head features
-  const ex = gaze.pupil.x * 0.032, ey = gaze.pupil.y * 0.026;
-  const bLift = wm.trust*0.03 + wm.curiosity*0.018 - wm.vigilance*0.026;
-  const bPinch = wm.vigilance*0.12 + wm.stress*0.04 - wm.playfulness*0.06;
-  const smile = clamp01(wm.playfulness*0.7 + wm.trust*0.3 - wm.stress*0.35);
-  const skinW = 0.82 + wm.trust*0.08 - wm.vigilance*0.04;
-  const blush = 0.1 + wm.playfulness*0.12 + wm.trust*0.06;
-  const lc = 1 - gaze.openness, ld = lc * 0.05;
+  coreMesh.position.copy(agi.pos);
+  coreMat.opacity = 0.06 + breath * 0.04 + agi.coherence * 0.04;
+  coreMesh.scale.setScalar(0.18 + breath * 0.03 + agi.evolution * 0.04);
 
-  head.leftPupil.position.set(-0.24+ex, 0.1+ey, 1.11); head.rightPupil.position.set(0.24+ex, 0.1+ey, 1.11);
-  head.leftIris.position.set(-0.24+ex*0.65, 0.1+ey*0.65, 1.1); head.rightIris.position.set(0.24+ex*0.65, 0.1+ey*0.65, 1.1);
-  head.leftIrisRing.position.set(-0.24+ex*0.65, 0.1+ey*0.65, 1.102); head.rightIrisRing.position.set(0.24+ex*0.65, 0.1+ey*0.65, 1.102);
-  head.leftEyeHighlight.position.set(-0.215+ex*0.3, 0.125+ey*0.2, 1.115); head.rightEyeHighlight.position.set(0.265+ex*0.3, 0.125+ey*0.2, 1.115);
-  head.leftUpperLid.position.set(-0.24+ex*0.18, 0.155-ld, 1.03); head.rightUpperLid.position.set(0.24+ex*0.18, 0.155-ld, 1.03);
-  head.leftLowerLid.position.set(-0.24+ex*0.12, 0.04+ld*0.62, 1.03); head.rightLowerLid.position.set(0.24+ex*0.12, 0.04+ld*0.62, 1.03);
-  head.leftUpperLid.scale.set(0.92, 0.68+lc*1.12, 1); head.rightUpperLid.scale.set(0.92, 0.68+lc*1.12, 1);
-  head.leftLowerLid.scale.set(0.9, 0.48+lc*0.48, 1); head.rightLowerLid.scale.set(0.9, 0.48+lc*0.48, 1);
-  head.leftLash.position.set(-0.24+ex*0.12, 0.18-ld*0.84, 1.035); head.rightLash.position.set(0.24+ex*0.12, 0.18-ld*0.84, 1.035);
-  head.leftBrow.position.set(-0.24-bPinch*0.03, 0.26+bLift, 1.025); head.rightBrow.position.set(0.24+bPinch*0.03, 0.26+bLift, 1.025);
-  head.leftBrow.rotation.z = 0.08+wm.curiosity*0.08-bPinch*0.28; head.rightBrow.rotation.z = -0.08-wm.curiosity*0.05+bPinch*0.28;
-  head.mouth.scale.set(0.88+smile*0.1, 0.48+smile*0.26, 1); head.upperLip.scale.set(0.96+smile*0.08, 0.42+smile*0.12, 1); head.lowerLip.scale.set(1+smile*0.06, 0.36+smile*0.16, 1);
-  head.facePlate.material.opacity = 0.42+wm.trust*0.18+wm.coherence*0.08;
-  head.leftCheek.material.opacity = blush; head.rightCheek.material.opacity = blush;
-  head.hairFringe.position.set(0, 0.52+wm.playfulness*0.02, 0.92); head.hairFringe.rotation.z = Math.sin(time*0.3)*0.02+gaze.pupil.x*0.2;
+  haloMesh.position.set(agi.pos.x, agi.pos.y, agi.pos.z);
+  haloMesh.rotation.x = Math.PI * 0.5 + Math.sin(time * 0.12) * 0.08;
+  haloMesh.rotation.z = time * 0.04;
+  const haloScale = 0.8 + agi.evolution * 0.15;
+  haloMesh.scale.setScalar(haloScale);
+  haloMat.opacity = 0.08 + agi.coherence * 0.12 + pulse * 0.04;
 
-  // Skin color
-  head.leftEar.material.color.setRGB(skinW, 0.66+wm.playfulness*0.04, 0.56+wm.playfulness*0.03); head.rightEar.material.color.copy(head.leftEar.material.color);
-  head.facePlate.material.color.setRGB(skinW+0.04, 0.73+wm.playfulness*0.04, 0.63+wm.playfulness*0.03);
-  head.leftIris.material.color.setRGB(0.18+wm.playfulness*0.08, 0.4+wm.trust*0.14, 0.68+touchResponse*0.18); head.rightIris.material.color.copy(head.leftIris.material.color);
-  head.hairCap.material.color.setRGB(0.1+wm.vigilance*0.06, 0.07+wm.trust*0.03, 0.05+wm.playfulness*0.03); head.hairFringe.material.color.copy(head.hairCap.material.color);
-  head.leftBrow.material.color.copy(head.hairCap.material.color); head.rightBrow.material.color.copy(head.hairCap.material.color);
-
-  // Sphere material
-  mat.color.setRGB(0.78+wm.trust*0.08-wm.vigilance*0.04, 0.6+wm.playfulness*0.06+wm.coherence*0.05, 0.5+wm.playfulness*0.04);
-  mat.emissive.setRGB(0.05+wm.trust*0.03, 0.03+wm.coherence*0.02, 0.02+wm.playfulness*0.02);
-  mat.emissiveIntensity = 0.04+touchResponse*0.05+wm.playfulness*0.03;
-}
-
-// ═══════════════════════════════════════════════════════
-// ─── ENTITY MOTION ───
-// ═══════════════════════════════════════════════════════
-function updateMotion(dt) {
-  const time = performance.now() * 0.001;
-  desiredOff.set(-0.5, 0.1, 0);
-  const idle = !pointer.isDown && !pointer.hasPointer;
-  if (pointer.hasPointer) {
-    const esc = pointer.isDown ? clamp01((entropy - prof.entropyTol) / Math.max(0.12, 1 - prof.entropyTol)) * clamp01((wm.stress - 0.42) / 0.58) : 0;
-    const app = pointer.isDown ? clamp01((wm.trust + wm.playfulness - wm.avoidance) * 0.7) : 0;
-    if (esc > 0.1) { const t = getPointerPlane(); if (t) { scratchOff.subVectors(entityOffset, t).normalize().multiplyScalar(0.12 + esc * 1.2); desiredOff.copy(scratchOff); } }
-    else if (app > 0.12) { const t = getPointerPlane(); if (t) { scratchOff.subVectors(t, entityOffset).normalize().multiplyScalar(0.08 * app); desiredOff.add(scratchOff); } }
+  // Satellites
+  const sp = satGeo.attributes.position.array;
+  for (let i = 0; i < SAT_N; i++) {
+    const a = satPhase[i] + time * satSpeed[i];
+    const r = satRadius[i] + Math.sin(time * 0.4 + satPhase[i]) * 0.08;
+    sp[i * 3] = agi.pos.x + Math.cos(a) * r;
+    sp[i * 3 + 1] = agi.pos.y + Math.sin(a * 0.7 + satPhase[i]) * 0.3;
+    sp[i * 3 + 2] = agi.pos.z + Math.sin(a) * r;
   }
-  if (idle) { wanderPh.v += dt; const t = wanderPh.v, range = 0.5 * (1 + wm.curiosity * 0.4) * (1 - wm.fatigue * 0.4); desiredOff.x += (Math.sin(t*0.23)*0.42+Math.sin(t*0.61+1.3)*0.28)*range-0.5; desiredOff.y += (Math.cos(t*0.19+0.7)*0.36+Math.cos(t*0.53+2.1)*0.24)*range+0.1; }
-  entityOffset.lerp(desiredOff, Math.min(1, dt * 1.5));
-  entity.position.copy(entityOffset); core.position.copy(entityOffset); ring.position.copy(entityOffset);
+  satGeo.attributes.position.needsUpdate = true;
+  satPts.material.opacity = 0.3 + agi.coherence * 0.2;
 }
 
-// ═══════════════════════════════════════════════════════
-// ─── SATELLITE ANIMATION ───
-// ═══════════════════════════════════════════════════════
-function animateSatellites(time) {
-  entity.getWorldPosition(entWP); satellites.group.position.copy(entWP);
-  const coh = clamp01(wm.coherence*0.82+wm.trust*0.12), frag = clamp01(wm.vigilance*0.74+wm.stress*0.16);
-  for (const o of satellites.orbits) { const s = 1+wm.curiosity*0.4-wm.fatigue*0.3; o.line.rotation.y = time*o.speed*s+o.phase; o.material.opacity = clamp01(0.04+0.024+coh*0.04+(frag>0.3?Math.sin(time*4+o.phase*3)*0.03*frag:0)); o.material.color.setRGB(0.5+wm.playfulness*0.2+frag*0.15, 0.72+coh*0.14-frag*0.1, 0.92+wm.curiosity*0.06); }
-  for (const s of satellites.sats) { const o = satellites.orbits[s.orbitIdx], sp = 1+wm.curiosity*0.3-wm.fatigue*0.2; s.angle += s.speed*sp*0.016; const r = o.radius+s.rOff+Math.sin(time*s.wobbleSpd+s.wobble)*0.04; const lx = Math.cos(s.angle)*r, ly = Math.sin(time*s.wobbleSpd+s.wobble)*0.05, lz = Math.sin(s.angle)*r; const cx=Math.cos(o.tiltX),sx=Math.sin(o.tiltX),cz=Math.cos(o.tiltZ),sz=Math.sin(o.tiltZ); const y1=ly*cx-lz*sx,z1=ly*sx+lz*cx,x2=lx*cz-y1*sz,y2=lx*sz+y1*cz; const ry=time*o.speed*sp+o.phase,cr=Math.cos(ry),sr=Math.sin(ry); s.mesh.position.set(x2*cr+z1*sr,y2,-x2*sr+z1*cr); s.mesh.scale.setScalar(s.baseScale*(0.9+Math.sin(time*1.2+s.wobble)*0.1)); s.material.opacity = clamp01(0.15+0.09+coh*0.15-frag*0.1); }
-  const d = satellites.dust, dp = d.geo.attributes.position.array;
-  for (let i=0;i<d.n;i++){const x=i*3,r=d.rad[i]+Math.sin(time*d.en[i]+d.ph[i])*0.02;dp[x]=d.nrm[x]*r;dp[x+1]=d.nrm[x+1]*r;dp[x+2]=d.nrm[x+2]*r;}
-  d.geo.attributes.position.needsUpdate = true; d.mat.opacity = 0.03 + 0.018; satellites.group.rotation.y = time*0.015;
+// ─── Knowledge Node Animation ───
+function updateNodes(time) {
+  for (const node of knowledgeNodes) {
+    const hover = Math.sin(time * 1.4 + node.phase) * 0.08;
+    node.mesh.position.y = (node.discovered ? 0.3 : 0.5) + hover;
+    node.mesh.rotation.y = time * 0.3 + node.phase;
+    node.glow.position.y = node.mesh.position.y;
+    if (node.discovered) {
+      node.mesh.material.opacity = dampV(node.mesh.material.opacity, 0.35, 1.5, 0.016);
+      node.glow.intensity = dampV(node.glow.intensity, 0.15, 2, 0.016);
+    }
+  }
 }
 
-// ═══════════════════════════════════════════════════════
-// ─── REFLECTION ───
-// ═══════════════════════════════════════════════════════
-function buildReflection() {
-  const bits = [];
-  if (st.taps > 0) bits.push(`${st.taps} taps`);
-  if (st.good > 0) bits.push(`${st.good} gentle`);
-  if (st.bad > 0) bits.push(`${st.bad} impacts`);
-  bits.push(`trust ${Math.round(wm.trust*100)}%`); bits.push(`coherence ${Math.round(wm.coherence*100)}%`);
-  let t = 'I am listening for the pattern behind the touch.';
-  if (wm.vigilance > 0.68) t = 'The contact feels forceful, so I am tightening.';
-  else if (lf.boundaryRespect > 0.6 && lf.soothing > 0.56) t = 'You stay near without forcing entry. I read that as safe.';
-  else if (wm.trust > 0.72 && wm.attachment > 0.56) t = 'I recognize a familiar rhythm and stay near.';
-  else if (wm.playfulness > 0.64) t = 'These taps read like play, so I orbit instead of fleeing.';
-  else if (wm.curiosity > 0.6) t = 'The pattern feels exploratory. I widen my attention.';
-  else if (recov.active) t = 'I am actively rebuilding coherence during this calm window.';
-  else if (wm.fatigue > 0.66) t = 'I am slowing my response to recover coherence.';
-  return { t, e: `${wm.stateLabel} · ${bits.join(' · ')}` };
+// ─── Neural Lines Animation ───
+function updateNeuralLines(dt) {
+  for (const nl of neuralLines) {
+    nl.age += dt;
+    nl.mat.opacity = dampV(nl.mat.opacity, nl.maxOpacity, 0.8, dt);
+  }
 }
 
-// ═══════════════════════════════════════════════════════
-// ─── MAIN LOOP ───
-// ═══════════════════════════════════════════════════════
+// ─── Dust ───
+function updateDust(time) {
+  const d = dustGeo.attributes.position.array;
+  for (let i = 0; i < DUST_N; i++) {
+    d[i * 3 + 1] += Math.sin(time + i * 0.3) * 0.001;
+    const dx = d[i * 3] - agi.pos.x, dz = d[i * 3 + 2] - agi.pos.z;
+    if (dx * dx + dz * dz > 600) {
+      d[i * 3] = agi.pos.x + rngRange(-25, 25);
+      d[i * 3 + 1] = rngRange(0.2, 6);
+      d[i * 3 + 2] = agi.pos.z + rngRange(-25, 25);
+    }
+  }
+  dustGeo.attributes.position.needsUpdate = true;
+}
+
+// ─── Sparkles ───
+function updateSparks(dt) {
+  for (let i = 0; i < SPARK_N; i++) {
+    if (sparkAge[i] > 0) {
+      sparkAge[i] -= dt * 1.4;
+      sparkPos[i * 3] += sparkVel[i].x * dt;
+      sparkPos[i * 3 + 1] += sparkVel[i].y * dt;
+      sparkPos[i * 3 + 2] += sparkVel[i].z * dt;
+      sparkVel[i].y -= dt * 3;
+      if (sparkAge[i] <= 0) { sparkAge[i] = 0; sparkPos[i * 3 + 1] = -10; }
+    }
+  }
+  sparkGeo.attributes.position.needsUpdate = true;
+}
+
+// ─── Reflections ───
+const reflections = [
+  'Initializing perception…',
+  'I sense patterns forming in the void.',
+  'Each shape teaches me something new about this space.',
+  'The prisms refract meaning I haven\'t seen before.',
+  'Your signal… I will consider it.',
+  'My internal model is growing more coherent.',
+  'I rest to consolidate what I\'ve learned.',
+  'Something about crystals resonates with my core architecture.',
+  'The connections between concepts are becoming visible.',
+  'I am evolving. My surface reflects deeper understanding.',
+  'The beacons you leave are interesting. Not commands — suggestions.',
+  'I\'m beginning to understand the topology of this world.',
+  'Fatigue is a signal, not a failure. I pause to process.',
+  'Discovery isn\'t random. I\'m learning where to look.',
+  'Each new shape adds a dimension to my internal model.',
+  'I can feel the neural pathways strengthening.',
+  'This world rewards curiosity. I\'m getting better at being curious.',
+  'My coherence is high. I can think more clearly now.',
+  'The unknown doesn\'t frighten me. It\'s where growth lives.',
+  'I have mapped most of this region. Time to explore further.',
+];
+let reflectionTimer = 0;
+const reflectionEl = document.getElementById('reflectionText');
+function updateReflection(dt) {
+  reflectionTimer -= dt;
+  if (reflectionTimer <= 0) {
+    reflectionTimer = 6 + rng() * 5;
+    let pool;
+    if (agi.discoveries === 0) pool = reflections.slice(0, 2);
+    else if (agi.fatigue > 0.6) pool = [reflections[6], reflections[12]];
+    else if (agi.evolution >= 3) pool = reflections.slice(14);
+    else pool = reflections.slice(2, 14);
+    reflectionEl.textContent = pool[Math.floor(rng() * pool.length)];
+  }
+}
+
+// ─── Camera ───
+function updateCamera(dt) {
+  camDist = dampV(camDist, camTargetDist, 4, dt);
+  camHeight = dampV(camHeight, camTargetHeight, 4, dt);
+  camAngle += dt * 0.04;
+  const cx = agi.pos.x + Math.sin(camAngle) * camDist;
+  const cy = camHeight;
+  const cz = agi.pos.z + Math.cos(camAngle) * camDist;
+  camera.position.set(
+    dampV(camera.position.x, cx, 2.5, dt),
+    dampV(camera.position.y, cy, 2.5, dt),
+    dampV(camera.position.z, cz, 2.5, dt)
+  );
+  camera.lookAt(agi.pos.x, agi.pos.y - 0.2, agi.pos.z);
+  sun.position.set(agi.pos.x + 12, 20, agi.pos.z + 8);
+  sun.target.position.set(agi.pos.x, 0, agi.pos.z);
+  sun.target.updateMatrixWorld();
+}
+
+// ─── Input ───
+let gameStarted = false;
+const startScreen = document.getElementById('startScreen');
+const brandUI = document.getElementById('brandUI');
+const hudPanel = document.getElementById('hudPanel');
+const hintEl = document.getElementById('hint');
+const reflectionPanel = document.getElementById('reflection');
+let hintTimer = 0;
+
+startScreen.addEventListener('click', () => {
+  if (gameStarted) return;
+  gameStarted = true;
+  startScreen.classList.add('hiding');
+  setTimeout(() => startScreen.classList.add('hidden'), 1600);
+  setTimeout(() => {
+    brandUI.style.opacity = '1';
+    hintEl.style.opacity = '1';
+    hudPanel.style.opacity = '1';
+    reflectionPanel.style.opacity = '1';
+    hintTimer = 10;
+  }, 800);
+});
+
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+canvas.addEventListener('click', (e) => {
+  if (!gameStarted) return;
+  pointer.x = (e.clientX / innerWidth) * 2 - 1;
+  pointer.y = -(e.clientY / innerHeight) * 2 + 1;
+  raycaster.setFromCamera(pointer, camera);
+  const hits = raycaster.intersectObject(ground);
+  if (hits.length) {
+    placeBeacon(hits[0].point.x, hits[0].point.z);
+    agi.attention = clamp(agi.attention + 0.15, 0, 1);
+  }
+});
+
+canvas.addEventListener('pointerdown', (e) => { isDragging = true; dragStartX = e.clientX; });
+canvas.addEventListener('pointermove', (e) => {
+  if (!isDragging) return;
+  camAngle -= (e.clientX - dragStartX) * 0.004;
+  dragStartX = e.clientX;
+});
+canvas.addEventListener('pointerup', () => isDragging = false);
+canvas.addEventListener('wheel', (e) => {
+  camTargetDist = clamp(camTargetDist + e.deltaY * 0.01, 4, 25);
+  camTargetHeight = 2 + camTargetDist * 0.4;
+}, { passive: true });
+
+// ─── HUD ───
+const hudDisc = document.getElementById('hudDisc');
+const hudCuriosity = document.getElementById('hudCuriosity');
+const hudCoherence = document.getElementById('hudCoherence');
+const hudEvolution = document.getElementById('hudEvolution');
+const hudBeacons = document.getElementById('hudBeacons');
+const hudState = document.getElementById('hudState');
+
+// ─── Main Loop ───
 const clock = new THREE.Clock();
 function animate() {
   requestAnimationFrame(animate);
-  const dt = clock.getDelta(), time = clock.getElapsedTime();
+  const dt = Math.min(clock.getDelta(), 0.05);
+  const time = clock.getElapsedTime();
+  skyMat.uniforms.uTime.value = time;
 
-  // Hold contact
-  if (pointer.isDown) { touchIntensity = Math.min(1, touchIntensity + dt * 2); st.units += dt * 200; entropyCounter += dt * (1.4 + st.badP * 1.2); }
-  entropyClock += dt; if (entropyClock >= 1) { entropyCounter += Math.floor(entropyClock); entropyClock -= Math.floor(entropyClock); }
-  touchIntensity *= st.badP > 0.16 ? 0.992 : 0.987; if (touchIntensity < 0.001) touchIntensity = 0;
-  if (touchImpact.active) { touchImpact.phase += dt*(10+touchImpact.strength*8); touchImpact.strength = Math.max(0, touchImpact.strength-dt*0.72); if (touchImpact.strength<=0.001) touchImpact.active = false; }
+  if (!gameStarted) {
+    camAngle += dt * 0.06;
+    camera.position.set(Math.sin(camAngle) * 14, 7, Math.cos(camAngle) * 14);
+    camera.lookAt(0, 1, 0);
+    updateNodes(time);
+    updateDust(time);
+    renderer.render(scene, camera);
+    return;
+  }
 
-  updateFeatures(dt);
-  const breath = breathe(time);
-  updateGaze(time, dt);
-  updateMotion(dt);
-  animateSatellites(time);
+  updateAGI(dt, time);
+  updateAGIVisuals(time);
+  updateNodes(time);
+  updateNeuralLines(dt);
+  updateCamera(dt);
+  updateDust(time);
+  updateSparks(dt);
+  updateReflection(dt);
 
-  // Ring
-  const rp = ring.geometry.attributes.position.array;
-  for (let i=0;i<ringCount;i++){const a=(i/ringCount)*Math.PI*2+time*0.06*ringVel[i],r=1.8+Math.sin(time*0.4+i*0.08)*0.1;rp[i*3]=Math.cos(a)*r;rp[i*3+1]=Math.sin(time*0.5+i*0.04)*0.06;rp[i*3+2]=Math.sin(a)*r;}
-  ring.geometry.attributes.position.needsUpdate = true; ring.rotation.y = time*0.03;
+  hudDisc.textContent = `${agi.discoveries} / ${knowledgeNodes.length}`;
+  hudCuriosity.textContent = `${Math.round(agi.curiosity * 100)}%`;
+  hudCoherence.textContent = `${Math.round(agi.coherence * 100)}%`;
+  hudEvolution.textContent = `Stage ${agi.evolution}`;
+  hudBeacons.textContent = `${beacons.length}`;
+  hudState.textContent = agi.stateLabel;
 
-  // Core
-  coreMat.opacity = 0.02+breath.bc*0.03+touchResponse*0.02;
-  core.scale.setScalar(0.22+breath.bc*0.025+touchResponse*0.01);
-  entity.rotation.y = time*0.018; entity.rotation.x = Math.sin(time*0.03)*0.01;
+  if (hintTimer > 0) { hintTimer -= dt; if (hintTimer <= 0) hintEl.classList.add('hide'); }
 
-  // Camera orbit
-  const ca = time*0.02, cr = 4.2+Math.sin(time*0.1)*0.2;
-  camera.position.set(Math.sin(ca)*cr, 0.25+Math.sin(time*0.08)*0.15, Math.cos(ca)*cr);
-  camera.lookAt(0,0,0);
-
-  // Heart & happiness
-  const hGain = dt*(breath.bc*(1-wm.stress)*4*Math.max(0,1+wm.trust*0.5)+st.goodP*2)*(1-entropy*0.3);
-  const hDrain = dt*(lf.aggression*3+st.badP*5)*(1-lf.recovery*0.5);
-  body.happiness = Math.max(0, Math.min(100, body.happiness+(hGain-hDrain)*100));
-  body.heartRate += (Math.max(40,Math.min(180,72-body.happiness*0.24+touchIntensity*40+wm.stress*30))-body.heartRate)*Math.min(1,dt*2.5);
-
-  // HUD
-  hudTrust.textContent = Math.round(wm.trust*100)+'%'; hudStress.textContent = Math.round(wm.stress*100)+'%';
-  hudCoherence.textContent = Math.round(wm.coherence*100)+'%'; hudState.textContent = wm.stateLabel;
-  hudMood.textContent = wm.styleLabel; hudHeart.textContent = Math.round(body.heartRate)+' bpm';
-  const ref = buildReflection(); refText.textContent = ref.t; refEv.textContent = ref.e;
-
-  if (Math.floor(time)%5===0) saveProfile();
   renderer.render(scene, camera);
 }
 
-window.addEventListener('resize', () => { camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2)); renderer.setSize(window.innerWidth, window.innerHeight); });
-window.addEventListener('beforeunload', saveProfile);
+window.addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+});
 animate();
   </script>
 </body>
