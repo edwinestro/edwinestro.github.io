@@ -3,6 +3,54 @@
   "generatedAt": "2026-03-11T00:00:00.000Z",
   "games": [
     {
+      "id": "unsupervised-agi-3d",
+      "title": "Unsupervised AGI 3D",
+      "desc": "Watch an autonomous AGI entity explore a procedural 3D world, discover knowledge nodes, and evolve its form—all without instructions. Click to place signal beacons.",
+      "href": "../../games/unsupervised-agi-3d/index.html",
+      "thumbnail": "assets/agi-3d-1600x900.svg",
+      "badges": [
+        "3D",
+        "Experience",
+        "New"
+      ],
+      "counted": true,
+      "sourcePath": "Projects/games/unsupervised-agi-3d",
+      "createdAt": "2026-03-14T00:00:00.000Z",
+      "updatedAt": "2026-03-14T00:00:00.000Z"
+    },
+    {
+      "id": "i3d23",
+      "title": "I3D23",
+      "desc": "An evolved sentient 3D presence with aurora skies, breath-trail particles, dreaming states, and deep emotional memory.",
+      "href": "../../games/i3d23/index.html",
+      "thumbnail": "assets/agi-3d-1600x900.svg",
+      "badges": [
+        "3D",
+        "Experience",
+        "New"
+      ],
+      "counted": true,
+      "sourcePath": "Projects/games/i3d23",
+      "createdAt": "2026-03-14T00:00:00.000Z",
+      "updatedAt": "2026-03-14T00:00:00.000Z"
+    },
+    {
+      "id": "gi3d2",
+      "title": "GI3D2",
+      "desc": "A living AGI head with gaze tracking, satellite orbits, and adaptive working memory that responds to your touch.",
+      "href": "../../games/gi3d2/index.html",
+      "thumbnail": "assets/agi-3d-1600x900.svg",
+      "badges": [
+        "3D",
+        "Experience",
+        "New"
+      ],
+      "counted": true,
+      "sourcePath": "Projects/games/gi3d2",
+      "createdAt": "2026-03-14T00:00:00.000Z",
+      "updatedAt": "2026-03-14T00:00:00.000Z"
+    },
+    {
       "id": "agi-3d",
       "title": "AGI 3D",
       "desc": "Watch a living AGI entity breathe, pulse, and wobble in real-time 3D. A liquid-metal intelligence suspended in space.",

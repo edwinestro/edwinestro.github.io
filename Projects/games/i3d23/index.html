@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>I3D23 — Sentient Presence</title>
+  <meta name="description" content="A controllable 3D human figure in an aurora world. WASD to move, mouse to look." />
+  <meta name="theme-color" content="#06021a" />
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{width:100%;height:100%;overflow:hidden;background:#03010e}
+    body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
+      background:
+        radial-gradient(circle at 50% 56%, rgba(120,190,120,0.05), transparent 28%),
+        radial-gradient(circle at 50% 50%, transparent 42%, rgba(2,4,12,0.08) 70%, rgba(2,4,12,0.34) 100%),
+        linear-gradient(to bottom, rgba(12,28,44,0.06), rgba(2,6,16,0.18));
+      mix-blend-mode:screen}
+    body::after{content:"";position:fixed;inset:-10%;pointer-events:none;z-index:2;opacity:.1;
+      background-image:
+        radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08) 0 1px, transparent 1px),
+        radial-gradient(circle at 70% 35%, rgba(255,255,255,0.05) 0 1px, transparent 1px),
+        radial-gradient(circle at 45% 75%, rgba(255,255,255,0.04) 0 1px, transparent 1px);
+      background-size:160px 160px, 220px 220px, 190px 190px}
+    canvas{display:block;width:100vw;height:100vh;cursor:crosshair}
+    .hud{position:fixed;bottom:14px;right:14px;z-index:10;pointer-events:none;
+      display:grid;grid-template-columns:repeat(4,auto);gap:5px;
+      padding:7px;border-radius:12px;background:rgba(7,14,28,0.3);
+      border:1px solid rgba(108,232,255,0.08);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+      font-family:"Segoe UI",system-ui,sans-serif;color:rgba(200,220,240,0.72)}
+    .hud-item{padding:3px 6px;border-radius:6px;background:rgba(5,11,20,0.25);
+      border:1px solid rgba(108,232,255,0.04);min-width:52px}
+    .hud-item .tag{color:rgba(108,232,255,0.72);font-size:0.38rem;font-weight:800;
+      letter-spacing:0.12em;text-transform:uppercase}
+    .hud-value{color:rgba(240,247,255,0.9);font-size:0.58rem;font-weight:700}
+    .controls-hint{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:10;
+      pointer-events:none;font-family:"Segoe UI",system-ui,sans-serif;
+      font-size:0.6rem;color:rgba(200,220,240,0.5);text-align:center;
+      padding:4px 12px;border-radius:999px;background:rgba(7,14,28,0.3);
+      border:1px solid rgba(108,232,255,0.06);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+      transition:opacity 1.5s}
+    .controls-hint.hide{opacity:0}
+    .brand{position:fixed;top:14px;left:14px;z-index:10;pointer-events:none;font-family:Georgia,serif}
+    .brand h1{font-size:clamp(0.8rem,1.1vw,1.1rem);font-weight:700;
+      color:rgba(235,245,255,0.85);text-shadow:0 0 12px rgba(108,180,255,0.2)}
+    .brand p{font-size:0.48rem;color:rgba(180,210,240,0.4);margin-top:2px}
+    .nav-links{position:fixed;top:14px;right:14px;z-index:10;display:flex;gap:5px}
+    .nav-links a{color:rgba(220,240,255,0.7);text-decoration:none;font-size:0.58rem;
+      font-weight:700;padding:4px 8px;border-radius:999px;
+      border:1px solid rgba(255,255,255,0.06);background:rgba(6,12,24,0.2);
+      -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:border-color 0.2s,background 0.2s}
+    .nav-links a:hover{border-color:rgba(108,232,255,0.3);background:rgba(108,232,255,0.06)}
+    .start-screen{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;
+      justify-content:center;align-items:center;background:
+      radial-gradient(circle at 50% 42%, rgba(54,88,62,0.18), transparent 26%),
+      linear-gradient(180deg, rgba(6,3,18,0.97), rgba(3,1,14,0.94));
+      transition:opacity 1.5s ease-out;cursor:pointer}
+    .start-screen.hiding{opacity:0;pointer-events:none}
+    .start-screen.hidden{display:none}
+    .start-title{font-family:Georgia,serif;font-size:clamp(1.6rem,4vw,3.2rem);
+      color:rgba(180,255,120,0.9);text-shadow:0 0 30px rgba(120,255,80,0.3),0 0 60px rgba(80,200,60,0.15);
+      letter-spacing:0.06em;margin-bottom:0.6rem;opacity:0;animation:fadeInUp 2s 0.5s forwards}
+    .start-subtitle{font-family:Georgia,serif;font-size:clamp(0.7rem,1.4vw,1rem);
+      color:rgba(200,220,240,0.5);letter-spacing:0.12em;margin-bottom:2.5rem;
+      opacity:0;animation:fadeInUp 1.5s 1.8s forwards}
+    .start-prompt{font-family:"Segoe UI",system-ui,sans-serif;font-size:clamp(0.55rem,1vw,0.75rem);
+      color:rgba(200,220,240,0.35);letter-spacing:0.08em;
+      opacity:0;animation:fadeInUp 1s 3s forwards,pulse 2s 4s infinite}
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes pulse{0%,100%{opacity:0.35}50%{opacity:0.7}}
+  </style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <div class="start-screen" id="startScreen">
+    <div class="start-title">Once upon an AGI</div>
+    <div class="start-subtitle">Collect 12 orbs of light · Forage to survive · Defeat carnivores after dusk</div>
+    <div class="start-prompt">Click anywhere to begin</div>
+  </div>
+  <div class="brand" style="opacity:0;transition:opacity 1s" id="brandUI"><h1>I3D23</h1><p>WASD to move · Mouse to look</p></div>
+  <nav class="nav-links" aria-label="Primary">
+    <a href="../../..">Home</a>
+    <a href="../../../portal.html">Portal</a>
+  </nav>
+  <div class="controls-hint" id="hint" style="opacity:0;transition:opacity 1s">WASD to move · Mouse to look · Shift to run · F to strike · Click to lock pointer</div>
+  <div class="hud" id="hudPanel" style="opacity:0;transition:opacity 1s">
+    <div class="hud-item"><span class="tag">Speed</span><div class="hud-value" id="hudSpeed">0</div></div>
+    <div class="hud-item"><span class="tag">State</span><div class="hud-value" id="hudState">Idle</div></div>
+    <div class="hud-item"><span class="tag">Pos</span><div class="hud-value" id="hudPos">0, 0</div></div>
+    <div class="hud-item" id="cycleBox" style="border-color:rgba(140,200,255,0.14)"><span class="tag" style="color:rgba(140,200,255,0.84)">Cycle</span><div class="hud-value" id="hudCycle">Day 8:00</div></div>
+    <div class="hud-item" id="orbBox" style="border-color:rgba(180,255,80,0.12)"><span class="tag" style="color:rgba(180,255,80,0.8)">Orbs</span><div class="hud-value" id="hudOrbs">0 / 12</div></div>
+    <div class="hud-item" id="hungerBox" style="border-color:rgba(255,180,60,0.12)"><span class="tag" style="color:rgba(255,180,60,0.8)">Hunger</span><div class="hud-value" id="hudHunger"><div style="background:rgba(255,180,60,0.3);border-radius:3px;height:8px;width:100%"><div id="hungerBar" style="background:rgba(255,180,60,0.85);border-radius:3px;height:100%;width:100%;transition:width 0.3s"></div></div></div></div>
+    <div class="hud-item" id="healthBox" style="border-color:rgba(255,100,100,0.12)"><span class="tag" style="color:rgba(255,120,120,0.84)">Health</span><div class="hud-value" id="hudHealth">100%</div></div>
+    <div class="hud-item" id="threatBox" style="border-color:rgba(255,90,90,0.12)"><span class="tag" style="color:rgba(255,120,120,0.84)">Threat</span><div class="hud-value" id="hudThreat">Peaceful</div></div>
+  </div>
+  <script type="importmap">
+  { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }
+  </script>
+  <script type="module">
+import * as THREE from 'three';
+
+// ─── Helpers ───
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const dampV = (a, b, lambda, dt) => lerp(a, b, 1 - Math.exp(-lambda * dt));
+const smoothstep = (a, b, x) => {
+  const t = clamp((x - a) / (b - a), 0, 1);
+  return t * t * (3 - 2 * t);
+};
+
+// ─── Renderer ───
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.16;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+// ─── Scene ───
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x0b1324, 0.0125);
+
+// ─── Aurora Sky ───
+const skyMat = new THREE.ShaderMaterial({
+  side: THREE.BackSide,
+  uniforms: { uTime: { value: 0 }, uDay: { value: 0.5 } },
+  vertexShader: `varying vec3 vWP; void main(){ vWP=(modelMatrix*vec4(position,1.)).xyz; gl_Position=projectionMatrix*viewMatrix*vec4(vWP,1.); }`,
+  fragmentShader: `
+    uniform float uTime; uniform float uDay; varying vec3 vWP;
+    void main(){
+      vec3 dir=normalize(vWP);
+      float h=dir.y*0.5+0.5;
+      float nx=dir.x;
+      float nz=dir.z;
+      vec3 nightBase=mix(vec3(0.01,0.004,0.045),vec3(0.028,0.05,0.11),smoothstep(0.,0.36,h));
+      nightBase=mix(nightBase,vec3(0.095,0.05,0.18),smoothstep(0.34,1.,h));
+      vec3 dayBase=mix(vec3(0.47,0.71,0.94),vec3(0.15,0.38,0.74),smoothstep(0.,0.55,h));
+      dayBase=mix(dayBase,vec3(0.08,0.2,0.52),smoothstep(0.72,1.,h));
+      float bandA=sin(h*11.0+uTime*0.26+nx*4.5+nz*1.8)*0.5+0.5;
+      float bandB=sin(h*19.0-uTime*0.16+nx*8.2-nz*3.6)*0.5+0.5;
+      float veil=sin(nx*6.5+uTime*0.09)*0.5+0.5;
+      float aurora=(bandA*0.65+bandB*0.35)*smoothstep(0.38,0.66,h)*smoothstep(0.96,0.72,h)*(0.08+veil*0.07)*(1.0-uDay);
+      vec3 acA=mix(vec3(0.18,0.84,0.54),vec3(0.44,0.24,0.9),sin(uTime*0.14+h*3.2)*0.5+0.5);
+      vec3 acB=mix(vec3(0.12,0.5,0.86),vec3(0.46,0.82,0.62),sin(uTime*0.1+nx*2.3)*0.5+0.5);
+      vec3 base=mix(nightBase,dayBase,uDay);
+      base+=acA*aurora;
+      base+=acB*(bandB*bandB)*smoothstep(0.48,0.78,h)*0.035*(1.0-uDay);
+      float stars=pow(max(0.0,sin(nx*143.7+nz*218.4+uTime*0.01)*sin(nx*91.2-nz*173.1)),28.0)*smoothstep(0.62,1.0,h)*(1.0-uDay);
+      base+=vec3(0.18,0.22,0.34)*stars*0.45;
+      float sunGlow=smoothstep(0.95,1.0,1.0-distance(dir,normalize(vec3(-0.42,0.72,-0.16))))*uDay;
+      base+=vec3(1.0,0.88,0.62)*sunGlow*0.26;
+      gl_FragColor=vec4(base,1.);
+    }`,
+});
+scene.add(new THREE.Mesh(new THREE.SphereGeometry(200, 32, 32), skyMat));
+
+// ─── Camera ───
+const camera = new THREE.PerspectiveCamera(55, innerWidth / innerHeight, 0.1, 400);
+
+// ─── Lighting ───
+const ambientLight = new THREE.AmbientLight(0x96a7c8, 0.72);
+scene.add(ambientLight);
+const hemiLight = new THREE.HemisphereLight(0x31506e, 0x14240f, 0.52);
+scene.add(hemiLight);
+const sun = new THREE.DirectionalLight(0xdce6ff, 0.98);
+sun.position.set(20, 30, 10); sun.castShadow = true;
+sun.shadow.mapSize.set(1024, 1024);
+sun.shadow.camera.near = 1; sun.shadow.camera.far = 80;
+sun.shadow.camera.left = -20; sun.shadow.camera.right = 20;
+sun.shadow.camera.top = 20; sun.shadow.camera.bottom = -20;
+scene.add(sun); scene.add(sun.target);
+const moonFill = new THREE.PointLight(0xb9ffe1, 0.42, 26);
+moonFill.position.set(0, 3, 4);
+scene.add(moonFill);
+const rimFill = new THREE.PointLight(0xd0c0ff, 0.48, 30);
+rimFill.position.set(-5, 8, -10);
+scene.add(rimFill);
+
+// ─── Ground (green grass) ───
+const groundGeo = new THREE.PlaneGeometry(300, 300, 80, 80);
+const groundPos = groundGeo.attributes.position.array;
+const groundColors = new Float32Array((groundPos.length / 3) * 3);
+for (let i = 0; i < groundPos.length; i += 3) {
+  const x = groundPos[i], planeY = groundPos[i + 1];
+  const ridge = Math.sin(x * 0.06) * Math.cos(planeY * 0.05);
+  const ripple = Math.sin(x * 0.17 + planeY * 0.11) * 0.35 + Math.cos(planeY * 0.13 - x * 0.09) * 0.25;
+  groundPos[i + 2] = ridge * 0.55 + ripple * 0.28;
+  const shade = 0.44 + ridge * 0.08 + ripple * 0.06;
+  groundColors[i] = 0.09 + shade * 0.16;
+  groundColors[i + 1] = 0.22 + shade * 0.34;
+  groundColors[i + 2] = 0.06 + shade * 0.1;
+}
+groundGeo.setAttribute('color', new THREE.BufferAttribute(groundColors, 3));
+groundGeo.computeVertexNormals();
+const ground = new THREE.Mesh(
+  groundGeo,
+  new THREE.MeshStandardMaterial({ color: 0x2a4d1f, roughness: 0.96, metalness: 0.02, vertexColors: true })
+);
+const groundMat = ground.material;
+ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+const grid = new THREE.GridHelper(300, 120, 0x1a3018, 0x142810);
+grid.position.y = 0.03; grid.material.transparent = true; grid.material.opacity = 0.06; scene.add(grid);
+
+// ─── Environment: gray pine trees ───
+const trunkMat = new THREE.MeshStandardMaterial({ color: 0x2a2a30, roughness: 0.9, metalness: 0.05 });
+const foliageMat = new THREE.MeshStandardMaterial({ color: 0x313941, roughness: 0.84, metalness: 0.06, emissive: 0x0c1218, emissiveIntensity: 0.22 });
+const treeTrunkMats = [];
+const treeFoliageMats = [];
+for (let i = 0; i < 40; i++) {
+  const tree = new THREE.Group();
+  const h = 2 + Math.random() * 5;
+  const trunkR = 0.06 + Math.random() * 0.06;
+  const leanX = (Math.random() - 0.5) * 0.05;
+  const leanZ = (Math.random() - 0.5) * 0.05;
+  // Trunk
+  const trunk = new THREE.Mesh(new THREE.CylinderGeometry(trunkR * 0.6, trunkR, h * 0.4, 8), trunkMat.clone());
+  trunk.position.y = h * 0.2; trunk.castShadow = true;
+  trunk.material.color.offsetHSL(0, 0, (Math.random() - 0.5) * 0.04);
+  treeTrunkMats.push(trunk.material);
+  tree.add(trunk);
+  // 4-5 cone layers for pine foliage
+  const layers = 4 + Math.floor(Math.random() * 2);
+  for (let j = 0; j < layers; j++) {
+    const t = j / layers;
+    const coneH = h * (0.33 - t * 0.045);
+    const coneR = (0.6 + Math.random() * 0.34) * (1 - t * 0.3);
+    const cone = new THREE.Mesh(new THREE.ConeGeometry(coneR, coneH, 8), foliageMat.clone());
+    cone.position.set(leanX * (j + 1) * 1.2, h * 0.28 + t * h * 0.48, leanZ * (j + 1) * 1.2);
+    cone.material.color.offsetHSL(-0.01 + Math.random() * 0.02, 0, -0.02 + Math.random() * 0.04);
+    cone.material.emissiveIntensity = 0.18 + Math.random() * 0.08;
+    treeFoliageMats.push(cone.material);
+    cone.castShadow = true; cone.receiveShadow = true;
+    tree.add(cone);
+  }
+  const crown = new THREE.Mesh(new THREE.ConeGeometry(0.18 + Math.random() * 0.08, 0.35 + Math.random() * 0.08, 8), foliageMat.clone());
+  crown.position.set(leanX * 6, h * 0.82, leanZ * 6);
+  crown.material.color.offsetHSL(-0.01 + Math.random() * 0.02, 0, 0.03);
+  crown.material.emissiveIntensity = 0.22;
+  treeFoliageMats.push(crown.material);
+  crown.castShadow = true;
+  tree.add(crown);
+  tree.rotation.z = leanX * 0.35;
+  tree.rotation.x = -leanZ * 0.35;
+  tree.position.set((Math.random() - 0.5) * 100, 0, (Math.random() - 0.5) * 100);
+  scene.add(tree);
+}
+
+// ═══════════════════════════════════════════════════════
+// ─── DAY / NIGHT CYCLE ───
+// ═══════════════════════════════════════════════════════
+const DAY_DURATION = 8 * 60;
+const NIGHT_DURATION = 60;
+const CYCLE_DURATION = DAY_DURATION + NIGHT_DURATION;
+const dayNight = { timer: 0, isNight: false, nightMix: 0, nightCount: 0, cycleLabel: 'Day 8:00' };
+const cycleColors = {
+  fogNight: new THREE.Color(0x0b1324),
+  fogDay: new THREE.Color(0x9fc3eb),
+  groundNight: new THREE.Color(0x2a4d1f),
+  groundDay: new THREE.Color(0x72a84e),
+  trunkNight: new THREE.Color(0x303238),
+  trunkDay: new THREE.Color(0x675643),
+  foliageNight: new THREE.Color(0x313941),
+  foliageDay: new THREE.Color(0x61775f)
+};
+
+function formatCountdown(seconds) {
+  const total = Math.max(0, Math.ceil(seconds));
+  const mins = Math.floor(total / 60);
+  const secs = total % 60;
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+function showHint(text, seconds = 4.5) {
+  hint.textContent = text;
+  hint.classList.remove('hide');
+  hintTimer = seconds;
+}
+
+function resetAfterDefeat() {
+  combat.health = combat.maxHealth;
+  combat.attackCooldown = 0;
+  combat.attackSwing = 0;
+  combat.invuln = 0;
+  cs.pos.set(0, 0, 0);
+  cs.speed = 0;
+  clearCarnivores();
+  dayNight.timer = 0;
+  dayNight.isNight = false;
+  dayNight.nightMix = 0;
+  showHint('The carnivores overwhelmed you. Dawn returns. Recover and prepare.', 5.5);
+}
+
+function updateDayNight(dt) {
+  const prevNight = dayNight.isNight;
+  dayNight.timer = (dayNight.timer + dt) % CYCLE_DURATION;
+  dayNight.isNight = dayNight.timer >= DAY_DURATION;
+  let nightTarget = 0;
+  if (dayNight.timer > DAY_DURATION - 18 && dayNight.timer < DAY_DURATION) {
+    nightTarget = smoothstep(DAY_DURATION - 18, DAY_DURATION, dayNight.timer);
+  } else if (dayNight.timer >= DAY_DURATION && dayNight.timer < CYCLE_DURATION - 14) {
+    nightTarget = 1;
+  } else if (dayNight.timer >= CYCLE_DURATION - 14) {
+    nightTarget = 1 - smoothstep(CYCLE_DURATION - 14, CYCLE_DURATION, dayNight.timer);
+  }
+  dayNight.nightMix = dampV(dayNight.nightMix, nightTarget, 2.2, dt);
+  const dayMix = 1 - dayNight.nightMix;
+
+  ambientLight.intensity = lerp(0.7, 1.18, dayMix);
+  hemiLight.intensity = lerp(0.55, 1.05, dayMix);
+  sun.intensity = lerp(0.42, 1.28, dayMix);
+  sun.color.setRGB(lerp(0.72, 1.0, dayMix), lerp(0.82, 0.95, dayMix), lerp(1.0, 0.84, dayMix));
+  moonFill.intensity = lerp(0.46, 0.1, dayMix);
+  rimFill.intensity = lerp(0.54, 0.2, dayMix);
+  renderer.toneMappingExposure = lerp(0.96, 1.34, dayMix);
+  scene.fog.density = lerp(0.013, 0.0084, dayMix);
+  scene.fog.color.copy(cycleColors.fogNight).lerp(cycleColors.fogDay, dayMix);
+  groundMat.color.copy(cycleColors.groundNight).lerp(cycleColors.groundDay, dayMix);
+  skyMat.uniforms.uDay.value = dayMix;
+
+  for (const mat of treeTrunkMats) {
+    mat.color.copy(cycleColors.trunkNight).lerp(cycleColors.trunkDay, dayMix);
+  }
+  for (const mat of treeFoliageMats) {
+    mat.color.copy(cycleColors.foliageNight).lerp(cycleColors.foliageDay, dayMix);
+    mat.emissiveIntensity = lerp(0.22, 0.04, dayMix);
+  }
+
+  if (dayNight.isNight && !prevNight) {
+    dayNight.nightCount++;
+    spawnNightCarnivores();
+    showHint('Night falls. Carnivores are hunting. Press F to strike.', 6);
+  } else if (!dayNight.isNight && prevNight) {
+    clearCarnivores();
+    showHint('Dawn breaks. The forest breathes again.', 4.5);
+  }
+
+  const remaining = dayNight.isNight ? CYCLE_DURATION - dayNight.timer : DAY_DURATION - dayNight.timer;
+  dayNight.cycleLabel = `${dayNight.isNight ? 'Night' : 'Day'} ${formatCountdown(remaining)}`;
+}
+
+// ═══════════════════════════════════════════════════════
+// ─── VEGETARIAN FOOD (berries + mushrooms) ───
+// ═══════════════════════════════════════════════════════
+const hunger = { value: 100, drainMove: 1.2, drainIdle: 0.3, max: 100 };
+const foods = [];
+const FOOD_RESPAWN = 30; // seconds
+const combat = { maxHealth: 100, health: 100, attackCooldown: 0, attackSwing: 0, invuln: 0, queued: false };
+const ATTACK_WINDOW = 0.18;
+
+function makeBerryBush(x, z) {
+  const g = new THREE.Group(); g.position.set(x, 0, z);
+  // Bush body
+  const bush = new THREE.Mesh(new THREE.SphereGeometry(0.25, 10, 8), new THREE.MeshStandardMaterial({ color: 0x2a4a20, roughness: 0.88 }));
+  bush.position.y = 0.22; bush.scale.set(1.2, 0.8, 1.1); g.add(bush);
+  // Berries (3-5 red/purple spheres)
+  const berryCount = 3 + Math.floor(Math.random() * 3);
+  for (let i = 0; i < berryCount; i++) {
+    const a = (i / berryCount) * Math.PI * 2 + Math.random() * 0.5;
+    const berry = new THREE.Mesh(new THREE.SphereGeometry(0.035, 6, 5),
+      new THREE.MeshStandardMaterial({ color: Math.random() > 0.5 ? 0xcc2244 : 0x8822aa, roughness: 0.5, emissive: 0x220808, emissiveIntensity: 0.15 }));
+    berry.position.set(Math.cos(a) * 0.18, 0.28 + Math.random() * 0.08, Math.sin(a) * 0.16);
+    g.add(berry);
+  }
+  scene.add(g);
+  return { group: g, x, z, type: 'berries', restoreAmt: 25, available: true, respawnTimer: 0 };
+}
+
+function makeMushroom(x, z) {
+  const g = new THREE.Group(); g.position.set(x, 0, z);
+  // Stem
+  const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.03, 0.1, 8), new THREE.MeshStandardMaterial({ color: 0xe8dcc8, roughness: 0.8 }));
+  stem.position.y = 0.05; g.add(stem);
+  // Cap
+  const cap = new THREE.Mesh(new THREE.SphereGeometry(0.06, 10, 6, 0, Math.PI * 2, 0, Math.PI * 0.55),
+    new THREE.MeshStandardMaterial({ color: 0x8b5e3c, roughness: 0.7, emissive: 0x1a0c04, emissiveIntensity: 0.1 }));
+  cap.position.y = 0.1; g.add(cap);
+  // Spots
+  for (let i = 0; i < 3; i++) {
+    const spot = new THREE.Mesh(new THREE.CircleGeometry(0.012, 6), new THREE.MeshBasicMaterial({ color: 0xf0e8d0, transparent: true, opacity: 0.7 }));
+    const a = (i / 3) * Math.PI * 2 + 0.3;
+    spot.position.set(Math.cos(a) * 0.04, 0.12, Math.sin(a) * 0.04);
+    spot.lookAt(spot.position.clone().add(new THREE.Vector3(Math.cos(a), 0.5, Math.sin(a))));
+    g.add(spot);
+  }
+  scene.add(g);
+  return { group: g, x, z, type: 'mushroom', restoreAmt: 15, available: true, respawnTimer: 0 };
+}
+
+// Spawn food scattered around the forest
+for (let i = 0; i < 10; i++) {
+  const a = Math.random() * Math.PI * 2, d = 5 + Math.random() * 40;
+  foods.push(makeBerryBush(Math.cos(a) * d, Math.sin(a) * d));
+}
+for (let i = 0; i < 12; i++) {
+  const a = Math.random() * Math.PI * 2, d = 3 + Math.random() * 45;
+  foods.push(makeMushroom(Math.cos(a) * d, Math.sin(a) * d));
+}
+
+function updateFood(dt) {
+  const EAT_DIST = 1.2;
+  for (const f of foods) {
+    if (!f.available) {
+      f.respawnTimer -= dt;
+      if (f.respawnTimer <= 0) {
+        f.available = true;
+        f.group.visible = true;
+      }
+      continue;
+    }
+    // Proximity eat check
+    const dx = cs.pos.x - f.x, dz = cs.pos.z - f.z;
+    if (dx * dx + dz * dz < EAT_DIST * EAT_DIST && hunger.value < hunger.max - 1) {
+      f.available = false;
+      f.group.visible = false;
+      f.respawnTimer = FOOD_RESPAWN;
+      hunger.value = Math.min(hunger.max, hunger.value + f.restoreAmt);
+      // Brief sparkle at eat location
+      emitSparkles(new THREE.Vector3(f.x, 0.4, f.z), 8);
+      // Pulse hunger HUD
+      const hb = document.getElementById('hungerBox');
+      hb.style.transform = 'scale(1.12)'; hb.style.transition = 'transform 0.15s';
+      setTimeout(() => { hb.style.transform = 'scale(1)'; }, 200);
+    }
+  }
+  // Drain hunger
+  const drain = cs.isMoving ? hunger.drainMove : hunger.drainIdle;
+  hunger.value = Math.max(0, hunger.value - drain * dt);
+}
+
+// ═══════════════════════════════════════════════════════
+// ─── COLLECTIBLE ORBS ───
+// ═══════════════════════════════════════════════════════
+const ORB_TOTAL = 12;
+const mission = { collected: 0, total: ORB_TOTAL, complete: false, celebTimer: 0 };
+const orbs = [];
+const orbSparkles = []; // collect-burst particles
+const orbGeo = new THREE.SphereGeometry(0.18, 16, 12);
+const orbInnerGeo = new THREE.SphereGeometry(0.08, 12, 8);
+const orbRingGeo = new THREE.TorusGeometry(0.22, 0.018, 8, 28);
+for (let i = 0; i < ORB_TOTAL; i++) {
+  const angle = (i / ORB_TOTAL) * Math.PI * 2 + (Math.random() - 0.5) * 0.8;
+  const dist = 8 + Math.random() * 35;
+  const x = Math.cos(angle) * dist;
+  const z = Math.sin(angle) * dist;
+  const group = new THREE.Group();
+  group.position.set(x, 0.8, z);
+  // Outer glow shell
+  const shell = new THREE.Mesh(orbGeo, new THREE.MeshBasicMaterial({
+    color: 0x88ff44, transparent: true, opacity: 0.15, depthWrite: false, blending: THREE.AdditiveBlending
+  }));
+  // Inner bright core
+  const core = new THREE.Mesh(orbInnerGeo, new THREE.MeshBasicMaterial({
+    color: 0xccff66, transparent: true, opacity: 0.7, blending: THREE.AdditiveBlending
+  }));
+  const ringA = new THREE.Mesh(orbRingGeo, new THREE.MeshBasicMaterial({
+    color: 0xf2ff9d, transparent: true, opacity: 0.28, depthWrite: false, blending: THREE.AdditiveBlending
+  }));
+  ringA.rotation.x = Math.PI * 0.5;
+  const ringB = new THREE.Mesh(orbRingGeo, new THREE.MeshBasicMaterial({
+    color: 0x9fffaa, transparent: true, opacity: 0.18, depthWrite: false, blending: THREE.AdditiveBlending
+  }));
+  ringB.rotation.set(Math.PI * 0.2, 0, Math.PI * 0.46);
+  // Point light
+  const light = new THREE.PointLight(0xbaff66, 0.8, 7.5);
+  group.add(shell, ringA, ringB, core, light);
+  scene.add(group);
+  orbs.push({ group, shell, ringA, ringB, core, light, collected: false, x, z, phase: Math.random() * Math.PI * 2 });
+}
+
+// Sparkle pool for collection bursts
+const SPARKLE_N = 120;
+const sparklePos = new Float32Array(SPARKLE_N * 3);
+const sparkleVel = [];
+const sparkleAge = new Float32Array(SPARKLE_N);
+for (let i = 0; i < SPARKLE_N; i++) { sparklePos[i*3+1] = -10; sparkleVel.push(new THREE.Vector3()); }
+const sparkleGeo = new THREE.BufferGeometry();
+sparkleGeo.setAttribute('position', new THREE.BufferAttribute(sparklePos, 3));
+const sparklePts = new THREE.Points(sparkleGeo, new THREE.PointsMaterial({
+  color: 0xccff88, size: 0.05, transparent: true, opacity: 0.6, depthWrite: false, blending: THREE.AdditiveBlending
+}));
+scene.add(sparklePts);
+let sparkleIdx = 0;
+
+// Celebration burst pool
+const CELEB_N = 200;
+const celebPos = new Float32Array(CELEB_N * 3);
+const celebVel = [];
+const celebAge = new Float32Array(CELEB_N);
+for (let i = 0; i < CELEB_N; i++) { celebPos[i*3+1] = -10; celebVel.push(new THREE.Vector3()); }
+const celebGeo = new THREE.BufferGeometry();
+celebGeo.setAttribute('position', new THREE.BufferAttribute(celebPos, 3));
+const celebPts = new THREE.Points(celebGeo, new THREE.PointsMaterial({
+  color: 0xffee66, size: 0.08, transparent: true, opacity: 0.7, depthWrite: false, blending: THREE.AdditiveBlending
+}));
+scene.add(celebPts);
+
+function emitSparkles(origin, count) {
+  for (let i = 0; i < count; i++) {
+    const idx = sparkleIdx % SPARKLE_N;
+    sparklePos[idx*3] = origin.x + (Math.random()-0.5)*0.2;
+    sparklePos[idx*3+1] = origin.y + (Math.random()-0.5)*0.2;
+    sparklePos[idx*3+2] = origin.z + (Math.random()-0.5)*0.2;
+    sparkleVel[idx].set((Math.random()-0.5)*2, 1+Math.random()*2, (Math.random()-0.5)*2);
+    sparkleAge[idx] = 1;
+    sparkleIdx++;
+  }
+}
+
+function emitCelebration(origin) {
+  for (let i = 0; i < CELEB_N; i++) {
+    celebPos[i*3] = origin.x + (Math.random()-0.5)*0.3;
+    celebPos[i*3+1] = origin.y;
+    celebPos[i*3+2] = origin.z + (Math.random()-0.5)*0.3;
+    const a = Math.random()*Math.PI*2, sp = 1+Math.random()*3;
+    celebVel[i].set(Math.cos(a)*sp*(0.5+Math.random()), 3+Math.random()*4, Math.sin(a)*sp*(0.5+Math.random()));
+    celebAge[i] = 1;
+  }
+}
+
+function updateOrbs(time, dt) {
+  const COLLECT_DIST = 1.5;
+  for (const orb of orbs) {
+    if (orb.collected) continue;
+    // Float + pulse animation
+    const p = Math.sin(time * 1.2 + orb.phase);
+    const flare = 0.5 + Math.abs(p) * 0.5;
+    orb.group.position.y = 0.8 + p * 0.15;
+    orb.core.scale.setScalar(0.92 + flare * 0.16);
+    orb.shell.scale.setScalar(1.08 + flare * 0.26);
+    orb.shell.material.opacity = 0.14 + flare * 0.12;
+    orb.ringA.rotation.z += dt * 0.95;
+    orb.ringB.rotation.y -= dt * 0.7;
+    orb.ringA.material.opacity = 0.16 + flare * 0.24;
+    orb.ringB.material.opacity = 0.1 + flare * 0.16;
+    orb.light.intensity = 0.5 + flare * 0.65;
+    // Proximity check
+    const dx = cs.pos.x - orb.x, dz = cs.pos.z - orb.z;
+    if (dx*dx + dz*dz < COLLECT_DIST * COLLECT_DIST) {
+      orb.collected = true;
+      orb.group.visible = false;
+      mission.collected++;
+      emitSparkles(orb.group.position, 18);
+      // Pulse HUD
+      const orbBox = document.getElementById('orbBox');
+      orbBox.style.transform = 'scale(1.15)'; orbBox.style.transition = 'transform 0.15s';
+      setTimeout(() => { orbBox.style.transform = 'scale(1)'; }, 200);
+      // Check completion
+      if (mission.collected >= mission.total && !mission.complete) {
+        mission.complete = true;
+        mission.celebTimer = 5;
+        emitCelebration(new THREE.Vector3(cs.pos.x, 1.5, cs.pos.z));
+      }
+    }
+  }
+  // Update sparkle particles
+  for (let i = 0; i < SPARKLE_N; i++) {
+    if (sparkleAge[i] > 0) {
+      sparkleAge[i] -= dt * 1.2;
+      sparklePos[i*3] += sparkleVel[i].x * dt; sparklePos[i*3+1] += sparkleVel[i].y * dt; sparklePos[i*3+2] += sparkleVel[i].z * dt;
+      sparkleVel[i].y -= dt * 3; // gravity
+      if (sparkleAge[i] <= 0) { sparkleAge[i] = 0; sparklePos[i*3+1] = -10; }
+    }
+  }
+  sparkleGeo.attributes.position.needsUpdate = true;
+  // Update celebration particles
+  if (mission.celebTimer > 0) {
+    mission.celebTimer -= dt;
+    for (let i = 0; i < CELEB_N; i++) {
+      if (celebAge[i] > 0) {
+        celebAge[i] -= dt * 0.25;
+        celebPos[i*3] += celebVel[i].x * dt; celebPos[i*3+1] += celebVel[i].y * dt; celebPos[i*3+2] += celebVel[i].z * dt;
+        celebVel[i].y -= dt * 2.5;
+        if (celebAge[i] <= 0) { celebAge[i] = 0; celebPos[i*3+1] = -10; }
+      }
+    }
+    celebGeo.attributes.position.needsUpdate = true;
+    // Brighten fireflies during celebration
+    for (const f of fireflies) { f.light.intensity = Math.max(f.light.intensity, 0.8); f.dot.material.opacity = Math.max(f.dot.material.opacity, 0.7); }
+  }
+}
+// ═══════════════════════════════════════════════════════
+// ─── BUILD HUMANOID ───
+// ═══════════════════════════════════════════════════════
+function buildHumanoid() {
+  const root = new THREE.Group();
+  const skinMat = new THREE.MeshStandardMaterial({ color: 0xd7ad91, roughness: 0.66, emissive: 0x120805, emissiveIntensity: 0.06 });
+  const clothMat = new THREE.MeshStandardMaterial({ color: 0x2f3856, roughness: 0.76, metalness: 0.04 });
+  const pantsMat = new THREE.MeshStandardMaterial({ color: 0x22273d, roughness: 0.8, metalness: 0.03 });
+  const shoeMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.9 });
+  const hairMat = new THREE.MeshStandardMaterial({ color: 0x251913, roughness: 0.88 });
+  const eyeWhiteMat = new THREE.MeshPhysicalMaterial({ color: 0xf0f2f4, roughness: 0.15, clearcoat: 0.4 });
+  const irisMat = new THREE.MeshPhysicalMaterial({ color: 0x5a9be0, roughness: 0.22, metalness: 0.08, emissive: 0x10233c, emissiveIntensity: 0.08 });
+  const pupilMat = new THREE.MeshBasicMaterial({ color: 0x020406 });
+
+  const headR = 0.12, headY = 1.62;
+
+  // ── Head ──
+  const headGroup = new THREE.Group();
+  headGroup.position.y = headY;
+  const skull = new THREE.Mesh(new THREE.SphereGeometry(headR, 24, 20), skinMat.clone());
+  skull.scale.set(1, 1.12, 1.0); headGroup.add(skull);
+  // Hair
+  const hair = new THREE.Mesh(new THREE.SphereGeometry(headR * 1.06, 20, 16, 0, Math.PI * 2, 0, Math.PI * 0.55), hairMat.clone());
+  hair.position.y = 0.02; hair.scale.set(1, 1.08, 1.02); headGroup.add(hair);
+  // Hair back
+  const hairBack = new THREE.Mesh(new THREE.SphereGeometry(headR * 0.9, 16, 12, 0, Math.PI * 2, Math.PI * 0.3, Math.PI * 0.4), hairMat.clone());
+  hairBack.position.set(0, -0.01, -headR * 0.4); hairBack.scale.set(1, 1.1, 0.8); headGroup.add(hairBack);
+  // Eyes
+  const makeEye = (x) => {
+    const g = new THREE.Group();
+    g.add(new THREE.Mesh(new THREE.SphereGeometry(0.018, 16, 12), eyeWhiteMat.clone()));
+    const iris = new THREE.Mesh(new THREE.SphereGeometry(0.01, 12, 8), irisMat.clone());
+    iris.position.z = 0.014; g.add(iris);
+    const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.005, 8, 6), pupilMat.clone());
+    pupil.position.z = 0.017; g.add(pupil);
+    const hl = new THREE.Mesh(new THREE.SphereGeometry(0.003, 6, 4), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+    hl.position.set(0.005, 0.005, 0.018); g.add(hl);
+    g.position.set(x, 0.01, headR * 0.88);
+    return g;
+  };
+  headGroup.add(makeEye(-0.035), makeEye(0.035));
+  // Brows
+  [-0.035, 0.035].forEach(x => {
+    const brow = new THREE.Mesh(new THREE.CapsuleGeometry(0.004, 0.03, 4, 8), hairMat.clone());
+    brow.position.set(x, 0.035, headR * 0.88); brow.rotation.z = x > 0 ? -0.1 : 0.1; headGroup.add(brow);
+  });
+  // Nose
+  const nose = new THREE.Mesh(new THREE.SphereGeometry(0.012, 10, 8), skinMat.clone());
+  nose.position.set(0, -0.01, headR * 0.95); nose.scale.set(0.7, 0.5, 0.8); headGroup.add(nose);
+  // Mouth
+  const mouth = new THREE.Mesh(new THREE.TorusGeometry(0.016, 0.003, 6, 16, Math.PI),
+    new THREE.MeshStandardMaterial({ color: 0x9c3848, roughness: 0.45 }));
+  mouth.position.set(0, -0.04, headR * 0.85); mouth.rotation.z = Math.PI; mouth.scale.set(0.8, 0.5, 0.5);
+  headGroup.add(mouth);
+  // Ears
+  [-1, 1].forEach(s => {
+    const ear = new THREE.Mesh(new THREE.SphereGeometry(0.015, 8, 6), skinMat.clone());
+    ear.position.set(s * headR * 0.92, 0.01, 0); ear.scale.set(0.4, 0.7, 0.3); headGroup.add(ear);
+  });
+  // Face forward (character walks along -Z)
+  headGroup.rotation.y = Math.PI;
+
+  // ── Neck ──
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.08, 12), skinMat.clone());
+  neck.position.y = 1.49;
+
+  // ── Torso ──
+  const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.13, 0.52, 16), clothMat.clone());
+  torso.position.y = 1.12;
+
+  // ── Hips ──
+  const hips = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.12, 0.12, 12), pantsMat.clone());
+  hips.position.y = 0.84;
+
+  // ── Shoulders ──
+  const lShoulder = new THREE.Mesh(new THREE.SphereGeometry(0.055, 12, 10), clothMat.clone());
+  lShoulder.position.set(-0.19, 1.34, 0);
+  const rShoulder = new THREE.Mesh(new THREE.SphereGeometry(0.055, 12, 10), clothMat.clone());
+  rShoulder.position.set(0.19, 1.34, 0);
+
+  // ── Arms ──
+  const makeArm = (side) => {
+    const pivot = new THREE.Group();
+    pivot.position.set(side * 0.21, 1.32, 0);
+    const upper = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.028, 0.30, 10), clothMat.clone());
+    upper.position.y = -0.15;
+    const lower = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.024, 0.28, 10), skinMat.clone());
+    lower.position.y = -0.30 - 0.14;
+    const hand = new THREE.Mesh(new THREE.SphereGeometry(0.025, 8, 6), skinMat.clone());
+    hand.position.y = -0.30 - 0.28 - 0.02; hand.scale.set(0.8, 1, 0.6);
+    pivot.add(upper, lower, hand);
+    return pivot;
+  };
+  const leftArm = makeArm(-1), rightArm = makeArm(1);
+
+  // ── Legs ──
+  const makeLeg = (side) => {
+    const pivot = new THREE.Group();
+    pivot.position.set(side * 0.065, 0.78, 0);
+    const upper = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.04, 0.40, 12), pantsMat.clone());
+    upper.position.y = -0.20;
+    const lower = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.035, 0.38, 12), pantsMat.clone());
+    lower.position.y = -0.40 - 0.19;
+    const foot = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.04, 0.1), shoeMat.clone());
+    foot.position.set(0, -0.40 - 0.38 - 0.01, 0.015);
+    pivot.add(upper, lower, foot);
+    return pivot;
+  };
+  const leftLeg = makeLeg(-1), rightLeg = makeLeg(1);
+
+  root.add(headGroup, neck, torso, hips, lShoulder, rShoulder, leftArm, rightArm, leftLeg, rightLeg);
+  root.traverse(c => { if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; } });
+
+  return { root, headGroup, neck, torso, hips, leftArm, rightArm, leftLeg, rightLeg, lShoulder, rShoulder };
+}
+
+const char = buildHumanoid();
+scene.add(char.root);
+
+// ═══════════════════════════════════════════════════════
+// ─── NIGHT CARNIVORES ───
+// ═══════════════════════════════════════════════════════
+const carnivores = [];
+
+function buildCarnivore(x, z) {
+  const root = new THREE.Group();
+  root.position.set(x, 0, z);
+  const furMat = new THREE.MeshStandardMaterial({ color: 0x4f4037, roughness: 0.86, metalness: 0.02 });
+  const underMat = new THREE.MeshStandardMaterial({ color: 0x8d7967, roughness: 0.88, metalness: 0.02 });
+  const eyeMat = new THREE.MeshBasicMaterial({ color: 0xff5a48 });
+  const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.12, 0.52, 5, 10), furMat.clone());
+  body.rotation.z = Math.PI * 0.5;
+  body.position.y = 0.38;
+  const chest = new THREE.Mesh(new THREE.CapsuleGeometry(0.09, 0.2, 4, 8), underMat.clone());
+  chest.position.set(0.2, 0.34, 0);
+  chest.rotation.z = Math.PI * 0.48;
+  const head = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.14, 0.18), furMat.clone());
+  head.position.set(0.38, 0.45, 0);
+  const snout = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.08, 0.09), underMat.clone());
+  snout.position.set(0.49, 0.4, 0);
+  const jaw = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.04, 0.08), underMat.clone());
+  jaw.position.set(0.48, 0.36, 0);
+  const earL = new THREE.Mesh(new THREE.ConeGeometry(0.035, 0.08, 4), furMat.clone());
+  earL.position.set(0.35, 0.55, 0.05); earL.rotation.z = -0.3;
+  const earR = earL.clone(); earR.position.z = -0.05;
+  const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.015, 6, 4), eyeMat);
+  eyeL.position.set(0.44, 0.46, 0.045);
+  const eyeR = eyeL.clone(); eyeR.position.z = -0.045;
+  const tail = new THREE.Mesh(new THREE.CapsuleGeometry(0.028, 0.24, 3, 6), furMat.clone());
+  tail.position.set(-0.38, 0.43, 0); tail.rotation.z = -0.9;
+  const legOffsets = [[0.18, 0.2, 0.08], [0.18, 0.2, -0.08], [-0.16, 0.2, 0.08], [-0.16, 0.2, -0.08]];
+  const legs = legOffsets.map(([lx, ly, lz]) => {
+    const leg = new THREE.Mesh(new THREE.CapsuleGeometry(0.03, 0.24, 3, 6), furMat.clone());
+    leg.position.set(lx, ly, lz);
+    root.add(leg);
+    return leg;
+  });
+  root.add(body, chest, head, snout, jaw, earL, earR, eyeL, eyeR, tail);
+  root.traverse(node => { if (node.isMesh) { node.castShadow = true; node.receiveShadow = true; } });
+  scene.add(root);
+  return { root, body, head, jaw, tail, legs, health: 2 + Math.floor(Math.random() * 2), speed: 1.65 + Math.random() * 0.45, attackCd: 0, phase: Math.random() * Math.PI * 2, hitFlash: 0 };
+}
+
+function clearCarnivores() {
+  while (carnivores.length) {
+    const enemy = carnivores.pop();
+    scene.remove(enemy.root);
+  }
+}
+
+function spawnNightCarnivores() {
+  clearCarnivores();
+  const count = 3 + Math.min(4, dayNight.nightCount);
+  for (let i = 0; i < count; i++) {
+    const angle = (i / count) * Math.PI * 2 + Math.random() * 0.4;
+    const dist = 10 + Math.random() * 7;
+    carnivores.push(buildCarnivore(cs.pos.x + Math.cos(angle) * dist, cs.pos.z + Math.sin(angle) * dist));
+  }
+}
+
+function triggerAttack() {
+  combat.queued = false;
+  combat.attackCooldown = 0.45;
+  combat.attackSwing = ATTACK_WINDOW;
+  const forward = new THREE.Vector3(Math.sin(cs.heading), 0, Math.cos(cs.heading));
+  const attackOrigin = new THREE.Vector3(cs.pos.x, 0.8, cs.pos.z);
+  let hitCount = 0;
+  for (let i = carnivores.length - 1; i >= 0; i--) {
+    const enemy = carnivores[i];
+    const delta = enemy.root.position.clone().sub(cs.pos);
+    const dist = delta.length();
+    if (dist > 1.9) continue;
+    delta.y = 0; delta.normalize();
+    if (delta.dot(forward) < 0.1) continue;
+    hitCount++;
+    enemy.health -= 1;
+    enemy.hitFlash = 0.18;
+    emitSparkles(enemy.root.position.clone().setY(0.55), 10);
+    if (enemy.health <= 0) {
+      emitSparkles(enemy.root.position.clone().setY(0.6), 16);
+      scene.remove(enemy.root);
+      carnivores.splice(i, 1);
+    }
+  }
+  if (!hitCount) {
+    emitSparkles(attackOrigin.add(forward.multiplyScalar(1.2)), 4);
+  }
+}
+
+function updateCombat(dt) {
+  combat.attackCooldown = Math.max(0, combat.attackCooldown - dt);
+  combat.attackSwing = Math.max(0, combat.attackSwing - dt);
+  combat.invuln = Math.max(0, combat.invuln - dt);
+  if (combat.queued && combat.attackCooldown <= 0) {
+    triggerAttack();
+  }
+}
+
+function updateCarnivores(time, dt) {
+  for (let i = carnivores.length - 1; i >= 0; i--) {
+    const enemy = carnivores[i];
+    enemy.attackCd = Math.max(0, enemy.attackCd - dt);
+    enemy.hitFlash = Math.max(0, enemy.hitFlash - dt);
+    const toPlayer = new THREE.Vector3(cs.pos.x - enemy.root.position.x, 0, cs.pos.z - enemy.root.position.z);
+    const dist = Math.max(0.001, toPlayer.length());
+    toPlayer.divideScalar(dist);
+    if (dist > 0.92) {
+      const huntSpeed = enemy.speed * (0.72 + dayNight.nightMix * 0.68);
+      enemy.root.position.x += (toPlayer.x + Math.sin(time * 2 + enemy.phase) * 0.08) * huntSpeed * dt;
+      enemy.root.position.z += (toPlayer.z + Math.cos(time * 2.4 + enemy.phase) * 0.08) * huntSpeed * dt;
+    }
+    enemy.root.lookAt(cs.pos.x, 0.38, cs.pos.z);
+    const gait = time * 9 + enemy.phase;
+    enemy.legs[0].rotation.z = Math.sin(gait) * 0.38;
+    enemy.legs[1].rotation.z = Math.sin(gait + Math.PI) * 0.38;
+    enemy.legs[2].rotation.z = Math.sin(gait + Math.PI) * 0.34;
+    enemy.legs[3].rotation.z = Math.sin(gait) * 0.34;
+    enemy.tail.rotation.y = Math.sin(time * 6 + enemy.phase) * 0.35;
+    enemy.jaw.rotation.z = dist < 1.3 ? -0.18 : 0;
+    const flash = enemy.hitFlash > 0 ? 0.35 : 0;
+    enemy.head.material.emissive.setRGB(flash, flash * 0.2, flash * 0.12);
+    if (dist < 1.08 && enemy.attackCd <= 0 && combat.invuln <= 0) {
+      combat.health = Math.max(0, combat.health - 14);
+      combat.invuln = 0.8;
+      enemy.attackCd = 0.95;
+      emitSparkles(new THREE.Vector3(cs.pos.x, 0.8, cs.pos.z), 12);
+      if (combat.health <= 0) {
+        resetAfterDefeat();
+        return;
+      }
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// ─── INPUT ───
+// ═══════════════════════════════════════════════════════
+const keys = {};
+let mouseX = 0, mouseY = 0.3, isLocked = false;
+let gameStarted = false;
+document.addEventListener('keydown', e => {
+  keys[e.code] = true;
+  if (e.code === 'KeyF' && !e.repeat) combat.queued = true;
+});
+document.addEventListener('keyup', e => { keys[e.code] = false; });
+canvas.addEventListener('click', () => { if (gameStarted) canvas.requestPointerLock(); });
+document.addEventListener('pointerlockchange', () => { isLocked = !!document.pointerLockElement; });
+document.addEventListener('mousemove', e => {
+  if (!isLocked) return;
+  mouseX -= e.movementX * 0.002;
+  mouseY = clamp(mouseY + e.movementY * 0.002, -0.8, 1.4);
+});
+
+// ─── Start Screen ───
+const startScreen = document.getElementById('startScreen');
+const brandUI = document.getElementById('brandUI');
+const hudPanel = document.getElementById('hudPanel');
+startScreen.addEventListener('click', () => {
+  if (gameStarted) return;
+  gameStarted = true;
+  startScreen.classList.add('hiding');
+  setTimeout(() => { startScreen.classList.add('hidden'); }, 1600);
+  // Fade in game UI
+  setTimeout(() => {
+    brandUI.style.opacity = '1';
+    document.getElementById('hint').style.opacity = '1';
+    hudPanel.style.opacity = '1';
+    hintTimer = 8;
+  }, 800);
+});
+
+// ═══════════════════════════════════════════════════════
+// ─── CHARACTER CONTROLLER ───
+// ═══════════════════════════════════════════════════════
+const cs = { pos: new THREE.Vector3(), heading: 0, speed: 0, walkCycle: 0, isRunning: false, isMoving: false };
+const WALK_SPEED = 3.0, RUN_SPEED = 6.5, ACCEL = 12, DECEL = 10, TURN_SPEED = 8;
+
+function updateCharacter(dt) {
+  let fwd = 0, strafe = 0;
+  if (keys['KeyW'] || keys['ArrowUp']) fwd -= 1;
+  if (keys['KeyS'] || keys['ArrowDown']) fwd += 1;
+  if (keys['KeyA'] || keys['ArrowLeft']) strafe += 1;
+  if (keys['KeyD'] || keys['ArrowRight']) strafe -= 1;
+  cs.isRunning = !!(keys['ShiftLeft'] || keys['ShiftRight']);
+  cs.isMoving = fwd !== 0 || strafe !== 0;
+
+  const maxSpd = (cs.isRunning ? RUN_SPEED : WALK_SPEED) * (hunger.value > 20 ? 1 : hunger.value > 0 ? 0.4 + (hunger.value / 20) * 0.6 : 0.2);
+
+  if (cs.isMoving) {
+    // Face camera direction when moving forward/back
+    const tgtHeading = mouseX;
+    let diff = tgtHeading - cs.heading;
+    while (diff > Math.PI) diff -= Math.PI * 2;
+    while (diff < -Math.PI) diff += Math.PI * 2;
+    cs.heading += diff * Math.min(1, TURN_SPEED * dt);
+    cs.speed = dampV(cs.speed, maxSpd, ACCEL, dt);
+  } else {
+    cs.speed = dampV(cs.speed, 0, DECEL, dt);
+  }
+
+  if (cs.speed > 0.01) {
+    // Forward/back along heading, strafe perpendicular
+    const fwdX = Math.sin(cs.heading), fwdZ = Math.cos(cs.heading);
+    const rightX = -fwdZ, rightZ = fwdX;
+    const totalFwd = fwd, totalStrafe = strafe;
+    const len = Math.sqrt(totalFwd * totalFwd + totalStrafe * totalStrafe) || 1;
+    cs.pos.x += (fwdX * totalFwd / len + rightX * totalStrafe / len) * cs.speed * dt;
+    cs.pos.z += (fwdZ * totalFwd / len + rightZ * totalStrafe / len) * cs.speed * dt;
+  }
+
+  // Walk cycle phase
+  if (cs.speed > 0.1) {
+    cs.walkCycle += dt * (cs.isRunning ? 10 : 6);
+  } else {
+    cs.walkCycle = dampV(cs.walkCycle, Math.round(cs.walkCycle / (Math.PI * 2)) * Math.PI * 2, 4, dt);
+  }
+
+  // Apply transform
+  char.root.position.set(cs.pos.x, 0, cs.pos.z);
+  char.root.rotation.y = cs.heading;
+
+  // ── Walk animation ──
+  const swing = Math.sin(cs.walkCycle);
+  const amt = clamp(cs.speed / WALK_SPEED, 0, 1);
+  const runAmt = clamp((cs.speed - WALK_SPEED) / (RUN_SPEED - WALK_SPEED), 0, 1);
+  const legMax = 0.5 + runAmt * 0.3;
+  const armMax = 0.4 + runAmt * 0.25;
+  const legAngle = swing * legMax * amt;
+  const armAngle = -swing * armMax * amt;
+  const bob = Math.abs(Math.sin(cs.walkCycle * 2)) * (0.015 + runAmt * 0.01) * amt;
+  const leanFwd = amt * (0.04 + runAmt * 0.06);
+  const strike = combat.attackSwing > 0 ? Math.sin((1 - combat.attackSwing / ATTACK_WINDOW) * Math.PI) : 0;
+
+  char.leftLeg.rotation.x = legAngle;
+  char.rightLeg.rotation.x = -legAngle;
+  char.leftArm.rotation.x = armAngle - strike * 0.15;
+  char.rightArm.rotation.x = -armAngle - strike * 1.35;
+  // Slight arm sway
+  char.leftArm.rotation.z = 0.04 + amt * 0.02;
+  char.rightArm.rotation.z = -0.04 - amt * 0.02 - strike * 0.32;
+
+  char.torso.position.y = 1.12 + bob;
+  char.headGroup.position.y = 1.62 + bob;
+  char.neck.position.y = 1.49 + bob;
+  char.lShoulder.position.y = 1.34 + bob;
+  char.rShoulder.position.y = 1.34 + bob;
+  char.torso.rotation.x = leanFwd;
+  // Torso twist
+  char.torso.rotation.y = swing * 0.04 * amt;
+  char.headGroup.rotation.y = Math.PI + (-swing * 0.03 * amt);
+  // Hip sway
+  char.hips.rotation.y = swing * 0.02 * amt;
+  char.hips.position.y = 0.84 + bob * 0.5;
+}
+
+// ═══════════════════════════════════════════════════════
+// ─── CAMERA (3rd person follow) ───
+// ═══════════════════════════════════════════════════════
+function updateCamera(dt) {
+  const d = 3.5, lookH = 1.3;
+  const cx = cs.pos.x + Math.sin(mouseX) * d * Math.cos(mouseY);
+  const cy = 1.6 + d * Math.sin(mouseY) * 0.5;
+  const cz = cs.pos.z + Math.cos(mouseX) * d * Math.cos(mouseY);
+
+  camera.position.set(
+    dampV(camera.position.x, cx, 6, dt),
+    dampV(camera.position.y, Math.max(0.4, cy), 6, dt),
+    dampV(camera.position.z, cz, 6, dt)
+  );
+  camera.lookAt(cs.pos.x, lookH, cs.pos.z);
+  sun.position.set(cs.pos.x + 20, 30, cs.pos.z + 10);
+  sun.target.position.copy(cs.pos); sun.target.updateMatrixWorld();
+}
+
+// ═══════════════════════════════════════════════════════
+// ─── AMBIENT DUST ───
+// ═══════════════════════════════════════════════════════
+const DUST_N = 200;
+const dustPos = new Float32Array(DUST_N * 3);
+for (let i = 0; i < DUST_N; i++) {
+  dustPos[i*3] = (Math.random()-0.5)*40; dustPos[i*3+1] = Math.random()*8; dustPos[i*3+2] = (Math.random()-0.5)*40;
+}
+const dustGeo = new THREE.BufferGeometry();
+dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
+scene.add(new THREE.Points(dustGeo, new THREE.PointsMaterial({ color: 0x99d8ff, size: 0.03, transparent: true, opacity: 0.15, depthWrite: false, blending: THREE.AdditiveBlending })));
+
+function updateDust(time) {
+  const dp = dustGeo.attributes.position.array;
+  for (let i = 0; i < DUST_N; i++) {
+    dp[i*3+1] += Math.sin(time + i) * 0.002;
+    const dx = dp[i*3] - cs.pos.x, dz = dp[i*3+2] - cs.pos.z;
+    if (dx*dx + dz*dz > 500) {
+      dp[i*3] = cs.pos.x + (Math.random()-0.5)*30; dp[i*3+1] = Math.random()*8; dp[i*3+2] = cs.pos.z + (Math.random()-0.5)*30;
+    }
+  }
+  dustGeo.attributes.position.needsUpdate = true;
+}
+
+// ═══════════════════════════════════════════════════════
+// ─── FOOTSTEP PARTICLES ───
+// ═══════════════════════════════════════════════════════
+const STEP_N = 50;
+const stepData = new Float32Array(STEP_N * 3);
+const stepAge = new Float32Array(STEP_N);
+let stepIdx = 0, lastPhase = 0;
+const stepGeo = new THREE.BufferGeometry();
+stepGeo.setAttribute('position', new THREE.BufferAttribute(stepData, 3));
+scene.add(new THREE.Points(stepGeo, new THREE.PointsMaterial({ color: 0x88bbdd, size: 0.04, transparent: true, opacity: 0.3, depthWrite: false, blending: THREE.AdditiveBlending })));
+
+function updateSteps(dt) {
+  const phase = Math.sin(cs.walkCycle);
+  if (cs.speed > 0.5 && lastPhase < 0 && phase >= 0) {
+    const i = stepIdx % STEP_N;
+    stepData[i*3] = cs.pos.x + (Math.random()-0.5)*0.1;
+    stepData[i*3+1] = 0.02;
+    stepData[i*3+2] = cs.pos.z + (Math.random()-0.5)*0.1;
+    stepAge[i] = 1; stepIdx++;
+  }
+  lastPhase = phase;
+  for (let i = 0; i < STEP_N; i++) {
+    if (stepAge[i] > 0) { stepAge[i] -= dt * 0.5; stepData[i*3+1] += dt * 0.15; if (stepAge[i] <= 0) { stepAge[i] = 0; stepData[i*3+1] = -10; } }
+  }
+  stepGeo.attributes.position.needsUpdate = true;
+}
+
+// ═══════════════════════════════════════════════════════
+// ─── FIREFLIES (luciérnagas) ───
+// ═══════════════════════════════════════════════════════
+const FIREFLY_N = 25;
+const fireflies = [];
+for (let i = 0; i < FIREFLY_N; i++) {
+  const glow = new THREE.PointLight(0x88ff44, 0, 5.5);
+  glow.position.set((Math.random()-0.5)*40, 0.3+Math.random()*1.5, (Math.random()-0.5)*40);
+  const dot = new THREE.Mesh(
+    new THREE.SphereGeometry(0.028, 8, 6),
+    new THREE.MeshBasicMaterial({ color: 0xccff66, transparent: true, opacity: 0 })
+  );
+  dot.position.copy(glow.position);
+  scene.add(glow); scene.add(dot);
+  fireflies.push({
+    light: glow, dot,
+    phase: Math.random() * Math.PI * 2,
+    speed: 0.5 + Math.random() * 1.5,
+    driftX: (Math.random()-0.5) * 0.4,
+    driftZ: (Math.random()-0.5) * 0.4,
+    baseY: 0.3 + Math.random() * 1.5,
+  });
+}
+
+function updateFireflies(time, dt) {
+  const nightBoost = 0.14 + dayNight.nightMix * 0.86;
+  for (const f of fireflies) {
+    // Pulsing glow (on/off cycle)
+    const pulse = Math.sin(time * f.speed + f.phase);
+    const brightness = Math.max(0, pulse) * Math.max(0, pulse); // squared for sharp on/off
+    f.light.intensity = brightness * 1.6 * nightBoost;
+    f.dot.material.opacity = brightness * 0.96 * nightBoost;
+    // Gentle drift
+    f.light.position.x += f.driftX * dt;
+    f.light.position.z += f.driftZ * dt;
+    f.light.position.y = f.baseY + Math.sin(time * 0.8 + f.phase) * 0.3;
+    f.dot.position.copy(f.light.position);
+    // Keep near player
+    const dx = f.light.position.x - cs.pos.x, dz = f.light.position.z - cs.pos.z;
+    if (dx*dx + dz*dz > 500) {
+      f.light.position.x = cs.pos.x + (Math.random()-0.5)*30;
+      f.light.position.z = cs.pos.z + (Math.random()-0.5)*30;
+      f.baseY = 0.3 + Math.random() * 1.5;
+    }
+  }
+}
+
+// ─── HUD ───
+const hudSpeed = document.getElementById('hudSpeed');
+const hudState = document.getElementById('hudState');
+const hudPos = document.getElementById('hudPos');
+const hudCycle = document.getElementById('hudCycle');
+const hudOrbs = document.getElementById('hudOrbs');
+const hudHealth = document.getElementById('hudHealth');
+const hudThreat = document.getElementById('hudThreat');
+const hungerBar = document.getElementById('hungerBar');
+const hint = document.getElementById('hint');
+let hintTimer = 8;
+
+// ─── MAIN LOOP ───
+const clock = new THREE.Clock();
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = Math.min(clock.getDelta(), 0.05);
+  const time = clock.getElapsedTime();
+
+  // Always render scene (camera slowly orbits during start screen)
+  if (!gameStarted) {
+    const t = time * 0.08;
+    camera.position.set(Math.sin(t)*5, 2.2 + Math.sin(time*0.15)*0.3, Math.cos(t)*5);
+    camera.lookAt(0, 1, 0);
+    updateDayNight(dt);
+    updateDust(time);
+    updateFireflies(time, dt);
+    // Orbs pulse even on start screen
+    for (const orb of orbs) {
+      if (orb.collected) continue;
+      const p = Math.sin(time * 1.2 + orb.phase);
+      const flare = 0.5 + Math.abs(p) * 0.5;
+      orb.group.position.y = 0.8 + p * 0.15;
+      orb.shell.scale.setScalar(1.08 + flare * 0.26);
+      orb.ringA.rotation.z += dt * 0.95;
+      orb.ringB.rotation.y -= dt * 0.7;
+      orb.ringA.material.opacity = 0.16 + flare * 0.24;
+      orb.ringB.material.opacity = 0.1 + flare * 0.16;
+      orb.light.intensity = 0.5 + flare * 0.65;
+    }
+    skyMat.uniforms.uTime.value = time;
+    renderer.render(scene, camera);
+    return;
+  }
+
+  updateDayNight(dt);
+  updateCharacter(dt);
+  updateCombat(dt);
+  updateCamera(dt);
+  updateDust(time);
+  updateSteps(dt);
+  updateFireflies(time, dt);
+  updateCarnivores(time, dt);
+  updateOrbs(time, dt);
+  updateFood(dt);
+  skyMat.uniforms.uTime.value = time;
+
+  hudSpeed.textContent = cs.speed.toFixed(1) + ' m/s';
+  hudState.textContent = combat.invuln > 0.1 ? 'Under Attack' : carnivores.length > 0 ? 'Fighting' : mission.complete && mission.celebTimer > 0 ? '✨ All orbs!' : hunger.value <= 0 ? '⚠ Starving!' : hunger.value < 20 ? 'Hungry...' : dayNight.isNight ? 'Night Watch' : cs.speed < 0.1 ? 'Idle' : cs.isRunning ? 'Running' : 'Walking';
+  hudPos.textContent = `${cs.pos.x.toFixed(0)}, ${cs.pos.z.toFixed(0)}`;
+  hudCycle.textContent = dayNight.cycleLabel;
+  hudOrbs.textContent = `${mission.collected} / ${mission.total}`;
+  hudHealth.textContent = `${Math.round(combat.health)}%`;
+  hudThreat.textContent = dayNight.isNight ? (carnivores.length ? `${carnivores.length} hunters` : 'Cleared') : 'Peaceful';
+  hungerBar.style.width = `${Math.round(hunger.value)}%`;
+  hungerBar.style.background = hunger.value > 40 ? 'rgba(255,180,60,0.85)' : hunger.value > 15 ? 'rgba(255,120,40,0.9)' : 'rgba(255,50,30,0.95)';
+  if (hintTimer > 0) { hintTimer -= dt; if (hintTimer <= 0) hint.classList.add('hide'); }
+
+  renderer.render(scene, camera);
+}
+
+window.addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+});
+animate();
+  </script>
+</body>
+</html>
