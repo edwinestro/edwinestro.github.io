@@ -14,21 +14,14 @@
     ".woff2": "font/woff2",
     ".woff": "font/woff"
   },
-  "auth": {
-    "identityProviders": {
-      "azureActiveDirectory": {
-        "enabled": true
-      }
-    }
-  },
   "routes": [
     {
       "route": "/.auth/login/github",
-      "statusCode": 404
+      "allowedRoles": ["BLOCK_THIS"]
     },
     {
       "route": "/.auth/login/twitter",
-      "statusCode": 404
+      "allowedRoles": ["BLOCK_THIS"]
     },
     {
       "route": "/index.html",
