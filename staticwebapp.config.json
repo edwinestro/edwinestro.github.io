@@ -14,7 +14,38 @@
     ".woff2": "font/woff2",
     ".woff": "font/woff"
   },
+  "auth": {
+    "identityProviders": {
+      "azureActiveDirectory": {
+        "enabled": true
+      }
+    }
+  },
   "routes": [
+    {
+      "route": "/.auth/login/github",
+      "statusCode": 404
+    },
+    {
+      "route": "/.auth/login/twitter",
+      "statusCode": 404
+    },
+    {
+      "route": "/index.html",
+      "allowedRoles": ["authenticated"]
+    },
+    {
+      "route": "/",
+      "allowedRoles": ["authenticated"]
+    },
+    {
+      "route": "/assets/js/agi3d/*",
+      "allowedRoles": ["authenticated"]
+    },
+    {
+      "route": "/assets/css/agi3d.css",
+      "allowedRoles": ["authenticated"]
+    },
     {
       "route": "/assets/*",
       "headers": {
@@ -29,6 +60,9 @@
     }
   ],
   "responseOverrides": {
+    "401": {
+      "redirect": "/.auth/login/aad?post_login_redirect_uri=/"
+    },
     "404": {
       "rewrite": "/404.html"
     }
