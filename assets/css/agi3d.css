@@ -22,6 +22,9 @@ canvas{display:block;width:100vw;height:100vh;cursor:crosshair}
 .brand p{font-size:0.48rem;color:rgba(180,210,240,0.4);margin-top:2px}
 .brand .brand-mark{font-size:clamp(0.8rem,1.1vw,1.1rem);font-weight:700;color:rgba(235,245,255,0.85);text-shadow:0 0 12px rgba(108,180,255,0.2)}
 .brand .brand-copy{font-size:0.48rem;color:rgba(180,210,240,0.4);margin-top:2px}
+.brand .brand-user{font-size:0.5rem;color:rgba(180,220,255,0.6);margin-top:4px}
+.brand .brand-logout{color:rgba(255,160,120,0.7);margin-left:6px;text-decoration:none;font-size:0.45rem}
+.brand .brand-logout:hover{color:rgba(255,180,140,1)}
 .ui-hidden{opacity:0;transition:opacity 1s}
 .directive{position:fixed;top:54px;left:14px;z-index:10;max-width:min(340px,calc(100vw - 28px));padding:10px 12px;border-radius:16px;background:rgba(6,12,24,0.32);border:1px solid rgba(255,155,92,0.12);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font-family:"Segoe UI",system-ui,sans-serif;color:rgba(236,242,255,0.9);opacity:0;transform:translateY(-8px);transition:opacity 1s,transform 1s}
 .directive.show{opacity:1;transform:translateY(0)}

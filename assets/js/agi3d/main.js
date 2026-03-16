@@ -14,13 +14,15 @@ import {
   rng,
   rngRange,
 } from './config.js';
-import { describeHistory, getArchiveBonuses, loadArchive, recordRun } from './persistence.js';
+import { describeHistory, getArchiveBonuses, loadArchive, recordRun, setUserId } from './persistence.js';
+import { getUser } from './user.js';
 import { buildRunProfile, createSeededRandom } from './worldgen.js';
 
 const dom = {
   canvas: document.getElementById('c'),
   startScreen: document.getElementById('startScreen'),
   brandUI: document.getElementById('brandUI'),
+  brandUser: document.getElementById('brandUser'),
   directivePanel: document.getElementById('directivePanel'),
   directiveTitle: document.getElementById('directiveTitle'),
   directiveBody: document.getElementById('directiveBody'),
@@ -68,6 +70,20 @@ const dom = {
   endHistory: document.getElementById('endHistory'),
   restartButton: document.getElementById('restartButton'),
 };
+
+// Fetch user identity and namespace storage before loading archive
+const currentUser = await getUser();
+if (currentUser) {
+  setUserId(currentUser.userId);
+  if (dom.brandUser) {
+    dom.brandUser.textContent = currentUser.name;
+    const logout = document.createElement('a');
+    logout.href = '/.auth/logout';
+    logout.textContent = 'Sign out';
+    logout.className = 'brand-logout';
+    dom.brandUser.append(' ', logout);
+  }
+}
 
 let archiveState = loadArchive();
 let archiveBonuses = getArchiveBonuses(archiveState);

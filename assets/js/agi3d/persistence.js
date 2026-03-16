@@ -1,5 +1,16 @@
 import { HISTORY_LIMIT, STORAGE_KEY, clamp } from './config.js';
 
+let _userId = null;
+
+/** Set the current user ID to namespace storage. Call once at startup. */
+export function setUserId(id) {
+  _userId = id || null;
+}
+
+function storageKey() {
+  return _userId ? `${STORAGE_KEY}.${_userId}` : STORAGE_KEY;
+}
+
 function defaultArchive() {
   return {
     totalRuns: 0,
@@ -44,7 +55,7 @@ export function loadArchive() {
   if (typeof window === 'undefined') return defaultArchive();
 
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = window.localStorage.getItem(storageKey());
     if (!raw) return defaultArchive();
 
     const parsed = JSON.parse(raw);
@@ -117,7 +128,7 @@ export function recordRun(previousArchive, summary) {
   nextArchive.archiveTier = computeArchiveTier(nextArchive);
 
   if (typeof window !== 'undefined') {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextArchive));
+    window.localStorage.setItem(storageKey(), JSON.stringify(nextArchive));
   }
 
   return { archive: nextArchive, entry };
