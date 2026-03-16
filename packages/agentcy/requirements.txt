@@ -1,0 +1,7 @@
+azure-ai-projects>=2.0.0b1
+azure-identity
+openai>=1.0.0
+fastapi
+uvicorn[standard]
+python-chess
+pytest

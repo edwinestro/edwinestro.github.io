@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Docs — Edwin Estro</title>
+  <meta name="description" content="Resume and certificates stored in this repository." />
+  <link rel="stylesheet" href="../../assets/css/style.css" />
+  <style>
+    .doc-wrap{margin-top:.5rem}
+    .doc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.7rem}
+    .doc-note{color:rgba(238,241,246,.7)}
+  </style>
+</head>
+<body>
+  <canvas id="immersion" aria-hidden="true"></canvas>
+
+  <header class="topbar" role="banner">
+    <div class="brand">
+      <div class="brand-dot" aria-hidden="true"></div>
+      <div class="brand-text">
+        <div class="brand-name">Edwin Estro</div>
+        <div class="brand-sub">Folder: <span class="mono">Projects/docs</span></div>
+      </div>
+    </div>
+    <nav class="topnav" aria-label="Primary">
+      <a href="../../index.html">Home</a>
+      <a href="../hubs/science-lab/index.html">Science Lab</a>
+      <a href="../games/frost-signal/index.html" target="_blank" rel="noreferrer">Frost Signal</a>
+      <a href="../games/thermal-drift/index.html" target="_blank" rel="noreferrer">Thermal Drift</a>
+    </nav>
+  </header>
+
+  <main class="channel">
+    <section class="channel-head">
+      <h1>📎 Docs</h1>
+      <p class="topic">Same files, just organized. Old links remain valid.</p>
+    </section>
+
+    <section class="feed doc-wrap">
+      <article class="message" style="--i:0">
+        <div class="bubble solo">
+          <div class="meta"><span class="name">Resume</span><time class="time" datetime="2025-12-12">Updated</time></div>
+          <div class="content doc-note">Stored as-is in this repo.</div>
+          <div class="attachments doc-grid">
+            <a class="card" href="Resume%20Edwin%20-%20Mayo%202022.docx" target="_blank" rel="noreferrer">
+              <div class="card-title">Resume Edwin — Mayo 2022</div>
+              <div class="card-sub">DOCX</div>
+              <div class="card-cta">Open →</div>
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <article class="message" style="--i:1">
+        <div class="bubble solo">
+          <div class="meta"><span class="name">Certificates</span><time class="time" datetime="2025-12-12">Updated</time></div>
+          <div class="content doc-note">PDFs included in this repository.</div>
+          <div class="attachments doc-grid">
+            <a class="card" href="Java%20Certification%20by%20Codecademy.pdf" target="_blank" rel="noreferrer">
+              <div class="card-title">Java Certification</div>
+              <div class="card-sub">Codecademy · PDF</div>
+              <div class="card-cta">Open →</div>
+            </a>
+            <a class="card" href="Civil%20Engineer%20partial%20certificate.pdf" target="_blank" rel="noreferrer">
+              <div class="card-title">Civil Engineer (Partial)</div>
+              <div class="card-sub">PDF</div>
+              <div class="card-cta">Open →</div>
+            </a>
+            <a class="card" href="deloitte%20salesforce%20bootcamp%20by%20bedu.pdf" target="_blank" rel="noreferrer">
+              <div class="card-title">Deloitte Salesforce Bootcamp</div>
+              <div class="card-sub">BEDU · PDF</div>
+              <div class="card-cta">Open →</div>
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <article class="message system" style="--i:2">
+        <div class="sys">
+          Tip: the homepage still links to the original <span class="mono">Projects/</span> copies to preserve old URLs.
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    // lightweight background, reusing the same canvas id
+    const canvas = document.getElementById('immersion');
+    const ctx = canvas.getContext('2d');
+    const letters = '氷霜|冷光|DOCS|TRUST|LAB|SHIP';
+    const particles = [];
+    const center = { x: 0, y: 0 };
+
+    function resize(){
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      center.x = canvas.width / 2;
+      center.y = canvas.height / 2;
+    }
+
+    function spawn(){
+      const side = Math.floor(Math.random() * 4);
+      let x, y;
+      if (side === 0) { x = -10; y = Math.random() * canvas.height; }
+      else if (side === 1) { x = canvas.width + 10; y = Math.random() * canvas.height; }
+      else if (side === 2) { x = Math.random() * canvas.width; y = -10; }
+      else { x = Math.random() * canvas.width; y = canvas.height + 10; }
+
+      const dx = center.x - x;
+      const dy = center.y - y;
+      const dist = Math.max(1, Math.sqrt(dx*dx + dy*dy));
+      const speed = 0.35 + Math.random() * 0.75;
+      particles.push({
+        x, y,
+        vx: (dx / dist) * speed,
+        vy: (dy / dist) * speed,
+        char: letters.charAt(Math.floor(Math.random() * letters.length)),
+        life: 0,
+        max: 80 + Math.random() * 120,
+      });
+    }
+
+    function draw(){
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const g = ctx.createRadialGradient(center.x, center.y, 10, center.x, center.y, Math.max(canvas.width, canvas.height) * 0.8);
+      g.addColorStop(0, 'rgba(122, 162, 255, 0.00)');
+      g.addColorStop(0.55, 'rgba(122, 162, 255, 0.10)');
+      g.addColorStop(1, 'rgba(11, 15, 21, 0.55)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      while (particles.length < 140) spawn();
+
+      ctx.font = '16px Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life += 1;
+        const fade = 1 - p.life / p.max;
+        ctx.fillStyle = `rgba(154, 230, 255, ${Math.max(0, fade) * 0.55})`;
+        ctx.fillText(p.char, p.x, p.y);
+        if (p.life >= p.max) particles.splice(i, 1);
+      }
+
+      requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+    requestAnimationFrame(draw);
+  </script>
+</body>
+</html>

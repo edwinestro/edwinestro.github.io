@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Protein Simulator — 3D Molecular Viewer</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- Loading overlay -->
+  <div id="loading" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <span>Loading molecular viewer…</span>
+  </div>
+
+  <!-- Info Panel -->
+  <div id="info-panel" class="panel">
+    <h2>Protein Simulator</h2>
+    <div class="control-row">
+      <label for="structure-select">Structure</label>
+      <select id="structure-select"></select>
+    </div>
+    <div class="info-row"><span class="label">Residues</span><span id="info-residues">—</span></div>
+    <div class="info-row"><span class="label">Atoms</span><span id="info-atoms">—</span></div>
+    <div class="info-row"><span class="label">Bonds</span><span id="info-bonds">—</span></div>
+    <p id="info-description" class="info-desc"></p>
+  </div>
+
+  <!-- Hover Tooltip -->
+  <div id="tooltip" class="tooltip" style="display:none;"></div>
+
+  <!-- Selection info (click-to-select) -->
+  <div id="selection-info" class="panel selection-panel" style="display:none;">
+    <h3>Selected Atoms</h3>
+    <div id="sel-atom-a" class="info-row"></div>
+    <div id="sel-atom-b" class="info-row"></div>
+    <div id="sel-distance" class="info-row distance-row"></div>
+    <button id="clear-selection" class="btn-small">Clear</button>
+  </div>
+
+  <!-- Controls Panel -->
+  <div id="controls-panel" class="panel">
+    <h3>Controls</h3>
+
+    <div class="control-row">
+      <label for="render-mode">Render Mode</label>
+      <select id="render-mode">
+        <option value="ball-stick">Ball & Stick</option>
+        <option value="space-fill">Space-Filling</option>
+        <option value="wireframe">Wireframe</option>
+      </select>
+    </div>
+
+    <div class="control-row">
+      <label for="atom-size">Atom Size</label>
+      <input id="atom-size" type="range" min="0.2" max="2.0" step="0.05" value="1.0" />
+    </div>
+
+    <div class="control-row">
+      <label for="bond-toggle">Show Bonds</label>
+      <input id="bond-toggle" type="checkbox" checked />
+    </div>
+
+    <div class="control-row">
+      <label for="ribbon-toggle">Backbone Ribbon</label>
+      <input id="ribbon-toggle" type="checkbox" />
+    </div>
+
+    <div class="control-row">
+      <label for="spin-toggle">Auto-Spin</label>
+      <input id="spin-toggle" type="checkbox" />
+    </div>
+
+    <div class="control-row">
+      <label for="spin-speed">Spin Speed</label>
+      <input id="spin-speed" type="range" min="0.5" max="8.0" step="0.5" value="2.0" />
+    </div>
+
+    <div class="control-row">
+      <label for="bloom-toggle">Glow Effect</label>
+      <input id="bloom-toggle" type="checkbox" checked />
+    </div>
+
+    <div class="control-row">
+      <label for="grid-toggle">Ground Grid</label>
+      <input id="grid-toggle" type="checkbox" checked />
+    </div>
+
+    <div class="control-row">
+      <label for="color-scheme">Color Scheme</label>
+      <select id="color-scheme">
+        <option value="cpk">CPK (Element)</option>
+        <option value="chain">Chain</option>
+        <option value="residue">Residue</option>
+      </select>
+    </div>
+
+    <div class="btn-row">
+      <button id="reset-view" class="btn-action">Reset View</button>
+      <button id="screenshot-btn" class="btn-action btn-accent">📷 Screenshot</button>
+    </div>
+    <div class="btn-row">
+      <button id="explode-btn" class="btn-action btn-warn">💥 Explode</button>
+      <button id="animate-btn" class="btn-action btn-info">✨ Animate In</button>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div id="legend" class="panel">
+    <h3>Elements</h3>
+    <div class="legend-row"><span class="swatch" style="background:#909090;"></span> C — Carbon</div>
+    <div class="legend-row"><span class="swatch" style="background:#3050F8;"></span> N — Nitrogen</div>
+    <div class="legend-row"><span class="swatch" style="background:#FF0D0D;"></span> O — Oxygen</div>
+    <div class="legend-row"><span class="swatch" style="background:#FFFFFF;"></span> H — Hydrogen</div>
+    <div class="legend-row"><span class="swatch" style="background:#FFFF30;"></span> S — Sulfur</div>
+    <div class="legend-divider"></div>
+    <h3>Shortcuts</h3>
+    <div class="legend-row"><kbd>R</kbd> Reset view</div>
+    <div class="legend-row"><kbd>S</kbd> Toggle spin</div>
+    <div class="legend-row"><kbd>B</kbd> Toggle bonds</div>
+    <div class="legend-row"><kbd>G</kbd> Toggle glow</div>
+    <div class="legend-row"><kbd>P</kbd> Screenshot</div>
+    <div class="legend-row"><kbd>F</kbd> Fullscreen</div>
+    <div class="legend-row"><kbd>←→</kbd> Prev / Next</div>
+    <div class="legend-row"><kbd>E</kbd> Explode / Collapse</div>
+    <div class="legend-row"><kbd>A</kbd> Animate entrance</div>
+    <div class="legend-row"><kbd>1-3</kbd> Render mode</div>
+    <div class="legend-row"><kbd>Esc</kbd> Clear selection</div>
+  </div>
+
+  <!-- FPS Counter -->
+  <div id="fps-counter" class="fps-badge">-- fps</div>
+
+  <!-- Toast notification -->
+  <div id="toast" class="toast"></div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module" src="main.js"></script>
+</body>
+</html>

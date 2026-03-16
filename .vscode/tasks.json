@@ -1,0 +1,14 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Start Leaderboard API (Excel)",
+			"type": "shell",
+			"command": "cd \"${workspaceFolder}/legacy/stringball-endpoint/server\" && (test -d node_modules || npm install) && npm start",
+			"args": [],
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build"
+		}
+	]
+}

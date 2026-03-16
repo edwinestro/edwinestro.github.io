@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="600" viewBox="0 0 900 600">
+  <defs>
+    <style>
+      .bg { fill: #0b1020; }
+      .ring { fill: none; stroke: rgba(170, 200, 255, 0.55); stroke-width: 3; }
+      .label { fill: rgba(230, 240, 255, 0.9); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+      .small { font-size: 16px; }
+      .med { font-size: 20px; }
+      .big { font-size: 28px; font-weight: 700; }
+      .nucleus { fill: rgba(255, 120, 120, 0.25); stroke: rgba(255, 160, 160, 0.8); stroke-width: 3; }
+      .electron { fill: rgba(255, 240, 170, 0.95); }
+      .electronGlow { filter: drop-shadow(0 0 6px rgba(255, 240, 170, 0.8)); }
+      .note { fill: rgba(230, 240, 255, 0.75); font-size: 14px; }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="900" height="600" />
+
+  <!-- Title -->
+  <text class="label big" x="36" y="54">Sodium (Na) — Conceptual Atomic Model</text>
+  <text class="label small" x="36" y="82">Neutral atom (Z = 11) • Bohr-style shell count 2–8–1 (illustrative, not literal)</text>
+
+  <!-- Center point -->
+  <g transform="translate(450,320)">
+    <!-- Rings: K, L, M shells -->
+    <circle class="ring" r="70" />
+    <circle class="ring" r="150" />
+    <circle class="ring" r="230" />
+
+    <!-- Nucleus -->
+    <circle class="nucleus" r="42" />
+    <text class="label med" text-anchor="middle" x="0" y="-6">NUCLEUS</text>
+    <text class="label small" text-anchor="middle" x="0" y="18">11p, 12n (¹²³Na)</text>
+
+    <!-- Electrons: K shell (2) -->
+    <g class="electronGlow">
+      <circle class="electron" cx="70" cy="0" r="7" />
+      <circle class="electron" cx="-70" cy="0" r="7" />
+    </g>
+
+    <!-- Electrons: L shell (8) -->
+    <g class="electronGlow">
+      <circle class="electron" cx="150" cy="0" r="7" />
+      <circle class="electron" cx="106" cy="106" r="7" />
+      <circle class="electron" cx="0" cy="150" r="7" />
+      <circle class="electron" cx="-106" cy="106" r="7" />
+      <circle class="electron" cx="-150" cy="0" r="7" />
+      <circle class="electron" cx="-106" cy="-106" r="7" />
+      <circle class="electron" cx="0" cy="-150" r="7" />
+      <circle class="electron" cx="106" cy="-106" r="7" />
+    </g>
+
+    <!-- Electron: M shell (1) -->
+    <g class="electronGlow">
+      <circle class="electron" cx="0" cy="-230" r="7" />
+    </g>
+
+    <!-- Labels for shells -->
+    <text class="label small" x="0" y="-85" text-anchor="middle">K shell: 2e−</text>
+    <text class="label small" x="0" y="-165" text-anchor="middle">L shell: 8e−</text>
+    <text class="label small" x="0" y="-245" text-anchor="middle">M shell: 1e−</text>
+  </g>
+
+  <!-- Side facts -->
+  <g>
+    <text class="label med" x="36" y="140">Atomic fingerprint</text>
+    <text class="label small" x="36" y="170">• Atomic number (protons): 11</text>
+    <text class="label small" x="36" y="194">• Electron configuration: 1s² 2s² 2p⁶ 3s¹</text>
+    <text class="label small" x="36" y="218">• Noble-gas shorthand: [Ne] 3s¹</text>
+
+    <text class="label med" x="36" y="270">Notes</text>
+    <text class="note" x="36" y="300">This is a simplified visualization. In quantum mechanics, electrons occupy orbitals</text>
+    <text class="note" x="36" y="320">(probability distributions), not circular tracks.</text>
+  </g>
+</svg>

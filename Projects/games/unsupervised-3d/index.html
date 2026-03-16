@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Neon Vault — Unsupervised 3D</title>
+  <meta name="description" content="Walk a glowing 3D neon vault. Flip tiles, match pairs, clear 6 floors. Combos multiply your score." />
+  <meta name="theme-color" content="#0b0420" />
+  <link rel="stylesheet" href="/Projects/games/unsupervised-3d/styles.css" />
+</head>
+<body>
+  <!-- HUD -->
+  <div class="hud">
+    <span class="hud-level" id="hudLevel">Floor 1 — Warm-up</span>
+    <span class="hud-pairs" id="hudPairs">Pairs: 0/3</span>
+    <span class="hud-score" id="hudScore">Score: 0</span>
+    <span class="hud-health" id="hudHealth">Health: 5</span>
+    <span class="hud-enemy" id="hudEnemy">Drone: 3 HP</span>
+    <span class="hud-combo" id="hudCombo"></span>
+    <span class="hud-timer ok" id="hudTimer">0s</span>
+    <span class="hud-stars" id="hudStars">★★★</span>
+  </div>
+  <div class="hud-progress"><div class="hud-progress-fill" id="hudProgress"></div></div>
+  <div class="mission" id="mission">Match all pairs · Bonus under 40s</div>
+  <div class="pickup-radar" id="pickupRadar" aria-live="polite">
+    <div class="pickup-radar-title">Pickup Radar</div>
+    <div class="pickup-radar-map" id="pickupRadarMap">
+      <div class="pickup-radar-player"></div>
+    </div>
+    <div class="pickup-radar-note" id="pickupRadarNote">No AGI tools active</div>
+  </div>
+  <div class="damage-flash" id="damageFlash" aria-hidden="true"></div>
+
+  <!-- Crosshair -->
+  <div class="crosshair" id="crosshair"><div class="crosshair-dot"></div></div>
+
+  <!-- Start overlay -->
+  <div class="start-overlay" id="startOverlay">
+    <div class="start-card">
+      <h1 id="startTitle">Enter the Neon Vault</h1>
+      <p id="startCopy">Walk a glowing 3D room. Flip tiles. Match pairs.<br>Each floor adds a new directive: lockdowns, kills, and survival beats.<br>Clear all 6 floors to beat the vault.</p>
+      <div class="hint" id="startHint">Click to start · WASD to move · Mouse to look · Click to shoot</div>
+      <button class="start-btn" id="startBtn">Start</button>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <div class="home-link-wrap"><a class="home-link" href="../../../index.html">← Back to portal</a></div>
+  <div class="controls-legend">WASD — move · Mouse — look<br>Click — shoot / flip target tile · Esc — pause</div>
+
+  <script type="importmap">
+  { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }
+  </script>
+  <script type="module" src="/Projects/games/unsupervised-3d/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1600" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#020408"/>
+      <stop offset="0.5" stop-color="#0a1428"/>
+      <stop offset="1" stop-color="#050a18"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="800" cy="420" r="320" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6ce8ff" stop-opacity="0.18"/>
+      <stop offset="0.6" stop-color="#4488ff" stop-opacity="0.06"/>
+      <stop offset="1" stop-color="#020408" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="entityGrad" cx="800" cy="420" r="180" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7fe8ff"/>
+      <stop offset="0.4" stop-color="#4db4ff"/>
+      <stop offset="0.7" stop-color="#2266aa"/>
+      <stop offset="1" stop-color="#0a1428"/>
+    </radialGradient>
+    <radialGradient id="coreGlow" cx="800" cy="420" r="80" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6ce8ff" stop-opacity="0.4"/>
+      <stop offset="1" stop-color="#6ce8ff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blur" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="40"/>
+    </filter>
+    <filter id="softBlur" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8"/>
+    </filter>
+  </defs>
+  <!-- Background -->
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <!-- Ambient glow -->
+  <ellipse cx="800" cy="420" rx="500" ry="400" fill="url(#glow)"/>
+  <!-- Outer haze -->
+  <circle cx="800" cy="420" r="260" fill="#6ce8ff" fill-opacity="0.04" filter="url(#blur)"/>
+  <!-- Ring orbit -->
+  <ellipse cx="800" cy="420" rx="280" ry="60" fill="none" stroke="#7ff0c5" stroke-width="1.5" stroke-opacity="0.3" stroke-dasharray="8 12"/>
+  <ellipse cx="800" cy="420" rx="240" ry="48" fill="none" stroke="#6ce8ff" stroke-width="1" stroke-opacity="0.2" stroke-dasharray="4 10"/>
+  <!-- Entity sphere -->
+  <circle cx="800" cy="420" r="160" fill="url(#entityGrad)" opacity="0.92"/>
+  <!-- Specular highlight -->
+  <ellipse cx="760" cy="370" rx="60" ry="40" fill="white" fill-opacity="0.14" filter="url(#softBlur)"/>
+  <!-- Core glow -->
+  <circle cx="800" cy="420" r="80" fill="url(#coreGlow)"/>
+  <!-- Scattered particles -->
+  <circle cx="540" cy="340" r="2" fill="#7ff0c5" fill-opacity="0.6"/>
+  <circle cx="580" cy="480" r="1.5" fill="#6ce8ff" fill-opacity="0.5"/>
+  <circle cx="1020" cy="360" r="2" fill="#7ff0c5" fill-opacity="0.55"/>
+  <circle cx="1060" cy="500" r="1.5" fill="#6ce8ff" fill-opacity="0.45"/>
+  <circle cx="680" cy="280" r="1" fill="#ffd978" fill-opacity="0.4"/>
+  <circle cx="920" cy="560" r="1" fill="#ff7bc1" fill-opacity="0.35"/>
+  <circle cx="650" cy="540" r="1.5" fill="#c89dff" fill-opacity="0.4"/>
+  <circle cx="950" cy="300" r="1.5" fill="#c89dff" fill-opacity="0.35"/>
+  <!-- Title -->
+  <text x="800" y="720" text-anchor="middle" fill="#edf3ff" font-family="Georgia, serif" font-size="64" font-weight="700" opacity="0.92">AGI 3D</text>
+  <text x="800" y="764" text-anchor="middle" fill="#9cb2d8" font-family="Segoe UI, Arial, sans-serif" font-size="24">A living intelligence, breathing in space</text>
+  <!-- HUD bar -->
+  <rect x="560" y="800" width="480" height="36" rx="18" fill="#060c18" fill-opacity="0.72" stroke="#6ce8ff" stroke-opacity="0.14"/>
+  <text x="620" y="824" fill="#6ce8ff" font-family="Segoe UI, sans-serif" font-size="13" font-weight="600">PULSE</text>
+  <text x="680" y="824" fill="#9cb2d8" font-family="Segoe UI, sans-serif" font-size="13">0.72</text>
+  <text x="740" y="824" fill="#6ce8ff" font-family="Segoe UI, sans-serif" font-size="13" font-weight="600">BREATH</text>
+  <text x="815" y="824" fill="#9cb2d8" font-family="Segoe UI, sans-serif" font-size="13">0.86</text>
+  <text x="870" y="824" fill="#6ce8ff" font-family="Segoe UI, sans-serif" font-size="13" font-weight="600">ENTROPY</text>
+  <text x="955" y="824" fill="#9cb2d8" font-family="Segoe UI, sans-serif" font-size="13">0.41</text>
+</svg>

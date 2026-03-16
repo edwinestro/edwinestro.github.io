@@ -1,0 +1,10 @@
+{
+  "env": { "browser": true, "es2021": true },
+  "extends": "eslint:recommended",
+  "rules": {
+    "no-restricted-syntax": "off",
+    "no-console": ["warn", { "allow": ["warn","error"] }],
+    "no-unused-vars": "off",
+    "no-empty": "off"
+  }
+}

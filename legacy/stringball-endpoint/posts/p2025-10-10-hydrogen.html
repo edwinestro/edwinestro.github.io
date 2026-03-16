@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Interactive Chemistry: Enhanced Element Discovery in 3D</title>
+  <meta name="description" content="Deep dive into the hydrogen laboratory game's new interactive element system. Detailed descriptions appear when players press E near objects, turning exploration into active learning." />
+  <meta name="author" content="Edwin Estrada" />
+  <meta name="robots" content="index, follow" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Interactive Chemistry: Enhanced Element Discovery in 3D" />
+  <meta property="og:description" content="Element-specific info panels on E interaction in the 3D lab maze: properties, reactions, safety, uses." />
+  <meta property="og:url" content="https://edwinestro.github.io/posts/p2025-10-10-hydrogen.html" />
+  <meta property="og:image" content="https://edwinestro.github.io/assets/images/3d-maze-hero.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Interactive Chemistry: Enhanced Element Discovery in 3D" />
+  <meta name="twitter:description" content="Element-specific info panels on E interaction in the 3D lab maze: properties, reactions, safety, uses." />
+  <meta name="twitter:image" content="https://edwinestro.github.io/assets/images/3d-maze-hero.jpg" />
+  <style>
+    :root{--bg:#0b111b;--panel:#111a27;--text:#e5eaf1;--muted:#92a3b7;--accent:#22d3ee}
+    body{font-family:system-ui,-apple-system,Inter,Segoe UI,Roboto,sans-serif;background:linear-gradient(180deg,#09121e,#080d14);color:var(--text);margin:0}
+    header{position:sticky;top:0;z-index:20;background:rgba(8,14,24,.9);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.08);}
+    header .wrap{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;max-width:1100px;margin:0 auto}
+    header a{color:var(--accent);text-decoration:none;font-weight:600}
+    main{max-width:1100px;margin:0 auto;padding:20px}
+    article{background:var(--panel);border:1px solid #1e3042;border-radius:16px;padding:26px;overflow:hidden}
+    h1{margin:6px 0 10px;font-size:clamp(1.5rem,3vw,2.1rem)}
+    .meta{color:var(--muted);font-size:.85rem;margin-bottom:12px}
+    .hero{margin:14px 0 18px;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.08)}
+    .hero img{width:100%;height:320px;object-fit:cover;display:block}
+    .content h2{margin:18px 0 8px;color:#fff}
+    .content h3{margin:16px 0 6px;color:var(--accent)}
+    .content p{color:var(--muted);line-height:1.6}
+    .content ul{color:var(--muted)}
+    pre{background:#0a0f18;border:1px solid #1a2332;border-radius:12px;padding:16px;overflow:auto}
+    code{font-family:Monaco,Consolas,monospace;color:#e5eaf1}
+    footer{padding:24px 0;color:var(--muted);text-align:center}
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"Article",
+    "headline":"Interactive Chemistry: Enhanced Element Discovery in 3D",
+    "author":{"@type":"Person","name":"Edwin Estrada"},
+    "datePublished":"2025-10-10",
+    "image":"https://edwinestro.github.io/assets/images/3d-maze-hero.jpg"
+  }
+  </script>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <a href="/index.html">← Home</a>
+      <nav>
+        <a href="/maze.html">Play the Lab</a>
+      </nav>
+    </div>
+  </header>
+  <main>
+    <article>
+      <header>
+        <h1>Interactive Chemistry: Enhanced Element Discovery in 3D</h1>
+        <div class="meta">Published Oct 10, 2025 · 7 min read · Category: Educational Games</div>
+      </header>
+      <div class="hero"><img src="../assets/images/3d-maze-hero.jpg" alt="3D Maze Lab" loading="lazy"></div>
+      <div class="content">
+        <h2>Educational Gaming Meets Interactive Chemistry</h2>
+        <p>Our hydrogen laboratory game has evolved beyond simple 3D navigation to become an interactive chemistry learning platform. The latest enhancement introduces context-sensitive element descriptions that appear when players approach chemical compounds and press the 'E' key, creating an immersive educational experience.</p>
+        <h3>Dynamic Element Information System</h3>
+        <p>Each chemical element in the virtual laboratory now contains rich, contextual information. When players explore the 3D environment and encounter elements like hydrogen tanks, oxygen containers, or carbon compounds, they can interact directly to learn about properties, structure, and real-world applications.</p>
+        <pre><code>// Element interaction system (excerpt)
+const elementDatabase = { H: { name: 'Hydrogen', uses: ['Fuel cells','Ammonia'] } };
+function interactWithObject() {
+  if (!state.nearObject) return;
+  const obj = state.nearObject;
+  if (obj.room && elementDatabase[obj.room]) {
+    return showElementDetails(elementDatabase[obj.room], obj);
+  }
+}</code></pre>
+        <h3>Design Principles</h3>
+        <ul>
+          <li>Just‑in‑time learning prompts</li>
+          <li>Performance‑aware UI overlays</li>
+          <li>Accurate scientific information</li>
+        </ul>
+        <p>By combining game mechanics with educational content, we're creating experiences that make complex chemistry concepts accessible and engaging.</p>
+      </div>
+    </article>
+    <footer>
+      <a href="/posts/index.html">← All posts</a>
+    </footer>
+  </main>
+</body>
+</html>

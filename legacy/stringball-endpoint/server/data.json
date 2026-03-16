@@ -1,0 +1,9 @@
+{
+  "posts": [
+    { "id": "p2025-09-28-maze", "title": "Raycast Maze v4 — Experimental HUD & Physics", "date": "2025-09-28", "excerpt": "Improved FPS scaling and projectiles. Notes about DDA and adaptive pixelStep." },
+    { "id": "p2025-09-14-unsup3d", "title": "Unsupervised 3D — Memory Room Prototype", "date": "2025-09-14", "excerpt": "Single-room 3D + Mahjong-like memory task for cognitive testing." },
+    { "id": "p2025-08-03-csharp", "title": ".NET on the Edge — C# for Web Research Tools", "date": "2025-08-03", "excerpt": "How C# certification shaped my approach to typed systems and rapid prototyping." }
+  ],
+  "likes": {},
+  "subscribers": {}
+}

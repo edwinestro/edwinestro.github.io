@@ -1,0 +1,38 @@
+/* Shared design tokens — single source of truth for the colour / spacing system.
+   Import this file first in any stylesheet that uses these custom properties.        */
+
+:root {
+  /* Backgrounds — deep frozen night */
+  --bg0: #060a14;
+  --bg1: #081020;
+
+  /* Text */
+  --text: rgba(235, 245, 255, 0.94);
+  --muted: rgba(200, 220, 255, 0.68);
+  --muted2: rgba(200, 220, 255, 0.58);
+
+  /* Borders / surfaces — frosted glass */
+  --line: rgba(180, 220, 255, 0.10);
+  --glass: rgba(14, 22, 44, 0.62);
+  --glass2: rgba(16, 26, 55, 0.74);
+
+  /* Accent palette — blizzard ice */
+  --a1: #6ea8ff;
+  --a2: #a0e8ff;
+  --a3: #b8f0ff;
+  --bad: #ff6b8b;
+
+  /* Radii */
+  --r1: 18px;
+  --r2: 14px;
+
+  /* Elevation */
+  --shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+
+  /* Layout */
+  --max: 1120px;
+  --g: clamp(1rem, 4vw, 2.2rem);
+
+  /* Motion */
+  --t: 180ms;
+}

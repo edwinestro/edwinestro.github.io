@@ -1,0 +1,254 @@
+{
+  "version": 1,
+  "generatedAt": "2026-03-11T00:00:00.000Z",
+  "games": [
+    {
+      "id": "unsupervised-agi-3d",
+      "title": "Unsupervised AGI 3D",
+      "desc": "Watch an autonomous AGI entity explore a procedural 3D world, discover knowledge nodes, and evolve its form—all without instructions. Click to place signal beacons.",
+      "href": "../../games/unsupervised-agi-3d/index.html",
+      "thumbnail": "assets/agi-3d-1600x900.svg",
+      "badges": [
+        "3D",
+        "Experience",
+        "New"
+      ],
+      "counted": true,
+      "sourcePath": "Projects/games/unsupervised-agi-3d",
+      "createdAt": "2026-03-14T00:00:00.000Z",
+      "updatedAt": "2026-03-14T00:00:00.000Z"
+    },
+    {
+      "id": "i3d23",
+      "title": "I3D23",
+      "desc": "An evolved sentient 3D presence with aurora skies, breath-trail particles, dreaming states, and deep emotional memory.",
+      "href": "../../games/i3d23/index.html",
+      "thumbnail": "assets/agi-3d-1600x900.svg",
+      "badges": [
+        "3D",
+        "Experience",
+        "New"
+      ],
+      "counted": true,
+      "sourcePath": "Projects/games/i3d23",
+      "createdAt": "2026-03-14T00:00:00.000Z",
+      "updatedAt": "2026-03-14T00:00:00.000Z"
+    },
+    {
+      "id": "gi3d2",
+      "title": "GI3D2",
+      "desc": "A living AGI head with gaze tracking, satellite orbits, and adaptive working memory that responds to your touch.",
+      "href": "../../games/gi3d2/index.html",
+      "thumbnail": "assets/agi-3d-1600x900.svg",
+      "badges": [
+        "3D",
+        "Experience",
+        "New"
+      ],
+      "counted": true,
+      "sourcePath": "Projects/games/gi3d2",
+      "createdAt": "2026-03-14T00:00:00.000Z",
+      "updatedAt": "2026-03-14T00:00:00.000Z"
+    },
+    {
+      "id": "agi-3d",
+      "title": "AGI 3D",
+      "desc": "Watch a living AGI entity breathe, pulse, and wobble in real-time 3D. A liquid-metal intelligence suspended in space.",
+      "href": "../../games/agi-3d/index.html",
+      "thumbnail": "assets/agi-3d-1600x900.svg",
+      "badges": [
+        "3D",
+        "Experience",
+        "New"
+      ],
+      "counted": true,
+      "sourcePath": "Projects/games/agi-3d",
+      "createdAt": "2026-03-13T00:00:00.000Z",
+      "updatedAt": "2026-03-13T00:00:00.000Z"
+    },
+    {
+      "id": "agi-breeder",
+      "title": "AGI Breeder",
+      "desc": "Breed candidate AGI lineages, balance capability against safety, and launch a good AGI before the lab overheats.",
+      "href": "../../games/agi-breeder/index.html",
+      "thumbnail": "assets/agi-breeder-1600x900.svg",
+      "badges": [
+        "Strategy",
+        "Simulation",
+        "New"
+      ],
+      "counted": true,
+      "sourcePath": "Projects/games/agi-breeder",
+      "createdAt": "2026-03-13T00:00:00.000Z",
+      "updatedAt": "2026-03-13T00:00:00.000Z"
+    },
+    {
+      "id": "protein-interactions",
+      "title": "Protein Interactions",
+      "desc": "3D molecular dynamics: watch antibodies dock antigens, drugs inhibit enzymes, and ions flow through membranes.",
+      "href": "../../games/protein-interactions/index.html",
+      "thumbnail": "assets/protein-interactions-1600x900.png",
+      "badges": [
+        "Science",
+        "3D Simulation",
+        "New"
+      ],
+      "counted": true,
+      "sourcePath": "Projects/games/protein-interactions",
+      "createdAt": "2026-03-11T00:00:00.000Z",
+      "updatedAt": "2026-03-11T00:00:00.000Z"
+    },
+    {
+      "id": "protein-simulator",
+      "title": "Protein Simulator",
+      "desc": "Interactive 3D molecular viewer: explore alpha-helices, beta-sheets, collagen, and DNA with multiple render modes.",
+      "href": "../../games/protein-simulator/index.html",
+      "thumbnail": "assets/protein-simulator-1600x900.png",
+      "badges": [
+        "Science",
+        "3D Viewer",
+        "New"
+      ],
+      "counted": true,
+      "sourcePath": "Projects/games/protein-simulator",
+      "createdAt": "2026-03-11T00:00:00.000Z",
+      "updatedAt": "2026-03-11T00:00:00.000Z"
+    },
+    {
+      "id": "science-lab-5-2",
+      "title": "Science Lab 5.2",
+      "desc": "Teleport across all 118 element rooms and visualize electrons, orbitals, and probability density (Science Lab 5.2 rework).",
+      "href": "../../games/science-lab-5-2/index.html",
+      "thumbnail": "assets/science-lab-5-2-1600x900.png",
+      "badges": [
+        "Science",
+        "New",
+        "MVP"
+      ],
+      "counted": true,
+      "sourcePath": "Projects/games/science-lab-5-2",
+      "createdAt": "2025-12-25T12:00:00.000Z",
+      "updatedAt": "2025-12-25T12:00:00.000Z"
+    },
+    {
+      "id": "attract-ion",
+      "title": "Attract‑ion",
+      "desc": "Subatomic formation MVP: energy fluctuations, lepton orbitals, and hydrogen stabilization in a new desert lab.",
+      "href": "../../games/attract-ion/index.html",
+      "thumbnail": "assets/attract-ion-1600x900.png",
+      "badges": [
+        "Science",
+        "MVP",
+        "New"
+      ],
+      "counted": true,
+      "sourcePath": "Projects/games/attract-ion",
+      "createdAt": "2026-01-15T10:00:00.000Z",
+      "updatedAt": "2026-01-15T10:00:00.000Z"
+    },
+    {
+      "id": "one-ai",
+      "title": "oneAI: Directive Grid",
+      "desc": "Strategic directive assignment: override AI suggestions, stabilize signals, and reach target score before time runs out.",
+      "href": "../../games/oneAIGame/index.html",
+      "thumbnail": "assets/one-ai-1600x900.png",
+      "badges": [
+        "Strategy",
+        "MVP",
+        "New"
+      ],
+      "counted": true,
+      "sourcePath": "Projects/games/oneAIGame",
+      "createdAt": "2026-01-17T00:00:00.000Z",
+      "updatedAt": "2026-01-17T00:00:00.000Z"
+    },
+    {
+      "id": "frost-signal",
+      "title": "Frost Signal",
+      "desc": "Collect trust shards. Win/lose, restart. Auto-reports result.",
+      "href": "../../games/frost-signal/index.html",
+      "thumbnail": "assets/frost-signal-1600x900.png",
+      "badges": [
+        "Arcade",
+        "MVP"
+      ],
+      "counted": true,
+      "sourcePath": "Projects/games/frost-signal",
+      "createdAt": "2025-12-19T05:43:44.901622Z",
+      "updatedAt": "2025-12-19T05:43:44.901622Z"
+    },
+    {
+      "id": "thermal-drift",
+      "title": "Thermal Drift",
+      "desc": "Survive levels, dodge enemies. Auto-reports result after patch.",
+      "href": "../../games/thermal-drift/index.html",
+      "thumbnail": "assets/thermal-drift-1600x900.png",
+      "badges": [
+        "Action",
+        "Prototype"
+      ],
+      "counted": true,
+      "sourcePath": "Projects/games/thermal-drift",
+      "createdAt": "2025-12-19T05:43:44.813409Z",
+      "updatedAt": "2025-12-19T05:43:44.813409Z"
+    },
+    {
+      "id": "memory-sequence",
+      "title": "Memory Sequence",
+      "desc": "Follow and replicate an expanding pattern (legacy lab).",
+      "href": "../../../legacy/stringball-endpoint/games.html#memory-sequence",
+      "thumbnail": "assets/memory-sequence-1600x900.png",
+      "badges": [
+        "Cognitive"
+      ],
+      "counted": true,
+      "sourcePath": "legacy/stringball-endpoint/games.html",
+      "createdAt": "2025-12-14T03:12:52.894797Z",
+      "updatedAt": "2025-12-14T03:12:52.894797Z"
+    },
+    {
+      "id": "memory-mapping",
+      "title": "Memory Mapping",
+      "desc": "Rebuild the pattern by position (legacy lab).",
+      "href": "../../../legacy/stringball-endpoint/games.html#memory-mapping",
+      "thumbnail": "assets/memory-mapping-1600x900.png",
+      "badges": [
+        "Cognitive"
+      ],
+      "counted": true,
+      "sourcePath": "legacy/stringball-endpoint/games.html",
+      "createdAt": "2025-12-14T03:12:52.894797Z",
+      "updatedAt": "2025-12-14T03:12:52.894797Z"
+    },
+    {
+      "id": "alz-jaime",
+      "title": "Alz‑Jaime",
+      "desc": "Gentle progressive sequence (legacy lab).",
+      "href": "../../../legacy/stringball-endpoint/games.html#alz-jaime",
+      "thumbnail": "assets/alz-jaime-1600x900.png",
+      "badges": [
+        "Gentle"
+      ],
+      "counted": false,
+      "sourcePath": "legacy/stringball-endpoint/games.html",
+      "createdAt": "2025-12-14T03:12:52.894797Z",
+      "updatedAt": "2025-12-14T03:12:52.894797Z"
+    },
+    {
+      "id": "unsupervised-3d",
+      "title": "Unsupervised 3D",
+      "desc": "First-person neon vault run: match memory tiles while a hovering drone hunts and fires back.",
+      "href": "../../games/unsupervised-3d/index.html",
+      "thumbnail": "assets/unsupervised-3d-1600x900.png",
+      "badges": [
+        "3D",
+        "Action",
+        "Memory"
+      ],
+      "counted": true,
+      "sourcePath": "Projects/games/unsupervised-3d",
+      "createdAt": "2025-12-14T03:12:52.894797Z",
+      "updatedAt": "2026-03-12T00:00:00.000Z"
+    }
+  ]
+}

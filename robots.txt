@@ -1,0 +1,11 @@
+# edwinestro.github.io
+User-agent: *
+Allow: /
+Disallow: /legacy/
+Disallow: /IMPORTANT/
+Disallow: /packages/
+Disallow: /generated/
+Disallow: /tests/
+Disallow: /tools/
+
+Sitemap: https://edwinestro.github.io/sitemap.xml

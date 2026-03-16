@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Attract-ion</title>
+  <meta name="description" content="Attract-ion: stabilize electron orbits from Hydrogen to Boron and play Expansion Attraction as an H2O cooling challenge." />
+  <link rel="stylesheet" href="style.css" />
+  <script src="../../../assets/js/uet.js" defer></script>
+</head>
+<body>
+  <div class="shell" id="shell">
+    <header class="bar">
+      <div class="title">Attract-ion</div>
+      <div class="actions">
+        <button class="btn" id="btnSound" type="button">Sound On</button>
+        <button class="btn" id="btnPause" type="button">Pause</button>
+        <a class="btn" href="../../../index.html">Home</a>
+        <a class="btn" href="../../hubs/science-lab/index.html">Games</a>
+      </div>
+    </header>
+
+    <main class="stage">
+      <canvas id="scene" width="1600" height="900" aria-label="Attract-ion simulation"></canvas>
+
+      <!-- Simplified HUD: only the numbers that matter -->
+      <div class="hud" id="hud" aria-live="polite">
+        <div class="hud-row hud-level-row">
+          <span class="level-name" id="hudLevelName">H Hydrogen</span>
+          <span class="level-electrons" id="hudLevelElectrons">1 electron</span>
+        </div>
+        <div class="hud-row hud-top-row">
+          <div class="hud-hearts" id="hudHearts" aria-label="Lives remaining">
+            <span class="heart full" aria-hidden="true">&#9829;</span>
+            <span class="heart full" aria-hidden="true">&#9829;</span>
+            <span class="heart full" aria-hidden="true">&#9829;</span>
+            <span class="heart full" aria-hidden="true">&#9829;</span>
+            <span class="heart full" aria-hidden="true">&#9829;</span>
+          </div>
+          <div class="hud-stability-wrap">
+            <span class="stability-label">Stability</span>
+            <span class="stability-value" id="hudStabilityVal">0%</span>
+          </div>
+        </div>
+
+        <div class="hud-step" id="hudStep">Initializing...</div>
+
+        <!-- Hold-time progress bar -->
+        <div class="hud-hold" id="hudHold">
+          <div class="hold-bar">
+            <div class="hold-fill" id="hudHoldFill" style="width:0%"></div>
+          </div>
+          <div class="hold-labels">
+            <span class="hold-time" id="hudHoldTime">0.0 / 7.0s</span>
+            <span class="hold-grace" id="hudHoldGrace"></span>
+          </div>
+        </div>
+
+        <!-- Orbit error: the key instability gauge -->
+        <div class="hud-error" id="hudError">
+          <span class="error-label">Orbit</span>
+          <span class="error-value" id="hudErrorVal">-- px</span>
+          <span class="error-zone" id="hudErrorZone">--</span>
+        </div>
+
+        <div class="hud-thermo" id="hudThermo" hidden>
+          <div class="thermo-header">
+            <span class="thermo-title">H2O Lab</span>
+            <span class="thermo-target" id="thermoTarget">Target: Freeze</span>
+          </div>
+          <div class="thermo-grid">
+            <span class="thermo-pill" id="thermoCompounds">Compounds: --</span>
+            <span class="thermo-pill" id="thermoPhase">Phase: --</span>
+            <span class="thermo-pill" id="thermoTemp">Temp: --</span>
+            <span class="thermo-pill" id="thermoPressure">Pressure: --</span>
+            <span class="thermo-pill" id="thermoVolume">Volume: --</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tutorial overlay (shown on first play) -->
+      <div class="tutorial-overlay" id="tutorialOverlay" hidden>
+        <div class="tutorial-card" id="tutorialCard">
+          <div class="tutorial-dots" id="tutorialDots"></div>
+          <h2 class="tutorial-title" id="tutorialTitle"></h2>
+          <p class="tutorial-body" id="tutorialBody"></p>
+          <div class="tutorial-actions">
+            <button class="btn primary" id="tutorialNext" type="button">Next</button>
+            <button class="btn" id="tutorialSkip" type="button">Skip Tutorial</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- In-game directional hint -->
+      <div class="orbit-hint" id="orbitHint" role="status" aria-live="polite" hidden>
+        <div class="orbit-hint-title" id="orbitHintTitle">--</div>
+        <div class="orbit-hint-sub" id="orbitHintSub">--</div>
+      </div>
+
+      <!-- Prompt panel (intro, fail, success) -->
+      <div class="prompt" id="prompt" hidden>
+        <div class="prompt-title" id="promptTitle"></div>
+        <div class="prompt-body" id="promptBody"></div>
+        <div class="prompt-stats" id="promptStats" hidden>
+          <div class="prompt-stat">
+            <span class="prompt-stat-label">Hold Time</span>
+            <span class="prompt-stat-value" id="statHoldTime">0.0s</span>
+          </div>
+          <div class="prompt-stat">
+            <span class="prompt-stat-label">Peak Stability</span>
+            <span class="prompt-stat-value" id="statStability">0%</span>
+          </div>
+          <div class="prompt-stat">
+            <span class="prompt-stat-label">Attempt</span>
+            <span class="prompt-stat-value" id="statAttempts">#1</span>
+          </div>
+          <div class="prompt-stat progress">
+            <span class="prompt-stat-label">Progress</span>
+            <span class="prompt-stat-value prompt-progress" id="statProgress">0%</span>
+          </div>
+        </div>
+        <div class="prompt-encourage" id="promptEncourage" hidden></div>
+        <div class="prompt-test" id="promptTest" hidden></div>
+        <div class="prompt-actions">
+          <button class="btn primary" id="promptAction" type="button">Play</button>
+          <button class="btn" id="promptExpansion" type="button">Expansion</button>
+          <button class="btn" id="promptLevels" type="button">Levels</button>
+          <button class="btn" id="promptSkip" type="button">Skip</button>
+        </div>
+      </div>
+
+      <!-- Touch/click controls -->
+      <div class="control-pad" id="controlPad" aria-label="Field controls" hidden>
+        <button class="btn control pull" id="btnPull" type="button" aria-label="Pull orbit inward">Pull</button>
+        <button class="btn control thermo" id="btnCool" type="button" aria-label="Cool water">Cool</button>
+        <button class="btn control thermo" id="btnHeat" type="button" aria-label="Heat water">Heat</button>
+        <button class="btn control thermo" id="btnPressureUp" type="button" aria-label="Increase pressure">P+</button>
+        <button class="btn control thermo" id="btnPressureDown" type="button" aria-label="Decrease pressure">P-</button>
+        <button class="btn control thermo" id="btnVolumeUp" type="button" aria-label="Increase volume">V+</button>
+        <button class="btn control thermo" id="btnVolumeDown" type="button" aria-label="Decrease volume">V-</button>
+        <div class="molecule-options" id="moleculeOptions" hidden>
+          <span class="molecule-label">H2O Molecules</span>
+          <button class="btn control molecule" id="btnMol10" type="button" aria-label="Set 10 H2O molecules">10</button>
+          <button class="btn control molecule" id="btnMol10000" type="button" aria-label="Set 10,000 H2O molecules">10,000</button>
+          <button class="btn control molecule" id="btnMol10b" type="button" aria-label="Set 10,000,000,000 H2O molecules">10,000,000,000</button>
+        </div>
+      </div>
+
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+      <!-- Pause overlay -->
+      <div class="pause-overlay" id="pauseOverlay" hidden>
+        <div class="pause-card">
+          <h2 class="pause-title">Paused</h2>
+          <p class="pause-body">Press <strong>P</strong> or <strong>Escape</strong> to resume.</p>
+          <div class="pause-actions">
+            <button class="btn primary" id="pauseResume" type="button">Resume</button>
+            <button class="btn" id="pauseRestart" type="button">Restart Level</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Level Select overlay -->
+      <div class="level-select-overlay" id="levelSelect" hidden>
+        <div class="level-select-card">
+          <h2 class="level-select-title">Choose Your Atom</h2>
+          <p class="level-select-sub">Complete each atom to unlock the next one.</p>
+          <div class="level-grid" id="levelGrid">
+            <!-- Populated by game.js -->
+          </div>
+          <div class="level-select-actions">
+            <button class="btn" id="levelSelectBack" type="button">Back</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <span>Attract-ion</span>
+      <span class="muted">Scroll, hold Space, or hold ArrowDown to pull electrons toward the nucleus.</span>
+    </footer>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

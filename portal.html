@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Portal — Edwin Estro</title>
+<meta name="description" content="All projects: games, 3D experiences, science simulations, tools, and docs curated by Edwin Estro."/>
+<meta name="theme-color" content="#0a0818"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0818;--surface:rgba(12,18,36,0.6);--border:rgba(108,232,255,0.08);--text:rgba(220,236,255,0.88);--dim:rgba(160,190,220,0.52);--accent:rgba(108,232,255,0.82);--green:rgba(127,240,197,0.82);--radius:14px}
+html{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,sans-serif;scroll-behavior:smooth}
+body{min-height:100vh;padding:0 0 80px}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.container{max-width:1120px;margin:0 auto;padding:0 clamp(12px,2vw,24px)}
+
+/* Header */
+.header{padding:clamp(20px,3vw,40px) 0 clamp(14px,2vw,24px);border-bottom:1px solid var(--border)}
+.header-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-mark{width:32px;height:32px;border-radius:8px;object-fit:cover;border:1px solid rgba(255,255,255,0.1)}
+.brand h1{font-family:Georgia,serif;font-size:clamp(1rem,1.4vw,1.3rem);font-weight:700}
+.brand p{font-size:0.56rem;color:var(--dim);margin-top:1px}
+.nav-links{display:flex;gap:6px;flex-wrap:wrap}
+.nav-links a{font-size:0.64rem;font-weight:700;padding:5px 10px;border-radius:999px;border:1px solid var(--border);background:var(--surface);backdrop-filter:blur(6px);color:var(--text);transition:border-color .2s,background .2s}
+.nav-links a:hover{border-color:var(--accent);background:rgba(108,232,255,0.06);text-decoration:none}
+
+/* Stats bar */
+.stats-bar{display:flex;gap:clamp(12px,2vw,28px);padding:14px 0;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.stat{text-align:center}
+.stat-n{font-size:1.3rem;font-weight:800;color:var(--accent)}
+.stat-l{font-size:0.5rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--dim)}
+
+/* Section */
+.section{padding:clamp(24px,3vw,40px) 0 0}
+.section-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:clamp(12px,1.5vw,20px);flex-wrap:wrap;gap:8px}
+.section h2{font-family:Georgia,serif;font-size:clamp(1rem,1.6vw,1.4rem);font-weight:700}
+.section-tag{font-size:0.5rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--green)}
+
+/* Grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(260px,100%),1fr));gap:clamp(10px,1.2vw,16px)}
+.card{display:flex;flex-direction:column;gap:8px;padding:clamp(12px,1.2vw,16px);border-radius:var(--radius);background:var(--surface);border:1px solid var(--border);backdrop-filter:blur(6px);transition:border-color .25s,transform .25s}
+.card:hover{border-color:rgba(108,232,255,0.2);transform:translateY(-2px)}
+.card-title{font-size:0.82rem;font-weight:800;color:rgba(240,248,255,0.94)}
+.card-desc{font-size:0.62rem;line-height:1.3;color:var(--dim);flex:1}
+.card-badges{display:flex;gap:4px;flex-wrap:wrap}
+.badge{font-size:0.46rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:2px 6px;border-radius:999px;background:rgba(108,232,255,0.08);color:var(--accent);border:1px solid rgba(108,232,255,0.12)}
+.badge.green{background:rgba(127,240,197,0.08);color:var(--green);border-color:rgba(127,240,197,0.12)}
+.badge.purple{background:rgba(180,140,255,0.08);color:rgba(180,140,255,0.82);border-color:rgba(180,140,255,0.12)}
+.card-link{font-size:0.58rem;font-weight:700;color:var(--accent)}
+
+/* Footer */
+.footer{padding:28px 0 0;margin-top:40px;border-top:1px solid var(--border);text-align:center}
+.footer p{font-size:0.54rem;color:var(--dim)}
+
+/* ── Animations ── */
+@keyframes gradientShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulseGlow{0%,100%{box-shadow:0 0 0 rgba(108,232,255,0)}50%{box-shadow:0 0 18px rgba(108,232,255,0.08)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+
+.header{background:linear-gradient(135deg,rgba(10,8,24,0.97),rgba(20,16,48,0.97),rgba(10,18,36,0.97));background-size:300% 300%;animation:gradientShift 12s ease infinite}
+.header::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(108,232,255,0.04),transparent 60%);pointer-events:none}
+.header{position:relative;overflow:hidden}
+
+.stat-n{transition:color 0.4s}
+.stat{opacity:0;animation:fadeInUp 0.6s ease forwards}
+.stat:nth-child(1){animation-delay:0.1s}
+.stat:nth-child(2){animation-delay:0.2s}
+.stat:nth-child(3){animation-delay:0.3s}
+.stat:nth-child(4){animation-delay:0.4s}
+
+.section{opacity:0;transform:translateY(20px);transition:opacity 0.6s ease,transform 0.6s ease}
+.section.visible{opacity:1;transform:translateY(0)}
+
+.card{opacity:0;transform:translateY(16px);transition:opacity 0.5s ease,transform 0.5s ease,border-color 0.25s,box-shadow 0.3s}
+.card.visible{opacity:1;transform:translateY(0)}
+.card:hover{border-color:rgba(108,232,255,0.25);transform:translateY(-3px);box-shadow:0 4px 24px rgba(108,232,255,0.06),0 0 0 1px rgba(108,232,255,0.08)}
+
+.section-tag{display:inline-block;animation:float 3s ease-in-out infinite}
+
+.brand h1{background:linear-gradient(90deg,var(--text),var(--accent),var(--text));background-size:200% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 4s linear infinite}
+
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="header">
+<div class="container header-inner">
+  <div class="brand">
+    <img class="brand-mark" src="assets/img/edw.jpg" alt="Edwin Estro" />
+    <div><h1>Edwin Estro — Portal</h1><p>Games · Science · Tools · Docs</p></div>
+  </div>
+  <nav class="nav-links">
+    <a href="index.html">Home (AGI 3D)</a>
+    <a href="Projects/docs/index.html">Docs</a>
+    <a href="legacy/stringball-endpoint/index.html">Legacy Lab</a>
+  </nav>
+</div>
+</header>
+
+<div class="container">
+<div class="stats-bar">
+  <div class="stat"><div class="stat-n" id="statTotal">—</div><div class="stat-l">Total Projects</div></div>
+  <div class="stat"><div class="stat-n" id="statGames">—</div><div class="stat-l">Games</div></div>
+  <div class="stat"><div class="stat-n" id="statScience">—</div><div class="stat-l">Science</div></div>
+  <div class="stat"><div class="stat-n" id="statTools">—</div><div class="stat-l">Tools & Docs</div></div>
+</div>
+
+<!-- 3D & AI Experiences -->
+<section class="section" id="experiences">
+<div class="section-head"><h2>3D & AI Experiences</h2><span class="section-tag">Interactive</span></div>
+<div class="grid" id="gridExperiences"></div>
+</section>
+
+<!-- Science Simulations -->
+<section class="section" id="science">
+<div class="section-head"><h2>Science Simulations</h2><span class="section-tag">Explore</span></div>
+<div class="grid" id="gridScience"></div>
+</section>
+
+<!-- Strategy & Arcade -->
+<section class="section" id="strategy">
+<div class="section-head"><h2>Strategy & Arcade</h2><span class="section-tag">Play</span></div>
+<div class="grid" id="gridStrategy"></div>
+</section>
+
+<!-- Cognitive & Legacy -->
+<section class="section" id="cognitive">
+<div class="section-head"><h2>Cognitive & Legacy</h2><span class="section-tag">Archive</span></div>
+<div class="grid" id="gridCognitive"></div>
+</section>
+
+<!-- Tools & Documentation -->
+<section class="section" id="tools">
+<div class="section-head"><h2>Tools & Documentation</h2><span class="section-tag">Reference</span></div>
+<div class="grid" id="gridTools"></div>
+</section>
+
+<footer class="footer"><p>&copy; 2026 Edwin Estro · All projects hosted as a static site</p></footer>
+</div>
+
+<script type="module">
+// ─── Static tool/doc entries (not in games.json) ───
+const toolEntries = [
+  { title: 'NotFiddler', desc: 'HAR file viewer and network waterfall chart inspector.', href: 'NotFiddler/index.html', badges: ['Tool'], category: 'tools' },
+  { title: 'Lepton', desc: 'Lightweight interactive experiment shell.', href: 'Lepton/index.html', badges: ['Tool'], category: 'tools' },
+  { title: 'Docs & Resume', desc: 'Documentation index, certifications, and resume.', href: 'Projects/docs/index.html', badges: ['Docs'], category: 'tools' },
+  { title: 'Science Lab Hub', desc: 'Central hub for all science lab experiments.', href: 'Projects/hubs/science-lab/index.html', badges: ['Hub'], category: 'tools' },
+  { title: 'Sodium Knowledge', desc: 'Sodium research knowledge base.', href: 'Sodium/README.md', badges: ['Research'], category: 'tools' },
+  { title: 'Security Audit', desc: 'Project security audit and scalability report.', href: 'Projects/Audit/security-audit.html', badges: ['Audit'], category: 'tools' },
+  { title: 'Legacy Game Lab', desc: 'Original stringball endpoint with maze, games, and CV.', href: 'legacy/stringball-endpoint/index.html', badges: ['Legacy'], category: 'tools' },
+];
+
+// ─── Category mapping for games.json entries ───
+function categorize(game) {
+  const b = (game.badges || []).map(s => s.toLowerCase());
+  const t = (game.title || '').toLowerCase();
+  if (b.includes('3d') || b.includes('experience') || t.includes('agi') || t.includes('gi3d') || t.includes('unsupervised')) return 'experiences';
+  if (b.includes('science') || t.includes('protein') || t.includes('science') || t.includes('attract')) return 'science';
+  if (b.includes('cognitive') || b.includes('gentle') || t.includes('memory') || t.includes('alz')) return 'cognitive';
+  if (b.includes('strategy') || b.includes('action') || b.includes('arcade') || b.includes('mvp')) return 'strategy';
+  return 'strategy';
+}
+
+function renderCard(item, isGame) {
+  const badges = (item.badges || []).map(b => {
+    const cls = b === 'New' ? 'green' : b === 'MVP' ? 'purple' : '';
+    return `<span class="badge ${cls}">${b}</span>`;
+  }).join('');
+  const href = isGame ? item.href.replace('../../games/', 'Projects/games/').replace('../../../legacy/', 'legacy/') : item.href;
+  return `<a class="card" href="${href}">
+    <div class="card-title">${item.title}</div>
+    <div class="card-desc">${item.desc}</div>
+    <div class="card-badges">${badges}</div>
+  </a>`;
+}
+
+async function init() {
+  const grids = { experiences: document.getElementById('gridExperiences'), science: document.getElementById('gridScience'), strategy: document.getElementById('gridStrategy'), cognitive: document.getElementById('gridCognitive'), tools: document.getElementById('gridTools') };
+
+  // Load games.json
+  let games = [];
+  try {
+    const res = await fetch('Projects/data/games.json');
+    const data = await res.json();
+    games = data.games || [];
+  } catch { console.warn('Could not load games.json'); }
+
+  // Sort by updatedAt descending
+  games.sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''));
+
+  // Categorize and render game entries
+  const counts = { experiences: 0, science: 0, strategy: 0, cognitive: 0, tools: 0 };
+  for (const game of games) {
+    const cat = categorize(game);
+    if (grids[cat]) { grids[cat].insertAdjacentHTML('beforeend', renderCard(game, true)); counts[cat]++; }
+  }
+
+  // Render tool entries
+  for (const tool of toolEntries) {
+    grids.tools.insertAdjacentHTML('beforeend', renderCard(tool, false));
+    counts.tools++;
+  }
+
+  // Animated stat counters
+  function animateCount(el, target) {
+    const dur = 800, start = performance.now();
+    const tick = (now) => {
+      const t = Math.min((now - start) / dur, 1);
+      const ease = 1 - Math.pow(1 - t, 3);
+      el.textContent = Math.round(ease * target);
+      if (t < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+  const total = games.length + toolEntries.length;
+  animateCount(document.getElementById('statTotal'), total);
+  animateCount(document.getElementById('statGames'), games.filter(g => g.counted).length);
+  animateCount(document.getElementById('statScience'), counts.science);
+  animateCount(document.getElementById('statTools'), counts.tools);
+
+  // Hide empty sections
+  for (const [key, grid] of Object.entries(grids)) {
+    if (!grid.children.length) grid.closest('.section').style.display = 'none';
+  }
+
+  // Scroll-reveal for sections and cards
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        const delay = entry.target.classList.contains('card') ? i * 60 : 0;
+        setTimeout(() => entry.target.classList.add('visible'), delay);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.section').forEach(s => observer.observe(s));
+  document.querySelectorAll('.card').forEach(c => observer.observe(c));
+}
+init();
+</script>
+</body>
+</html>

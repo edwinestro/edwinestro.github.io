@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="120" y1="80" x2="1500" y2="860" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0C1526"/>
+      <stop offset="0.55" stop-color="#11233A"/>
+      <stop offset="1" stop-color="#08111F"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="265" y1="168" x2="1240" y2="755" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6CE8FF" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#FF7BC1" stop-opacity="0.08"/>
+    </linearGradient>
+    <linearGradient id="podA" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#6CE8FF"/>
+      <stop offset="1" stop-color="#1C6E9B"/>
+    </linearGradient>
+    <linearGradient id="podB" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#7FF0C5"/>
+      <stop offset="1" stop-color="#2B8C6A"/>
+    </linearGradient>
+    <linearGradient id="podC" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#FFD978"/>
+      <stop offset="1" stop-color="#AF7A22"/>
+    </linearGradient>
+    <linearGradient id="podD" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#FF7BC1"/>
+      <stop offset="1" stop-color="#A73A73"/>
+    </linearGradient>
+    <filter id="glow" x="0" y="0" width="1600" height="900" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="28" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <circle cx="1238" cy="118" r="192" fill="#6CE8FF" fill-opacity="0.08"/>
+  <circle cx="276" cy="808" r="256" fill="#FF7BC1" fill-opacity="0.1"/>
+  <rect x="104" y="90" width="1392" height="720" rx="36" fill="#0D1B31" stroke="#223757" stroke-width="2"/>
+  <rect x="134" y="120" width="1332" height="660" rx="28" fill="url(#glass)" stroke="#294466"/>
+  <text x="172" y="202" fill="#6CE8FF" font-family="Segoe UI, Arial, sans-serif" font-size="28" letter-spacing="4">DIRECTIVE LAB SIMULATION</text>
+  <text x="168" y="282" fill="#F3F7FF" font-family="Georgia, serif" font-size="76" font-weight="700">AGI Breeder</text>
+  <text x="168" y="340" fill="#A8B9D6" font-family="Segoe UI, Arial, sans-serif" font-size="30">Breed lineages. Trade off capability, safety, and imagination.</text>
+  <g filter="url(#glow)">
+    <rect x="202" y="430" width="204" height="248" rx="28" fill="#11233A" stroke="#31557D"/>
+    <rect x="444" y="380" width="204" height="298" rx="28" fill="#11233A" stroke="#31557D"/>
+    <rect x="686" y="332" width="204" height="346" rx="28" fill="#11233A" stroke="#31557D"/>
+    <rect x="928" y="384" width="204" height="294" rx="28" fill="#11233A" stroke="#31557D"/>
+    <rect x="1170" y="446" width="204" height="232" rx="28" fill="#11233A" stroke="#31557D"/>
+    <rect x="228" y="468" width="152" height="184" rx="24" fill="url(#podA)" fill-opacity="0.82"/>
+    <rect x="470" y="418" width="152" height="234" rx="24" fill="url(#podB)" fill-opacity="0.82"/>
+    <rect x="712" y="370" width="152" height="282" rx="24" fill="url(#podC)" fill-opacity="0.82"/>
+    <rect x="954" y="422" width="152" height="230" rx="24" fill="url(#podD)" fill-opacity="0.82"/>
+    <rect x="1196" y="484" width="152" height="168" rx="24" fill="url(#podA)" fill-opacity="0.82"/>
+  </g>
+  <path d="M312 700C484 656 610 656 786 700" stroke="#6CE8FF" stroke-width="8" stroke-linecap="round" stroke-dasharray="12 18"/>
+  <path d="M794 700C962 648 1088 648 1260 700" stroke="#7FF0C5" stroke-width="8" stroke-linecap="round" stroke-dasharray="12 18"/>
+  <circle cx="786" cy="694" r="24" fill="#FFD978"/>
+  <circle cx="786" cy="694" r="58" fill="#FFD978" fill-opacity="0.18"/>
+  <text x="176" y="752" fill="#F3F7FF" font-family="Segoe UI, Arial, sans-serif" font-size="28">Launch target:</text>
+  <text x="386" y="752" fill="#A8B9D6" font-family="Segoe UI, Arial, sans-serif" font-size="28">Capability 88 · Alignment 90 · Resilience 82 · Creativity 68 · Risk ≤ 34</text>
+  <rect x="176" y="774" width="1248" height="10" rx="5" fill="#203550"/>
+  <rect x="176" y="774" width="956" height="10" rx="5" fill="url(#podB)"/>
+</svg>

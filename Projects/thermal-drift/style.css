@@ -1,0 +1,22 @@
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:system-ui,Segoe UI,Roboto,Arial}
+.game-shell{min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1rem;background:linear-gradient(180deg,#041028,#061226)}
+header{color:#dff6ff;text-align:center}
+#game{width:min(1200px,95vw);height:60vh;background:#0a1530;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.6);display:block}
+.controls{color:#99e6ff;opacity:.9}
+footer{width:95vw;max-width:1200px;display:flex;justify-content:space-between;color:#bfefff;padding:0.5rem}
+.credits{opacity:.8}
+
+.hud{display:flex;gap:1rem;justify-content:center;margin-top:0.6rem;color:#bfefff}
+.hud div{background:rgba(255,255,255,0.04);padding:0.35rem 0.6rem;border-radius:8px;font-weight:700}
+
+.mobile-controls{display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:40;gap:8px}
+.mobile-controls .mc{font-size:20px;padding:12px 18px;border-radius:10px;border:0;background:rgba(255,255,255,0.06);color:#eaffff}
+
+.game-ui{position:fixed;top:14px;right:14px;display:flex;flex-direction:column;gap:8px;z-index:40}
+.game-ui button{background:rgba(255,255,255,0.06);border:0;color:#dffaff;padding:8px 10px;border-radius:8px;font-weight:700}
+
+@media (max-width:720px){
+	.mobile-controls{display:flex}
+	#game{height:50vh}
+}
