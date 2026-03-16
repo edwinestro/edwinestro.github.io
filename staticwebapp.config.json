@@ -69,6 +69,6 @@
   },
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/assets/*", "/Projects/*", "/legacy/*", "/*.json", "/robots.txt", "/sitemap.xml"]
+    "exclude": ["/.auth/*", "/assets/*", "/Projects/*", "/legacy/*", "/*.json", "/robots.txt", "/sitemap.xml"]
   }
 }
