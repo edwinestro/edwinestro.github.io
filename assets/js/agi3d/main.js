@@ -87,7 +87,7 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.12;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.type = THREE.PCFShadowMap;
 
 const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(0x080a1e, 0.018);
@@ -418,7 +418,8 @@ const player = {
 
 const beacons = [];
 const beaconGeo = new THREE.ConeGeometry(0.12, 0.5, 6);
-const beaconMat = new THREE.MeshBasicMaterial({ color: 0xffcc44, transparent: true, opacity: 0.6, depthWrite: false });
+const beaconMats = Array.from({ length: 5 }, () => new THREE.MeshBasicMaterial({ color: 0xffcc44, transparent: true, opacity: 0.6, depthWrite: false }));
+let beaconMatIndex = 0;
 
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
@@ -428,6 +429,7 @@ let hintTimer = 0;
 let eventToastTimer = 0;
 let reflectionTimer = 0;
 let seededBurstSpawned = false;
+const _sparkOrigin = new THREE.Vector3();
 
 function addMomentum(amount) {
   const previous = world.momentum;
@@ -479,19 +481,36 @@ function removeAnchor(anchor) {
   scene.remove(anchor.light);
 }
 
+const beaconLightPool = Array.from({ length: 5 }, () => {
+  const l = new THREE.PointLight(0xffcc44, 0.6, 6);
+  l.visible = false;
+  scene.add(l);
+  return l;
+});
+const beaconMeshPool = Array.from({ length: 5 }, (_, i) => {
+  const m = new THREE.Mesh(beaconGeo, beaconMats[i]);
+  m.visible = false;
+  scene.add(m);
+  return m;
+});
+
 function placeBeacon(x, z) {
   if (beacons.length >= 5) {
     const expired = beacons.shift();
-    scene.remove(expired.mesh);
-    scene.remove(expired.light);
+    expired.mesh.visible = false;
+    expired.light.visible = false;
   }
-  const mesh = new THREE.Mesh(beaconGeo, beaconMat.clone());
+  const poolIdx = beaconMatIndex % 5;
+  beaconMatIndex += 1;
+  const mesh = beaconMeshPool[poolIdx];
+  const light = beaconLightPool[poolIdx];
   mesh.position.set(x, 0.3, z);
-  const light = new THREE.PointLight(0xffcc44, 0.6, 6);
+  mesh.visible = true;
+  beaconMats[poolIdx].opacity = 0.6;
   light.position.set(x, 0.6, z);
-  scene.add(mesh);
-  scene.add(light);
-  beacons.push({ mesh, light, x, z, age: 0 });
+  light.intensity = 0.6;
+  light.visible = true;
+  beacons.push({ mesh, light, mat: beaconMats[poolIdx], x, z, age: 0 });
   world.beaconsPlaced += 1;
 }
 
@@ -528,27 +547,26 @@ function pulseAffects(x, z) {
   return 1 - distance / player.pulseRadius;
 }
 
+const ruptureRingMats = {
+  echo: new THREE.MeshBasicMaterial({ color: 0xcc66ff, transparent: true, opacity: 0.62, depthWrite: false, blending: THREE.AdditiveBlending }),
+  hot: new THREE.MeshBasicMaterial({ color: 0xff6688, transparent: true, opacity: 0.62, depthWrite: false, blending: THREE.AdditiveBlending }),
+  warm: new THREE.MeshBasicMaterial({ color: 0xff9b63, transparent: true, opacity: 0.62, depthWrite: false, blending: THREE.AdditiveBlending }),
+};
+const ruptureCoreMats = {
+  echo: new THREE.MeshBasicMaterial({ color: 0xe8ccff, transparent: true, opacity: 0.92, depthWrite: false }),
+  normal: new THREE.MeshBasicMaterial({ color: 0xffddb8, transparent: true, opacity: 0.92, depthWrite: false }),
+};
+const echoOuterMat = new THREE.MeshBasicMaterial({ color: 0xaa44ee, transparent: true, opacity: 0.35, depthWrite: false, blending: THREE.AdditiveBlending });
+
 function createRupture(x, z, severity = randRange(1, 1.85 + runProfile.ruptureSeverityBonus), echo = false) {
-  const color = echo ? 0xcc66ff : severity > 1.55 ? 0xff6688 : 0xff9b63;
-  const ring = new THREE.Mesh(ruptureRingGeo, new THREE.MeshBasicMaterial({
-    color,
-    transparent: true,
-    opacity: 0.62,
-    depthWrite: false,
-    blending: THREE.AdditiveBlending,
-  }));
+  const ringMatTemplate = echo ? ruptureRingMats.echo : severity > 1.55 ? ruptureRingMats.hot : ruptureRingMats.warm;
+  const ring = new THREE.Mesh(ruptureRingGeo, ringMatTemplate.clone());
   ring.rotation.x = Math.PI * 0.5;
   ring.position.set(x, 0.08, z);
-  const core = new THREE.Mesh(ruptureCoreGeo, new THREE.MeshStandardMaterial({
-    color: echo ? 0xe8ccff : 0xffddb8,
-    emissive: color,
-    emissiveIntensity: 0.9,
-    roughness: 0.18,
-    metalness: 0.32,
-    transparent: true,
-    opacity: 0.92,
-  }));
+  const coreMatTemplate = echo ? ruptureCoreMats.echo : ruptureCoreMats.normal;
+  const core = new THREE.Mesh(ruptureCoreGeo, coreMatTemplate.clone());
   core.position.set(x, 0.72, z);
+  const color = echo ? 0xcc66ff : severity > 1.55 ? 0xff6688 : 0xff9b63;
   const light = new THREE.PointLight(color, 1.15 + severity * 0.4, 9 + severity * 3);
   light.position.set(x, 0.8, z);
   scene.add(ring);
@@ -557,13 +575,7 @@ function createRupture(x, z, severity = randRange(1, 1.85 + runProfile.ruptureSe
 
   let outerRing = null;
   if (echo) {
-    outerRing = new THREE.Mesh(echoRingGeo, new THREE.MeshBasicMaterial({
-      color: 0xaa44ee,
-      transparent: true,
-      opacity: 0.35,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-    }));
+    outerRing = new THREE.Mesh(echoRingGeo, echoOuterMat.clone());
     outerRing.rotation.x = Math.PI * 0.5;
     outerRing.position.set(x, 0.06, z);
     scene.add(outerRing);
@@ -639,6 +651,9 @@ function checkAbilityCombo(currentAbility) {
   return comboMsg;
 }
 
+const anchorRingMatTemplate = new THREE.MeshBasicMaterial({ color: 0x74dfff, transparent: true, opacity: 0.42, depthWrite: false, blending: THREE.AdditiveBlending });
+const anchorColumnMatTemplate = new THREE.MeshBasicMaterial({ color: 0xbff5ff, transparent: true, opacity: 0.16, depthWrite: false, blending: THREE.AdditiveBlending });
+
 function placeAnchorField(x, z) {
   player.anchorArmed = false;
   player.anchorCooldown = runProfile.anchor.cooldown - archiveBonuses.anchorCooldownReduction;
@@ -646,23 +661,11 @@ function placeAnchorField(x, z) {
     removeAnchor(anchors.shift());
   }
 
-  const ring = new THREE.Mesh(anchorRingGeo, new THREE.MeshBasicMaterial({
-    color: 0x74dfff,
-    transparent: true,
-    opacity: 0.42,
-    depthWrite: false,
-    blending: THREE.AdditiveBlending,
-  }));
+  const ring = new THREE.Mesh(anchorRingGeo, anchorRingMatTemplate.clone());
   ring.rotation.x = Math.PI * 0.5;
   ring.position.set(x, 0.16, z);
   ring.scale.setScalar(runProfile.anchor.radius / 1.18);
-  const column = new THREE.Mesh(anchorColumnGeo, new THREE.MeshBasicMaterial({
-    color: 0xbff5ff,
-    transparent: true,
-    opacity: 0.16,
-    depthWrite: false,
-    blending: THREE.AdditiveBlending,
-  }));
+  const column = new THREE.Mesh(anchorColumnGeo, anchorColumnMatTemplate.clone());
   column.position.set(x, 1.1, z);
   const light = new THREE.PointLight(0x7de0ff, 0.95, runProfile.anchor.radius * 2.4);
   light.position.set(x, 1.2, z);
@@ -701,7 +704,7 @@ function triggerPulse() {
   world.pulsesUsed += 1;
   agi.attention = clamp(agi.attention + 0.2, 0, 1);
   agi.coherence = clamp(agi.coherence + 0.04, 0, 1);
-  emitSpark(agi.pos.clone(), 28);
+  emitSpark(_sparkOrigin.copy(agi.pos), 28);
 
   let impacted = 0;
   for (const rupture of ruptures) {
@@ -866,7 +869,7 @@ function resolveRupture(rupture) {
   agi.coherence = clamp(agi.coherence + 0.08, 0, 1);
   agi.curiosity = clamp(agi.curiosity + 0.04, 0, 1);
   agi.attention = clamp(agi.attention + 0.12, 0, 1);
-  emitSpark(new THREE.Vector3(rupture.x, 0.9, rupture.z), 26);
+  emitSpark(_sparkOrigin.set(rupture.x, 0.9, rupture.z), 26);
   pushEvent('Rupture harmonized. The field stabilizes.');
   if (agi.targetPos && agi.targetPos.ruptureId === rupture.id) agi.targetPos = null;
 }
@@ -924,7 +927,7 @@ function updateRuptures(dt, time) {
     const anchorSupport = anchorInfluenceAt(rupture.x, rupture.z);
     const distance = Math.hypot(rupture.x - agi.pos.x, rupture.z - agi.pos.z);
     rupture.ring.material.opacity = 0.34 + pulse * 0.32 + beaconSupport * 0.18 + shieldSupport * 0.16 + anchorSupport * 0.22;
-    rupture.core.material.emissiveIntensity = 0.78 + pulse * 0.65 + beaconSupport * 0.35 + shieldSupport * 0.4 + anchorSupport * 0.52;
+    rupture.core.material.opacity = 0.5 + pulse * 0.3 + beaconSupport * 0.12 + shieldSupport * 0.14 + anchorSupport * 0.18;
     rupture.light.intensity = 1.05 + pulse * 0.5 + beaconSupport * 0.45 + shieldSupport * 0.55 + anchorSupport * 0.7;
 
     ambientDrain += 0.36 * world.pulseProtection * (1 - anchorSupport * ANCHOR.stabilityShield) * (1 - Math.min(0.22, world.momentum * 0.0022));
@@ -951,7 +954,7 @@ function updateRuptures(dt, time) {
         randRange(0.9, rupture.severity * 0.7),
         false
       );
-      emitSpark(new THREE.Vector3(rupture.x, 0.8, rupture.z), 16);
+      emitSpark(_sparkOrigin.set(rupture.x, 0.8, rupture.z), 16);
       pushEvent('Echo rupture split. A new fracture appeared nearby.');
     }
 
@@ -1133,7 +1136,7 @@ function updateAGI(dt) {
       }
       node.mesh.material.emissiveIntensity = 1.2;
       node.glow.intensity = 1.5;
-      emitSpark(new THREE.Vector3(node.x, 1, node.z), 18);
+      emitSpark(_sparkOrigin.set(node.x, 1, node.z), 18);
       const effectLabels = { resonance: '+resonance', speed: '+speed', momentum: '+momentum', stability: '+stability', harmonize: 'harmonize nearby' };
       const effectLabel = nodeTypeDef ? effectLabels[nodeTypeDef.effect] || '' : '';
       pushEvent(`Pattern assimilated: ${node.type}${effectLabel ? ` (${effectLabel})` : ''}.`);
@@ -1154,7 +1157,7 @@ function updateAGI(dt) {
           createKnowledgeNode(agi.pos.x + randRange(-12, 12), agi.pos.z + randRange(-12, 12));
         }
         spawnRuptureBurst(1 + agi.evolution, 8 + agi.evolution * 2, 1.2, 1.8 + runProfile.ruptureSeverityBonus + agi.evolution * 0.1);
-        emitSpark(agi.pos.clone(), 30);
+        emitSpark(_sparkOrigin.copy(agi.pos), 30);
         agi.speed = Math.min(1.85, agi.speed + 0.08);
         pushEvent(`Evolution stage ${agi.evolution} reached. The field reacts.`);
       }
@@ -1164,11 +1167,11 @@ function updateAGI(dt) {
   for (let index = beacons.length - 1; index >= 0; index--) {
     const beacon = beacons[index];
     beacon.age += dt;
-    beacon.mesh.material.opacity = Math.max(0.15, 0.6 - beacon.age * 0.03);
+    beacon.mat.opacity = Math.max(0.15, 0.6 - beacon.age * 0.03);
     beacon.light.intensity = Math.max(0.1, 0.6 - beacon.age * 0.03);
     if (beacon.age > BEACON_LIFETIME) {
-      scene.remove(beacon.mesh);
-      scene.remove(beacon.light);
+      beacon.mesh.visible = false;
+      beacon.light.visible = false;
       beacons.splice(index, 1);
     }
   }
@@ -1443,6 +1446,8 @@ function handlePrimaryAction(clientX, clientY) {
   if (nearbyRupture) pushEvent('Beacon anchored near a rupture. Harmonization will be faster here.');
 }
 
+let hudAccum = 0;
+
 function animate() {
   window.requestAnimationFrame(animate);
   const dt = Math.min(clock.getDelta(), 0.05);
@@ -1472,8 +1477,13 @@ function animate() {
   updateDust(time);
   updateSparks(dt);
   updateReflection(dt);
-  updateDirective();
-  updateHUD();
+
+  hudAccum += dt;
+  if (hudAccum >= 0.25) {
+    hudAccum = 0;
+    updateDirective();
+    updateHUD();
+  }
 
   if (hintTimer > 0) {
     hintTimer -= dt;
