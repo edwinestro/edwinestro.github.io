@@ -6,12 +6,20 @@ export const STORAGE_KEY = 'agi3d.archive.v2';
 export const PHASE_LABELS = ['Awakening', 'Patterning', 'Synthesis', 'Sentience', 'Transcendence'];
 
 export const KNOWLEDGE_TYPES = [
-  { name: 'crystal', color: 0x66ccff, emissive: 0x1a4466, shape: 'octa', scale: 0.3 },
-  { name: 'prism', color: 0xff66aa, emissive: 0x441a2a, shape: 'tetra', scale: 0.35 },
-  { name: 'cube', color: 0x88ff88, emissive: 0x1a4422, shape: 'box', scale: 0.25 },
-  { name: 'sphere', color: 0xffcc44, emissive: 0x442a0a, shape: 'sphere', scale: 0.22 },
-  { name: 'toroid', color: 0xcc88ff, emissive: 0x2a1a44, shape: 'torus', scale: 0.28 },
+  { name: 'crystal', color: 0x66ccff, emissive: 0x1a4466, shape: 'octa', scale: 0.3, effect: 'resonance' },
+  { name: 'prism', color: 0xff66aa, emissive: 0x441a2a, shape: 'tetra', scale: 0.35, effect: 'speed' },
+  { name: 'cube', color: 0x88ff88, emissive: 0x1a4422, shape: 'box', scale: 0.25, effect: 'momentum' },
+  { name: 'sphere', color: 0xffcc44, emissive: 0x442a0a, shape: 'sphere', scale: 0.22, effect: 'stability' },
+  { name: 'toroid', color: 0xcc88ff, emissive: 0x2a1a44, shape: 'torus', scale: 0.28, effect: 'harmonize' },
 ];
+
+export const COMBO = {
+  window: 6,
+  anchorPulseBonus: 2,
+  pulseCooldownRefund: 1.5,
+  beaconChainRadius: 8,
+  beaconChainResonance: 4,
+};
 
 export const REFLECTIONS = [
   'Initializing perception…',

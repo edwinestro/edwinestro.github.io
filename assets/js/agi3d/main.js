@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import {
   ANCHOR,
+  COMBO,
   KNOWLEDGE_TYPES,
   MAX_RESONANCE,
   MAX_STABILITY,
@@ -239,6 +240,7 @@ let ruptureId = 0;
 let anchorId = 0;
 const ruptureRingGeo = new THREE.TorusGeometry(1.25, 0.1, 10, 42);
 const ruptureCoreGeo = new THREE.OctahedronGeometry(0.26, 0);
+const echoRingGeo = new THREE.TorusGeometry(1.45, 0.06, 10, 42);
 const anchorRingGeo = new THREE.TorusGeometry(1.18, 0.09, 10, 48);
 const anchorColumnGeo = new THREE.CylinderGeometry(0.18, 0.32, 1.8, 12, 1, true);
 
@@ -409,6 +411,9 @@ const player = {
   pulseRadius: runProfile.pulse.radius,
   anchorCooldown: 0,
   anchorArmed: false,
+  lastAbility: null,
+  lastAbilityTime: 0,
+  comboCount: 0,
 };
 
 const beacons = [];
@@ -523,8 +528,8 @@ function pulseAffects(x, z) {
   return 1 - distance / player.pulseRadius;
 }
 
-function createRupture(x, z, severity = randRange(1, 1.85 + runProfile.ruptureSeverityBonus)) {
-  const color = severity > 1.55 ? 0xff6688 : 0xff9b63;
+function createRupture(x, z, severity = randRange(1, 1.85 + runProfile.ruptureSeverityBonus), echo = false) {
+  const color = echo ? 0xcc66ff : severity > 1.55 ? 0xff6688 : 0xff9b63;
   const ring = new THREE.Mesh(ruptureRingGeo, new THREE.MeshBasicMaterial({
     color,
     transparent: true,
@@ -535,7 +540,7 @@ function createRupture(x, z, severity = randRange(1, 1.85 + runProfile.ruptureSe
   ring.rotation.x = Math.PI * 0.5;
   ring.position.set(x, 0.08, z);
   const core = new THREE.Mesh(ruptureCoreGeo, new THREE.MeshStandardMaterial({
-    color: 0xffddb8,
+    color: echo ? 0xe8ccff : 0xffddb8,
     emissive: color,
     emissiveIntensity: 0.9,
     roughness: 0.18,
@@ -549,6 +554,21 @@ function createRupture(x, z, severity = randRange(1, 1.85 + runProfile.ruptureSe
   scene.add(ring);
   scene.add(core);
   scene.add(light);
+
+  let outerRing = null;
+  if (echo) {
+    outerRing = new THREE.Mesh(echoRingGeo, new THREE.MeshBasicMaterial({
+      color: 0xaa44ee,
+      transparent: true,
+      opacity: 0.35,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    }));
+    outerRing.rotation.x = Math.PI * 0.5;
+    outerRing.position.set(x, 0.06, z);
+    scene.add(outerRing);
+  }
+
   ruptures.push({
     id: ruptureId,
     x,
@@ -563,6 +583,9 @@ function createRupture(x, z, severity = randRange(1, 1.85 + runProfile.ruptureSe
     ring,
     core,
     light,
+    echo,
+    outerRing,
+    hasSplit: false,
   });
   ruptureId += 1;
 }
@@ -572,12 +595,48 @@ function spawnRuptureBurst(count, spread = 18, severityLo = 1, severityHi = 2 + 
     const angle = rand() * Math.PI * 2;
     const minRadius = 6 + WORLD_RADIUS * runProfile.ruptureOuterBias * 0.24;
     const radius = minRadius + rand() * spread;
+    const isEcho = agi.evolution >= 2 && rand() < 0.2;
     createRupture(
       clamp(agi.pos.x + Math.cos(angle) * radius, -WORLD_RADIUS, WORLD_RADIUS),
       clamp(agi.pos.z + Math.sin(angle) * radius, -WORLD_RADIUS, WORLD_RADIUS),
-      randRange(severityLo, severityHi)
+      randRange(severityLo, severityHi),
+      isEcho
     );
   }
+}
+
+function checkAbilityCombo(currentAbility) {
+  const now = world.cycle;
+  const prev = player.lastAbility;
+  const elapsed = now - player.lastAbilityTime;
+  let comboMsg = null;
+
+  if (prev && prev !== currentAbility && elapsed < COMBO.window) {
+    player.comboCount += 1;
+    if (prev === 'anchor' && currentAbility === 'pulse') {
+      for (const rupture of ruptures) {
+        if (rupture.resolved) continue;
+        const impact = pulseAffects(rupture.x, rupture.z);
+        const anchorBoost = anchorInfluenceAt(rupture.x, rupture.z);
+        if (impact > 0 && anchorBoost > 0) {
+          rupture.progress = clamp(rupture.progress + PULSE.instantProgress * COMBO.anchorPulseBonus * impact * anchorBoost, 0, 1);
+          if (rupture.progress >= 1) resolveRupture(rupture);
+        }
+      }
+      addMomentum(14);
+      comboMsg = 'Anchor-Pulse combo! Anchored ruptures take double pulse damage.';
+    } else if (prev === 'pulse' && currentAbility === 'anchor') {
+      player.pulseCooldown = Math.max(0, player.pulseCooldown - COMBO.pulseCooldownRefund);
+      addMomentum(10);
+      comboMsg = 'Pulse-Anchor combo! Pulse cooldown partially refunded.';
+    }
+  } else {
+    player.comboCount = 0;
+  }
+
+  player.lastAbility = currentAbility;
+  player.lastAbilityTime = now;
+  return comboMsg;
 }
 
 function placeAnchorField(x, z) {
@@ -627,7 +686,10 @@ function placeAnchorField(x, z) {
   agi.attention = clamp(agi.attention + 0.18, 0, 1);
   const supportedRuptures = ruptures.filter((rupture) => !rupture.resolved && Math.hypot(rupture.x - x, rupture.z - z) < runProfile.anchor.radius).length;
   addMomentum(supportedRuptures > 0 ? 10 + supportedRuptures * 3 : 4);
-  pushEvent(supportedRuptures > 0 ? `Anchor field deployed. ${supportedRuptures} rupture${supportedRuptures === 1 ? '' : 's'} pinned inside the zone.` : 'Anchor field deployed. Nearby ruptures will hold shape and stabilize faster.');
+
+  const comboMsg = checkAbilityCombo('anchor');
+  const baseMsg = supportedRuptures > 0 ? `Anchor field deployed. ${supportedRuptures} rupture${supportedRuptures === 1 ? '' : 's'} pinned inside the zone.` : 'Anchor field deployed. Nearby ruptures will hold shape and stabilize faster.';
+  pushEvent(comboMsg ? `${baseMsg} ${comboMsg}` : baseMsg);
 }
 
 function triggerPulse() {
@@ -653,7 +715,17 @@ function triggerPulse() {
 
   addMomentum(impacted > 0 ? 8 + impacted * 4 : 3);
 
-  pushEvent(impacted > 0 ? `Pulse shield released. ${impacted} rupture${impacted === 1 ? '' : 's'} caught in the wave.` : 'Pulse shield released. The field quiets around the AGI.');
+  const comboMsg = checkAbilityCombo('pulse');
+
+  const beaconChainCount = beacons.filter((b) => Math.hypot(b.x - agi.pos.x, b.z - agi.pos.z) < COMBO.beaconChainRadius).length;
+  if (beaconChainCount >= 2) {
+    world.resonance = clamp(world.resonance + COMBO.beaconChainResonance * beaconChainCount, 0, MAX_RESONANCE);
+    addMomentum(beaconChainCount * 3);
+    pushEvent(`Pulse + ${beaconChainCount} beacons resonance cascade. +${Math.round(COMBO.beaconChainResonance * beaconChainCount)} resonance.`);
+  } else {
+    const baseMsg = impacted > 0 ? `Pulse shield released. ${impacted} rupture${impacted === 1 ? '' : 's'} caught in the wave.` : 'Pulse shield released. The field quiets around the AGI.';
+    pushEvent(comboMsg ? `${baseMsg} ${comboMsg}` : baseMsg);
+  }
 }
 
 function toggleAnchorMode() {
@@ -761,13 +833,15 @@ function updateWorld(dt) {
     if (world.ruptureTimer <= 0 && activeCount < runProfile.maxConcurrentRuptures + Math.min(agi.evolution, 2)) {
       const distance = 10 + WORLD_RADIUS * runProfile.ruptureOuterBias * 0.22 + rand() * 18;
       const angle = rand() * Math.PI * 2;
+      const isEchoSpawn = agi.evolution >= 2 && rand() < 0.18;
       createRupture(
         clamp(agi.pos.x + Math.cos(angle) * distance, -WORLD_RADIUS, WORLD_RADIUS),
         clamp(agi.pos.z + Math.sin(angle) * distance, -WORLD_RADIUS, WORLD_RADIUS),
-        randRange(1, 1.85 + runProfile.ruptureSeverityBonus + agi.evolution * 0.12)
+        randRange(1, 1.85 + runProfile.ruptureSeverityBonus + agi.evolution * 0.12),
+        isEchoSpawn
       );
       world.ruptureTimer = randRange(Math.max(4.8, 9 - agi.evolution * 0.7), Math.max(6.6, 13 - agi.evolution * 0.5)) * runProfile.ruptureCadenceFactor;
-      pushEvent('A rupture tears open in the field.');
+      pushEvent(isEchoSpawn ? 'An echo rupture appears — it will split if left unattended.' : 'A rupture tears open in the field.');
     }
   }
 
@@ -834,10 +908,12 @@ function updateRuptures(dt, time) {
       rupture.ring.material.opacity = Math.max(0, rupture.fade * 0.5);
       rupture.core.material.opacity = Math.max(0, rupture.fade * 0.85);
       rupture.light.intensity = Math.max(0, rupture.fade * 0.9);
+      if (rupture.outerRing) rupture.outerRing.material.opacity = Math.max(0, rupture.fade * 0.25);
       if (rupture.fade <= 0) {
         scene.remove(rupture.ring);
         scene.remove(rupture.core);
         scene.remove(rupture.light);
+        if (rupture.outerRing) scene.remove(rupture.outerRing);
         ruptures.splice(index, 1);
       }
       continue;
@@ -864,6 +940,28 @@ function updateRuptures(dt, time) {
     if (rupture.age > 12 && beaconSupport < 0.14 && shieldSupport < 0.08) {
       rupture.severity = Math.min(2.4, rupture.severity + dt * 0.03 * (1 - anchorSupport * ANCHOR.severityDampen));
     }
+
+    if (rupture.echo && !rupture.hasSplit && rupture.age > 10 && beaconSupport < 0.14 && shieldSupport < 0.08 && anchorSupport < 0.14) {
+      rupture.hasSplit = true;
+      const splitAngle = rng() * Math.PI * 2;
+      const splitDist = 3.5 + rng() * 2;
+      createRupture(
+        clamp(rupture.x + Math.cos(splitAngle) * splitDist, -WORLD_RADIUS, WORLD_RADIUS),
+        clamp(rupture.z + Math.sin(splitAngle) * splitDist, -WORLD_RADIUS, WORLD_RADIUS),
+        randRange(0.9, rupture.severity * 0.7),
+        false
+      );
+      emitSpark(new THREE.Vector3(rupture.x, 0.8, rupture.z), 16);
+      pushEvent('Echo rupture split. A new fracture appeared nearby.');
+    }
+
+    if (rupture.outerRing) {
+      rupture.outerRing.position.y = 0.04 + pulse * 0.03;
+      rupture.outerRing.scale.setScalar(1.05 + Math.sin(time * 3.2 + rupture.phase) * 0.12);
+      rupture.outerRing.rotation.z += dt * 0.5;
+      rupture.outerRing.material.opacity = 0.18 + pulse * 0.2 + (rupture.age > 8 && !rupture.hasSplit ? Math.sin(time * 6) * 0.15 : 0);
+    }
+
     if (rupture.progress >= 1) resolveRupture(rupture);
   }
 
@@ -995,10 +1093,50 @@ function updateAGI(dt) {
       addMomentum(12 + (isNovelType ? 4 : 0));
       world.resonance = clamp(world.resonance + (6 + agi.evolution * 0.5 + (player.pulseActive > 0 ? 3 : 0)) * runProfile.discoveryResonanceFactor, 0, MAX_RESONANCE);
       world.stability = clamp(world.stability + 1.5, 0, MAX_STABILITY);
+
+      const nodeTypeDef = KNOWLEDGE_TYPES.find((kt) => kt.name === node.type);
+      if (nodeTypeDef) {
+        switch (nodeTypeDef.effect) {
+          case 'resonance':
+            world.resonance = clamp(world.resonance + 3, 0, MAX_RESONANCE);
+            agi.coherence = clamp(agi.coherence + 0.03, 0, 1);
+            break;
+          case 'speed':
+            agi.speed = Math.min(2.2, agi.speed + 0.06);
+            agi.fatigue = Math.max(0, agi.fatigue - 0.08);
+            break;
+          case 'momentum':
+            addMomentum(10);
+            break;
+          case 'stability':
+            world.stability = clamp(world.stability + 6, 0, MAX_STABILITY);
+            break;
+          case 'harmonize': {
+            let nearest = null;
+            let nearDist = 12;
+            for (const rupture of ruptures) {
+              if (rupture.resolved) continue;
+              const ruptureDistance = Math.hypot(rupture.x - node.x, rupture.z - node.z);
+              if (ruptureDistance < nearDist) {
+                nearDist = ruptureDistance;
+                nearest = rupture;
+              }
+            }
+            if (nearest) {
+              nearest.progress = clamp(nearest.progress + 0.25, 0, 1);
+              if (nearest.progress >= 1) resolveRupture(nearest);
+              else pushEvent('Toroid resonance partially harmonized a nearby rupture.');
+            }
+            break;
+          }
+        }
+      }
       node.mesh.material.emissiveIntensity = 1.2;
       node.glow.intensity = 1.5;
       emitSpark(new THREE.Vector3(node.x, 1, node.z), 18);
-      pushEvent(`Pattern assimilated: ${node.type}.`);
+      const effectLabels = { resonance: '+resonance', speed: '+speed', momentum: '+momentum', stability: '+stability', harmonize: 'harmonize nearby' };
+      const effectLabel = nodeTypeDef ? effectLabels[nodeTypeDef.effect] || '' : '';
+      pushEvent(`Pattern assimilated: ${node.type}${effectLabel ? ` (${effectLabel})` : ''}.`);
 
       const previousEvolution = agi.evolution;
       if (agi.discoveries >= 15) agi.evolution = 4;
@@ -1184,6 +1322,8 @@ function updateReflection(dt) {
       'The fractures are loud. A beacon near them would help.',
       'I can repair this, but the field is fighting back.',
       'Anchor the hot zone. Pulse the body. I can do the rest.',
+      'The echo ruptures feel… unstable. Address them before they split.',
+      'Try chaining an anchor into a pulse. The combined effect is stronger.',
     ];
   } else if (agi.discoveries === 0) {
     pool = REFLECTIONS.slice(0, 2);
