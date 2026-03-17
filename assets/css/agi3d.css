@@ -42,6 +42,18 @@ canvas{display:block;width:100vw;height:100vh;cursor:crosshair}
 .archive-value{display:block;margin-top:3px;font-size:0.82rem;font-weight:800;color:rgba(242,247,255,0.95)}
 .archive-history,.archive-run,.archive-modifiers{margin-top:8px;font-size:0.56rem;line-height:1.42;color:rgba(199,217,241,0.68)}
 .archive-run,.archive-modifiers{margin-top:6px}
+.leaderboard{position:fixed;bottom:80px;right:14px;z-index:10;width:min(268px,calc(100vw - 28px));padding:10px 12px;border-radius:16px;background:rgba(6,12,24,0.32);border:1px solid rgba(255,200,100,0.1);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font-family:"Segoe UI",system-ui,sans-serif;color:rgba(236,242,255,0.9);opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity 0.8s,transform 0.8s}
+.leaderboard.show{opacity:1;pointer-events:auto;transform:translateY(0)}
+.leaderboard-kicker{font-size:0.42rem;font-weight:800;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,210,130,0.76)}
+.leaderboard-tabs{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
+.lb-tab{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:999px;padding:3px 8px;font-size:0.44rem;font-weight:700;color:rgba(200,216,240,0.6);cursor:pointer;transition:border-color 0.2s,color 0.2s}
+.lb-tab:hover{border-color:rgba(255,210,130,0.3);color:rgba(255,230,180,0.85)}
+.lb-tab.active{border-color:rgba(255,200,100,0.35);color:rgba(255,230,180,0.95);background:rgba(255,200,100,0.08)}
+.leaderboard-list{margin-top:8px;font-size:0.54rem;line-height:1.5;color:rgba(199,217,241,0.75)}
+.lb-row{display:flex;gap:6px;padding:2px 0;align-items:baseline}
+.lb-rank{font-weight:800;color:rgba(255,210,130,0.8);min-width:24px}
+.lb-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-metric{font-weight:700;color:rgba(200,230,255,0.9)}
 .nav-links{position:fixed;top:14px;right:14px;z-index:10;display:flex;gap:5px}
 .nav-links a{color:rgba(220,240,255,0.7);text-decoration:none;font-size:0.58rem;font-weight:700;padding:4px 8px;border-radius:999px;border:1px solid rgba(255,255,255,0.06);background:rgba(6,12,24,0.2);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:border-color 0.2s,background 0.2s}
 .nav-links a:hover{border-color:rgba(108,232,255,0.3);background:rgba(108,232,255,0.06)}

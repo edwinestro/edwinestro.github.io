@@ -14,7 +14,7 @@
 
   <section class="start-screen" id="startScreen" tabindex="0" aria-label="Start the AGI simulation">
     <div class="start-title">Unsupervised AGI 3D</div>
-    <div class="start-sub">An autonomous intelligence explores without instructions.<br>Watch it learn. Each discovery type grants a unique effect. Chain abilities for combos. Watch for echo ruptures that split if ignored. Build field momentum and survive each seeded run long enough to archive it.</div>
+    <div class="start-sub">When will an intelligence be old enough to take care of itself?<br>Watch it try. Each discovery grants a unique effect. Chain abilities for combos. Destroy echo ruptures before they split. Build field momentum and survive long enough to archive the run.</div>
     <div class="start-prompt">Click anywhere to begin observation</div>
   </section>
 
@@ -53,6 +53,17 @@
     <div class="archive-history" id="archiveHistory">No archived runs yet.</div>
   </section>
 
+  <section class="leaderboard ui-hidden" id="leaderboardPanel" aria-live="polite">
+    <div class="leaderboard-kicker">Leaderboard</div>
+    <div class="leaderboard-tabs" id="lbTabs">
+      <button class="lb-tab active" data-cat="stability" type="button">Stability</button>
+      <button class="lb-tab" data-cat="ruptures" type="button">Ruptures</button>
+      <button class="lb-tab" data-cat="coherence" type="button">Coherence</button>
+      <button class="lb-tab" data-cat="autonomy" type="button">Autonomy</button>
+    </div>
+    <div class="leaderboard-list" id="lbList">Loading…</div>
+  </section>
+
   <div class="hint ui-hidden" id="hint">Click to place beacons · Q arm anchor · E pulse shield · Chain Anchor→Pulse for combo damage · Each node shape has a unique effect · Echo ruptures (purple) split if left alone</div>
 
   <div class="reflection ui-hidden" id="reflection">
@@ -73,6 +84,8 @@
     <div class="hud-item hud-item--score"><span class="tag">Score</span><div class="hud-value" id="hudScore">0</div></div>
     <div class="hud-item hud-item--momentum"><span class="tag">Momentum</span><div class="hud-value" id="hudMomentum">0%</div></div>
     <div class="hud-item"><span class="tag">State</span><div class="hud-value" id="hudState">Dormant</div></div>
+    <div class="hud-item hud-item--age"><span class="tag">AGI Age</span><div class="hud-value" id="hudAge">0s</div></div>
+    <div class="hud-item hud-item--duration"><span class="tag">Duration</span><div class="hud-value" id="hudDuration">0s</div></div>
   </div>
 
   <div class="ability-dock" id="abilityDock">
@@ -104,6 +117,8 @@
         <div class="end-pill" id="endStatResonance">Resonance 0%</div>
         <div class="end-pill" id="endStatStability">Stability 100%</div>
         <div class="end-pill" id="endStatScore">Score 0</div>
+        <div class="end-pill" id="endStatDuration">Survived 0s</div>
+        <div class="end-pill" id="endStatAutonomy">Autonomy 0s/act</div>
         <div class="end-pill" id="endStatArchive">Archive Tier 0</div>
       </div>
       <div class="end-history" id="endHistory">No archived runs yet.</div>

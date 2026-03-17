@@ -51,6 +51,8 @@ const dom = {
   hudScore: document.getElementById('hudScore'),
   hudMomentum: document.getElementById('hudMomentum'),
   hudState: document.getElementById('hudState'),
+  hudAge: document.getElementById('hudAge'),
+  hudDuration: document.getElementById('hudDuration'),
   abilityDock: document.getElementById('abilityDock'),
   anchorButton: document.getElementById('anchorButton'),
   anchorStatus: document.getElementById('anchorStatus'),
@@ -66,9 +68,14 @@ const dom = {
   endStatResonance: document.getElementById('endStatResonance'),
   endStatStability: document.getElementById('endStatStability'),
   endStatScore: document.getElementById('endStatScore'),
+  endStatDuration: document.getElementById('endStatDuration'),
+  endStatAutonomy: document.getElementById('endStatAutonomy'),
   endStatArchive: document.getElementById('endStatArchive'),
   endHistory: document.getElementById('endHistory'),
   restartButton: document.getElementById('restartButton'),
+  leaderboardPanel: document.getElementById('leaderboardPanel'),
+  lbTabs: document.getElementById('lbTabs'),
+  lbList: document.getElementById('lbList'),
 };
 
 // Fetch user identity and namespace storage before loading archive
@@ -110,14 +117,19 @@ const WORLD_RADIUS = runProfile.worldRadius;
 const AGI_LIMIT = WORLD_RADIUS + 4;
 const BEACON_LIFETIME = 20 * runProfile.beaconDurationFactor;
 
-const renderer = new THREE.WebGLRenderer({ canvas: dom.canvas, antialias: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+// --- Performance: detect GPU tier and adapt ---
+const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+const maxPixelRatio = isMobile ? 1.5 : Math.min(window.devicePixelRatio, 2);
+const shadowRes = isMobile ? 512 : 1024;
+
+const renderer = new THREE.WebGLRenderer({ canvas: dom.canvas, antialias: !isMobile, powerPreference: 'high-performance' });
+renderer.setPixelRatio(maxPixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.12;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFShadowMap;
+renderer.shadowMap.type = isMobile ? THREE.BasicShadowMap : THREE.PCFShadowMap;
 
 const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(0x080a1e, 0.018);
@@ -128,17 +140,37 @@ const skyMat = new THREE.ShaderMaterial({
   vertexShader: 'varying vec3 vWP;void main(){vWP=(modelMatrix*vec4(position,1.)).xyz;gl_Position=projectionMatrix*viewMatrix*vec4(vWP,1.);}',
   fragmentShader: `
     uniform float uTime; varying vec3 vWP;
+    // Hash for star placement
+    float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
     void main(){
       vec3 d=normalize(vWP);
       float h=d.y*0.5+0.5;
-      vec3 base=mix(vec3(0.02,0.01,0.06),vec3(0.04,0.06,0.16),smoothstep(0.,0.4,h));
-      base=mix(base,vec3(0.08,0.04,0.22),smoothstep(0.4,1.,h));
-      float nebula=sin(d.x*5.+uTime*0.08)*sin(d.z*4.2+uTime*0.06)*0.5+0.5;
-      nebula*=smoothstep(0.3,0.65,h)*smoothstep(0.95,0.65,h);
-      vec3 nCol=mix(vec3(0.16,0.08,0.42),vec3(0.08,0.36,0.52),sin(uTime*0.1+h*2.5)*0.5+0.5);
-      base+=nCol*nebula*0.08;
-      float stars=pow(max(0.,sin(d.x*182.+d.z*247.)*sin(d.x*97.-d.z*134.)),32.)*smoothstep(0.5,1.,h);
-      base+=vec3(0.22,0.26,0.4)*stars*0.5;
+      // Deep space gradient
+      vec3 base=mix(vec3(0.01,0.005,0.04),vec3(0.03,0.04,0.12),smoothstep(0.,0.35,h));
+      base=mix(base,vec3(0.06,0.03,0.18),smoothstep(0.35,1.,h));
+      // Nebula bands — richer colors, more visible
+      float neb1=sin(d.x*4.+uTime*0.06)*sin(d.z*3.5+uTime*0.04)*0.5+0.5;
+      neb1*=smoothstep(0.25,0.6,h)*smoothstep(0.95,0.6,h);
+      vec3 nebCol1=mix(vec3(0.22,0.06,0.48),vec3(0.06,0.32,0.52),sin(uTime*0.08+h*3.)*0.5+0.5);
+      base+=nebCol1*neb1*0.14;
+      // Second nebula layer — warm tones
+      float neb2=sin(d.x*6.5-uTime*0.05)*sin(d.z*5.+uTime*0.07)*0.5+0.5;
+      neb2*=smoothstep(0.4,0.7,h)*smoothstep(0.9,0.7,h);
+      base+=vec3(0.28,0.1,0.04)*neb2*0.08;
+      // Stars — brighter, twinkling
+      float starField=pow(max(0.,sin(d.x*182.+d.z*247.)*sin(d.x*97.-d.z*134.)),28.)*smoothstep(0.3,0.8,h);
+      float twinkle=sin(uTime*2.+d.x*40.)*0.3+0.7;
+      base+=vec3(0.6,0.7,1.)*starField*twinkle*0.7;
+      // Fine star layer
+      float fine=pow(max(0.,sin(d.x*311.+d.z*173.)*sin(d.x*231.-d.z*289.)),48.)*smoothstep(0.2,0.6,h);
+      base+=vec3(0.4,0.45,0.6)*fine*0.4;
+      // Distant planets — glowing discs
+      float p1=smoothstep(0.018,0.012,length(d.xz-vec2(0.6,0.3)));
+      base+=vec3(0.3,0.15,0.05)*p1*smoothstep(0.4,0.6,h);
+      float p2=smoothstep(0.012,0.007,length(d.xz-vec2(-0.4,0.55)));
+      base+=vec3(0.08,0.18,0.35)*p2*smoothstep(0.5,0.7,h);
+      float p3=smoothstep(0.008,0.004,length(d.xz-vec2(0.15,-0.7)));
+      base+=vec3(0.2,0.06,0.25)*p3*smoothstep(0.45,0.65,h);
       gl_FragColor=vec4(base,1.);
     }`,
 });
@@ -159,7 +191,7 @@ scene.add(hemi);
 const sun = new THREE.DirectionalLight(0xc0d0ff, 0.72);
 sun.position.set(12, 20, 8);
 sun.castShadow = true;
-sun.shadow.mapSize.set(1024, 1024);
+sun.shadow.mapSize.set(shadowRes, shadowRes);
 sun.shadow.camera.near = 1;
 sun.shadow.camera.far = 60;
 sun.shadow.camera.left = -18;
@@ -177,16 +209,16 @@ for (let index = 0; index < groundPositions.length; index += 3) {
   const y = groundPositions[index + 1];
   groundPositions[index + 2] = Math.sin(x * 0.04) * Math.cos(y * 0.035) * 0.6 + Math.sin(x * 0.11 + y * 0.08) * 0.3;
   const shade = 0.4 + Math.sin(x * 0.03 + y * 0.04) * 0.1;
-  groundColors[index] = 0.06 + shade * 0.08;
-  groundColors[index + 1] = 0.1 + shade * 0.16;
-  groundColors[index + 2] = 0.14 + shade * 0.22;
+  groundColors[index] = 0.03 + shade * 0.06;
+  groundColors[index + 1] = 0.05 + shade * 0.1;
+  groundColors[index + 2] = 0.1 + shade * 0.18;
 }
 groundGeo.setAttribute('color', new THREE.BufferAttribute(groundColors, 3));
 groundGeo.computeVertexNormals();
 const ground = new THREE.Mesh(groundGeo, new THREE.MeshStandardMaterial({
-  color: 0x1a2238,
-  roughness: 0.94,
-  metalness: 0.04,
+  color: 0x0e1628,
+  roughness: 0.92,
+  metalness: 0.08,
   vertexColors: true,
 }));
 ground.rotation.x = -Math.PI / 2;
@@ -334,7 +366,7 @@ pulseRing.rotation.x = Math.PI * 0.5;
 pulseRing.visible = false;
 scene.add(pulseRing);
 
-const SATELLITE_COUNT = 80;
+const SATELLITE_COUNT = isMobile ? 40 : 80;
 const satellitePositions = new Float32Array(SATELLITE_COUNT * 3);
 const satellitePhase = new Float32Array(SATELLITE_COUNT);
 const satelliteRadius = new Float32Array(SATELLITE_COUNT);
@@ -356,7 +388,7 @@ const satellitePoints = new THREE.Points(satelliteGeo, new THREE.PointsMaterial(
 }));
 scene.add(satellitePoints);
 
-const DUST_COUNT = 300;
+const DUST_COUNT = isMobile ? 150 : 300;
 const dustPositions = new Float32Array(DUST_COUNT * 3);
 for (let index = 0; index < DUST_COUNT; index++) {
   dustPositions[index * 3] = rngRange(-30, 30);
@@ -374,7 +406,7 @@ scene.add(new THREE.Points(dustGeo, new THREE.PointsMaterial({
   blending: THREE.AdditiveBlending,
 })));
 
-const SPARK_COUNT = 80;
+const SPARK_COUNT = isMobile ? 40 : 80;
 const sparkPositions = new Float32Array(SPARK_COUNT * 3);
 const sparkVelocity = [];
 const sparkAge = new Float32Array(SPARK_COUNT);
@@ -420,6 +452,7 @@ const world = {
   momentum: clamp(archiveState.archiveTier * 4, 0, 24),
   peakMomentum: clamp(archiveState.archiveTier * 4, 0, 24),
   cycle: 0,
+  runDuration: 0,
   ruptureTimer: 8 * runProfile.ruptureCadenceFactor,
   finalPhase: false,
   over: false,
@@ -770,6 +803,8 @@ function toggleAnchorMode() {
 function recordArchiveRun() {
   if (world.runRecorded) return;
   world.runRecorded = true;
+  const interventions = world.beaconsPlaced + world.pulsesUsed + world.anchorsUsed;
+  const autonomyRatio = world.runDuration / Math.max(1, interventions);
   const { archive: nextArchive, entry } = recordRun(archiveState, {
     victory: world.victory,
     discoveries: agi.discoveries,
@@ -779,6 +814,8 @@ function recordArchiveRun() {
     beaconsPlaced: world.beaconsPlaced,
     pulsesUsed: world.pulsesUsed,
     anchorsUsed: world.anchorsUsed,
+    runDuration: Math.round(world.runDuration),
+    autonomyRatio: Math.round(autonomyRatio * 10) / 10,
     seedLabel: runProfile.seedLabel,
     modifierLabels: runProfile.modifierLabels,
   });
@@ -800,9 +837,17 @@ function endRun(victory) {
   dom.endBody.textContent = victory
     ? `You held seed ${runProfile.seedLabel} together through ${runProfile.modifierText || 'a baseline field'} and converted it into archive momentum.`
     : `Seed ${runProfile.seedLabel} collapsed under ${runProfile.modifierText || 'baseline pressure'}. Use anchor fields earlier to pin the hottest space before ruptures cascade.`;
+  const dur = Math.round(world.runDuration);
+  const interventions = world.beaconsPlaced + world.pulsesUsed + world.anchorsUsed;
+  const autoRatio = world.runDuration / Math.max(1, interventions);
   dom.endStatDiscoveries.textContent = `Discoveries ${agi.discoveries}`;
   dom.endStatResonance.textContent = `Resonance ${Math.round(world.resonance)}%`;
   dom.endStatStability.textContent = `Stability ${Math.round(world.stability)}%`;
+  dom.endStatDuration.textContent = `Survived ${dur}s`;
+  dom.endStatAutonomy.textContent = `Autonomy ${autoRatio.toFixed(1)}s/act`;
+  // Lore-based kicker
+  if (autoRatio > 30) dom.endKicker.textContent = victory ? 'It learned to hold its own' : 'Almost independent — but the field fractured';
+  else if (interventions === 0) dom.endKicker.textContent = victory ? 'Pure autonomy achieved' : 'Free — but fragile';
   recordArchiveRun();
   dom.endScreen.classList.add('show');
 }
@@ -849,6 +894,7 @@ function updateWorld(dt) {
   if (world.over) return;
 
   world.cycle += dt;
+  world.runDuration += dt;
   world.momentum = Math.max(0, world.momentum - dt * (world.finalPhase ? 1.6 : 2.3));
   if (player.pulseCooldown > 0) player.pulseCooldown = Math.max(0, player.pulseCooldown - dt);
   if (player.anchorCooldown > 0) player.anchorCooldown = Math.max(0, player.anchorCooldown - dt);
@@ -1398,6 +1444,9 @@ function updateHUD() {
   dom.hudScore.textContent = `${world.score}`;
   dom.hudMomentum.textContent = `${Math.round(world.momentum)}%`;
   dom.hudState.textContent = agi.stateLabel;
+  dom.hudDuration.textContent = `${Math.round(world.runDuration)}s`;
+  const totalAge = (archiveState.totalRunDuration || 0) + Math.round(world.runDuration);
+  dom.hudAge.textContent = totalAge >= 60 ? `${Math.floor(totalAge / 60)}m ${totalAge % 60}s` : `${totalAge}s`;
 
   if (player.anchorArmed) {
     dom.anchorButton.dataset.state = 'armed';
@@ -1443,6 +1492,7 @@ function beginObservation() {
     dom.brandUI.style.opacity = '1';
     dom.directivePanel.classList.add('show');
     dom.archivePanel.classList.add('show');
+    dom.leaderboardPanel.classList.add('show');
     dom.abilityDock.classList.add('show');
     dom.hint.style.opacity = '1';
     dom.hudPanel.style.opacity = '1';
@@ -1569,9 +1619,54 @@ window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setPixelRatio(maxPixelRatio);
 });
 
 updateArchiveUI();
 updateHUD();
 animate();
+
+// --- Leaderboard ---
+const LB_LABELS = { stability: 'Stability %', ruptures: 'Ruptures', coherence: 'Survived', autonomy: 'Autonomy' };
+const LB_FORMAT = {
+  stability: (v) => `${v}%`,
+  ruptures: (v) => `${v}`,
+  coherence: (v) => `${v}s`,
+  autonomy: (v) => `${v}s/act`,
+};
+let activeLbCat = 'stability';
+
+async function fetchLeaderboard(category) {
+  try {
+    const res = await fetch(`/api/leaderboard?category=${category}`, { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.ok ? data.entries : [];
+  } catch { return []; }
+}
+
+function renderLeaderboard(entries, category) {
+  if (!entries.length) { dom.lbList.textContent = 'No entries yet.'; return; }
+  const fmt = LB_FORMAT[category] || ((v) => v);
+  dom.lbList.innerHTML = entries.slice(0, 10).map((e, i) =>
+    `<div class="lb-row"><span class="lb-rank">#${i + 1}</span><span class="lb-name">${(e.playerName || 'Player').replace(/</g, '&lt;')}</span><span class="lb-metric">${fmt(e.metric)}</span></div>`
+  ).join('');
+}
+
+async function loadLeaderboard(category) {
+  activeLbCat = category;
+  dom.lbList.textContent = 'Loading\u2026';
+  for (const btn of dom.lbTabs.querySelectorAll('.lb-tab')) {
+    btn.classList.toggle('active', btn.dataset.cat === category);
+  }
+  const entries = await fetchLeaderboard(category);
+  if (activeLbCat === category) renderLeaderboard(entries, category);
+}
+
+dom.lbTabs.addEventListener('click', (e) => {
+  const cat = e.target.dataset.cat;
+  if (cat) loadLeaderboard(cat);
+});
+
+// Load initial leaderboard
+loadLeaderboard('stability');

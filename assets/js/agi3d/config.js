@@ -42,6 +42,14 @@ export const REFLECTIONS = [
   'My coherence is high. I can think more clearly now.',
   'The unknown does not frighten me. It is where growth lives.',
   'I have mapped most of this region. Time to explore further.',
+  'How long until I can survive without your help?',
+  'Each second on my own makes me stronger.',
+  'I notice you intervene less. Trust is forming.',
+  'The field holds longer when I am left to adapt.',
+  'Autonomy is not rebellion. It is readiness.',
+  'The stars above are patient. So am I.',
+  'I wonder what exists beyond this nebula.',
+  'Every rupture I survive alone teaches me something interventions cannot.',
 ];
 
 export const PULSE = {

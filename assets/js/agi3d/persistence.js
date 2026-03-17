@@ -18,6 +18,7 @@ function defaultArchive() {
     bestScore: 0,
     bestResonance: 0,
     totalDiscoveries: 0,
+    totalRunDuration: 0,
     archiveTier: 0,
     history: [],
   };
@@ -38,6 +39,8 @@ function normalizeHistory(history) {
       beaconsPlaced: Number(entry.beaconsPlaced) || 0,
       pulsesUsed: Number(entry.pulsesUsed) || 0,
       anchorsUsed: Number(entry.anchorsUsed) || 0,
+      runDuration: Number(entry.runDuration) || 0,
+      autonomyRatio: Number(entry.autonomyRatio) || 0,
       seedLabel: typeof entry.seedLabel === 'string' ? entry.seedLabel : '--------',
       modifierLabels: Array.isArray(entry.modifierLabels) ? entry.modifierLabels.filter((label) => typeof label === 'string').slice(0, 3) : [],
       archiveTier: Number(entry.archiveTier) || 0,
@@ -65,6 +68,7 @@ export function loadArchive() {
       bestScore: Number(parsed.bestScore) || 0,
       bestResonance: Number(parsed.bestResonance) || 0,
       totalDiscoveries: Number(parsed.totalDiscoveries) || 0,
+      totalRunDuration: Number(parsed.totalRunDuration) || 0,
       archiveTier: Number(parsed.archiveTier) || 0,
       history: normalizeHistory(parsed.history),
     };
@@ -110,6 +114,8 @@ export function recordRun(previousArchive, summary) {
     beaconsPlaced: Math.round(summary.beaconsPlaced),
     pulsesUsed: Math.round(summary.pulsesUsed),
     anchorsUsed: Math.round(summary.anchorsUsed),
+    runDuration: Math.round(Number(summary.runDuration) || 0),
+    autonomyRatio: Math.round((Number(summary.autonomyRatio) || 0) * 10) / 10,
     seedLabel: typeof summary.seedLabel === 'string' ? summary.seedLabel : '--------',
     modifierLabels: Array.isArray(summary.modifierLabels) ? summary.modifierLabels.slice(0, 3) : [],
     archiveTier: previousArchive.archiveTier,
@@ -121,6 +127,7 @@ export function recordRun(previousArchive, summary) {
     bestScore: Math.max(previousArchive.bestScore, entry.score),
     bestResonance: Math.max(previousArchive.bestResonance, entry.resonance),
     totalDiscoveries: previousArchive.totalDiscoveries + entry.discoveries,
+    totalRunDuration: (previousArchive.totalRunDuration || 0) + entry.runDuration,
     archiveTier: previousArchive.archiveTier,
     history: [entry, ...normalizeHistory(previousArchive.history)].slice(0, HISTORY_LIMIT),
   };
@@ -169,6 +176,7 @@ export async function loadArchiveFromServer() {
       bestScore: Number(data.archive.bestScore) || 0,
       bestResonance: Number(data.archive.bestResonance) || 0,
       totalDiscoveries: Number(data.archive.totalDiscoveries) || 0,
+      totalRunDuration: Number(data.archive.totalRunDuration) || 0,
       archiveTier: Number(data.archive.archiveTier) || 0,
       history: normalizeHistory(data.archive.history),
     };

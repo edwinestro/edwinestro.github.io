@@ -1,8 +1,10 @@
 const { TableClient } = require('@azure/data-tables');
 
-const TABLE_NAME = 'agi3darchives';
+const TABLE_NAME = 'agi3dgame';
 const MAX_HISTORY = 6;
 const MAX_ARCHIVE_SIZE = 8192;
+const LB_SIZE = 10;
+const LB_CATEGORIES = ['stability', 'ruptures', 'coherence', 'autonomy'];
 
 let tableClient;
 
@@ -11,11 +13,10 @@ async function getTableClient() {
   const connStr = process.env.AzureWebJobsStorage;
   if (!connStr) throw new Error('AzureWebJobsStorage not configured');
   tableClient = TableClient.fromConnectionString(connStr, TABLE_NAME);
-  await tableClient.createTable(); // no-op if exists
+  await tableClient.createTable();
   return tableClient;
 }
 
-/** Extract the authenticated userId from the SWA client principal header. */
 function getUserId(req) {
   const header = req.headers['x-ms-client-principal'];
   if (!header) return null;
@@ -27,6 +28,17 @@ function getUserId(req) {
   }
 }
 
+function getUserName(req) {
+  const header = req.headers['x-ms-client-principal'];
+  if (!header) return 'Player';
+  try {
+    const decoded = JSON.parse(Buffer.from(header, 'base64').toString('utf8'));
+    return decoded.userDetails || 'Player';
+  } catch {
+    return 'Player';
+  }
+}
+
 function sanitizeArchive(raw) {
   if (!raw || typeof raw !== 'object') return null;
   return {
@@ -35,6 +47,7 @@ function sanitizeArchive(raw) {
     bestScore: Math.max(0, Math.floor(Number(raw.bestScore) || 0)),
     bestResonance: Math.max(0, Math.floor(Number(raw.bestResonance) || 0)),
     totalDiscoveries: Math.max(0, Math.floor(Number(raw.totalDiscoveries) || 0)),
+    totalRunDuration: Math.max(0, Math.floor(Number(raw.totalRunDuration) || 0)),
     archiveTier: Math.min(6, Math.max(0, Math.floor(Number(raw.archiveTier) || 0))),
     history: sanitizeHistory(raw.history),
   };
@@ -42,26 +55,76 @@ function sanitizeArchive(raw) {
 
 function sanitizeHistory(history) {
   if (!Array.isArray(history)) return [];
-  return history
-    .filter(Boolean)
-    .slice(0, MAX_HISTORY)
-    .map((e) => ({
-      timestamp: Number(e.timestamp) || 0,
-      score: Math.max(0, Math.floor(Number(e.score) || 0)),
-      victory: Boolean(e.victory),
-      discoveries: Math.max(0, Math.floor(Number(e.discoveries) || 0)),
-      resonance: Math.max(0, Math.floor(Number(e.resonance) || 0)),
-      stability: Math.max(0, Math.floor(Number(e.stability) || 0)),
-      rupturesResolved: Math.max(0, Math.floor(Number(e.rupturesResolved) || 0)),
-      beaconsPlaced: Math.max(0, Math.floor(Number(e.beaconsPlaced) || 0)),
-      pulsesUsed: Math.max(0, Math.floor(Number(e.pulsesUsed) || 0)),
-      anchorsUsed: Math.max(0, Math.floor(Number(e.anchorsUsed) || 0)),
-      seedLabel: typeof e.seedLabel === 'string' ? e.seedLabel.slice(0, 20) : '--------',
-      modifierLabels: Array.isArray(e.modifierLabels)
-        ? e.modifierLabels.filter((l) => typeof l === 'string').slice(0, 3).map((l) => l.slice(0, 40))
-        : [],
-      archiveTier: Math.min(6, Math.max(0, Math.floor(Number(e.archiveTier) || 0))),
-    }));
+  return history.filter(Boolean).slice(0, MAX_HISTORY).map((e) => ({
+    timestamp: Number(e.timestamp) || 0,
+    score: Math.max(0, Math.floor(Number(e.score) || 0)),
+    victory: Boolean(e.victory),
+    discoveries: Math.max(0, Math.floor(Number(e.discoveries) || 0)),
+    resonance: Math.max(0, Math.floor(Number(e.resonance) || 0)),
+    stability: Math.max(0, Math.floor(Number(e.stability) || 0)),
+    rupturesResolved: Math.max(0, Math.floor(Number(e.rupturesResolved) || 0)),
+    beaconsPlaced: Math.max(0, Math.floor(Number(e.beaconsPlaced) || 0)),
+    pulsesUsed: Math.max(0, Math.floor(Number(e.pulsesUsed) || 0)),
+    anchorsUsed: Math.max(0, Math.floor(Number(e.anchorsUsed) || 0)),
+    runDuration: Math.max(0, Math.floor(Number(e.runDuration) || 0)),
+    autonomyRatio: Math.max(0, Math.round((Number(e.autonomyRatio) || 0) * 10) / 10),
+    seedLabel: typeof e.seedLabel === 'string' ? e.seedLabel.slice(0, 20) : '--------',
+    modifierLabels: Array.isArray(e.modifierLabels)
+      ? e.modifierLabels.filter((l) => typeof l === 'string').slice(0, 3).map((l) => l.slice(0, 40))
+      : [],
+    archiveTier: Math.min(6, Math.max(0, Math.floor(Number(e.archiveTier) || 0))),
+  }));
+}
+
+function lbMetric(entry, category) {
+  switch (category) {
+    case 'stability': return entry.stability || 0;
+    case 'ruptures': return entry.rupturesResolved || 0;
+    case 'coherence': return entry.runDuration || 0;
+    case 'autonomy': return entry.autonomyRatio || 0;
+    default: return 0;
+  }
+}
+
+async function updateLeaderboards(client, entry, userName) {
+  for (const cat of LB_CATEGORIES) {
+    const metric = lbMetric(entry, cat);
+    if (metric <= 0) continue;
+
+    // Read current top entries for this category
+    const existing = [];
+    const iter = client.listEntities({ queryOptions: { filter: `PartitionKey eq 'lb-${cat}'` } });
+    for await (const e of iter) existing.push(e);
+    existing.sort((a, b) => (Number(b.metric) || 0) - (Number(a.metric) || 0));
+
+    // Check if this run qualifies
+    if (existing.length >= LB_SIZE && metric <= (Number(existing[existing.length - 1].metric) || 0)) continue;
+
+    // Add entry
+    const newEntry = {
+      partitionKey: `lb-${cat}`,
+      rowKey: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      metric: metric,
+      playerName: (userName || 'Player').slice(0, 50),
+      score: entry.score || 0,
+      victory: entry.victory || false,
+      runDuration: entry.runDuration || 0,
+      discoveries: entry.discoveries || 0,
+      rupturesResolved: entry.rupturesResolved || 0,
+      stability: entry.stability || 0,
+      autonomyRatio: entry.autonomyRatio || 0,
+      seedLabel: (entry.seedLabel || '').slice(0, 20),
+      timestamp: entry.timestamp || Date.now(),
+    };
+    await client.upsertEntity(newEntry, 'Replace');
+
+    // Trim to top N
+    existing.push(newEntry);
+    existing.sort((a, b) => (Number(b.metric) || 0) - (Number(a.metric) || 0));
+    for (let i = LB_SIZE; i < existing.length; i++) {
+      try { await client.deleteEntity(existing[i].partitionKey, existing[i].rowKey); } catch {}
+    }
+  }
 }
 
 module.exports = async function (context, req) {
@@ -100,12 +163,26 @@ module.exports = async function (context, req) {
         context.res = { status: 400, body: { ok: false, error: 'Archive data too large' } };
         return;
       }
+
+      // Save archive
       await client.upsertEntity({
         partitionKey: 'archive',
         rowKey: userId,
         data: serialized,
         updatedAt: new Date().toISOString(),
       }, 'Replace');
+
+      // Update leaderboards from the latest run (first entry in history)
+      if (archive.history && archive.history.length > 0) {
+        const latestRun = archive.history[0];
+        const userName = getUserName(req);
+        try {
+          await updateLeaderboards(client, latestRun, userName);
+        } catch (lbErr) {
+          context.log.warn('Leaderboard update failed:', lbErr.message);
+        }
+      }
+
       context.res = { status: 200, body: { ok: true, archive } };
       return;
     }
