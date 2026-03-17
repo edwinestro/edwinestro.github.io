@@ -33,3 +33,6 @@ Thumbs.db
 *.swo
 *.tmp
 *.log
+
+# Azure Functions local settings
+api/local.settings.json

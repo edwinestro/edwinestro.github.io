@@ -131,6 +131,9 @@ export function recordRun(previousArchive, summary) {
     window.localStorage.setItem(storageKey(), JSON.stringify(nextArchive));
   }
 
+  // Fire-and-forget server sync
+  pushArchiveToServer(nextArchive);
+
   return { archive: nextArchive, entry };
 }
 
@@ -141,4 +144,57 @@ export function describeHistory(history) {
     .slice(0, 3)
     .map((entry) => `${entry.victory ? 'Win' : 'Collapse'} ${entry.score} ${entry.seedLabel}`)
     .join(' • ');
+}
+
+// --- Server-side persistence ---
+
+/**
+ * Fetch archive from server (same-origin SWA function).
+ * SWA forwards the auth cookie, so no userId needed in the request.
+ * Non-blocking — if the server is unreachable, returns null.
+ */
+export async function loadArchiveFromServer() {
+  if (!_userId) return null;
+  try {
+    const res = await fetch('/api/archive', {
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data.ok || !data.archive) return null;
+
+    const remote = {
+      totalRuns: Number(data.archive.totalRuns) || 0,
+      wins: Number(data.archive.wins) || 0,
+      bestScore: Number(data.archive.bestScore) || 0,
+      bestResonance: Number(data.archive.bestResonance) || 0,
+      totalDiscoveries: Number(data.archive.totalDiscoveries) || 0,
+      archiveTier: Number(data.archive.archiveTier) || 0,
+      history: normalizeHistory(data.archive.history),
+    };
+    remote.archiveTier = computeArchiveTier(remote);
+    return remote;
+  } catch {
+    return null;
+  }
+}
+
+/** Merge local and remote archives, keeping whichever has more progress. */
+export function mergeArchives(local, remote) {
+  if (!remote) return local;
+  if (!local) return remote;
+  if (remote.totalRuns > local.totalRuns) return remote;
+  if (remote.totalRuns === local.totalRuns && remote.bestScore > local.bestScore) return remote;
+  return local;
+}
+
+/** Push archive to server. Non-blocking, best-effort. */
+function pushArchiveToServer(archive) {
+  if (!_userId) return;
+  fetch('/api/archive', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ archive }),
+    signal: AbortSignal.timeout(5000),
+  }).catch(() => { /* silent — localStorage is the fallback */ });
 }

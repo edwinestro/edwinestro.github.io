@@ -40,6 +40,10 @@
       "allowedRoles": ["authenticated"]
     },
     {
+      "route": "/api/archive",
+      "allowedRoles": ["authenticated"]
+    },
+    {
       "route": "/assets/*",
       "headers": {
         "Cache-Control": "public, max-age=31536000, immutable"
@@ -62,6 +66,6 @@
   },
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/.auth/*", "/assets/*", "/Projects/*", "/legacy/*", "/*.json", "/robots.txt", "/sitemap.xml"]
+    "exclude": ["/.auth/*", "/api/*", "/assets/*", "/Projects/*", "/legacy/*", "/*.json", "/robots.txt", "/sitemap.xml"]
   }
 }

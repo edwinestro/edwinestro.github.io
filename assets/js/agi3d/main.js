@@ -14,7 +14,7 @@ import {
   rng,
   rngRange,
 } from './config.js';
-import { describeHistory, getArchiveBonuses, loadArchive, recordRun, setUserId } from './persistence.js';
+import { describeHistory, getArchiveBonuses, loadArchive, loadArchiveFromServer, mergeArchives, recordRun, setUserId } from './persistence.js';
 import { getUser } from './user.js';
 import { buildRunProfile, createSeededRandom } from './worldgen.js';
 
@@ -85,7 +85,21 @@ if (currentUser) {
   }
 }
 
+// Load local archive first (instant), then try server merge (async, non-blocking)
 let archiveState = loadArchive();
+
+if (currentUser) {
+  const remote = await loadArchiveFromServer();
+  archiveState = mergeArchives(archiveState, remote);
+  // Persist the best version back to localStorage
+  if (typeof window !== 'undefined') {
+    window.localStorage.setItem(
+      `agi3d.archive.v2.${currentUser.userId}`,
+      JSON.stringify(archiveState)
+    );
+  }
+}
+
 let archiveBonuses = getArchiveBonuses(archiveState);
 const runProfile = buildRunProfile(archiveState);
 const runRandom = createSeededRandom(runProfile.runtimeSeed);
