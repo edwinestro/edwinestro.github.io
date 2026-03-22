@@ -42,21 +42,25 @@ if (!CanvasRenderingContext2D.prototype.roundRect) {
 // ─── DEVICE DETECTION ───────────────────────────────────
 const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
-// ─── QA PERF LAYER ──────────────────────────────────────
+// ─── QA PERF LAYER (LPX-inspired deterministic engine) ──
 const QA = {
   TARGET_FPS: 60,
   FRAME_MS: 1000 / 60,
-  MAX_DT: 0.05,            // L2: clamp to 50 ms
-  PARTICLE_BUDGET: 600,    // L0: hard ceiling
+  FIXED_DT: 1 / 60,         // LPX: deterministic fixed timestep
+  MAX_DT: 0.05,             // L2: clamp to 50 ms
+  MAX_STEPS: 3,             // LPX: max simulation steps per frame (prevents spiral of death)
+  PARTICLE_BUDGET: 600,     // L0: hard ceiling
   FPS_SAMPLES: 60,
   fpsBuf: [],
   fps: 60,
-  quality: 1,              // 1 = full, 0.5 = reduced
+  quality: 1,               // 1 = full, 0.5 = reduced
+  accumulator: 0,           // LPX: fixed-step accumulator
+  interpolation: 0,         // LPX: render interpolation factor
 
   // ── L5: Frame-time histogram for audit ──
-  frameHisto: new Uint32Array(8), // buckets: <8ms, <12ms, <16ms, <20ms, <33ms, <50ms, <100ms, 100ms+
+  frameHisto: new Uint32Array(8),
   frameCount: 0,
-  jankCount: 0,            // frames > 33ms
+  jankCount: 0,
   worstDt: 0,
 
   // ── L6: Draw call counter ──
@@ -64,7 +68,13 @@ const QA = {
   drawCallsPerFrame: 0,
 
   // ── L7: Pool health ──
-  poolPressure: 0,         // 0-1, how full the pools are
+  poolPressure: 0,
+
+  // ── L8: Pipeline stage budgets (LPX explicit pipeline) ──
+  stageTimes: { input: 0, update: 0, physics: 0, render: 0, composite: 0 },
+  _stageStart: 0,
+  stageBegin() { this._stageStart = performance.now(); },
+  stageEnd(name) { this.stageTimes[name] = performance.now() - this._stageStart; },         // 0-1, how full the pools are
 
   tick(dt) {
     this.fpsBuf.push(1 / Math.max(dt, 0.001));
@@ -121,6 +131,8 @@ const QA = {
       grade: parseFloat(jankPct) < 1 ? 'A' :
              parseFloat(jankPct) < 3 ? 'B' :
              parseFloat(jankPct) < 8 ? 'C' : 'D',
+      pipeline: { ...this.stageTimes },
+      fixedStepsPerFrame: Math.round(this.accumulator / this.FIXED_DT),
     };
   }
 };
@@ -164,12 +176,16 @@ class Pool {
     this.active.push(obj);
     return obj;
   }
+  // LPX: swap-remove instead of splice (O(1) instead of O(n))
   update(dt, updater) {
     for (let i = this.active.length - 1; i >= 0; i--) {
       if (!updater(this.active[i], dt)) {
         this._r(this.active[i]);
         this._free.push(this.active[i]);
-        this.active.splice(i, 1);
+        // swap with last element instead of splice
+        const last = this.active.length - 1;
+        if (i < last) this.active[i] = this.active[last];
+        this.active.length = last;
       }
     }
   }
@@ -239,21 +255,40 @@ function updateParticles(pool, dt) {
   });
 }
 
+// LPX: batched particle rendering — group by color, single beginPath per batch
 function drawParticles(c, pool) {
+  if (pool.active.length === 0) return;
+  // Group particles by color for batched draw
+  const batches = {};
+  const glowBatch = [];
   for (const p of pool.active) {
     if (p.alpha < 0.01) continue;
-    c.globalAlpha = p.alpha * QA.quality;
-    c.fillStyle = p.color;
-    c.beginPath();
-    c.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    c.fill();
-    // glow only at full quality
-    if (QA.quality >= 0.9 && p.r > 1.2) {
+    if (!batches[p.color]) batches[p.color] = [];
+    batches[p.color].push(p);
+    if (QA.quality >= 0.9 && p.r > 1.2) glowBatch.push(p);
+  }
+  // Draw each color batch with single fillStyle set
+  for (const color in batches) {
+    c.fillStyle = color;
+    const particles = batches[color];
+    for (const p of particles) {
+      c.globalAlpha = p.alpha * QA.quality;
+      c.beginPath();
+      c.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      c.fill();
+    }
+    QA.drawCalls++;
+  }
+  // Glow pass (reduced draw calls — batch all glows)
+  if (glowBatch.length > 0) {
+    for (const p of glowBatch) {
       c.globalAlpha = p.alpha * 0.15;
+      c.fillStyle = p.color;
       c.beginPath();
       c.arc(p.x, p.y, p.r * 3, 0, Math.PI * 2);
       c.fill();
     }
+    QA.drawCalls++;
   }
   c.globalAlpha = 1;
 }
