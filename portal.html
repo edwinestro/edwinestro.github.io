@@ -379,6 +379,14 @@ async function init() {
     const gid = btn.dataset.game;
     const dir = btn.dataset.dir;
 
+    // Check auth before voting
+    if (!isAuthenticated) {
+      if (confirm('Sign in with Microsoft to vote. Go to sign in?')) {
+        window.location.href = '/.auth/login/aad?post_login_redirect_uri=/portal.html';
+      }
+      return;
+    }
+
     if (dir === 'down') {
       // Show downvote reason modal
       const reason = await showDownvoteModal(gid);
@@ -450,27 +458,37 @@ async function castVote(gameId, direction, reason) {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ game: gameId, vote: direction, reason }),
+      redirect: 'error',  // Don't follow 302 redirects to login
     });
-    if (res.ok) {
-      const d = await res.json();
-      if (d.ok) {
-        voteTallies[gameId] = d.tally;
-        userVotes[gameId] = direction;
-        // Update buttons in-place
-        const row = document.querySelector(`.vote-row[data-game="${gameId}"]`);
-        if (row) {
-          const net = d.tally.up - d.tally.down;
-          row.querySelector('.vote-up').textContent = '\u25B2 ' + d.tally.up;
-          row.querySelector('.vote-down').textContent = '\u25BC ' + d.tally.down;
-          row.querySelector('.vote-net').textContent = (net >= 0 ? '+' : '') + net;
-          row.querySelector('.vote-up').classList.toggle('active', direction === 'up');
-          row.querySelector('.vote-down').classList.toggle('active', direction === 'down');
+    if (!res.ok) {
+      if (res.status === 401 || res.status === 302) {
+        isAuthenticated = false;
+        if (confirm('Session expired. Sign in again to vote?')) {
+          window.location.href = '/.auth/login/aad?post_login_redirect_uri=/portal.html';
         }
+        return;
       }
+      console.warn('Vote failed:', res.status);
+      return;
+    }
+    const d = await res.json();
+    if (d.ok) {
+      voteTallies[gameId] = d.tally;
+      userVotes[gameId] = direction;
+      // Update ALL matching buttons (may appear in both grids)
+      document.querySelectorAll(`.vote-row[data-game="${gameId}"]`).forEach(row => {
+        const net = d.tally.up - d.tally.down;
+        row.querySelector('.vote-up').textContent = '\u25B2 ' + d.tally.up;
+        row.querySelector('.vote-down').textContent = '\u25BC ' + d.tally.down;
+        row.querySelector('.vote-net').textContent = (net >= 0 ? '+' : '') + net;
+        row.querySelector('.vote-up').classList.toggle('active', direction === 'up');
+        row.querySelector('.vote-down').classList.toggle('active', direction === 'down');
+      });
     }
   } catch (e) { console.warn('Vote failed:', e); }
 }
 
+await checkAuth();
 await loadVotes();
 init();
 </script>
