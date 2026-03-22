@@ -1,7 +1,8 @@
 const { TableClient } = require('@azure/data-tables');
 
 const TABLE_NAME = 'agi3dgame';
-const VALID = ['stability', 'ruptures', 'coherence', 'autonomy'];
+const DEFAULT_GAME_ID = 'unsupervised-agi-3d';
+const VALID = ['stability', 'ruptures', 'coherence', 'autonomy', 'xp', 'tasks', 'streak', 'tier', 'time'];
 
 let tableClient;
 async function getTableClient() {
@@ -12,8 +13,17 @@ async function getTableClient() {
   return tableClient;
 }
 
+function sanitizeGameId(value) {
+  const cleaned = String(value || DEFAULT_GAME_ID)
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '')
+    .slice(0, 48);
+  return cleaned || DEFAULT_GAME_ID;
+}
+
 module.exports = async function (context, req) {
   const category = (req.query.category || 'stability').toLowerCase();
+  const gameId = sanitizeGameId(req.query.game);
   if (!VALID.includes(category)) {
     context.res = { status: 400, body: { ok: false, error: 'Invalid category. Use: ' + VALID.join(', ') } };
     return;
@@ -22,9 +32,10 @@ module.exports = async function (context, req) {
   try {
     const client = await getTableClient();
     const entries = [];
-    const iter = client.listEntities({ queryOptions: { filter: `PartitionKey eq 'lb-${category}'` } });
+    const iter = client.listEntities({ queryOptions: { filter: `PartitionKey eq 'lb-${gameId}-${category}'` } });
     for await (const e of iter) {
       entries.push({
+        gameId: e.gameId || gameId,
         playerName: e.playerName || 'Player',
         metric: Number(e.metric) || 0,
         score: Number(e.score) || 0,
@@ -43,7 +54,7 @@ module.exports = async function (context, req) {
     context.res = {
       status: 200,
       headers: { 'Cache-Control': 'public, max-age=30' },
-      body: { ok: true, category, entries },
+      body: { ok: true, game: gameId, category, entries },
     };
   } catch (e) {
     context.log.error('Leaderboard read error:', e);

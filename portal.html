@@ -50,6 +50,15 @@ a:hover{text-decoration:underline}
 .badge.purple{background:rgba(180,140,255,0.08);color:rgba(180,140,255,0.82);border-color:rgba(180,140,255,0.12)}
 .card-link{font-size:0.58rem;font-weight:700;color:var(--accent)}
 
+/* Vote buttons */
+.card-wrap{position:relative}
+.vote-row{display:flex;align-items:center;gap:6px;padding:6px 12px;justify-content:center}
+.vote-btn{background:rgba(255,255,255,0.04);border:1px solid rgba(108,232,255,0.1);border-radius:6px;padding:4px 10px;font-size:0.6rem;font-weight:700;cursor:pointer;color:var(--dim);transition:all .2s;-webkit-tap-highlight-color:transparent}
+.vote-btn:hover{border-color:var(--accent);color:var(--accent)}
+.vote-up.active{background:rgba(127,240,197,0.12);color:var(--green);border-color:rgba(127,240,197,0.3)}
+.vote-down.active{background:rgba(255,82,82,0.1);color:#ff5252;border-color:rgba(255,82,82,0.25)}
+.vote-net{font-size:0.6rem;font-weight:800;color:var(--accent);min-width:28px;text-align:center}
+
 /* Footer */
 .footer{padding:28px 0 0;margin-top:40px;border-top:1px solid var(--border);text-align:center}
 .footer p{font-size:0.54rem;color:var(--dim)}
@@ -94,7 +103,7 @@ a:hover{text-decoration:underline}
     <div><h1>Edwin Estro — Portal</h1><p>Games · Science · Tools · Docs</p></div>
   </div>
   <nav class="nav-links">
-    <a href="index.html">Home (AGI 3D)</a>
+    <a href="index.html">Home (AGI 3D2)</a>
     <a href="Projects/docs/index.html">Docs</a>
     <a href="legacy/stringball-endpoint/index.html">Legacy Lab</a>
   </nav>
@@ -171,11 +180,35 @@ function renderCard(item, isGame) {
     return `<span class="badge ${cls}">${b}</span>`;
   }).join('');
   const href = isGame ? item.href.replace('../../games/', 'Projects/games/').replace('../../../legacy/', 'legacy/') : item.href;
-  return `<a class="card" href="${href}">
-    <div class="card-title">${item.title}</div>
-    <div class="card-desc">${item.desc}</div>
-    <div class="card-badges">${badges}</div>
-  </a>`;
+  const gid = item.id || '';
+  const voteData = voteTallies[gid] || { up: 0, down: 0 };
+  const userV = userVotes[gid] || null;
+  const net = voteData.up - voteData.down;
+  const voteHtml = isGame && gid ? `
+    <div class="vote-row" data-game="${gid}">
+      <button class="vote-btn vote-up${userV === 'up' ? ' active' : ''}" data-game="${gid}" data-dir="up" title="Upvote" type="button">▲ ${voteData.up}</button>
+      <span class="vote-net">${net >= 0 ? '+' : ''}${net}</span>
+      <button class="vote-btn vote-down${userV === 'down' ? ' active' : ''}" data-game="${gid}" data-dir="down" title="Downvote" type="button">▼ ${voteData.down}</button>
+    </div>` : '';
+  return `<div class="card-wrap" data-score="${net}">
+    <a class="card" href="${href}">
+      <div class="card-title">${item.title}</div>
+      <div class="card-desc">${item.desc}</div>
+      <div class="card-badges">${badges}</div>
+    </a>
+    ${voteHtml}
+  </div>`;
+}
+
+// ─── VOTE STATE ─────────────────────────────────────────
+let voteTallies = {}; // { gameId: { up, down } }
+let userVotes = {};   // { gameId: 'up'|'down' }
+
+async function loadVotes() {
+  try {
+    const res = await fetch('/api/vote?game=all');
+    if (res.ok) { const d = await res.json(); if (d.ok) voteTallies = d.tallies || {}; }
+  } catch { /* offline fallback */ }
 }
 
 async function init() {
@@ -189,8 +222,14 @@ async function init() {
     games = data.games || [];
   } catch { console.warn('Could not load games.json'); }
 
-  // Sort by updatedAt descending
-  games.sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''));
+  // Sort by updatedAt descending, then by vote score
+  games.sort((a, b) => {
+    const sa = (voteTallies[a.id] || { up: 0, down: 0 });
+    const sb = (voteTallies[b.id] || { up: 0, down: 0 });
+    const na = sa.up - sa.down, nb = sb.up - sb.down;
+    if (nb !== na) return nb - na;
+    return (b.updatedAt || '').localeCompare(a.updatedAt || '');
+  });
 
   // Categorize and render game entries
   const counts = { experiences: 0, science: 0, strategy: 0, cognitive: 0, tools: 0 };
@@ -238,8 +277,88 @@ async function init() {
     });
   }, { threshold: 0.08 });
   document.querySelectorAll('.section').forEach(s => observer.observe(s));
-  document.querySelectorAll('.card').forEach(c => observer.observe(c));
+  document.querySelectorAll('.card-wrap, .card').forEach(c => observer.observe(c));
+
+  // ─── VOTE CLICK HANDLER ───────────────────────────────
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.vote-btn');
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const gid = btn.dataset.game;
+    const dir = btn.dataset.dir;
+
+    if (dir === 'down') {
+      // Show downvote reason modal
+      const reason = await showDownvoteModal(gid);
+      if (!reason) return; // cancelled
+      await castVote(gid, 'down', reason);
+    } else {
+      await castVote(gid, 'up', '');
+    }
+  });
 }
+
+// ─── DOWNVOTE MODAL ───────────────────────────────────
+function showDownvoteModal(gameId) {
+  return new Promise((resolve) => {
+    // Remove any existing modal
+    const old = document.getElementById('dvModal');
+    if (old) old.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'dvModal';
+    modal.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6)';
+    modal.innerHTML = `
+      <div style="background:rgba(12,18,36,0.95);border:1px solid rgba(108,232,255,0.15);border-radius:14px;padding:28px 32px;max-width:380px;width:90%;text-align:center;">
+        <div style="font-size:16px;font-weight:600;margin-bottom:12px;color:rgba(220,236,255,0.88)">Why are you downvoting?</div>
+        <textarea id="dvReason" rows="3" maxlength="200" placeholder="Your reason (required)..." style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(108,232,255,0.15);border-radius:8px;padding:10px;color:#e0e0e0;font-size:14px;resize:none;font-family:inherit"></textarea>
+        <div style="margin-top:14px;display:flex;gap:8px;justify-content:center">
+          <button id="dvSubmit" style="padding:8px 20px;background:rgba(108,232,255,0.82);color:#0a0818;border:none;border-radius:6px;font-weight:600;cursor:pointer">Submit</button>
+          <button id="dvCancel" style="padding:8px 20px;background:transparent;border:1px solid rgba(108,232,255,0.3);color:rgba(220,236,255,0.88);border-radius:6px;cursor:pointer">Cancel</button>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+
+    document.getElementById('dvCancel').onclick = () => { modal.remove(); resolve(null); };
+    modal.addEventListener('click', (e) => { if (e.target === modal) { modal.remove(); resolve(null); } });
+    document.getElementById('dvSubmit').onclick = () => {
+      const reason = document.getElementById('dvReason').value.trim();
+      if (!reason) { document.getElementById('dvReason').style.borderColor = '#ff5252'; return; }
+      modal.remove();
+      resolve(reason);
+    };
+  });
+}
+
+async function castVote(gameId, direction, reason) {
+  try {
+    const res = await fetch('/api/vote', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ game: gameId, vote: direction, reason }),
+    });
+    if (res.ok) {
+      const d = await res.json();
+      if (d.ok) {
+        voteTallies[gameId] = d.tally;
+        userVotes[gameId] = direction;
+        // Update buttons in-place
+        const row = document.querySelector(`.vote-row[data-game="${gameId}"]`);
+        if (row) {
+          const net = d.tally.up - d.tally.down;
+          row.querySelector('.vote-up').textContent = '\u25B2 ' + d.tally.up;
+          row.querySelector('.vote-down').textContent = '\u25BC ' + d.tally.down;
+          row.querySelector('.vote-net').textContent = (net >= 0 ? '+' : '') + net;
+          row.querySelector('.vote-up').classList.toggle('active', direction === 'up');
+          row.querySelector('.vote-down').classList.toggle('active', direction === 'down');
+        }
+      }
+    }
+  } catch (e) { console.warn('Vote failed:', e); }
+}
+
+await loadVotes();
 init();
 </script>
 </body>

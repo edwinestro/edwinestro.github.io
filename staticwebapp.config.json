@@ -16,6 +16,10 @@
   },
   "routes": [
     {
+      "route": "/login.html",
+      "allowedRoles": ["anonymous", "authenticated"]
+    },
+    {
       "route": "/.auth/login/github",
       "allowedRoles": ["BLOCK_THIS"]
     },
@@ -32,7 +36,19 @@
       "allowedRoles": ["authenticated"]
     },
     {
+      "route": "/agi3d2.html",
+      "allowedRoles": ["authenticated"]
+    },
+    {
+      "route": "/Projects/games/taskrunner/*",
+      "allowedRoles": ["authenticated"]
+    },
+    {
       "route": "/assets/js/agi3d/*",
+      "allowedRoles": ["authenticated"]
+    },
+    {
+      "route": "/assets/js/agi3d2/*",
       "allowedRoles": ["authenticated"]
     },
     {
@@ -40,7 +56,15 @@
       "allowedRoles": ["authenticated"]
     },
     {
+      "route": "/assets/css/agi3d2.css",
+      "allowedRoles": ["authenticated"]
+    },
+    {
       "route": "/api/archive",
+      "allowedRoles": ["authenticated"]
+    },
+    {
+      "route": "/api/vote",
       "allowedRoles": ["authenticated"]
     },
     {
@@ -58,7 +82,7 @@
   ],
   "responseOverrides": {
     "401": {
-      "redirect": "/.auth/login/aad?post_login_redirect_uri=/"
+      "redirect": "/login.html"
     },
     "404": {
       "rewrite": "/404.html"
@@ -66,6 +90,6 @@
   },
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/.auth/*", "/api/*", "/assets/*", "/Projects/*", "/legacy/*", "/*.json", "/robots.txt", "/sitemap.xml"]
+    "exclude": ["/.auth/*", "/api/*", "/assets/*", "/Projects/*", "/legacy/*", "/*.json", "/robots.txt", "/sitemap.xml", "/login.html"]
   }
 }

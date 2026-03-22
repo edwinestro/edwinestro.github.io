@@ -3,20 +3,53 @@
   "generatedAt": "2026-03-11T00:00:00.000Z",
   "games": [
     {
+      "id": "taskrunner",
+      "title": "TASKRUNNER",
+      "desc": "Entity evolution through task mastery. 15 tasks across 5 tiers — orbital physics, signal classification, trait allocation, and more. All mechanics combined.",
+      "href": "../../games/taskrunner/index.html",
+      "thumbnail": "assets/agi-3d-1600x900.svg",
+      "badges": [
+        "Canvas",
+        "Strategy",
+        "New",
+        "Auth"
+      ],
+      "counted": true,
+      "sourcePath": "Projects/games/taskrunner",
+      "createdAt": "2026-03-21T00:00:00.000Z",
+      "updatedAt": "2026-03-21T00:00:00.000Z"
+    },
+    {
       "id": "unsupervised-agi-3d",
-      "title": "Unsupervised AGI 3D",
-      "desc": "Watch an autonomous AGI entity explore a procedural 3D world, discover knowledge nodes, and evolve its form—all without instructions. Click to place signal beacons.",
+      "title": "Unsupervised AGI 3D Classic",
+      "desc": "Archived public snapshot of the live Unsupervised AGI 3D survival build. Guide the field with beacons, anchor fields, and pulse shields while the AGI learns on its own. Runs stay local in this review build.",
       "href": "../../games/unsupervised-agi-3d/index.html",
       "thumbnail": "assets/agi-3d-1600x900.svg",
       "badges": [
         "3D",
-        "Experience",
-        "New"
+        "Archive",
+        "Classic"
       ],
       "counted": true,
       "sourcePath": "Projects/games/unsupervised-agi-3d",
       "createdAt": "2026-03-14T00:00:00.000Z",
-      "updatedAt": "2026-03-14T00:00:00.000Z"
+      "updatedAt": "2026-03-18T00:00:00.000Z"
+    },
+    {
+      "id": "unsupervised-agi-3d-2",
+      "title": "Unsupervised AGI 3D2",
+      "desc": "Authenticated live sequel focused on teaching AGI autonomy. Place a small curriculum, set safety boundaries, trigger release trials, and inspect runtime diagnostics when the cohort destabilizes.",
+      "href": "index.html",
+      "thumbnail": "assets/agi-3d-1600x900.svg",
+      "badges": [
+        "3D",
+        "Live",
+        "Auth"
+      ],
+      "counted": true,
+      "sourcePath": "index.html",
+      "createdAt": "2026-03-18T00:00:00.000Z",
+      "updatedAt": "2026-03-18T00:00:00.000Z"
     },
     {
       "id": "i3d23",

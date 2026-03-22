@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unsupervised AGI 3D2 — Edwin Estro</title>
+  <meta name="description" content="Teach an AGI toward autonomy through brief curriculum cues, safety boundaries, reflective recovery, and release trials. Includes runtime diagnostics for intermittent live-build failures." />
+  <meta name="theme-color" content="#120b12" />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="stylesheet" href="assets/css/agi3d2.css" />
+</head>
+<body>
+  <canvas id="c" aria-label="Interactive AGI3D2 teaching simulation"></canvas>
+
+  <section class="start-screen" id="startScreen" tabindex="0" aria-label="Start the AGI3D2 teaching simulation">
+    <div class="start-title">Unsupervised AGI 3D2</div>
+    <div class="start-sub">You are no longer puppeteering the intelligence directly.<br>Brief the current lesson, place a small curriculum, set a safety boundary, trigger a release trial, and measure whether the AGI can carry the next move on its own.</div>
+    <div class="start-prompt">Click anywhere to begin briefing</div>
+  </section>
+
+  <div class="brand ui-hidden" id="brandUI">
+    <div class="brand-mark">Unsupervised AGI 3D2</div>
+    <div class="brand-copy">Click for curriculum · Q safety boundary · E reflective pause · R release trial · Scroll to zoom · Drag to orbit</div>
+    <div class="brand-user" id="brandUser"></div>
+  </div>
+
+  <nav class="nav-links" aria-label="Primary">
+    <a href="portal.html">Portal</a>
+    <a href="Projects/games/unsupervised-agi-3d/index.html">Classic Archive</a>
+    <a href="README.md">Docs</a>
+  </nav>
+
+  <section class="directive ui-hidden" id="directivePanel" aria-live="polite">
+    <div class="directive-kicker">Teaching Objective</div>
+    <div class="directive-title" id="directiveTitle">Brief the cohort</div>
+    <div class="directive-body" id="directiveBody">Use brief interventions to teach autonomy, then step back and observe whether the AGI can carry the lesson forward without constant correction.</div>
+    <div class="directive-meta">
+      <div class="directive-chip" id="directivePhase">Orientation</div>
+      <div class="directive-chip" id="directivePressure">3 interventions left</div>
+    </div>
+  </section>
+
+  <section class="archive" id="archivePanel" aria-live="polite">
+    <div class="archive-kicker">Cohort Archive</div>
+    <div class="archive-grid">
+      <div class="archive-stat"><span class="archive-label">Tier</span><span class="archive-value" id="archiveTier">0</span></div>
+      <div class="archive-stat"><span class="archive-label">Runs</span><span class="archive-value" id="archiveRuns">0</span></div>
+      <div class="archive-stat"><span class="archive-label">Best</span><span class="archive-value" id="archiveBest">0</span></div>
+      <div class="archive-stat"><span class="archive-label">Wins</span><span class="archive-value" id="archiveWins">0</span></div>
+    </div>
+    <div class="archive-run" id="archiveRunSeed">Run seed --------</div>
+    <div class="archive-modifiers" id="archiveModifiers">Modifiers loading…</div>
+    <div class="archive-history" id="archiveHistory">No archived runs yet.</div>
+  </section>
+
+  <section class="diagnostics ui-hidden" id="diagnosticsPanel" aria-live="polite">
+    <div class="diagnostics-kicker">Runtime Health</div>
+    <div class="diagnostics-status" id="diagStatus">Stable</div>
+    <div class="diagnostics-meta">
+      <span id="diagEvents">0 events</span>
+      <span id="diagStalls">0 stalls</span>
+      <span id="diagErrors">0 errors</span>
+    </div>
+    <div class="diagnostics-last" id="diagLast">No runtime faults captured.</div>
+    <div class="diagnostics-actions">
+      <button class="diagnostics-button" id="diagCopyButton" type="button">Copy Trace</button>
+      <button class="diagnostics-button diagnostics-button--ghost" id="diagResetButton" type="button">Clear</button>
+    </div>
+  </section>
+
+  <section class="leaderboard ui-hidden" id="leaderboardPanel" aria-live="polite">
+    <div class="leaderboard-kicker">Live Cohort Leaderboard</div>
+    <div class="leaderboard-tabs" id="lbTabs">
+      <button class="lb-tab active" data-cat="stability" type="button">Safety</button>
+      <button class="lb-tab" data-cat="ruptures" type="button">Recoveries</button>
+      <button class="lb-tab" data-cat="coherence" type="button">Focus</button>
+      <button class="lb-tab" data-cat="autonomy" type="button">Autonomy</button>
+    </div>
+    <div class="leaderboard-list" id="lbList">Loading…</div>
+  </section>
+
+  <div class="hint ui-hidden" id="hint">Click to seed curriculum · Q arm safety boundary · E reflective pause · R start release trial · Spend only a few interventions per lesson</div>
+
+  <div class="reflection ui-hidden" id="reflection">
+    <div class="reflection-kicker">Teach-Back</div>
+    <div class="reflection-text" id="reflectionText">Initializing perception…</div>
+  </div>
+
+  <div class="event-toast" id="eventToast" aria-live="polite">Lesson initialized.</div>
+
+  <div class="hud ui-hidden" id="hudPanel">
+    <div class="hud-item"><span class="tag">Lessons</span><div class="hud-value" id="hudDisc">0</div></div>
+    <div class="hud-item"><span class="tag">Curiosity</span><div class="hud-value" id="hudCuriosity">50%</div></div>
+    <div class="hud-item hud-item--trust"><span class="tag">Trust</span><div class="hud-value" id="hudCoherence">30%</div></div>
+    <div class="hud-item hud-item--stability"><span class="tag">Safety</span><div class="hud-value" id="hudStability">100%</div></div>
+    <div class="hud-item hud-item--evolution"><span class="tag">Readiness</span><div class="hud-value" id="hudEvolution">16%</div></div>
+    <div class="hud-item hud-item--beacons"><span class="tag">Budget</span><div class="hud-value" id="hudBeacons">3</div></div>
+    <div class="hud-item hud-item--resonance"><span class="tag">Insight</span><div class="hud-value" id="hudResonance">0%</div></div>
+    <div class="hud-item hud-item--score"><span class="tag">Score</span><div class="hud-value" id="hudScore">0</div></div>
+    <div class="hud-item hud-item--momentum"><span class="tag">Autonomy</span><div class="hud-value" id="hudMomentum">0%</div></div>
+    <div class="hud-item"><span class="tag">Phase</span><div class="hud-value" id="hudState">Briefing</div></div>
+    <div class="hud-item hud-item--age"><span class="tag">Cohort Age</span><div class="hud-value" id="hudAge">0s</div></div>
+    <div class="hud-item hud-item--duration"><span class="tag">Session</span><div class="hud-value" id="hudDuration">0s</div></div>
+  </div>
+
+  <div class="ability-dock" id="abilityDock">
+    <div class="ability-row">
+      <div class="ability-card">
+        <button class="ability-button" id="anchorButton" data-state="ready" type="button">
+          <span class="ability-name">Safety Boundary</span>
+          <span class="ability-state" id="anchorStatus">Ready</span>
+        </button>
+        <div class="ability-copy" id="anchorCopy">Arm, then click terrain to place a temporary safety boundary. Hotkey: Q</div>
+      </div>
+      <div class="ability-card">
+        <button class="ability-button" id="pulseButton" data-state="ready" type="button">
+          <span class="ability-name">Reflective Pause</span>
+          <span class="ability-state" id="pulseStatus">Ready</span>
+        </button>
+        <div class="ability-copy" id="pulseCopy">Projects a short reflective recovery around the AGI. Hotkey: E</div>
+      </div>
+      <div class="ability-card">
+        <button class="ability-button" id="releaseButton" data-state="ready" type="button">
+          <span class="ability-name">Release Trial</span>
+          <span class="ability-state" id="releaseStatus">Ready</span>
+        </button>
+        <div class="ability-copy" id="releaseCopy">Launch an observation window and stop intervening. Hotkey: R</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="end-screen" id="endScreen" aria-live="polite">
+    <div class="end-card">
+      <div class="end-kicker" id="endKicker">Run review</div>
+      <div class="end-title" id="endTitle">Teaching cycle complete</div>
+      <div class="end-body" id="endBody">The cohort has settled.</div>
+      <div class="end-stats">
+        <div class="end-pill" id="endStatDiscoveries">Lessons 0</div>
+        <div class="end-pill" id="endStatResonance">Insight 0%</div>
+        <div class="end-pill" id="endStatStability">Safety 100%</div>
+        <div class="end-pill" id="endStatScore">Score 0</div>
+        <div class="end-pill" id="endStatDuration">Session 0s</div>
+        <div class="end-pill" id="endStatAutonomy">Release success 0%</div>
+        <div class="end-pill" id="endStatArchive">Cohort Tier 0</div>
+      </div>
+      <div class="end-history" id="endHistory">No archived runs yet.</div>
+      <button class="end-button" id="restartButton" type="button">Run Another Lesson</button>
+    </div>
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"
+      }
+    }
+  </script>
+  <script type="module" src="assets/js/agi3d2/main.js"></script>
+</body>
+</html>

@@ -168,6 +168,13 @@ const COVER_LIBRARY = {
         hook: 'Breed aligned lineages, manage crises, and launch before the lab turns on itself.',
         meta: 'Strategy simulation · weekly directives',
     },
+    'unsupervised-agi-3d-2': {
+        theme: 'strategy',
+        kicker: 'Authenticated live sequel',
+        title: 'AGI 3D2',
+        hook: 'Teach autonomy with curriculum seeds, safety boundaries, release trials, and runtime diagnostics for the unstable moments.',
+        meta: '3D live build · auth required',
+    },
     'agi-3d': {
         theme: 'vault',
         kicker: 'Living intelligence',

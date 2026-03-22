@@ -1,10 +1,12 @@
 const { TableClient } = require('@azure/data-tables');
 
 const TABLE_NAME = 'agi3dgame';
+const DEFAULT_GAME_ID = 'unsupervised-agi-3d';
 const MAX_HISTORY = 6;
 const MAX_ARCHIVE_SIZE = 8192;
 const LB_SIZE = 10;
 const LB_CATEGORIES = ['stability', 'ruptures', 'coherence', 'autonomy'];
+const LB_CATEGORIES_EXTRA = ['xp', 'tasks', 'streak', 'time'];
 
 let tableClient;
 
@@ -37,6 +39,26 @@ function getUserName(req) {
   } catch {
     return 'Player';
   }
+}
+
+function sanitizeGameId(value) {
+  const cleaned = String(value || DEFAULT_GAME_ID)
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '')
+    .slice(0, 48);
+  return cleaned || DEFAULT_GAME_ID;
+}
+
+function getRequestedGame(req) {
+  return sanitizeGameId(req.query?.game || req.body?.game);
+}
+
+function archivePartitionKey(gameId) {
+  return `archive-${gameId}`;
+}
+
+function leaderboardPartitionKey(gameId, category) {
+  return `lb-${gameId}-${category}`;
 }
 
 function sanitizeArchive(raw) {
@@ -82,18 +104,27 @@ function lbMetric(entry, category) {
     case 'ruptures': return entry.rupturesResolved || 0;
     case 'coherence': return entry.runDuration || 0;
     case 'autonomy': return entry.autonomyRatio || 0;
+    // TASKRUNNER categories (mapped to existing archive fields)
+    case 'xp': return entry.stability || entry.score || 0;
+    case 'tasks': return entry.rupturesResolved || entry.discoveries || 0;
+    case 'streak': return entry.resonance || 0;
+    case 'tier': return entry.autonomyRatio || entry.archiveTier || 0;
+    case 'time': return entry.runDuration || 0;
     default: return 0;
   }
 }
 
-async function updateLeaderboards(client, entry, userName) {
-  for (const cat of LB_CATEGORIES) {
+async function updateLeaderboards(client, entry, userName, gameId) {
+  // Choose categories based on game
+  const categories = gameId === 'taskrunner' ? LB_CATEGORIES_EXTRA : LB_CATEGORIES;
+  for (const cat of categories) {
     const metric = lbMetric(entry, cat);
     if (metric <= 0) continue;
 
     // Read current top entries for this category
     const existing = [];
-    const iter = client.listEntities({ queryOptions: { filter: `PartitionKey eq 'lb-${cat}'` } });
+    const partitionKey = leaderboardPartitionKey(gameId, cat);
+    const iter = client.listEntities({ queryOptions: { filter: `PartitionKey eq '${partitionKey}'` } });
     for await (const e of iter) existing.push(e);
     existing.sort((a, b) => (Number(b.metric) || 0) - (Number(a.metric) || 0));
 
@@ -102,8 +133,9 @@ async function updateLeaderboards(client, entry, userName) {
 
     // Add entry
     const newEntry = {
-      partitionKey: `lb-${cat}`,
+      partitionKey,
       rowKey: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      gameId,
       metric: metric,
       playerName: (userName || 'Player').slice(0, 50),
       score: entry.score || 0,
@@ -134,17 +166,19 @@ module.exports = async function (context, req) {
     return;
   }
 
+  const gameId = getRequestedGame(req);
+
   try {
     const client = await getTableClient();
 
     if (req.method === 'GET') {
       try {
-        const entity = await client.getEntity('archive', userId);
+        const entity = await client.getEntity(archivePartitionKey(gameId), userId);
         const archive = JSON.parse(entity.data);
-        context.res = { status: 200, body: { ok: true, archive } };
+        context.res = { status: 200, body: { ok: true, game: gameId, archive } };
       } catch (e) {
         if (e.statusCode === 404) {
-          context.res = { status: 200, body: { ok: true, archive: null } };
+          context.res = { status: 200, body: { ok: true, game: gameId, archive: null } };
         } else {
           throw e;
         }
@@ -166,8 +200,9 @@ module.exports = async function (context, req) {
 
       // Save archive
       await client.upsertEntity({
-        partitionKey: 'archive',
+        partitionKey: archivePartitionKey(gameId),
         rowKey: userId,
+        gameId,
         data: serialized,
         updatedAt: new Date().toISOString(),
       }, 'Replace');
@@ -177,13 +212,13 @@ module.exports = async function (context, req) {
         const latestRun = archive.history[0];
         const userName = getUserName(req);
         try {
-          await updateLeaderboards(client, latestRun, userName);
+          await updateLeaderboards(client, latestRun, userName, gameId);
         } catch (lbErr) {
           context.log.warn('Leaderboard update failed:', lbErr.message);
         }
       }
 
-      context.res = { status: 200, body: { ok: true, archive } };
+      context.res = { status: 200, body: { ok: true, game: gameId, archive } };
       return;
     }
 

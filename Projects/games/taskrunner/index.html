@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>TASKRUNNER — Entity Evolution</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <!-- HUD -->
+  <div id="hud" class="hidden">
+    <div>
+      <div><span class="hud-label">XP</span> <span class="hud-value" id="hud-xp">0</span></div>
+      <div><span class="hud-label">Tier</span> <span class="hud-value" id="hud-tier">1</span></div>
+      <div><span class="hud-label">Streak</span> <span class="hud-value" id="hud-streak">0</span></div>
+    </div>
+    <div>
+      <div><span class="hud-label">Integrity</span> <span id="integrity-pips"></span></div>
+      <div><span class="hud-label">Score</span> <span class="hud-value" id="hud-score">0</span></div>
+      <div><span class="hud-label">Time</span> <span class="hud-value" id="hud-time">--</span></div>
+    </div>
+  </div>
+
+  <!-- Title panel -->
+  <div id="title-panel" class="panel">
+    <h1>TASKRUNNER</h1>
+    <p>You are a nascent entity. Complete tasks to evolve.<br>
+    Each task tests a different ability. Scale up through 5 evolution tiers.</p>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-val" id="title-best">0</div><div class="stat-label">Best XP</div></div>
+      <div class="stat"><div class="stat-val" id="title-runs">0</div><div class="stat-label">Runs</div></div>
+    </div>
+    <button class="btn" id="btn-start">Initialize Entity</button>
+  </div>
+
+  <!-- Hub panel -->
+  <div id="hub-panel" class="panel hidden">
+    <h2 id="hub-entity-name">Spark</h2>
+    <div id="evo-bar"><div id="evo-fill"></div></div>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-val" id="hub-xp">0</div><div class="stat-label">XP</div></div>
+      <div class="stat"><div class="stat-val" id="hub-tier">1</div><div class="stat-label">Tier</div></div>
+      <div class="stat"><div class="stat-val" id="hub-tasks">0/15</div><div class="stat-label">Tasks</div></div>
+    </div>
+    <div id="task-list"></div>
+    <p class="hub-hint" id="hub-hint">Select a task to begin.</p>
+    <button class="btn secondary" id="btn-leaderboard">Leaderboard</button>
+  </div>
+
+  <!-- Task briefing -->
+  <div id="brief-panel" class="panel hidden">
+    <h2 id="brief-name">Task</h2>
+    <p id="brief-desc">Description</p>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-val" id="brief-time">30s</div><div class="stat-label">Time</div></div>
+      <div class="stat"><div class="stat-val" id="brief-diff">★</div><div class="stat-label">Difficulty</div></div>
+    </div>
+    <button class="btn" id="btn-launch">Launch Task</button>
+    <button class="btn secondary" id="btn-back">Back</button>
+  </div>
+
+  <!-- Task result -->
+  <div id="result-panel" class="panel hidden">
+    <h2 id="result-title">Task Complete</h2>
+    <p id="result-msg">Details</p>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-val" id="result-score">0</div><div class="stat-label">Score</div></div>
+      <div class="stat"><div class="stat-val" id="result-xp">+0</div><div class="stat-label">XP</div></div>
+      <div class="stat"><div class="stat-val" id="result-streak">0</div><div class="stat-label">Streak</div></div>
+    </div>
+    <button class="btn" id="btn-continue">Continue</button>
+  </div>
+
+  <!-- Allocate task overlay (trait bars live in DOM) -->
+  <div id="allocate-overlay" class="panel hidden alloc-overlay">
+    <h2>Trait Allocation</h2>
+    <p id="alloc-instr">Click the bars to distribute points. Match the targets!</p>
+    <div id="trait-rows"></div>
+    <div class="alloc-footer">
+      <span class="hud-label">Points Left: </span>
+      <span class="hud-value" id="alloc-pts">0</span>
+      <span class="hud-label alloc-spacer">Accuracy: </span>
+      <span class="hud-value" id="alloc-acc">0%</span>
+    </div>
+    <button class="btn alloc-submit" id="btn-alloc-submit">Submit Allocation</button>
+  </div>
+
+  <!-- Mobile classify buttons (shown during classify tasks on touch devices) -->
+  <div id="mobile-classify" class="mobile-bar hidden">
+    <button class="mobile-btn" data-type="0">Filter</button>
+    <button class="mobile-btn" data-type="1">Analyze</button>
+    <button class="mobile-btn" data-type="2">Quarantine</button>
+  </div>
+
+  <!-- Mobile joystick (shown during drift task on touch) -->
+  <div id="mobile-joystick" class="hidden">
+    <div class="joystick-ring">
+      <div class="joystick-knob" id="joystick-knob"></div>
+    </div>
+    <button class="mobile-btn thrust-btn" id="btn-thrust">THRUST</button>
+  </div>
+
+  <!-- Leaderboard panel -->
+  <div id="lb-panel" class="panel hidden">
+    <h2>Leaderboard</h2>
+    <div class="lb-tabs">
+      <button class="lb-tab active" data-cat="xp">XP</button>
+      <button class="lb-tab" data-cat="tasks">Tasks Done</button>
+      <button class="lb-tab" data-cat="streak">Streak</button>
+      <button class="lb-tab" data-cat="time">Time Lived</button>
+    </div>
+    <div id="lb-entries" class="lb-entries">
+      <p class="lb-loading">Loading...</p>
+    </div>
+    <button class="btn secondary" id="btn-lb-close">Back</button>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

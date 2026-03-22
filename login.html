@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Sign In — TASKRUNNER</title>
+  <style>
+    :root {
+      --bg: #0a0a12;
+      --accent: #4fc3f7;
+      --accent2: #ab47bc;
+      --text: #e0e0e0;
+      --dim: #666;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+    canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+    }
+    .login-card {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      text-align: center;
+      background: rgba(20, 20, 42, 0.85);
+      border: 1px solid rgba(79, 195, 247, 0.15);
+      border-radius: 16px;
+      padding: 40px 48px;
+      min-width: 320px;
+      max-width: 420px;
+      box-shadow: 0 0 60px rgba(79, 195, 247, 0.08);
+      animation: cardIn 0.6s ease-out;
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+    }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translate(-50%, -48%) scale(0.94); }
+      to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+    .login-card h1 {
+      font-size: 32px;
+      letter-spacing: 3px;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .login-card .subtitle {
+      font-size: 13px;
+      color: var(--dim);
+      margin-bottom: 28px;
+    }
+    .login-card p {
+      color: #888;
+      font-size: 13px;
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+    .btn-sign-in {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 32px;
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.1s;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-sign-in:hover { background: #81d4fa; transform: scale(1.03); }
+    .btn-sign-in:active { transform: scale(0.97); }
+    .btn-sign-in::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      transform: translateX(-100%);
+      animation: shimmer 3s infinite;
+    }
+    @keyframes shimmer {
+      0%   { transform: translateX(-100%); }
+      30%  { transform: translateX(100%); }
+      100% { transform: translateX(100%); }
+    }
+    .ms-icon {
+      width: 20px; height: 20px;
+      display: inline-block;
+    }
+    .footer-note {
+      margin-top: 20px;
+      font-size: 11px;
+      color: #555;
+    }
+    .footer-note a { color: var(--dim); }
+    @media (max-width: 480px) {
+      .login-card { padding: 28px 24px; min-width: 85vw; }
+      .login-card h1 { font-size: 24px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg"></canvas>
+
+  <div class="login-card" role="main">
+    <h1>TASKRUNNER</h1>
+    <div class="subtitle">Entity Evolution</div>
+    <p>Sign in with your Microsoft account to begin your evolution journey.</p>
+    <a href="/.auth/login/aad?post_login_redirect_uri=/" class="btn-sign-in" role="button">
+      <!-- Microsoft logo (4 squares) -->
+      <svg class="ms-icon" viewBox="0 0 21 21" fill="none" aria-hidden="true">
+        <rect width="9" height="9" fill="#f25022"/>
+        <rect x="11" width="9" height="9" fill="#7fba00"/>
+        <rect y="11" width="9" height="9" fill="#00a4ef"/>
+        <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+      </svg>
+      Sign in with Microsoft
+    </a>
+    <div class="footer-note">
+      Secured by Azure Active Directory
+    </div>
+  </div>
+
+  <script>
+    'use strict';
+    // Animated background — breathing entity + particles + stars
+    const cvs = document.getElementById('bg');
+    const ctx = cvs.getContext('2d', { alpha: false });
+    let W = 0, H = 0;
+
+    function resize() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = window.innerWidth; H = window.innerHeight;
+      cvs.width = W * dpr; cvs.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Respect reduced motion
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Stars
+    const stars = [];
+    for (let i = 0; i < 60; i++) {
+      stars.push({ x: Math.random() * 2000, y: Math.random() * 2000, r: 0.3 + Math.random() * 1.2, phase: Math.random() * 6.28, speed: 0.5 + Math.random() * 1.5 });
+    }
+
+    // Ambient particles
+    const particles = [];
+    const PARTICLE_CAP = 40;
+    function spawnParticle() {
+      if (particles.length >= PARTICLE_CAP) return;
+      const cx = W / 2, cy = H / 2;
+      const a = Math.random() * Math.PI * 2;
+      const d = 30 + Math.random() * 60;
+      particles.push({
+        x: cx + Math.cos(a) * d, y: cy + Math.sin(a) * d,
+        vx: Math.cos(a) * 5, vy: Math.sin(a) * 5,
+        life: 0, maxLife: 2 + Math.random() * 3,
+        r: 0.5 + Math.random(), color: Math.random() > 0.5 ? '#4fc3f7' : '#ab47bc',
+      });
+    }
+
+    let time = 0, mouseX = W / 2, mouseY = H / 2;
+    document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+
+    function frame(ts) {
+      requestAnimationFrame(frame);
+      const dt = prefersReduced ? 0 : Math.min((ts - (frame._last || ts)) / 1000, 0.05);
+      frame._last = ts;
+      time += dt;
+
+      // Background
+      const bg = ctx.createLinearGradient(0, 0, 0, H);
+      bg.addColorStop(0, '#06060e'); bg.addColorStop(1, '#0c0c1e');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, W, H);
+
+      // Stars
+      for (const s of stars) {
+        s.phase += s.speed * dt;
+        ctx.globalAlpha = 0.25 + Math.sin(s.phase) * 0.25;
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(s.x % W, s.y % H, s.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+
+      // Subtle grid
+      ctx.strokeStyle = 'rgba(79,195,247,0.025)';
+      ctx.lineWidth = 0.5;
+      const gs = 60, ox = (time * 4) % gs;
+      for (let x = -gs + ox; x < W + gs; x += gs) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+      }
+      for (let y = -gs + ox; y < H + gs; y += gs) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      }
+
+      // Entity
+      const cx = W / 2, cy = H / 2;
+      const breath = 1 + Math.sin(time * 1.8) * 0.08;
+      const r = 24 * breath;
+
+      // Glow
+      const glow = ctx.createRadialGradient(cx, cy, r * 0.5, cx, cy, r * 3.5);
+      glow.addColorStop(0, 'rgba(79,195,247,0.18)');
+      glow.addColorStop(1, 'transparent');
+      ctx.fillStyle = glow;
+      ctx.beginPath(); ctx.arc(cx, cy, r * 3.5, 0, Math.PI * 2); ctx.fill();
+
+      // Core
+      const core = ctx.createRadialGradient(cx - r * 0.2, cy - r * 0.2, 0, cx, cy, r);
+      core.addColorStop(0, '#fff');
+      core.addColorStop(0.4, '#4fc3f7');
+      core.addColorStop(1, 'rgba(79,195,247,0.25)');
+      ctx.fillStyle = core;
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+
+      // Inner ring
+      ctx.strokeStyle = '#4fc3f7';
+      ctx.lineWidth = 1.5;
+      ctx.globalAlpha = 0.3 + Math.sin(time * 3.5) * 0.15;
+      ctx.beginPath(); ctx.arc(cx, cy, r * 1.5, 0, Math.PI * 2); ctx.stroke();
+      ctx.globalAlpha = 1;
+
+      // Gaze dot
+      const gDx = mouseX - cx, gDy = mouseY - cy;
+      const gA = Math.atan2(gDy, gDx);
+      const gD = Math.min(r * 0.35, Math.hypot(gDx, gDy) * 0.05);
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(cx + Math.cos(gA) * gD, cy + Math.sin(gA) * gD, r * 0.16, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Satellites
+      for (let i = 0; i < 3; i++) {
+        const sa = time * (0.8 + i * 0.15) + (Math.PI * 2 / 3) * i;
+        const sd = 42 * breath;
+        ctx.fillStyle = '#4fc3f7';
+        ctx.globalAlpha = 0.6;
+        ctx.beginPath();
+        ctx.arc(cx + Math.cos(sa) * sd, cy + Math.sin(sa) * sd, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+
+      // Particles
+      if (Math.random() < 0.25 && !prefersReduced) spawnParticle();
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.life += dt; p.x += p.vx * dt; p.y += p.vy * dt;
+        p.vx *= 0.98; p.vy *= 0.98;
+        if (p.life >= p.maxLife) { particles.splice(i, 1); continue; }
+        const t = p.life / p.maxLife;
+        ctx.globalAlpha = (t < 0.15 ? t / 0.15 : 1 - (t - 0.15) / 0.85) * 0.6;
+        ctx.fillStyle = p.color;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    requestAnimationFrame(frame);
+  </script>
+</body>
+</html>

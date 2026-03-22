@@ -1,138 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Unsupervised AGI 3D — Edwin Estro</title>
-  <meta name="description" content="Watch an autonomous AGI entity explore, learn, and evolve in a procedural 3D world. Place signal beacons, trigger pulse shields, deploy anchor fields, and build an archive across seeded runs." />
-  <meta name="theme-color" content="#06041a" />
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-  <link rel="stylesheet" href="assets/css/agi3d.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Edwin Estro Games</title>
+  <meta name="description" content="Play, explore, and evolve across 15+ games. Sign in with Microsoft to track progress.">
+  <meta name="theme-color" content="#0a0a12">
+  <style>
+    :root{--bg:#0a0a12;--surface:rgba(20,20,42,0.85);--accent:#4fc3f7;--accent2:#ab47bc;--text:#e0e0e0;--dim:#888}
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,-apple-system,sans-serif}
+    canvas{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+    .landing{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px}
+    .cover-card{background:var(--surface);border:1px solid rgba(79,195,247,0.12);border-radius:20px;padding:48px 56px;max-width:520px;width:100%;box-shadow:0 0 80px rgba(79,195,247,0.06);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);animation:cardIn .6s ease-out}
+    @keyframes cardIn{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+    .logo{font-size:42px;font-weight:800;letter-spacing:4px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px}
+    .tagline{font-size:14px;color:var(--dim);margin-bottom:28px;line-height:1.5}
+    .stats-row{display:flex;justify-content:center;gap:32px;margin-bottom:28px}
+    .stat{text-align:center}.stat-val{font-size:28px;font-weight:700;color:var(--accent)}.stat-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1px}
+    .cta-btn{display:inline-flex;align-items:center;gap:10px;padding:16px 40px;background:var(--accent);color:var(--bg);border:none;border-radius:10px;font-size:17px;font-weight:700;cursor:pointer;text-decoration:none;transition:background .2s,transform .1s;position:relative;overflow:hidden}
+    .cta-btn:hover{background:#81d4fa;transform:scale(1.03)}.cta-btn:active{transform:scale(.97)}
+    .cta-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);transform:translateX(-100%);animation:shimmer 3s infinite}
+    @keyframes shimmer{0%{transform:translateX(-100%)}30%{transform:translateX(100%)}100%{transform:translateX(100%)}}
+    .cta-btn.secondary{background:transparent;border:1.5px solid var(--accent);color:var(--accent);padding:10px 24px;font-size:14px}.cta-btn.secondary:hover{background:rgba(79,195,247,.08)}
+    .ms-icon{width:18px;height:18px}
+    .user-greeting{font-size:13px;color:var(--dim);margin-bottom:16px}.user-name{color:var(--accent);font-weight:600}
+    .footer-links{margin-top:20px;display:flex;gap:16px;justify-content:center}.footer-links a{font-size:12px;color:var(--dim);text-decoration:none;transition:color .2s}.footer-links a:hover{color:var(--accent)}
+    .loading-state{color:var(--dim);font-size:13px}
+    .extra-btns{margin-top:12px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+    @media(max-width:520px){.cover-card{padding:32px 24px}.logo{font-size:30px}.stats-row{gap:20px}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  </style>
 </head>
 <body>
-  <canvas id="c" aria-label="Interactive AGI simulation"></canvas>
-
-  <section class="start-screen" id="startScreen" tabindex="0" aria-label="Start the AGI simulation">
-    <div class="start-title">Unsupervised AGI 3D</div>
-    <div class="start-sub">When will an intelligence be old enough to take care of itself?<br>Watch it try. Each discovery grants a unique effect. Chain abilities for combos. Destroy echo ruptures before they split. Build field momentum and survive long enough to archive the run.</div>
-    <div class="start-prompt">Click anywhere to begin observation</div>
-  </section>
-
-  <div class="brand ui-hidden" id="brandUI">
-    <div class="brand-mark">Unsupervised AGI 3D</div>
-    <div class="brand-copy">Click for beacons · Q arm anchor field · E pulse shield · Scroll to zoom · Drag to orbit</div>
-    <div class="brand-user" id="brandUser"></div>
-  </div>
-
-  <nav class="nav-links" aria-label="Primary">
-    <a href="portal.html">Portal</a>
-    <a href="Projects/games/agi-3d/">Projects</a>
-    <a href="README.md">Docs</a>
-  </nav>
-
-  <section class="directive ui-hidden" id="directivePanel" aria-live="polite">
-    <div class="directive-kicker">Field Directive</div>
-    <div class="directive-title" id="directiveTitle">Wake the observer</div>
-    <div class="directive-body" id="directiveBody">Discover patterns to increase resonance, then hold the world together with beacons, anchor fields, and pulse shields when ruptures appear.</div>
-    <div class="directive-meta">
-      <div class="directive-chip" id="directivePhase">Awakening</div>
-      <div class="directive-chip" id="directivePressure">Field stable</div>
-    </div>
-  </section>
-
-  <section class="archive" id="archivePanel" aria-live="polite">
-    <div class="archive-kicker">Archive</div>
-    <div class="archive-grid">
-      <div class="archive-stat"><span class="archive-label">Tier</span><span class="archive-value" id="archiveTier">0</span></div>
-      <div class="archive-stat"><span class="archive-label">Runs</span><span class="archive-value" id="archiveRuns">0</span></div>
-      <div class="archive-stat"><span class="archive-label">Best</span><span class="archive-value" id="archiveBest">0</span></div>
-      <div class="archive-stat"><span class="archive-label">Wins</span><span class="archive-value" id="archiveWins">0</span></div>
-    </div>
-    <div class="archive-run" id="archiveRunSeed">Run seed --------</div>
-    <div class="archive-modifiers" id="archiveModifiers">Modifiers loading…</div>
-    <div class="archive-history" id="archiveHistory">No archived runs yet.</div>
-  </section>
-
-  <section class="leaderboard ui-hidden" id="leaderboardPanel" aria-live="polite">
-    <div class="leaderboard-kicker">Leaderboard</div>
-    <div class="leaderboard-tabs" id="lbTabs">
-      <button class="lb-tab active" data-cat="stability" type="button">Stability</button>
-      <button class="lb-tab" data-cat="ruptures" type="button">Ruptures</button>
-      <button class="lb-tab" data-cat="coherence" type="button">Coherence</button>
-      <button class="lb-tab" data-cat="autonomy" type="button">Autonomy</button>
-    </div>
-    <div class="leaderboard-list" id="lbList">Loading…</div>
-  </section>
-
-  <div class="hint ui-hidden" id="hint">Click to place beacons · Q arm anchor · E pulse shield · Chain Anchor→Pulse for combo damage · Each node shape has a unique effect · Echo ruptures (purple) split if left alone</div>
-
-  <div class="reflection ui-hidden" id="reflection">
-    <div class="reflection-kicker">AGI Reflection</div>
-    <div class="reflection-text" id="reflectionText">Initializing perception…</div>
-  </div>
-
-  <div class="event-toast" id="eventToast" aria-live="polite">Field initialized.</div>
-
-  <div class="hud ui-hidden" id="hudPanel">
-    <div class="hud-item"><span class="tag">Discoveries</span><div class="hud-value" id="hudDisc">0</div></div>
-    <div class="hud-item"><span class="tag">Curiosity</span><div class="hud-value" id="hudCuriosity">50%</div></div>
-    <div class="hud-item"><span class="tag">Coherence</span><div class="hud-value" id="hudCoherence">30%</div></div>
-    <div class="hud-item hud-item--stability"><span class="tag">Stability</span><div class="hud-value" id="hudStability">100%</div></div>
-    <div class="hud-item hud-item--evolution"><span class="tag">Evolution</span><div class="hud-value" id="hudEvolution">Stage 0</div></div>
-    <div class="hud-item hud-item--beacons"><span class="tag">Beacons</span><div class="hud-value" id="hudBeacons">0</div></div>
-    <div class="hud-item hud-item--resonance"><span class="tag">Resonance</span><div class="hud-value" id="hudResonance">0%</div></div>
-    <div class="hud-item hud-item--score"><span class="tag">Score</span><div class="hud-value" id="hudScore">0</div></div>
-    <div class="hud-item hud-item--momentum"><span class="tag">Momentum</span><div class="hud-value" id="hudMomentum">0%</div></div>
-    <div class="hud-item"><span class="tag">State</span><div class="hud-value" id="hudState">Dormant</div></div>
-    <div class="hud-item hud-item--age"><span class="tag">AGI Age</span><div class="hud-value" id="hudAge">0s</div></div>
-    <div class="hud-item hud-item--duration"><span class="tag">Duration</span><div class="hud-value" id="hudDuration">0s</div></div>
-  </div>
-
-  <div class="ability-dock" id="abilityDock">
-    <div class="ability-row">
-      <div class="ability-card">
-        <button class="ability-button" id="anchorButton" data-state="ready" type="button">
-          <span class="ability-name">Anchor Field</span>
-          <span class="ability-state" id="anchorStatus">Ready</span>
-        </button>
-        <div class="ability-copy" id="anchorCopy">Arm, then click terrain to place a temporary stabilizing zone. Hotkey: Q</div>
+  <canvas id="bg"></canvas>
+  <div class="landing">
+    <div class="cover-card">
+      <div class="logo">GAMES</div>
+      <div class="tagline">Play, explore, and evolve across 15+ games and experiences.<br>Track your progress. Compete on leaderboards.</div>
+      <div class="stats-row">
+        <div class="stat"><div class="stat-val" id="stat-games">&mdash;</div><div class="stat-label">Games</div></div>
+        <div class="stat"><div class="stat-val" id="stat-exp">&mdash;</div><div class="stat-label">Experiences</div></div>
+        <div class="stat"><div class="stat-val" id="stat-new">&mdash;</div><div class="stat-label">New</div></div>
       </div>
-      <div class="ability-card">
-        <button class="ability-button" id="pulseButton" data-state="ready" type="button">
-          <span class="ability-name">Pulse Shield</span>
-          <span class="ability-state" id="pulseStatus">Ready</span>
-        </button>
-        <div class="ability-copy" id="pulseCopy">Projects a short-lived shield around the AGI. Hotkey: E</div>
+      <div id="auth-loading" class="loading-state">Checking session&hellip;</div>
+      <div id="auth-login" style="display:none">
+        <a href="/.auth/login/aad?post_login_redirect_uri=/" class="cta-btn">
+          <svg class="ms-icon" viewBox="0 0 21 21" fill="none" aria-hidden="true"><rect width="9" height="9" fill="#f25022"/><rect x="11" width="9" height="9" fill="#7fba00"/><rect y="11" width="9" height="9" fill="#00a4ef"/><rect x="11" y="11" width="9" height="9" fill="#ffb900"/></svg>
+          Sign in with Microsoft
+        </a>
+      </div>
+      <div id="auth-play" style="display:none">
+        <div class="user-greeting">Welcome back, <span class="user-name" id="user-name">Player</span></div>
+        <a href="portal.html" class="cta-btn">Start Playing</a>
+        <div class="extra-btns">
+          <a href="agi3d2.html" class="cta-btn secondary">AGI 3D2 Lab</a>
+          <a href="Projects/games/taskrunner/index.html" class="cta-btn secondary">TASKRUNNER</a>
+        </div>
+      </div>
+      <div class="footer-links">
+        <a href="Projects/docs/index.html">Docs</a>
+        <a href="SECURITY.md">Security</a>
+        <a href="README.md">About</a>
       </div>
     </div>
   </div>
-
-  <div class="end-screen" id="endScreen" aria-live="polite">
-    <div class="end-card">
-      <div class="end-kicker" id="endKicker">Run complete</div>
-      <div class="end-title" id="endTitle">Observation complete</div>
-      <div class="end-body" id="endBody">The field has settled.</div>
-      <div class="end-stats">
-        <div class="end-pill" id="endStatDiscoveries">Discoveries 0</div>
-        <div class="end-pill" id="endStatResonance">Resonance 0%</div>
-        <div class="end-pill" id="endStatStability">Stability 100%</div>
-        <div class="end-pill" id="endStatScore">Score 0</div>
-        <div class="end-pill" id="endStatDuration">Survived 0s</div>
-        <div class="end-pill" id="endStatAutonomy">Autonomy 0s/act</div>
-        <div class="end-pill" id="endStatArchive">Archive Tier 0</div>
-      </div>
-      <div class="end-history" id="endHistory">No archived runs yet.</div>
-      <button class="end-button" id="restartButton" type="button">Run Again</button>
-    </div>
-  </div>
-
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"
-      }
-    }
+  <script>
+    'use strict';
+    // Auth check via SWA /.auth/me
+    (async function(){
+      var ld=document.getElementById('auth-loading'),lb=document.getElementById('auth-login'),pb=document.getElementById('auth-play'),un=document.getElementById('user-name');
+      try{var r=await fetch('/.auth/me');if(r.ok){var d=await r.json(),p=d.clientPrincipal;if(p&&p.userId){un.textContent=p.userDetails||'Player';lb.style.display='none';pb.style.display='block';}else{lb.style.display='block';}}else{lb.style.display='block';}}catch(e){lb.style.display='block';}
+      ld.style.display='none';
+    })();
+    // Load game stats
+    (async function(){
+      try{var r=await fetch('Projects/data/games.json'),d=await r.json(),g=d.games.filter(function(x){return x.counted});
+      document.getElementById('stat-games').textContent=g.length;
+      document.getElementById('stat-exp').textContent=g.filter(function(x){return x.badges&&(x.badges.includes('3D')||x.badges.includes('Experience'))}).length;
+      document.getElementById('stat-new').textContent=g.filter(function(x){return x.badges&&x.badges.includes('New')}).length;
+      }catch(e){}
+    })();
+    // Animated background
+    var cvs=document.getElementById('bg'),ctx=cvs.getContext('2d',{alpha:false}),W=0,H=0;
+    function resize(){var dpr=Math.min(window.devicePixelRatio||1,2);W=window.innerWidth;H=window.innerHeight;cvs.width=W*dpr;cvs.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);}
+    window.addEventListener('resize',resize);resize();
+    var prefR=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    var stars=[];for(var i=0;i<50;i++)stars.push({x:Math.random()*2e3,y:Math.random()*2e3,r:.3+Math.random(),p:Math.random()*6.28,s:.5+Math.random()});
+    var time=0;
+    function frame(ts){requestAnimationFrame(frame);var dt=prefR?0:Math.min((ts-(frame._l||ts))/1e3,.05);frame._l=ts;time+=dt;
+      var bg=ctx.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#06060e');bg.addColorStop(1,'#0c0c1e');ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+      for(var i=0;i<stars.length;i++){var s=stars[i];s.p+=s.s*dt;ctx.globalAlpha=.2+Math.sin(s.p)*.2;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(s.x%W,s.y%H,s.r,0,6.28);ctx.fill();}
+      ctx.globalAlpha=1;ctx.strokeStyle='rgba(79,195,247,.02)';ctx.lineWidth=.5;var gs=60,ox=(time*3)%gs;
+      for(var x=-gs+ox;x<W+gs;x+=gs){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+      for(var y=-gs+ox;y<H+gs;y+=gs){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+      var cx=W/2,cy=H/2-40,br=1+Math.sin(time*1.6)*.06,r=18*br;
+      var gl=ctx.createRadialGradient(cx,cy,r*.5,cx,cy,r*4);gl.addColorStop(0,'rgba(79,195,247,.12)');gl.addColorStop(1,'transparent');ctx.fillStyle=gl;ctx.beginPath();ctx.arc(cx,cy,r*4,0,6.28);ctx.fill();
+      var co=ctx.createRadialGradient(cx-r*.2,cy-r*.2,0,cx,cy,r);co.addColorStop(0,'#fff');co.addColorStop(.4,'#4fc3f7');co.addColorStop(1,'rgba(79,195,247,.2)');ctx.fillStyle=co;ctx.beginPath();ctx.arc(cx,cy,r,0,6.28);ctx.fill();
+      for(var i=0;i<3;i++){var sa=time*(.7+i*.12)+(6.28/3)*i;ctx.fillStyle='#4fc3f7';ctx.globalAlpha=.5;ctx.beginPath();ctx.arc(cx+Math.cos(sa)*36*br,cy+Math.sin(sa)*36*br,2.5,0,6.28);ctx.fill();}
+      ctx.globalAlpha=1;}
+    requestAnimationFrame(frame);
   </script>
-  <script type="module" src="assets/js/agi3d/main.js"></script>
 </body>
 </html>
