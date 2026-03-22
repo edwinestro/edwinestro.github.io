@@ -36,3 +36,7 @@ Thumbs.db
 
 # Azure Functions local settings
 api/local.settings.json
+
+# Archived repo clone (full duplicate — reinstall by cloning repo separately)
+edwinestro.github.io/
+legacy/archive/edwinestro.github.io/
