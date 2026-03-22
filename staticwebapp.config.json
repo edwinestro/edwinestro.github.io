@@ -29,11 +29,11 @@
     },
     {
       "route": "/index.html",
-      "allowedRoles": ["authenticated"]
+      "allowedRoles": ["anonymous", "authenticated"]
     },
     {
       "route": "/",
-      "allowedRoles": ["authenticated"]
+      "allowedRoles": ["anonymous", "authenticated"]
     },
     {
       "route": "/agi3d2.html",

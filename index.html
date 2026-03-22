@@ -29,6 +29,8 @@
     .footer-links{margin-top:20px;display:flex;gap:16px;justify-content:center}.footer-links a{font-size:12px;color:var(--dim);text-decoration:none;transition:color .2s}.footer-links a:hover{color:var(--accent)}
     .loading-state{color:var(--dim);font-size:13px}
     .extra-btns{margin-top:12px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+    .logout-link{margin-top:14px;display:inline-block;font-size:11px;color:var(--dim);text-decoration:none;transition:color .2s;cursor:pointer;padding:4px 12px;border:1px solid rgba(255,255,255,0.08);border-radius:6px}
+    .logout-link:hover{color:#ff5252;border-color:rgba(255,82,82,0.3)}
     @media(max-width:520px){.cover-card{padding:32px 24px}.logo{font-size:30px}.stats-row{gap:20px}}
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
   </style>
@@ -58,6 +60,7 @@
           <a href="agi3d2.html" class="cta-btn secondary">AGI 3D2 Lab</a>
           <a href="Projects/games/taskrunner/index.html" class="cta-btn secondary">TASKRUNNER</a>
         </div>
+        <a href="/.auth/logout?post_logout_redirect_uri=/" class="logout-link">Sign out</a>
       </div>
       <div class="footer-links">
         <a href="Projects/docs/index.html">Docs</a>
