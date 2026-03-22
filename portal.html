@@ -54,8 +54,8 @@ a:hover{text-decoration:underline}
 
 /* Vote buttons */
 .card-wrap{position:relative}
-.vote-row{display:flex;align-items:center;gap:6px;padding:6px 12px;justify-content:center}
-.vote-btn{background:rgba(36,191,165,0.04);border:1px solid rgba(36,191,165,0.12);border-radius:6px;padding:4px 10px;font-size:0.6rem;font-weight:700;cursor:pointer;color:var(--dim);transition:all .2s;-webkit-tap-highlight-color:transparent}
+.vote-row{display:flex;align-items:center;gap:6px;padding:6px 12px;justify-content:center;position:relative;z-index:2}
+.vote-btn{background:rgba(36,191,165,0.04);border:1px solid rgba(36,191,165,0.12);border-radius:6px;padding:4px 10px;font-size:0.6rem;font-weight:700;cursor:pointer;color:var(--dim);transition:all .2s;-webkit-tap-highlight-color:transparent;position:relative;z-index:3}
 .vote-btn:hover{border-color:var(--accent);color:var(--accent-solid)}
 .vote-up.active{background:rgba(36,191,165,0.15);color:var(--green);border-color:rgba(36,191,165,0.35)}
 .vote-down.active{background:rgba(255,82,82,0.1);color:#ff5252;border-color:rgba(255,82,82,0.25)}
@@ -93,7 +93,7 @@ a:hover{text-decoration:underline}
 .section.visible{opacity:1;transform:translateY(0)}
 
 .card{opacity:0;transform:translateY(16px);transition:opacity 0.5s ease,transform 0.5s ease,border-color 0.25s,box-shadow 0.3s}
-.card.visible{opacity:1;transform:translateY(0)}
+.card.visible,.card-wrap.visible .card{opacity:1;transform:translateY(0)}
 .card:hover{border-color:rgba(36,191,165,0.3);transform:translateY(-3px);box-shadow:0 8px 32px rgba(36,191,165,0.08),0 0 0 1px rgba(36,191,165,0.1)}
 
 .section-tag{display:inline-block;animation:float 3s ease-in-out infinite}
@@ -373,6 +373,9 @@ async function init() {
     if (!btn) return;
     e.preventDefault();
     e.stopPropagation();
+    // Prevent the parent <a> from navigating
+    const link = btn.closest('.card-wrap')?.querySelector('a.card');
+    if (link) { link.style.pointerEvents = 'none'; setTimeout(() => { link.style.pointerEvents = ''; }, 100); }
     const gid = btn.dataset.game;
     const dir = btn.dataset.dir;
 
@@ -385,6 +388,28 @@ async function init() {
       await castVote(gid, 'up', '');
     }
   });
+
+  // ─── SORT TOGGLE HANDLER ──────────────────────────────
+  const sortVotesBtn = document.getElementById('sortVotes');
+  const sortCatBtn = document.getElementById('sortCategory');
+  if (sortVotesBtn && sortCatBtn) {
+    function showVotesView() {
+      sortVotesBtn.classList.add('active');
+      sortCatBtn.classList.remove('active');
+      allSection.style.display = '';
+      categorySections.forEach(s => { if (s) s.style.display = 'none'; });
+    }
+    function showCategoryView() {
+      sortCatBtn.classList.add('active');
+      sortVotesBtn.classList.remove('active');
+      allSection.style.display = 'none';
+      categorySections.forEach(s => { if (s) s.style.display = ''; });
+    }
+    sortVotesBtn.addEventListener('click', showVotesView);
+    sortCatBtn.addEventListener('click', showCategoryView);
+    // Default to votes view
+    showVotesView();
+  }
 }
 
 // ─── DOWNVOTE MODAL ───────────────────────────────────
