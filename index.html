@@ -31,6 +31,8 @@
     .extra-btns{margin-top:12px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
     .logout-link{margin-top:14px;display:inline-block;font-size:11px;color:var(--dim);text-decoration:none;transition:color .2s;cursor:pointer;padding:4px 12px;border:1px solid rgba(255,255,255,0.08);border-radius:6px}
     .logout-link:hover{color:#ff5252;border-color:rgba(255,82,82,0.3)}
+    .certs-row{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:20px}
+    .cert{font-size:10px;font-weight:800;letter-spacing:0.08em;padding:3px 8px;border-radius:6px;background:rgba(79,195,247,0.08);color:var(--accent);border:1px solid rgba(79,195,247,0.15);text-transform:uppercase}
     @media(max-width:520px){.cover-card{padding:32px 24px}.logo{font-size:30px}.stats-row{gap:20px}}
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
   </style>
@@ -45,6 +47,14 @@
         <div class="stat"><div class="stat-val" id="stat-games">&mdash;</div><div class="stat-label">Games</div></div>
         <div class="stat"><div class="stat-val" id="stat-exp">&mdash;</div><div class="stat-label">Experiences</div></div>
         <div class="stat"><div class="stat-val" id="stat-new">&mdash;</div><div class="stat-label">New</div></div>
+      </div>
+      <div class="certs-row">
+        <span class="cert">SC-900</span>
+        <span class="cert">AZ-900</span>
+        <span class="cert">AI-900</span>
+        <span class="cert">MS-900</span>
+        <span class="cert">MB-900</span>
+        <span class="cert">DP-900</span>
       </div>
       <div id="auth-loading" class="loading-state">Checking session&hellip;</div>
       <div id="auth-login" style="display:none">

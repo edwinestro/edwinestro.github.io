@@ -61,6 +61,13 @@ a:hover{text-decoration:underline}
 .vote-down.active{background:rgba(255,82,82,0.1);color:#ff5252;border-color:rgba(255,82,82,0.25)}
 .vote-net{font-size:0.6rem;font-weight:800;color:var(--accent);min-width:28px;text-align:center}
 
+/* Sort toggle bar */
+.sort-bar{display:flex;gap:6px;padding:12px 0;justify-content:flex-end;flex-wrap:wrap;align-items:center}
+.sort-bar .sort-label{font-size:0.5rem;color:var(--dim);text-transform:uppercase;letter-spacing:0.1em;font-weight:700}
+.sort-btn{padding:5px 12px;border-radius:999px;border:1px solid var(--border);background:transparent;color:var(--dim);font-size:0.58rem;font-weight:700;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.sort-btn:hover{border-color:var(--accent);color:var(--accent-solid)}
+.sort-btn.active{background:rgba(36,191,165,0.12);color:var(--accent-solid);border-color:rgba(36,191,165,0.3)}
+
 /* Footer */
 .footer{padding:28px 0 0;margin-top:40px;border-top:1px solid var(--border);text-align:center}
 .footer p{font-size:0.54rem;color:var(--dim)}
@@ -119,6 +126,18 @@ a:hover{text-decoration:underline}
   <div class="stat"><div class="stat-n" id="statScience">—</div><div class="stat-l">Science</div></div>
   <div class="stat"><div class="stat-n" id="statTools">—</div><div class="stat-l">Tools & Docs</div></div>
 </div>
+
+<div class="sort-bar">
+  <span class="sort-label">View:</span>
+  <button class="sort-btn" id="sortCategory" type="button">By Category</button>
+  <button class="sort-btn active" id="sortVotes" type="button">Most Upvoted</button>
+</div>
+
+<!-- All Games (sorted by votes) -->
+<section class="section visible" id="allGames">
+<div class="section-head"><h2>All Games</h2><span class="section-tag">Sorted by community votes</span></div>
+<div class="grid" id="gridAll"></div>
+</section>
 
 <!-- 3D & AI Experiences -->
 <section class="section" id="experiences">
@@ -274,6 +293,9 @@ async function loadVotes() {
 
 async function init() {
   const grids = { experiences: document.getElementById('gridExperiences'), science: document.getElementById('gridScience'), strategy: document.getElementById('gridStrategy'), cognitive: document.getElementById('gridCognitive'), tools: document.getElementById('gridTools') };
+  const gridAll = document.getElementById('gridAll');
+  const categorySections = [document.getElementById('experiences'), document.getElementById('science'), document.getElementById('strategy'), document.getElementById('cognitive'), document.getElementById('tools')];
+  const allSection = document.getElementById('allGames');
 
   // Load games.json
   let games = [];
@@ -297,6 +319,11 @@ async function init() {
   for (const game of games) {
     const cat = categorize(game);
     if (grids[cat]) { grids[cat].insertAdjacentHTML('beforeend', renderCard(game, true)); counts[cat]++; }
+  }
+
+  // Also render ALL games into the flat sorted grid
+  for (const game of games) {
+    gridAll.insertAdjacentHTML('beforeend', renderCard(game, true));
   }
 
   // Render tool entries
