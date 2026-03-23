@@ -284,9 +284,10 @@
 
   const apiBase = (()=>{
     // Priority:
-    // 1) ?api=https://your-server.example.com
-    // 2) localStorage td-api
-    // 3) otherwise disabled by default so the static build does not probe localhost
+    // 1) Azure SWA (detected by /.auth/me availability or same-origin /api/)
+    // 2) ?api=https://your-server.example.com
+    // 3) localStorage td-api
+    // 4) default: try same-origin /api/ (works on Azure SWA)
     const params = new URLSearchParams(window.location.search);
     const fromQuery = (params.get('api') || '').trim();
     if (fromQuery) {
@@ -295,12 +296,15 @@
     }
     const fromStorage = (localStorage.getItem('td-api') || '').trim();
     if (fromStorage) return fromStorage.replace(/\/$/, '');
+    // Default: same-origin (works on Azure SWA)
     return '';
   })();
+  const useAzureApi = !apiBase; // empty apiBase = same-origin Azure SWA
 
   async function apiGetLeaderboard(){
-    if(!apiBase) throw new Error('leaderboard unavailable');
-    const url = `${apiBase}/api/leaderboard?game=thermal-drift&limit=10`;
+    const url = useAzureApi
+      ? '/api/leaderboard?game=thermal-drift&category=stability'
+      : `${apiBase}/api/leaderboard?game=thermal-drift&limit=10`;
     const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
     const data = await res.json().catch(()=> ({}));
     if(!res.ok || data.ok === false) throw new Error(data.error || 'leaderboard error');
@@ -308,6 +312,48 @@
   }
 
   async function apiSubmitLeaderboard(name, score){
+    if (useAzureApi) {
+      // Use Azure archive API pattern (PUT /api/archive)
+      const res = await fetch('/api/archive?game=thermal-drift', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          game: 'thermal-drift',
+          archive: {
+            totalRuns: 1,
+            wins: 0,
+            bestScore: score,
+            bestResonance: 0,
+            totalDiscoveries: 0,
+            totalRunDuration: 0,
+            archiveTier: 0,
+            history: [{
+              timestamp: Date.now(),
+              score: score,
+              victory: false,
+              discoveries: 0,
+              resonance: 0,
+              stability: score, // distance = main metric
+              rupturesResolved: 0,
+              beaconsPlaced: 0,
+              pulsesUsed: 0,
+              anchorsUsed: 0,
+              runDuration: 0,
+              autonomyRatio: 0,
+              seedLabel: name.slice(0, 20),
+              modifierLabels: [],
+              archiveTier: 0,
+            }]
+          }
+        }),
+        redirect: 'error',
+      });
+      if (!res.ok) throw new Error('Save failed (status ' + res.status + ')');
+      const data = await res.json().catch(()=>({}));
+      // Fetch updated leaderboard
+      try { const lb = await apiGetLeaderboard(); return lb; } catch { return data; }
+    }
+    // Legacy Express API
     if(!apiBase) throw new Error('leaderboard unavailable');
     const res = await fetch(`${apiBase}/api/leaderboard`, {
       method: 'POST',
@@ -331,8 +377,8 @@
     }
     for(const e of list){
       const li = document.createElement('li');
-      const name = (e && e.name) ? String(e.name) : 'anon';
-      const score = (e && Number.isFinite(Number(e.score))) ? Math.floor(Number(e.score)) : 0;
+      const name = (e && (e.playerName || e.name)) ? String(e.playerName || e.name) : 'anon';
+      const score = (e && Number.isFinite(Number(e.metric || e.score))) ? Math.floor(Number(e.metric || e.score)) : 0;
       li.innerHTML = `<span class="meta">#${e.rank || ''}</span> <strong>${escapeHtml(name)}</strong> — <span class="score">${score}m</span>`;
       lbList.appendChild(li);
     }
