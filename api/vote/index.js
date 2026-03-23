@@ -118,14 +118,20 @@ module.exports = async function (context, req) {
       try {
         const prev = await client.getEntity(userVotePartitionKey(gid), userId);
         prevVote = prev.vote;
-      } catch (e) { if (e.statusCode !== 404) throw e; }
+      } catch (e) {
+        // 404 = no previous vote (expected)
+        if (!e.statusCode && e.code !== 'ResourceNotFound') {
+          if (!(e.message || '').includes('404') && !(e.message || '').includes('NotFound')) throw e;
+        } else if (e.statusCode && e.statusCode !== 404) throw e;
+      }
 
       // Get current tally
       let tally;
       try {
         tally = await client.getEntity(tallyPartitionKey(gid), 'tally');
       } catch (e) {
-        if (e.statusCode === 404) {
+        const is404 = e.statusCode === 404 || e.code === 'ResourceNotFound' || (e.message || '').includes('404') || (e.message || '').includes('NotFound');
+        if (is404) {
           tally = { partitionKey: tallyPartitionKey(gid), rowKey: 'tally', up: 0, down: 0 };
         } else throw e;
       }
@@ -172,11 +178,16 @@ module.exports = async function (context, req) {
         const prev = await client.getEntity(userVotePartitionKey(gid), userId);
         prevVote = prev.vote;
         await client.deleteEntity(userVotePartitionKey(gid), userId);
-      } catch (e) { if (e.statusCode !== 404) throw e; }
+      } catch (e) {
+        const is404 = e.statusCode === 404 || e.code === 'ResourceNotFound' || (e.message || '').includes('404');
+        if (!is404) throw e;
+      }
 
       if (prevVote) {
         let tally;
-        try { tally = await client.getEntity(tallyPartitionKey(gid), 'tally'); } catch { tally = { partitionKey: tallyPartitionKey(gid), rowKey: 'tally', up: 0, down: 0 }; }
+        try { tally = await client.getEntity(tallyPartitionKey(gid), 'tally'); } catch {
+        tally = { partitionKey: tallyPartitionKey(gid), rowKey: 'tally', up: 0, down: 0 };
+      }
         let up = Number(tally.up) || 0, down = Number(tally.down) || 0;
         if (prevVote === 'up') up = Math.max(0, up - 1);
         if (prevVote === 'down') down = Math.max(0, down - 1);
@@ -189,7 +200,7 @@ module.exports = async function (context, req) {
 
     context.res = { status: 405, body: { ok: false, error: 'Method not allowed' } };
   } catch (e) {
-    context.log.error('Vote function error:', e);
-    context.res = { status: 500, body: { ok: false, error: 'Internal server error' } };
+    context.log.error('Vote function error:', e.message, e.code, e.statusCode, e.stack?.split('\n')[0]);
+    context.res = { status: 500, body: { ok: false, error: 'Internal server error', detail: e.message } };
   }
 };
