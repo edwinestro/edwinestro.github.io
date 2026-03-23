@@ -7,8 +7,8 @@ const VALID = ['stability', 'ruptures', 'coherence', 'autonomy', 'xp', 'tasks', 
 let tableClient;
 async function getTableClient() {
   if (tableClient) return tableClient;
-  const connStr = process.env.AzureWebJobsStorage;
-  if (!connStr) throw new Error('AzureWebJobsStorage not configured');
+  const connStr = process.env.STORAGE_CONNECTION_STRING || process.env.AzureWebJobsStorage;
+  if (!connStr) throw new Error('STORAGE_CONNECTION_STRING not configured');
   tableClient = TableClient.fromConnectionString(connStr, TABLE_NAME);
   return tableClient;
 }
