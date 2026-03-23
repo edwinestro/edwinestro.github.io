@@ -281,8 +281,16 @@ function renderCard(item, isGame) {
 }
 
 // ─── VOTE STATE ─────────────────────────────────────────
-let voteTallies = {}; // { gameId: { up, down } }
-let userVotes = {};   // { gameId: 'up'|'down' }
+let voteTallies = {};
+let userVotes = {};
+let isAuthenticated = false;
+
+async function checkAuth() {
+  try {
+    const r = await fetch('/.auth/me');
+    if (r.ok) { const d = await r.json(); isAuthenticated = !!(d.clientPrincipal && d.clientPrincipal.userId); }
+  } catch { isAuthenticated = false; }
+}
 
 async function loadVotes() {
   try {
