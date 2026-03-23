@@ -297,6 +297,16 @@ async function loadVotes() {
     const res = await fetch('/api/vote?game=all');
     if (res.ok) { const d = await res.json(); if (d.ok) voteTallies = d.tallies || {}; }
   } catch { /* offline fallback */ }
+  // Load user's own votes for each game (to show active state + enable toggle)
+  if (isAuthenticated) {
+    for (const gid of Object.keys(voteTallies)) {
+      try {
+        const r = await fetch(`/api/vote?game=${gid}`);
+        if (r.ok) { const d = await r.json(); if (d.ok && d.userVote) userVotes[gid] = d.userVote.vote; }
+      } catch {}
+    }
+  }
+  } catch { /* offline fallback */ }
 }
 
 async function init() {
@@ -396,12 +406,21 @@ async function init() {
     }
 
     if (dir === 'down') {
-      // Show downvote reason modal
-      const reason = await showDownvoteModal(gid);
-      if (!reason) return; // cancelled
-      await castVote(gid, 'down', reason);
+      // Toggle: if already downvoted, remove vote
+      if (userVotes[gid] === 'down') {
+        await removeVote(gid);
+      } else {
+        const reason = await showDownvoteModal(gid);
+        if (!reason) return;
+        await castVote(gid, 'down', reason);
+      }
     } else {
-      await castVote(gid, 'up', '');
+      // Toggle: if already upvoted, remove vote
+      if (userVotes[gid] === 'up') {
+        await removeVote(gid);
+      } else {
+        await castVote(gid, 'up', '');
+      }
     }
   });
 
@@ -494,6 +513,34 @@ async function castVote(gameId, direction, reason) {
       });
     }
   } catch (e) { console.warn('Vote failed:', e); }
+}
+
+async function removeVote(gameId) {
+  try {
+    const res = await fetch(`/api/vote?game=${gameId}`, {
+      method: 'DELETE',
+      redirect: 'error',
+    });
+    if (!res.ok) { console.warn('Remove vote failed:', res.status); return; }
+    const d = await res.json().catch(() => ({}));
+    if (d.ok) {
+      // Recalculate tally by fetching fresh data
+      const fresh = await fetch(`/api/vote?game=${gameId}`);
+      const fd = await fresh.json().catch(() => ({}));
+      if (fd.ok) {
+        voteTallies[gameId] = fd.tally;
+        delete userVotes[gameId];
+        document.querySelectorAll(`.vote-row[data-game="${gameId}"]`).forEach(row => {
+          const net = fd.tally.up - fd.tally.down;
+          row.querySelector('.vote-up').textContent = '\u25B2 ' + fd.tally.up;
+          row.querySelector('.vote-down').textContent = '\u25BC ' + fd.tally.down;
+          row.querySelector('.vote-net').textContent = (net >= 0 ? '+' : '') + net;
+          row.querySelector('.vote-up').classList.remove('active');
+          row.querySelector('.vote-down').classList.remove('active');
+        });
+      }
+    }
+  } catch (e) { console.warn('Remove vote failed:', e); }
 }
 
 await checkAuth();
