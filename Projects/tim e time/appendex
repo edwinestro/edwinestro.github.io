@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Finance Insight Hourglass</title>
+<style>
+  body {
+    background: #0d1117;
+    color: #fff;
+    font-family: system-ui, sans-serif;
+    margin: 0;
+    padding: 20px;
+  }
+
+  h1 { margin-bottom: 10px; }
+
+  /* DNA Wave Container */
+  .dna-container {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #111827, #0f172a);
+    box-shadow: 0 0 20px #000 inset;
+  }
+
+  /* DNA Helix Lines */
+  .dna-line {
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: rgba(0, 200, 255, 0.4);
+    animation: wave 4s infinite linear;
+  }
+
+  @keyframes wave {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  /* Falling Grains (Insights) */
+  .grain {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: #1e293b;
+    color: #cbd5e1;
+    font-size: 12px;
+    opacity: 0;
+    animation: fall 6s linear forwards;
+    border: 1px solid #334155;
+  }
+
+  @keyframes fall {
+    0% {
+      top: -20px;
+      opacity: 0;
+      transform: translateX(-50%) scale(0.6);
+    }
+    20% {
+      opacity: 1;
+      transform: translateX(-50%) scale(1);
+    }
+    100% {
+      top: 220px;
+      opacity: 0;
+      transform: translateX(-50%) scale(0.8);
+    }
+  }
+
+  /* Button */
+  .trigger-btn {
+    margin-top: 20px;
+    padding: 12px 20px;
+    background: #2563eb;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+  }
+</style>
+</head>
+
+<body>
+
+<h1>Finance Insight Hourglass</h1>
+<p>Each grain is a mock Copilot insight (small → medium → large).</p>
+
+<div class="dna-container" id="dna">
+  <!-- DNA lines -->
+  <div class="dna-line" style="top:40px; animation-duration:5s;"></div>
+  <div class="dna-line" style="top:80px; animation-duration:4s;"></div>
+  <div class="dna-line" style="top:120px; animation-duration:6s;"></div>
+  <div class="dna-line" style="top:160px; animation-duration:3.5s;"></div>
+</div>
+
+<button class="trigger-btn" onclick="dropGrain()">Drop Insight Grain</button>
+
+<script>
+  const insights = [
+    "lorem",
+    "lorem ipsum",
+    "lorem ipsum dolor sit amet",
+    "lorem ipsum dolor sit amet consectetur adipiscing elit",
+    "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor"
+  ];
+
+  function dropGrain() {
+    const dna = document.getElementById("dna");
+    const grain = document.createElement("div");
+    grain.className = "grain";
+
+    // pick small → medium → large randomly
+    grain.textContent = insights[Math.floor(Math.random() * insights.length)];
+
+    // random horizontal offset for wave effect
+    grain.style.left = (40 + Math.random() * 20) + "%";
+
+    dna.appendChild(grain);
+
+    // remove after animation
+    setTimeout(() => grain.remove(), 6000);
+  }
+
+  // auto-drop every 2.5 seconds
+  setInterval(dropGrain, 2500);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,978 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Time Machine and DNA Visualization</title>
+  <style>
+    svg {
+  will-change: transform;
+}
+
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --accent:#ffd166;
+      --muted:#9aa7b2;
+      --dna1:#6ee7b7;
+      --dna2:#7dd3fc;
+      --glass:#cfe9ff33;
+    }
+    html,body{height:100%;margin:0;font-family:Inter,Segoe UI,system-ui,Arial,sans-serif;background:linear-gradient(180deg,var(--bg),#071021);color:#e6eef6}
+    .wrap{max-width:980px;margin:36px auto;padding:28px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-radius:12px;box-shadow:0 8px 30px rgba(2,6,23,0.7)}
+    header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+    h1{font-size:20px;margin:0;font-weight:600}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+    .visuals{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap}
+    .card{background:var(--card);padding:14px;border-radius:10px;flex:1;min-width:260px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+    .svg-wrap{display:flex;justify-content:center;align-items:center;padding:8px}
+    .legend{margin-top:10px;color:var(--muted);font-size:13px}
+    .sequence{font-family:monospace;background:#071827;padding:10px;border-radius:8px;color:#bfe9ff;letter-spacing:1px}
+    .seq-label{color:var(--muted);font-size:12px;margin-bottom:6px}
+    /* responsive */
+    @media (max-width:720px){.visuals{flex-direction:column}}
+  /* ---------------------------------
+   MODERN ENHANCEMENTS
+--------------------------------- */
+:root{
+  --bg2:#06101d;
+  --card2:rgba(12,18,32,0.72);
+  --stroke:rgba(255,255,255,0.08);
+  --shadow:0 20px 60px rgba(0,0,0,.35);
+  --glow1:rgba(110,231,183,.24);
+  --glow2:rgba(125,211,252,.22);
+  --warn:rgba(255,209,102,.9);
+  --quick:#7dd3fc;
+  --deep:#6ee7b7;
+  --softText:#c8d7e6;
+}
+
+html,body{
+  background:
+    radial-gradient(circle at 15% 20%, rgba(125,211,252,.10), transparent 30%),
+    radial-gradient(circle at 85% 25%, rgba(110,231,183,.08), transparent 35%),
+    linear-gradient(180deg, var(--bg), var(--bg2));
+}
+
+.wrap{
+  position:relative;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.05);
+  backdrop-filter: blur(12px);
+}
+
+.wrap::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: linear-gradient(to bottom, rgba(255,255,255,.18), transparent 50%);
+}
+
+.card{
+  position:relative;
+  background:linear-gradient(180deg, rgba(15,23,36,.88), rgba(7,16,33,.72));
+  border:1px solid var(--stroke);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+
+.card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at top left, rgba(255,255,255,.05), transparent 28%),
+    linear-gradient(180deg, rgba(255,255,255,.02), transparent 45%);
+}
+
+.card h2{
+  letter-spacing:.2px;
+}
+
+/* subtle badge row */
+.metrics{
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0,1fr));
+  gap:10px;
+  margin-top:12px;
+}
+
+.metric{
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.05);
+  border-radius:12px;
+  padding:10px 12px;
+  min-height:60px;
+}
+
+.metric .k{
+  color:var(--muted);
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+
+.metric .v{
+  margin-top:6px;
+  font-size:18px;
+  font-weight:700;
+  color:#f3fbff;
+}
+
+/* Hourglass feed panel */
+.insight-console{
+  margin-top:14px;
+  border:1px solid rgba(255,255,255,.06);
+  background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
+  border-radius:14px;
+  overflow:hidden;
+}
+
+.console-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px 12px;
+  font-size:12px;
+  color:var(--muted);
+  border-bottom:1px solid rgba(255,255,255,.05);
+  background:rgba(255,255,255,.02);
+}
+
+.console-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 12px rgba(255,209,102,.6);
+  display:inline-block;
+  margin-right:8px;
+}
+
+.grain-feed{
+  max-height:220px;
+  overflow:auto;
+  padding:10px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.feed-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border-radius:12px;
+  color:var(--softText);
+  background:rgba(255,255,255,.025);
+  border:1px solid rgba(255,255,255,.04);
+  opacity:0;
+  transform:translateY(8px) scale(.98);
+  animation:feedIn .45s ease forwards;
+}
+
+@keyframes feedIn{
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
+
+.feed-pill{
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  padding:4px 8px;
+  border-radius:999px;
+  white-space:nowrap;
+}
+
+.feed-pill.quick{
+  color:#06101d;
+  background:linear-gradient(90deg, #7dd3fc, #93c5fd);
+}
+
+.feed-pill.deep{
+  color:#041815;
+  background:linear-gradient(90deg, #6ee7b7, #34d399);
+}
+
+.feed-text{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size:12px;
+  color:#d7ecff;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+/* Current active prompt */
+.active-prompt{
+  margin-top:12px;
+  border-radius:14px;
+  padding:12px 14px;
+  border:1px solid rgba(255,255,255,.05);
+  background:linear-gradient(180deg, rgba(125,211,252,.06), rgba(110,231,183,.05));
+  position:relative;
+  overflow:hidden;
+}
+
+.active-prompt::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent);
+  transform:translateX(-100%);
+  animation:scanPrompt 2.6s linear infinite;
+}
+
+@keyframes scanPrompt{
+  to{ transform:translateX(100%); }
+}
+
+.active-prompt .label{
+  color:var(--muted);
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  margin-bottom:6px;
+}
+
+.active-prompt .value{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color:#f1fbff;
+  font-size:13px;
+}
+
+/* DNA stage */
+.dna-stage{
+  position:relative;
+  min-height:320px;
+  border-radius:18px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.05);
+  background:
+    radial-gradient(circle at center, rgba(125,211,252,.06), transparent 45%),
+    linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+}
+
+.dna-stage::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+  background-size: 30px 30px;
+  opacity:.35;
+  pointer-events:none;
+}
+
+.helix-2d{
+  position:relative;
+  height:320px;
+  width:100%;
+  overflow:hidden;
+}
+
+.helix-row{
+  position:absolute;
+  left:0;
+  right:0;
+  height:18px;
+  transform-style:preserve-3d;
+}
+
+.helix-node{
+  position:absolute;
+  top:50%;
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  transform:translate(-50%, -50%);
+  box-shadow:0 0 16px rgba(255,255,255,.18);
+}
+
+.helix-node.left{
+  background:linear-gradient(180deg, #7dd3fc, #60a5fa);
+}
+
+.helix-node.right{
+  background:linear-gradient(180deg, #6ee7b7, #34d399);
+}
+
+.helix-bridge{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  height:2px;
+  border-radius:999px;
+  background:linear-gradient(90deg, rgba(125,211,252,.65), rgba(110,231,183,.65));
+  box-shadow:0 0 10px rgba(255,255,255,.05);
+}
+
+.helix-text{
+  position:absolute;
+  top:50%;
+  transform:translate(-50%, -50%);
+  font-size:11px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color:#e8f7ff;
+  white-space:nowrap;
+  pointer-events:none;
+  text-shadow:0 0 12px rgba(125,211,252,.15);
+}
+
+.dna-caption{
+  margin-top:10px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.45;
+}
+
+/* sequence panel upgraded */
+.sequence{
+  position:relative;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.05);
+  background:
+    linear-gradient(180deg, rgba(7,24,39,.96), rgba(5,16,26,.98));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
+}
+
+.sequence::after{
+  content:"";
+  position:absolute;
+  top:0; bottom:0; left:-35%;
+  width:35%;
+  background:linear-gradient(90deg, transparent, rgba(255,209,102,.14), transparent);
+  filter:blur(8px);
+  animation:sequenceScan 3.2s linear infinite;
+}
+
+@keyframes sequenceScan{
+  to{ left:120%; }
+}
+
+svg{
+  will-change:transform;
+}
+
+/* responsive */
+@media (max-width: 820px){
+  .metrics{
+    grid-template-columns: repeat(2, minmax(0,1fr));
+  }
+}
+
+/* ---------------------------------
+   HELIX QUEUE / RESPONSE FLOW PATCH
+--------------------------------- */
+
+.dna-stage{
+  position:relative;
+  min-height:340px;
+  border-radius:18px;
+  overflow:hidden;
+}
+
+.helix-2d{
+  position:relative;
+  width:100%;
+  height:340px;
+  overflow:hidden;
+  padding:10px 0;
+}
+
+.helix-viewport{
+  position:absolute;
+  inset:10px 10px 10px 10px;
+  overflow:hidden;
+  border-radius:14px;
+}
+
+.helix-row{
+  position:absolute;
+  left:0;
+  right:0;
+  height:22px;
+  transition:
+    transform 700ms cubic-bezier(.22,.9,.24,1),
+    opacity 700ms ease,
+    filter 700ms ease;
+  will-change: transform, opacity, filter;
+}
+
+.helix-row.is-exiting{
+  opacity:0 !important;
+  filter:blur(4px);
+}
+
+.helix-node{
+  position:absolute;
+  top:50%;
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  transform:translate(-50%, -50%);
+  box-shadow:0 0 16px rgba(255,255,255,.16);
+}
+
+.helix-node.left{
+  background:linear-gradient(180deg,#7dd3fc,#60a5fa);
+}
+
+.helix-node.right{
+  background:linear-gradient(180deg,#6ee7b7,#34d399);
+}
+
+.helix-bridge{
+  position:absolute;
+  top:50%;
+  height:2px;
+  transform:translateY(-50%);
+  border-radius:999px;
+  background:linear-gradient(90deg, rgba(125,211,252,.65), rgba(110,231,183,.65));
+  box-shadow:0 0 10px rgba(255,255,255,.05);
+}
+
+.helix-text{
+  position:absolute;
+  top:50%;
+  transform:translate(-50%, -50%);
+  font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color:#ebf8ff;
+  text-shadow:0 0 10px rgba(125,211,252,.15);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  text-align:center;
+  pointer-events:none;
+  padding:0 10px;
+  border-radius:999px;
+  background:linear-gradient(90deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+  border:1px solid rgba(255,255,255,.04);
+  backdrop-filter: blur(3px);
+}
+
+/* optional subtle label tags */
+.helix-tag{
+  position:absolute;
+  top:50%;
+  transform:translate(-50%, -50%);
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  padding:3px 7px;
+  border-radius:999px;
+  white-space:nowrap;
+  pointer-events:none;
+}
+
+.helix-tag.quick{
+  color:#07121d;
+  background:linear-gradient(90deg,#7dd3fc,#93c5fd);
+}
+
+.helix-tag.deep{
+  color:#031712;
+  background:linear-gradient(90deg,#6ee7b7,#34d399);
+}
+
+/* stronger bottom fade so old responses feel like they fall out */
+.dna-stage::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:70px;
+  pointer-events:none;
+  background:linear-gradient(to bottom, transparent, rgba(6,16,29,.92));
+}
+
+/* top fade too */
+.dna-stage::before{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  top:0;
+  height:40px;
+  pointer-events:none;
+  background:linear-gradient(to bottom, rgba(6,16,29,.78), transparent);
+  z-index:2;
+}
+
+
+  </style>
+</head>
+<script>
+/* ---------------------------------
+   DNA HELIX QUEUE PATCH
+   Replace the previous helix section with this
+--------------------------------- */
+
+const helixRoot = document.getElementById("dnaHelix2d");
+let helixViewport = null;
+
+const HELIX_VISIBLE_SLOTS = 11;
+const HELIX_SLOT_HEIGHT = 26;
+const HELIX_TOP_OFFSET = 18;
+const HELIX_PUSH_INTERVAL = 1400; // new response enters every X ms
+const helixQueue = [];
+const helixRows = [];
+
+function fitFontSize(text) {
+  const len = text.length;
+  if (len <= 12) return 12;
+  if (len <= 22) return 11;
+  if (len <= 34) return 10.5;
+  if (len <= 52) return 10;
+  if (len <= 72) return 9.5;
+  return 9;
+}
+
+function clipText(text, max = 44) {
+  return text.length > max ? text.slice(0, max - 1) + "…" : text;
+}
+
+function getResponseMeta(text) {
+  const len = text.length;
+  if (len <= 20) {
+    return {
+      type: "quick",
+      speed: 1.35,
+      weight: 1,
+      score: 1,
+      spanScale: 0.78,
+      maxWidth: 120
+    };
+  }
+  if (len <= 45) {
+    return {
+      type: "quick",
+      speed: 1.12,
+      weight: 2,
+      score: 2,
+      spanScale: 0.95,
+      maxWidth: 160
+    };
+  }
+  if (len <= 80) {
+    return {
+      type: "deep",
+      speed: 0.92,
+      weight: 3,
+      score: 3,
+      spanScale: 1.08,
+      maxWidth: 210
+    };
+  }
+  return {
+    type: "deep",
+    speed: 0.72,
+    weight: 4,
+    score: 5,
+    spanScale: 1.16,
+    maxWidth: 240
+  };
+}
+
+function ensureHelixViewport() {
+  if (!helixRoot) return;
+  helixRoot.innerHTML = "";
+  helixViewport = document.createElement("div");
+  helixViewport.className = "helix-viewport";
+  helixRoot.appendChild(helixViewport);
+}
+
+function createHelixRow(item, slotIndex) {
+  const row = document.createElement("div");
+  row.className = "helix-row";
+  row.dataset.id = item.id;
+  row.dataset.slot = slotIndex;
+
+  const left = document.createElement("div");
+  left.className = "helix-node left";
+
+  const right = document.createElement("div");
+  right.className = "helix-node right";
+
+  const bridge = document.createElement("div");
+  bridge.className = "helix-bridge";
+
+  const text = document.createElement("div");
+  text.className = "helix-text";
+  text.textContent = clipText(item.text, 52);
+  text.style.fontSize = fitFontSize(item.text) + "px";
+
+  const tag = document.createElement("div");
+  tag.className = `helix-tag ${item.meta.type}`;
+  tag.textContent = item.meta.type;
+
+  row.appendChild(left);
+  row.appendChild(bridge);
+  row.appendChild(text);
+  row.appendChild(tag);
+  row.appendChild(right);
+
+  helixViewport.appendChild(row);
+
+  const helixRow = {
+    id: item.id,
+    row,
+    left,
+    right,
+    bridge,
+    text,
+    tag,
+    item,
+    slotIndex,
+    exiting: false
+  };
+
+  helixRows.push(helixRow);
+  positionRow(helixRow, slotIndex, true);
+}
+
+function positionRow(helixRow, slotIndex, immediate = false) {
+  helixRow.slotIndex = slotIndex;
+  const y = HELIX_TOP_OFFSET + slotIndex * HELIX_SLOT_HEIGHT;
+
+  if (immediate) {
+    const oldTransition = helixRow.row.style.transition;
+    helixRow.row.style.transition = "none";
+    helixRow.row.style.transform = `translateY(${y}px)`;
+    helixRow.row.offsetHeight; // force reflow
+    helixRow.row.style.transition = oldTransition || "";
+  } else {
+    helixRow.row.style.transform = `translateY(${y}px)`;
+  }
+
+  // depth fade based on vertical slot
+  const fade = Math.max(0.18, 1 - slotIndex * 0.055);
+  helixRow.row.style.opacity = fade.toFixed(2);
+}
+
+function pushHelixResponse(text) {
+  if (!helixViewport) return;
+
+  const meta = getResponseMeta(text);
+  const item = {
+    id: "r_" + Math.random().toString(36).slice(2, 9),
+    text,
+    meta,
+    createdAt: performance.now()
+  };
+
+  // add newest at top
+  helixQueue.unshift(item);
+
+  // move all existing rows down by one slot
+  helixRows.forEach(r => {
+    positionRow(r, r.slotIndex + 1, false);
+  });
+
+  // create the new top row
+  createHelixRow(item, 0);
+
+  // anything beyond visible slots exits and gets removed
+  helixRows.forEach(r => {
+    if (r.slotIndex >= HELIX_VISIBLE_SLOTS && !r.exiting) {
+      r.exiting = true;
+      r.row.classList.add("is-exiting");
+      positionRow(r, r.slotIndex + 1, false);
+
+      setTimeout(() => {
+        r.row.remove();
+        const idx = helixRows.findIndex(x => x.id === r.id);
+        if (idx >= 0) helixRows.splice(idx, 1);
+      }, 760);
+    }
+  });
+
+  // trim memory queue too
+  while (helixQueue.length > HELIX_VISIBLE_SLOTS + 6) {
+    helixQueue.pop();
+  }
+}
+
+function rebuildInitialHelix() {
+  ensureHelixViewport();
+  helixRows.length = 0;
+  helixQueue.length = 0;
+
+  // seed visible rows from your existing MOCK_RESPONSES
+  for (let i = 0; i < HELIX_VISIBLE_SLOTS; i++) {
+    const text = MOCK_RESPONSES[i % MOCK_RESPONSES.length];
+    const meta = getResponseMeta(text);
+    const item = {
+      id: "seed_" + i,
+      text,
+      meta,
+      createdAt: performance.now() - (i * 100)
+    };
+    helixQueue.push(item);
+    createHelixRow(item, i);
+  }
+}
+
+function animateHelix(now) {
+  if (!helixRoot || !helixRows.length) {
+    requestAnimationFrame(animateHelix);
+    return;
+  }
+
+  const width = helixRoot.clientWidth || 320;
+  const center = width / 2;
+  const minSpan = 86;
+  const maxSpan = 230;
+
+  helixRows.forEach((r, i) => {
+    const meta = r.item.meta;
+
+    // Each row spins independently but stays in its slot
+    const phase = now * (0.0018 * meta.speed) + r.slotIndex * 0.68;
+    const depth = (Math.sin(phase) + 1) / 2; // 0..1
+
+    const span = (minSpan + depth * (maxSpan - minSpan)) * meta.spanScale;
+    const leftX = center - span / 2;
+    const rightX = center + span / 2;
+
+    // width the text is allowed to occupy within the helix
+    const textWidth = Math.min(meta.maxWidth, span - 34);
+
+    const scale = 0.72 + depth * 0.42;
+    const alpha = 0.28 + depth * 0.78;
+    const blur = (1 - depth) * 1.9;
+    const textScale = 0.9 + depth * 0.14;
+
+    // nodes
+    r.left.style.left = `${leftX}px`;
+    r.right.style.left = `${rightX}px`;
+    r.left.style.opacity = alpha;
+    r.right.style.opacity = alpha;
+    r.left.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    r.right.style.transform = `translate(-50%, -50%) scale(${scale})`;
+
+    // bridge
+    r.bridge.style.left = `${leftX}px`;
+    r.bridge.style.width = `${span}px`;
+    r.bridge.style.opacity = alpha * 0.88;
+
+    // text centered inside helix span
+    r.text.style.left = `${center}px`;
+    r.text.style.width = `${Math.max(72, textWidth)}px`;
+    r.text.style.opacity = 0.25 + depth * 0.95;
+    r.text.style.transform = `translate(-50%, -50%) scale(${textScale})`;
+    r.text.style.filter = `blur(${blur}px)`;
+
+    // tag sits slightly above center line
+    r.tag.style.left = `${center}px`;
+    r.tag.style.top = `calc(50% - 13px)`;
+    r.tag.style.opacity = 0.22 + depth * 0.9;
+    r.tag.style.transform = `translate(-50%, -50%) scale(${0.88 + depth * 0.08})`;
+
+    // older rows lose prominence as they move down
+    const ageFade = Math.max(0.12, 1 - r.slotIndex * 0.06);
+    r.row.style.opacity = (alpha * ageFade).toFixed(2);
+  });
+
+  requestAnimationFrame(animateHelix);
+}
+
+/* ---------------------------------
+   FEED HELIX WITH NEW RESPONSES
+   link this to your existing prompt stream
+--------------------------------- */
+
+let helixMockIndex = 0;
+let lastHelixPush = 0;
+
+function getNextMockResponse() {
+  const response = MOCK_RESPONSES[helixMockIndex % MOCK_RESPONSES.length];
+  helixMockIndex += 1;
+  return response;
+}
+
+function startHelixQueueFeed() {
+  function tick(now) {
+    if (!lastHelixPush) lastHelixPush = now;
+
+    if (now - lastHelixPush >= HELIX_PUSH_INTERVAL) {
+      const next = getNextMockResponse();
+      pushHelixResponse(next);
+      lastHelixPush = now;
+    }
+
+    requestAnimationFrame(tick);
+  }
+
+  requestAnimationFrame(tick);
+}
+
+/* ---------------------------------
+   INIT
+--------------------------------- */
+
+rebuildInitialHelix();
+requestAnimationFrame(animateHelix);
+startHelixQueueFeed();
+</script>
+
+
+<body>
+  <div class="wrap" role="main" aria-labelledby="title">
+    <header>
+      <div>
+        <h1 id="title">Time Machine and DNA Visualization</h1>
+        <p class="lead">Static SVG hourglass and stylized DNA helix with a short ADN sequence panel.</p>
+      </div>
+    </header>
+
+    <section class="visuals" aria-label="visualizations">
+      <!-- Hourglass card -->
+      <div class="card" aria-labelledby="hourglassTitle">
+        <h2 id="hourglassTitle" style="font-size:14px;margin:0 0 8px 0;color:var(--accent)">Hourglass</h2>
+        <div class="svg-wrap" role="img" aria-label="Hourglass illustration">
+          <!-- Inline SVG hourglass -->
+          <svg width="220" height="320" viewBox="0 0 220 320" xmlns="http://www.w3.org/2000/svg" aria-hidden="false">
+            <title>Hourglass</title>
+            <defs>
+              <linearGradient id="sandGrad" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0" stop-color="#ffd166"/>
+                <stop offset="1" stop-color="#ffb703"/>
+              </linearGradient>
+              <filter id="soft" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="1.2" result="b"/>
+                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+
+            <!-- Frame -->
+            <rect x="18" y="12" width="184" height="296" rx="14" fill="none" stroke="#1f2a3a" stroke-width="6"/>
+            <!-- Top glass -->
+            <path d="M40 40 C80 40 140 40 180 40 C160 90 120 120 110 150 C100 120 60 90 40 40 Z"
+                  fill="#eaf6ff11" stroke="#9fc9ff33" stroke-width="1.5"/>
+            <!-- Bottom glass -->
+            <path d="M40 280 C80 280 140 280 180 280 C160 230 120 200 110 170 C100 200 60 230 40 280 Z"
+                  fill="#eaf6ff11" stroke="#9fc9ff33" stroke-width="1.5"/>
+            <!-- Narrow neck -->
+            <rect x="102" y="146" width="16" height="28" rx="8" fill="#cfe9ff22"/>
+
+            <!-- Sand top (emptying) -->
+            <g id="topSand" fill="url(#sandGrad)" filter="url(#soft)">
+              <path d="M60 60 C80 80 140 80 160 60 C150 90 130 110 110 130 C90 110 70 90 60 60 Z"/>
+            </g>
+
+            <!-- Falling grains -->
+            <g fill="url(#sandGrad)" opacity="0.95">
+              <circle cx="110" cy="160" r="2.6"/>
+              <circle cx="108" cy="168" r="1.6"/>
+              <circle cx="112" cy="174" r="1.8"/>
+            </g>
+
+            <!-- Sand pile bottom -->
+            <g id="bottomSand" fill="url(#sandGrad)" transform="translate(0,0)">
+              <path d="M70 230 C90 210 130 210 150 230 C130 240 90 240 70 230 Z"/>
+            </g>
+
+            <!-- Decorative frame lines -->
+            <line x1="30" y1="18" x2="190" y2="18" stroke="#0b1220" stroke-width="6" stroke-linecap="round"/>
+            <line x1="30" y1="302" x2="190" y2="302" stroke="#0b1220" stroke-width="6" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="legend"><strong>Legend</strong> • <span style="color:var(--accent)">Hourglass</span> shows flow of time; sand grains represent discrete inferences.</div>
+      </div>
+
+      <!-- DNA card -->
+      <div class="card" aria-labelledby="dnaTitle">
+        <h2 id="dnaTitle" style="font-size:14px;margin:0 0 8px 0;color:var(--accent)">DNA Helix and Sequence</h2>
+        <div class="svg-wrap" role="img" aria-label="DNA helix illustration">
+          <!-- Inline SVG DNA helix -->
+          <svg width="320" height="320" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
+            <title>DNA Helix</title>
+            <defs>
+              <linearGradient id="g1" x1="0" x2="1">
+                <stop offset="0" stop-color="#6ee7b7"/>
+                <stop offset="1" stop-color="#34d399"/>
+              </linearGradient>
+              <linearGradient id="g2" x1="0" x2="1">
+                <stop offset="0" stop-color="#7dd3fc"/>
+                <stop offset="1" stop-color="#60a5fa"/>
+              </linearGradient>
+            </defs>
+
+            <!-- backbone left -->
+            <path d="M60 20 C80 60 80 120 60 160 C40 200 40 260 60 300" stroke="url(#g1)" stroke-width="6" fill="none" stroke-linecap="round"/>
+            <!-- backbone right -->
+            <path d="M260 20 C240 60 240 120 260 160 C280 200 280 260 260 300" stroke="url(#g2)" stroke-width="6" fill="none" stroke-linecap="round"/>
+
+            <!-- rungs -->
+            <!-- We'll draw a series of connecting lines that twist -->
+            <g stroke="#e6f7ff" stroke-width="3" stroke-linecap="round">
+              <!-- top -->
+              <line x1="68" y1="28" x2="252" y2="28"/>
+              <line x1="72" y1="56" x2="248" y2="56"/>
+              <line x1="64" y1="84" x2="256" y2="84"/>
+              <line x1="76" y1="112" x2="244" y2="112"/>
+              <line x1="60" y1="140" x2="260" y2="140"/>
+              <line x1="80" y1="168" x2="240" y2="168"/>
+              <line x1="68" y1="196" x2="252" y2="196"/>
+              <line x1="76" y1="224" x2="244" y2="224"/>
+              <line x1="64" y1="252" x2="256" y2="252"/>
+              <line x1="72" y1="280" x2="248" y2="280"/>
+            </g>
+
+            <!-- base pair markers -->
+            <g font-family="monospace" font-size="12" fill="#0b1220" text-anchor="middle">
+              <rect x="120" y="24" width="24" height="18" rx="6" fill="#6ee7b7"/>
+              <text x="132" y="38" fill="#042028">A</text>
+
+              <rect x="120" y="52" width="24" height="18" rx="6" fill="#7dd3fc"/>
+              <text x="132" y="66" fill="#042028">T</text>
+
+              <rect x="120" y="80" width="24" height="18" rx="6" fill="#6ee7b7"/>
+              <text x="132" y="94" fill="#042028">G</text>
+
+              <rect x="120" y="108" width="24" height="18" rx="6" fill="#7dd3fc"/>
+              <text x="132" y="122" fill="#042028">C</text>
+
+              <rect x="120" y="136" width="24" height="18" rx="6" fill="#6ee7b7"/>
+              <text x="132" y="150" fill="#042028">A</text>
+
+              <rect x="120" y="164" width="24" height="18" rx="6" fill="#7dd3fc"/>
+              <text x="132" y="178" fill="#042028">T</text>
+
+              <rect x="120" y="192" width="24" height="18" rx="6" fill="#6ee7b7"/>
+              <text x="132" y="206" fill="#042028">C</text>
+
+              <rect x="120" y="220" width="24" height="18" rx="6" fill="#7dd3fc"/>
+              <text x="132" y="234" fill="#042028">G</text>
+            </g>
+
+            <!-- decorative glow -->
+            <ellipse cx="160" cy="160" rx="120" ry="140" fill="none" stroke="#ffffff06" stroke-width="1"/>
+          </svg>
+        </div>
+
+        <div class="seq-label">Short ADN sequence</div>
+        <div class="sequence" aria-live="polite" aria-atomic="true">
+          <strong style="color:#ffd166">5' - </strong>ATGCGTACGTTAGCCTAGGCTAATGCCGTA<span style="color:#ffd166"> - 3'</span>
+        </div>
+
+        <div class="legend" style="margin-top:10px"><strong>Legend</strong> • <span style="color:var(--dna1)">Green</span> and <span style="color:var(--dna2)">blue</span> backbones; boxes show base letters.</div>
+      </div>
+    </section>
+
+    <footer style="margin-top:18px;color:var(--muted);font-size:13px">
+      <strong>Note</strong> • This is a static visualization. Each base can be treated as a micro prompt and each sand grain as a discrete inference step.
+    </footer>
+  </div>
+</body>
+</html>

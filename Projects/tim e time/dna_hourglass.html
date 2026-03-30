@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Time Machine and DNA Visualization</title>
+  <style>
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --accent:#ffd166;
+      --muted:#9aa7b2;
+      --dna1:#6ee7b7;
+      --dna2:#7dd3fc;
+      --glass:#cfe9ff33;
+    }
+    html,body{height:100%;margin:0;font-family:Inter,Segoe UI,system-ui,Arial,sans-serif;background:linear-gradient(180deg,var(--bg),#071021);color:#e6eef6}
+    .wrap{max-width:980px;margin:36px auto;padding:28px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-radius:12px;box-shadow:0 8px 30px rgba(2,6,23,0.7)}
+    header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+    h1{font-size:20px;margin:0;font-weight:600}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+    .visuals{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap}
+    .card{background:var(--card);padding:14px;border-radius:10px;flex:1;min-width:260px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+    .svg-wrap{display:flex;justify-content:center;align-items:center;padding:8px}
+    .legend{margin-top:10px;color:var(--muted);font-size:13px}
+    .sequence{font-family:monospace;background:#071827;padding:10px;border-radius:8px;color:#bfe9ff;letter-spacing:1px}
+    .seq-label{color:var(--muted);font-size:12px;margin-bottom:6px}
+    /* responsive */
+    @media (max-width:720px){.visuals{flex-direction:column}}
+  </style>
+</head>
+<body>
+  <div class="wrap" role="main" aria-labelledby="title">
+    <header>
+      <div>
+        <h1 id="title">Time Machine and DNA Visualization</h1>
+        <p class="lead">Static SVG hourglass and stylized DNA helix with a short ADN sequence panel.</p>
+      </div>
+    </header>
+
+    <section class="visuals" aria-label="visualizations">
+      <!-- Hourglass card -->
+      <div class="card" aria-labelledby="hourglassTitle">
+        <h2 id="hourglassTitle" style="font-size:14px;margin:0 0 8px 0;color:var(--accent)">Hourglass</h2>
+        <div class="svg-wrap" role="img" aria-label="Hourglass illustration">
+          <!-- Inline SVG hourglass -->
+          <svg width="220" height="320" viewBox="0 0 220 320" xmlns="http://www.w3.org/2000/svg" aria-hidden="false">
+            <title>Hourglass</title>
+            <defs>
+              <linearGradient id="sandGrad" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0" stop-color="#ffd166"/>
+                <stop offset="1" stop-color="#ffb703"/>
+              </linearGradient>
+              <filter id="soft" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="1.2" result="b"/>
+                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+
+            <!-- Frame -->
+            <rect x="18" y="12" width="184" height="296" rx="14" fill="none" stroke="#1f2a3a" stroke-width="6"/>
+            <!-- Top glass -->
+            <path d="M40 40 C80 40 140 40 180 40 C160 90 120 120 110 150 C100 120 60 90 40 40 Z"
+                  fill="#eaf6ff11" stroke="#9fc9ff33" stroke-width="1.5"/>
+            <!-- Bottom glass -->
+            <path d="M40 280 C80 280 140 280 180 280 C160 230 120 200 110 170 C100 200 60 230 40 280 Z"
+                  fill="#eaf6ff11" stroke="#9fc9ff33" stroke-width="1.5"/>
+            <!-- Narrow neck -->
+            <rect x="102" y="146" width="16" height="28" rx="8" fill="#cfe9ff22"/>
+
+            <!-- Sand top (emptying) -->
+            <g id="topSand" fill="url(#sandGrad)" filter="url(#soft)">
+              <path d="M60 60 C80 80 140 80 160 60 C150 90 130 110 110 130 C90 110 70 90 60 60 Z"/>
+            </g>
+
+            <!-- Falling grains -->
+            <g fill="url(#sandGrad)" opacity="0.95">
+              <circle cx="110" cy="160" r="2.6"/>
+              <circle cx="108" cy="168" r="1.6"/>
+              <circle cx="112" cy="174" r="1.8"/>
+            </g>
+
+            <!-- Sand pile bottom -->
+            <g id="bottomSand" fill="url(#sandGrad)" transform="translate(0,0)">
+              <path d="M70 230 C90 210 130 210 150 230 C130 240 90 240 70 230 Z"/>
+            </g>
+
+            <!-- Decorative frame lines -->
+            <line x1="30" y1="18" x2="190" y2="18" stroke="#0b1220" stroke-width="6" stroke-linecap="round"/>
+            <line x1="30" y1="302" x2="190" y2="302" stroke="#0b1220" stroke-width="6" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="legend"><strong>Legend</strong> • <span style="color:var(--accent)">Hourglass</span> shows flow of time; sand grains represent discrete inferences.</div>
+      </div>
+
+      <!-- DNA card -->
+      <div class="card" aria-labelledby="dnaTitle">
+        <h2 id="dnaTitle" style="font-size:14px;margin:0 0 8px 0;color:var(--accent)">DNA Helix and Sequence</h2>
+        <div class="svg-wrap" role="img" aria-label="DNA helix illustration">
+          <!-- Inline SVG DNA helix -->
+          <svg width="320" height="320" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
+            <title>DNA Helix</title>
+            <defs>
+              <linearGradient id="g1" x1="0" x2="1">
+                <stop offset="0" stop-color="#6ee7b7"/>
+                <stop offset="1" stop-color="#34d399"/>
+              </linearGradient>
+              <linearGradient id="g2" x1="0" x2="1">
+                <stop offset="0" stop-color="#7dd3fc"/>
+                <stop offset="1" stop-color="#60a5fa"/>
+              </linearGradient>
+            </defs>
+
+            <!-- backbone left -->
+            <path d="M60 20 C80 60 80 120 60 160 C40 200 40 260 60 300" stroke="url(#g1)" stroke-width="6" fill="none" stroke-linecap="round"/>
+            <!-- backbone right -->
+            <path d="M260 20 C240 60 240 120 260 160 C280 200 280 260 260 300" stroke="url(#g2)" stroke-width="6" fill="none" stroke-linecap="round"/>
+
+            <!-- rungs -->
+            <!-- We'll draw a series of connecting lines that twist -->
+            <g stroke="#e6f7ff" stroke-width="3" stroke-linecap="round">
+              <!-- top -->
+              <line x1="68" y1="28" x2="252" y2="28"/>
+              <line x1="72" y1="56" x2="248" y2="56"/>
+              <line x1="64" y1="84" x2="256" y2="84"/>
+              <line x1="76" y1="112" x2="244" y2="112"/>
+              <line x1="60" y1="140" x2="260" y2="140"/>
+              <line x1="80" y1="168" x2="240" y2="168"/>
+              <line x1="68" y1="196" x2="252" y2="196"/>
+              <line x1="76" y1="224" x2="244" y2="224"/>
+              <line x1="64" y1="252" x2="256" y2="252"/>
+              <line x1="72" y1="280" x2="248" y2="280"/>
+            </g>
+
+            <!-- base pair markers -->
+            <g font-family="monospace" font-size="12" fill="#0b1220" text-anchor="middle">
+              <rect x="120" y="24" width="24" height="18" rx="6" fill="#6ee7b7"/>
+              <text x="132" y="38" fill="#042028">A</text>
+
+              <rect x="120" y="52" width="24" height="18" rx="6" fill="#7dd3fc"/>
+              <text x="132" y="66" fill="#042028">T</text>
+
+              <rect x="120" y="80" width="24" height="18" rx="6" fill="#6ee7b7"/>
+              <text x="132" y="94" fill="#042028">G</text>
+
+              <rect x="120" y="108" width="24" height="18" rx="6" fill="#7dd3fc"/>
+              <text x="132" y="122" fill="#042028">C</text>
+
+              <rect x="120" y="136" width="24" height="18" rx="6" fill="#6ee7b7"/>
+              <text x="132" y="150" fill="#042028">A</text>
+
+              <rect x="120" y="164" width="24" height="18" rx="6" fill="#7dd3fc"/>
+              <text x="132" y="178" fill="#042028">T</text>
+
+              <rect x="120" y="192" width="24" height="18" rx="6" fill="#6ee7b7"/>
+              <text x="132" y="206" fill="#042028">C</text>
+
+              <rect x="120" y="220" width="24" height="18" rx="6" fill="#7dd3fc"/>
+              <text x="132" y="234" fill="#042028">G</text>
+            </g>
+
+            <!-- decorative glow -->
+            <ellipse cx="160" cy="160" rx="120" ry="140" fill="none" stroke="#ffffff06" stroke-width="1"/>
+          </svg>
+        </div>
+
+        <div class="seq-label">Short ADN sequence</div>
+        <div class="sequence" aria-live="polite" aria-atomic="true">
+          <strong style="color:#ffd166">5' - </strong>ATGCGTACGTTAGCCTAGGCTAATGCCGTA<span style="color:#ffd166"> - 3'</span>
+        </div>
+
+        <div class="legend" style="margin-top:10px"><strong>Legend</strong> • <span style="color:var(--dna1)">Green</span> and <span style="color:var(--dna2)">blue</span> backbones; boxes show base letters.</div>
+      </div>
+    </section>
+
+    <footer style="margin-top:18px;color:var(--muted);font-size:13px">
+      <strong>Note</strong> • This is a static visualization. Each base can be treated as a micro prompt and each sand grain as a discrete inference step.
+    </footer>
+  </div>
+</body>
+</html>
