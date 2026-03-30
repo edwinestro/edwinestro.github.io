@@ -40,6 +40,19 @@ a:hover{text-decoration:underline}
 .section h2{font-family:Georgia,serif;font-size:clamp(1rem,1.6vw,1.4rem);font-weight:700}
 .section-tag{font-size:0.5rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--green)}
 
+#spotlight{margin-bottom:18px;}
+#spotlight .section-head h2{color:#fff;letter-spacing:0.06em;}
+#spotlight .section-head .section-tag{color:#82ffea;}
+#spotlight .grid{display:flex;flex-wrap:wrap;gap:14px;}
+.card-wrap.spotlight{position:relative;border:2px solid rgba(60,255,215,.8);border-radius:16px;box-shadow:0 0 24px rgba(85,255,206,.35);animation:spotlightGlow 3.2s ease-in-out infinite;}
+.card-wrap.spotlight::before{content:'LATEST GAME';position:absolute;top:-12px;left:16px;padding:4px 10px;font-size:0.55rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#0f2e2a;background:linear-gradient(135deg,#b2fff0,#1f9d8d);border-radius:999px;box-shadow:0 2px 10px rgba(0,0,0,.25);z-index:4;}
+.card-wrap.spotlight .card{border-color:rgba(82,235,190,.4);background:linear-gradient(135deg,rgba(17,32,28,.95),rgba(9,17,22,.9));transform:scale(1.01);} 
+.card-wrap.spotlight .card:hover {transform:translateY(-2px) scale(1.02);}
+@keyframes spotlightGlow{0%,100%{box-shadow:0 0 20px rgba(60,255,215,.25),0 0 40px rgba(12,209,176,0.1)}50%{box-shadow:0 0 28px rgba(60,255,215,.6),0 0 50px rgba(13,214,180,0.15)}}
+
+@keyframes cardShine{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.card-wrap.spotlight .card::after{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 25%,rgba(255,255,255,0.2) 50%,transparent 75%);transform:translateX(-100%);animation:cardShine 3s linear infinite;pointer-events:none;opacity:0.35;}
+
 /* Grid */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(260px,100%),1fr));gap:clamp(10px,1.2vw,16px)}
 .card{display:flex;flex-direction:column;gap:8px;padding:clamp(12px,1.2vw,16px);border-radius:var(--radius);background:rgba(10,20,16,0.45);border:1px solid var(--border);-webkit-backdrop-filter:blur(16px) saturate(1.4);backdrop-filter:blur(16px) saturate(1.4);transition:border-color .25s,transform .25s,box-shadow .3s}
@@ -132,6 +145,12 @@ a:hover{text-decoration:underline}
   <button class="sort-btn" id="sortCategory" type="button">By Category</button>
   <button class="sort-btn active" id="sortVotes" type="button">Most Upvoted</button>
 </div>
+
+<!-- Spotlight Game -->
+<section class="section visible" id="spotlight">
+  <div class="section-head"><h2>Spotlight</h2><span class="section-tag">Newest release</span></div>
+  <div class="grid" id="gridSpotlight"></div>
+</section>
 
 <!-- All Games (sorted by votes) -->
 <section class="section visible" id="allGames">
@@ -330,6 +349,18 @@ async function init() {
     if (nb !== na) return nb - na;
     return (b.updatedAt || '').localeCompare(a.updatedAt || '');
   });
+
+  // Spotlight game (newest first, or explicit Spotlight badge)
+  const spotlightGrid = document.getElementById('gridSpotlight');
+  const spotlightGame = games.find(g => (g.badges || []).includes('Spotlight')) || games[0];
+  if (spotlightGame && spotlightGrid) {
+    spotlightGrid.innerHTML = renderCard(spotlightGame, true);
+    const wrap = spotlightGrid.querySelector('.card-wrap');
+    if (wrap) wrap.classList.add('spotlight');
+    // Remove spotlight game from full lists, avoid duplication
+    games = games.filter(g => g.id !== spotlightGame.id);
+    spotlightGrid.closest('.section').style.display = 'block';
+  }
 
   // Categorize and render game entries
   const counts = { experiences: 0, science: 0, strategy: 0, cognitive: 0, tools: 0 };
