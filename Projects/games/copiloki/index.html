@@ -42,16 +42,27 @@
             <span class="chip" id="stageChip">Seed Egg</span>
             <span class="chip" id="ageChip">Age 0.0d</span>
             <span class="chip" id="patchChip">Patches 0</span>
+            <span class="chip" id="sparkChip">Sparks 0</span>
+            <span class="chip" id="streakChip">Streak 0</span>
             <span class="chip danger" id="healthChip">Health 5/5</span>
           </div>
         </div>
 
         <div class="pet-display">
-          <div class="pet-shell" id="petShell" data-mood="happy" aria-hidden="true">
+          <div
+            class="pet-shell"
+            id="petShell"
+            data-mood="happy"
+            tabindex="0"
+            role="button"
+            aria-label="Pet Copiloki for a small comfort boost"
+          >
             <div class="pet-body-glow"></div>
             <div class="pet-face" id="petFace">( ^_^ )</div>
           </div>
         </div>
+
+        <p class="pet-hint">Tap Copiloki for a comfort boost.</p>
 
         <p class="status-line" id="statusLine" aria-live="polite">
           Copiloki is blinking awake and ready for its first snack.
@@ -137,6 +148,36 @@
           needs a fresh hatch.
         </div>
 
+        <section class="quest-card" aria-labelledby="questTitle">
+          <p class="kicker">Quick quest</p>
+          <h3 id="questTitle">Tiny task</h3>
+          <p id="questCopy">Feed Copiloki twice to build trust.</p>
+          <div class="meter quest-meter"><span id="questMeter" class="meter-fill"></span></div>
+          <div class="quest-meta">
+            <span id="questProgress">0 / 2</span>
+            <span id="questReward">+2 sparks</span>
+          </div>
+        </section>
+
+        <section class="boost-panel" aria-labelledby="boostTitle">
+          <p class="kicker">Treat cart</p>
+          <h3 id="boostTitle">Spend sparks</h3>
+          <div class="boost-grid">
+            <button class="boost-btn" id="boostSnackBtn" data-boost="snack" type="button">
+              <strong>Snack crate</strong>
+              <span>2 sparks • hunger + joy</span>
+            </button>
+            <button class="boost-btn" id="boostBathBtn" data-boost="bath" type="button">
+              <strong>Bubble bath</strong>
+              <span>3 sparks • hygiene + health</span>
+            </button>
+            <button class="boost-btn" id="boostFocusBtn" data-boost="focus" type="button">
+              <strong>Debug kit</strong>
+              <span>4 sparks • focus + energy</span>
+            </button>
+          </div>
+        </section>
+
         <ol class="log-list" id="logList" aria-live="polite"></ol>
       </section>
     </main>
@@ -153,6 +194,29 @@
       <div class="overlay-actions">
         <button class="primary" id="overlayStart" type="button">Start game</button>
         <button class="ghost" id="overlayFresh" type="button">Clear save and hatch new egg</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay hidden mini-overlay" id="miniGameOverlay">
+    <div class="overlay-card mini-card">
+      <p class="eyebrow">Bug hunt</p>
+      <h2>Catch the runaway bits</h2>
+      <p id="miniGameCopy">
+        Click the drifting bugs before they escape. The better you do, the more joy
+        and sparks Copiloki earns.
+      </p>
+
+      <div class="mini-meta">
+        <span class="chip" id="miniTimer">9.0s</span>
+        <span class="chip" id="miniScore">0 caught</span>
+      </div>
+
+      <div class="mini-arena" id="miniArena" aria-label="Bug hunt arena"></div>
+
+      <div class="overlay-actions">
+        <button class="primary" id="miniGameStart" type="button">Start hunt</button>
+        <button class="ghost" id="miniGameClose" type="button">Close</button>
       </div>
     </div>
   </div>

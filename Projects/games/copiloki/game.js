@@ -3,11 +3,94 @@
   const TICK_MS = 12000;
   const MAX_OFFLINE_STEPS = 18;
   const MAX_LOG = 8;
+  const PET_COOLDOWN_MS = 7000;
+  const MINI_GAME_MS = 9000;
+  const MINI_SPAWN_MS = 650;
+
+  const CHALLENGE_POOL = [
+    {
+      id: "snack-loop",
+      title: "Snack loop",
+      copy: "Feed Copiloki twice.",
+      kind: "feed",
+      target: 2,
+      reward: 2
+    },
+    {
+      id: "shine-sweep",
+      title: "Shine sweep",
+      copy: "Clean the nest two times.",
+      kind: "clean",
+      target: 2,
+      reward: 2
+    },
+    {
+      id: "patch-sprint",
+      title: "Patch sprint",
+      copy: "Ship two patches while Copiloki is focused.",
+      kind: "code",
+      target: 2,
+      reward: 3
+    },
+    {
+      id: "comfort-burst",
+      title: "Comfort burst",
+      copy: "Pet Copiloki three times.",
+      kind: "pet",
+      target: 3,
+      reward: 2
+    },
+    {
+      id: "care-circuit",
+      title: "Care circuit",
+      copy: "Do any four care actions.",
+      kind: "any-care",
+      target: 4,
+      reward: 3
+    },
+    {
+      id: "bug-hunter",
+      title: "Bug hunter",
+      copy: "Catch six runaway bits in the mini game.",
+      kind: "play-score",
+      target: 6,
+      reward: 4
+    }
+  ];
+
+  const BOOSTS = {
+    snack: {
+      cost: 2,
+      apply() {
+        state.hunger = clamp(state.hunger + 18, 0, 100);
+        state.joy = clamp(state.joy + 8, 0, 100);
+        pushLog("Snack crate opened. Copiloki is fueled and cheerful.");
+      }
+    },
+    bath: {
+      cost: 3,
+      apply() {
+        state.hygiene = clamp(state.hygiene + 24, 0, 100);
+        state.health = clamp(state.health + 1, 0, 5);
+        pushLog("Bubble bath complete. The nest is sparkling again.");
+      }
+    },
+    focus: {
+      cost: 4,
+      apply() {
+        state.focus = clamp(state.focus + 18, 0, 100);
+        state.energy = clamp(state.energy + 12, 0, 100);
+        pushLog("Debug kit deployed. Copiloki feels sharp and ready to build.");
+      }
+    }
+  };
 
   const elements = {
     stageChip: document.getElementById("stageChip"),
     ageChip: document.getElementById("ageChip"),
     patchChip: document.getElementById("patchChip"),
+    sparkChip: document.getElementById("sparkChip"),
+    streakChip: document.getElementById("streakChip"),
     healthChip: document.getElementById("healthChip"),
     petShell: document.getElementById("petShell"),
     petFace: document.getElementById("petFace"),
@@ -30,37 +113,30 @@
     energyMeter: document.getElementById("energyMeter"),
     hygieneMeter: document.getElementById("hygieneMeter"),
     focusMeter: document.getElementById("focusMeter"),
-    actionButtons: Array.from(document.querySelectorAll("[data-action]"))
+    questTitle: document.getElementById("questTitle"),
+    questCopy: document.getElementById("questCopy"),
+    questMeter: document.getElementById("questMeter"),
+    questProgress: document.getElementById("questProgress"),
+    questReward: document.getElementById("questReward"),
+    boostButtons: Array.from(document.querySelectorAll("[data-boost]")),
+    actionButtons: Array.from(document.querySelectorAll("[data-action]")),
+    miniGameOverlay: document.getElementById("miniGameOverlay"),
+    miniGameCopy: document.getElementById("miniGameCopy"),
+    miniTimer: document.getElementById("miniTimer"),
+    miniScore: document.getElementById("miniScore"),
+    miniArena: document.getElementById("miniArena"),
+    miniGameStart: document.getElementById("miniGameStart"),
+    miniGameClose: document.getElementById("miniGameClose")
   };
 
-  function freshState() {
-    return {
-      started: false,
-      gameOver: false,
-      ageDays: 0,
-      patches: 0,
-      health: 5,
-      hunger: 72,
-      joy: 82,
-      energy: 76,
-      hygiene: 70,
-      focus: 60,
-      asleep: false,
-      napSteps: 0,
-      stage: "Seed Egg",
-      face: "( ^_^ )",
-      moodKey: "happy",
-      status: "Copiloki is blinking awake and ready for its first snack.",
-      goal: "Keep every stat above 40 to help Copiloki grow.",
-      log: [
-        {
-          time: timeStamp(),
-          text: "Cache cleared. A fresh Copiloki egg is ready to hatch."
-        }
-      ],
-      lastUpdated: Date.now()
-    };
-  }
+  const miniGame = {
+    active: false,
+    score: 0,
+    endAt: 0,
+    timer: null,
+    spawner: null,
+    finishTimeout: null
+  };
 
   function timeStamp() {
     return new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
@@ -74,6 +150,77 @@
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
+  function pickChallenge(previousId) {
+    const pool = CHALLENGE_POOL.filter((challenge) => challenge.id !== previousId);
+    const source = pool.length ? pool : CHALLENGE_POOL;
+    const picked = source[randomInt(0, source.length - 1)];
+    return {
+      ...picked,
+      progress: 0
+    };
+  }
+
+  function freshState() {
+    return {
+      started: false,
+      gameOver: false,
+      ageDays: 0,
+      patches: 0,
+      sparks: 0,
+      streak: 0,
+      health: 5,
+      hunger: 72,
+      joy: 82,
+      energy: 76,
+      hygiene: 70,
+      focus: 60,
+      asleep: false,
+      napSteps: 0,
+      petCooldownUntil: 0,
+      stage: "Seed Egg",
+      face: "( ^_^ )",
+      moodKey: "happy",
+      status: "Copiloki is blinking awake and ready for its first snack.",
+      goal: "Keep every stat above 40 to help Copiloki grow.",
+      challenge: pickChallenge(),
+      log: [
+        {
+          time: timeStamp(),
+          text: "Copiloki booted with new interactive upgrades."
+        }
+      ],
+      lastUpdated: Date.now()
+    };
+  }
+
+  function sanitizeState(raw) {
+    const base = freshState();
+    const merged = {
+      ...base,
+      ...raw
+    };
+
+    merged.log = Array.isArray(raw.log) && raw.log.length ? raw.log.slice(0, MAX_LOG) : base.log;
+
+    if (!merged.challenge || !merged.challenge.id) {
+      merged.challenge = pickChallenge();
+    } else {
+      const template = CHALLENGE_POOL.find((item) => item.id === merged.challenge.id);
+      merged.challenge = {
+        ...(template || merged.challenge),
+        ...merged.challenge
+      };
+      merged.challenge.progress = clamp(
+        Number(merged.challenge.progress || 0),
+        0,
+        Number(merged.challenge.target || 1)
+      );
+    }
+
+    merged.lastUpdated = Date.now();
+    return merged;
+  }
+
   function loadState() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -81,13 +228,7 @@
         return freshState();
       }
 
-      const parsed = JSON.parse(raw);
-      return {
-        ...freshState(),
-        ...parsed,
-        log: Array.isArray(parsed.log) && parsed.log.length ? parsed.log : freshState().log,
-        lastUpdated: Date.now()
-      };
+      return sanitizeState(JSON.parse(raw));
     } catch (error) {
       return freshState();
     }
@@ -111,7 +252,7 @@
   }
 
   function pushLog(text) {
-    state.log.unshift({ time: timeStamp(), text });
+    state.log.unshift({ time: timeStamp(), text: text });
     state.log = state.log.slice(0, MAX_LOG);
     if (elements.ariaLive) {
       elements.ariaLive.textContent = text;
@@ -132,7 +273,7 @@
         face: "( x_x )",
         moodKey: "critical",
         status: "Copiloki blue-screened from neglect. Hatch a new egg to try again.",
-        goal: "Use Clear save to start over with a fresh Copiloki egg."
+        goal: "Use Clear save to reboot a fresh Copiloki egg."
       };
     }
 
@@ -141,7 +282,7 @@
         face: "( -.- ) zZ",
         moodKey: "sleepy",
         status: "Copiloki is taking a power nap and quietly recharging.",
-        goal: "Let the nap finish, then top up the lowest stat."
+        goal: "Let the nap finish, then stack a quick quest for bonus sparks."
       };
     }
 
@@ -179,7 +320,7 @@
         face: "( ._. )",
         moodKey: "sad",
         status: "Copiloki feels a little neglected and needs attention.",
-        goal: "Boost the weakest stat back over 40."
+        goal: "Spend a spark boost or top up the weakest stat."
       };
     }
 
@@ -196,16 +337,87 @@
       face: "( ^_^ )",
       moodKey: "happy",
       status: "Copiloki is happy, curious, and ready for the next little adventure.",
-      goal: "Keep every stat above 40 to help Copiloki grow."
+      goal: state.challenge ? state.challenge.copy : "Keep every stat above 40 to help Copiloki grow."
     };
+  }
+
+  function completeChallenge() {
+    const reward = Number(state.challenge.reward || 2);
+    const title = state.challenge.title;
+    const previousId = state.challenge.id;
+
+    state.sparks += reward;
+    state.streak += 1;
+    state.joy = clamp(state.joy + 6, 0, 100);
+    state.health = clamp(state.health + 1, 0, 5);
+
+    pushLog("Quest cleared: " + title + ". Copiloki earned +" + reward + " sparks.");
+    state.challenge = pickChallenge(previousId);
+  }
+
+  function recordChallenge(kind, amount) {
+    const challenge = state.challenge;
+    if (!challenge || state.gameOver) {
+      return;
+    }
+
+    let delta = 0;
+    if (challenge.kind === kind) {
+      delta = amount;
+    } else if (challenge.kind === "any-care" && ["feed", "clean", "nap", "code", "pet", "play"].includes(kind)) {
+      delta = amount;
+    } else if (challenge.kind === "play" && kind === "play-score") {
+      delta = 1;
+    }
+
+    if (!delta) {
+      return;
+    }
+
+    challenge.progress = clamp(challenge.progress + delta, 0, challenge.target);
+    if (challenge.progress >= challenge.target) {
+      completeChallenge();
+    }
+  }
+
+  function maybeTriggerEvent() {
+    if (Math.random() >= 0.18) {
+      return;
+    }
+
+    const roll = randomInt(0, 3);
+    switch (roll) {
+      case 0:
+        state.sparks += 1;
+        state.focus = clamp(state.focus + 4, 0, 100);
+        pushLog("Copiloki found a shiny shortcut sticker. +1 spark.");
+        break;
+      case 1:
+        state.hygiene = clamp(state.hygiene - 6, 0, 100);
+        state.joy = clamp(state.joy + 3, 0, 100);
+        pushLog("A confetti compile went off. Fun for joy, bad for tidiness.");
+        break;
+      case 2:
+        state.energy = clamp(state.energy - 5, 0, 100);
+        pushLog("Copiloki doomscrolled patch notes and got a little sleepy.");
+        break;
+      default:
+        state.joy = clamp(state.joy + 5, 0, 100);
+        pushLog("A tiny applause track played from the speakers. Morale boosted.");
+        break;
+    }
   }
 
   function updateStateFlags() {
     state.stage = deriveStage(state.ageDays);
 
-    const weakStats = [state.hunger, state.joy, state.energy, state.hygiene, state.focus].filter((value) => value < 25).length;
+    const weakStats = [state.hunger, state.joy, state.energy, state.hygiene, state.focus].filter(
+      (value) => value < 25
+    ).length;
+
     if (weakStats >= 2) {
       state.health = clamp(state.health - 1, 0, 5);
+      state.streak = 0;
     } else if (
       state.health < 5 &&
       state.hunger > 65 &&
@@ -221,6 +433,7 @@
     if (state.health <= 0) {
       state.gameOver = true;
       state.asleep = false;
+      clearMiniGame(false);
     }
 
     const mood = deriveMood();
@@ -262,6 +475,7 @@
       pushLog("Copiloki Prime strutted around proudly after shipping a clean build.");
     }
 
+    maybeTriggerEvent();
     updateStateFlags();
 
     if (state.gameOver) {
@@ -276,6 +490,180 @@
     for (let index = 0; index < steps; index += 1) {
       applyTickStep();
     }
+  }
+
+  function petCopiloki() {
+    if (!state.started) {
+      startGame();
+      return;
+    }
+
+    if (state.gameOver) {
+      return;
+    }
+
+    const now = Date.now();
+    if (now < (state.petCooldownUntil || 0)) {
+      pushLog("Copiloki is already purring from the last head pat.");
+      render();
+      return;
+    }
+
+    state.petCooldownUntil = now + PET_COOLDOWN_MS;
+    state.joy = clamp(state.joy + 5, 0, 100);
+    state.focus = clamp(state.focus + 2, 0, 100);
+    pushLog("You gave Copiloki a gentle head pat. Tiny purr unlocked.");
+    recordChallenge("pet", 1);
+    updateStateFlags();
+    saveState();
+    render();
+  }
+
+  function openMiniGame() {
+    if (!state.started) {
+      startGame();
+    }
+
+    if (state.gameOver) {
+      return;
+    }
+
+    elements.miniGameOverlay.classList.remove("hidden");
+    elements.miniGameCopy.textContent =
+      "Click the drifting bugs before they escape. The better you do, the more joy and sparks Copiloki earns.";
+    elements.miniArena.innerHTML = "";
+    elements.miniTimer.textContent = "9.0s";
+    elements.miniScore.textContent = "0 caught";
+    elements.miniGameStart.textContent = "Start hunt";
+    elements.miniGameStart.disabled = false;
+  }
+
+  function updateMiniHud() {
+    const remaining = Math.max(0, (miniGame.endAt - Date.now()) / 1000);
+    elements.miniTimer.textContent = remaining.toFixed(1) + "s";
+    elements.miniScore.textContent = miniGame.score + " caught";
+  }
+
+  function spawnBug() {
+    if (!miniGame.active) {
+      return;
+    }
+
+    const bug = document.createElement("button");
+    bug.type = "button";
+    bug.className = "mini-bug";
+    bug.textContent = ["✦", "✺", "✹", "✷", "✧"][randomInt(0, 4)];
+    bug.style.left = randomInt(8, 86) + "%";
+    bug.style.top = randomInt(10, 78) + "%";
+
+    bug.addEventListener("click", () => {
+      if (!miniGame.active) {
+        return;
+      }
+
+      miniGame.score += 1;
+      updateMiniHud();
+      bug.classList.add("pop");
+      setTimeout(() => bug.remove(), 120);
+    });
+
+    elements.miniArena.appendChild(bug);
+    setTimeout(() => bug.remove(), 1200);
+  }
+
+  function clearMiniGame(hideOverlay) {
+    clearInterval(miniGame.timer);
+    clearInterval(miniGame.spawner);
+    clearTimeout(miniGame.finishTimeout);
+    miniGame.active = false;
+    miniGame.timer = null;
+    miniGame.spawner = null;
+    miniGame.finishTimeout = null;
+    elements.miniArena.innerHTML = "";
+
+    if (hideOverlay) {
+      elements.miniGameOverlay.classList.add("hidden");
+    }
+  }
+
+  function finishMiniGame() {
+    const score = miniGame.score;
+    clearMiniGame(false);
+
+    const joyBonus = clamp(6 + score * 2, 6, 28);
+    const focusBonus = clamp(3 + score, 3, 16);
+    const sparkBonus = score >= 8 ? 3 : score >= 5 ? 2 : score >= 2 ? 1 : 0;
+
+    state.joy = clamp(state.joy + joyBonus, 0, 100);
+    state.focus = clamp(state.focus + focusBonus, 0, 100);
+    state.energy = clamp(state.energy - 5, 0, 100);
+    state.hunger = clamp(state.hunger - 3, 0, 100);
+    state.sparks += sparkBonus;
+
+    recordChallenge("play", 1);
+    recordChallenge("play-score", score);
+
+    if (score >= 7) {
+      pushLog("Bug hunt victory! Copiloki caught " + score + " bits and earned +" + sparkBonus + " sparks.");
+      elements.miniGameCopy.textContent = "Amazing round. Copiloki is buzzing with confidence.";
+    } else if (score >= 3) {
+      pushLog("Solid bug hunt. Copiloki caught " + score + " bits and stayed cheerful.");
+      elements.miniGameCopy.textContent = "Nice catch. Copiloki wants to play again soon.";
+    } else {
+      pushLog("Tiny bug hunt complete. Even one caught bit still counts as practice.");
+      elements.miniGameCopy.textContent = "A short round still helped Copiloki have fun.";
+    }
+
+    elements.miniTimer.textContent = "Done";
+    elements.miniScore.textContent = score + " caught";
+    elements.miniGameStart.disabled = false;
+    elements.miniGameStart.textContent = "Play again";
+
+    updateStateFlags();
+    saveState();
+    render();
+  }
+
+  function startMiniGameRound() {
+    if (miniGame.active || state.gameOver) {
+      return;
+    }
+
+    miniGame.active = true;
+    miniGame.score = 0;
+    miniGame.endAt = Date.now() + MINI_GAME_MS;
+    elements.miniGameStart.disabled = true;
+    elements.miniGameStart.textContent = "Hunting...";
+    elements.miniArena.innerHTML = "";
+    updateMiniHud();
+
+    spawnBug();
+    miniGame.spawner = setInterval(spawnBug, MINI_SPAWN_MS);
+    miniGame.timer = setInterval(updateMiniHud, 100);
+    miniGame.finishTimeout = setTimeout(finishMiniGame, MINI_GAME_MS);
+  }
+
+  function spendBoost(key) {
+    if (!state.started) {
+      startGame();
+    }
+
+    if (state.gameOver || !BOOSTS[key]) {
+      return;
+    }
+
+    const boost = BOOSTS[key];
+    if (state.sparks < boost.cost) {
+      pushLog("Not enough sparks for that treat yet.");
+      render();
+      return;
+    }
+
+    state.sparks -= boost.cost;
+    boost.apply();
+    updateStateFlags();
+    saveState();
+    render();
   }
 
   function handleAction(action) {
@@ -297,24 +685,23 @@
         state.energy = clamp(state.energy + 2, 0, 100);
         state.hygiene = clamp(state.hygiene - 2, 0, 100);
         pushLog("Copiloki munched a glowing snack and is no longer hangry.");
+        recordChallenge("feed", 1);
         break;
       case "play":
-        state.joy = clamp(state.joy + 18, 0, 100);
-        state.focus = clamp(state.focus + 5, 0, 100);
-        state.energy = clamp(state.energy - 7, 0, 100);
-        state.hunger = clamp(state.hunger - 4, 0, 100);
-        pushLog("You played bug-chase with Copiloki. Tiny victory dance unlocked.");
-        break;
+        openMiniGame();
+        return;
       case "clean":
         state.hygiene = clamp(state.hygiene + 24, 0, 100);
         state.health = clamp(state.health + 1, 0, 5);
         pushLog("The nest is spotless again and Copiloki smells like fresh static.");
+        recordChallenge("clean", 1);
         break;
       case "nap":
         state.asleep = true;
         state.napSteps = 2;
         state.energy = clamp(state.energy + 12, 0, 100);
         pushLog("Copiloki curled up for a power nap under a warm monitor glow.");
+        recordChallenge("nap", 1);
         break;
       case "code":
         if (state.energy < 28 || state.focus < 28) {
@@ -328,6 +715,12 @@
           state.hunger = clamp(state.hunger - 5, 0, 100);
           state.patches += 1;
           pushLog("Patch shipped. Copiloki is proud of that tiny clean deploy.");
+          recordChallenge("code", 1);
+
+          if (state.patches % 3 === 0) {
+            state.sparks += 1;
+            pushLog("Patch streak bonus! Copiloki earned +1 extra spark.");
+          }
         }
         break;
       default:
@@ -359,6 +752,7 @@
       // Ignore storage removal issues and still reset in memory.
     }
 
+    clearMiniGame(true);
     state = freshState();
     render();
     saveState();
@@ -378,10 +772,25 @@
     });
   }
 
+  function renderQuest() {
+    const challenge = state.challenge;
+    if (!challenge) {
+      return;
+    }
+
+    elements.questTitle.textContent = challenge.title;
+    elements.questCopy.textContent = challenge.copy;
+    elements.questProgress.textContent = challenge.progress + " / " + challenge.target;
+    elements.questReward.textContent = "+" + challenge.reward + " sparks";
+    elements.questMeter.style.width = Math.round((challenge.progress / challenge.target) * 100) + "%";
+  }
+
   function render() {
     elements.stageChip.textContent = state.stage;
     elements.ageChip.textContent = "Age " + state.ageDays.toFixed(1) + "d";
     elements.patchChip.textContent = "Patches " + state.patches;
+    elements.sparkChip.textContent = "Sparks " + state.sparks;
+    elements.streakChip.textContent = "Streak " + state.streak;
     elements.healthChip.textContent = "Health " + state.health + "/5";
     elements.petFace.textContent = state.face;
     elements.petShell.dataset.mood = state.moodKey;
@@ -393,13 +802,23 @@
     setMeter(elements.energyMeter, elements.energyValue, state.energy);
     setMeter(elements.hygieneMeter, elements.hygieneValue, state.hygiene);
     setMeter(elements.focusMeter, elements.focusValue, state.focus);
+    renderQuest();
 
     elements.startOverlay.classList.toggle("hidden", state.started && !state.gameOver);
-    elements.overlayStart.textContent = state.gameOver ? "Hatch again" : (state.started ? "Resume game" : "Start game");
+    elements.overlayStart.textContent = state.gameOver
+      ? "Hatch again"
+      : state.started
+        ? "Resume game"
+        : "Start game";
     elements.startBtn.textContent = state.started ? "Resume caring" : "Start caring";
 
     elements.actionButtons.forEach((button) => {
       button.disabled = state.gameOver;
+    });
+
+    elements.boostButtons.forEach((button) => {
+      const boost = BOOSTS[button.dataset.boost];
+      button.disabled = state.gameOver || state.sparks < boost.cost;
     });
 
     renderLog();
@@ -410,13 +829,32 @@
       button.addEventListener("click", () => handleAction(button.dataset.action));
     });
 
+    elements.boostButtons.forEach((button) => {
+      button.addEventListener("click", () => spendBoost(button.dataset.boost));
+    });
+
     elements.startBtn.addEventListener("click", startGame);
     elements.overlayStart.addEventListener("click", startGame);
     elements.freshStartBtn.addEventListener("click", clearSave);
     elements.overlayFresh.addEventListener("click", clearSave);
+    elements.miniGameStart.addEventListener("click", startMiniGameRound);
+    elements.miniGameClose.addEventListener("click", () => clearMiniGame(true));
+
+    elements.petShell.addEventListener("click", petCopiloki);
+    elements.petShell.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        petCopiloki();
+      }
+    });
 
     document.addEventListener("keydown", (event) => {
       if (event.altKey || event.ctrlKey || event.metaKey) {
+        return;
+      }
+
+      if (event.key === "Escape" && !elements.miniGameOverlay.classList.contains("hidden")) {
+        clearMiniGame(true);
         return;
       }
 

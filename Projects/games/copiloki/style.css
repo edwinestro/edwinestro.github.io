@@ -210,6 +210,16 @@ button {
     linear-gradient(145deg, rgba(14, 31, 57, 0.96), rgba(10, 20, 38, 0.98));
   border: 1px solid rgba(116, 234, 255, 0.18);
   overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.pet-shell:hover,
+.pet-shell:focus-visible {
+  transform: translateY(-2px) scale(1.01);
+  border-color: rgba(116, 234, 255, 0.36);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28), 0 0 0 3px rgba(116, 234, 255, 0.08);
+  outline: none;
 }
 
 .pet-shell::before,
@@ -297,6 +307,14 @@ button {
   color: var(--muted);
   line-height: 1.6;
   min-height: 3em;
+}
+
+.pet-hint {
+  margin: -2px 0 12px;
+  color: var(--accent);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: center;
 }
 
 .mission-card,
@@ -390,6 +408,83 @@ button {
   gap: 8px;
 }
 
+.quest-card,
+.boost-panel {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.quest-card h3,
+.boost-panel h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+}
+
+.quest-card p,
+.boost-panel p {
+  margin-top: 0;
+}
+
+.quest-meter {
+  margin-top: 0.65rem;
+}
+
+.quest-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 0.55rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.boost-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.boost-btn {
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(116, 234, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  cursor: pointer;
+  transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+}
+
+.boost-btn strong,
+.boost-btn span {
+  display: block;
+}
+
+.boost-btn strong {
+  margin-bottom: 0.18rem;
+}
+
+.boost-btn span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.boost-btn:hover {
+  transform: translateY(-1px);
+  background: rgba(116, 234, 255, 0.1);
+  border-color: rgba(116, 234, 255, 0.22);
+}
+
+.boost-btn:disabled {
+  opacity: 0.46;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .log-list li {
   padding: 10px 12px;
   border-radius: 14px;
@@ -419,6 +514,69 @@ button {
 
 .overlay.hidden {
   display: none;
+}
+
+.mini-card {
+  width: min(100%, 620px);
+}
+
+.mini-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+
+.mini-arena {
+  position: relative;
+  min-height: 280px;
+  border-radius: 20px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top, rgba(116, 234, 255, 0.12), transparent 0 35%),
+    linear-gradient(145deg, rgba(10, 22, 41, 0.96), rgba(7, 14, 28, 0.98));
+  border: 1px solid rgba(116, 234, 255, 0.16);
+}
+
+.mini-arena::after {
+  content: "Catch the drifting bugs";
+  position: absolute;
+  inset: auto 12px 12px 12px;
+  color: rgba(168, 189, 214, 0.8);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.mini-bug {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(116, 234, 255, 0.96), rgba(155, 140, 255, 0.9));
+  color: #04111b;
+  font-size: 1rem;
+  font-weight: 900;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.26);
+  cursor: pointer;
+  animation: bugDrift 1s ease-in-out infinite alternate;
+}
+
+.mini-bug.pop {
+  transform: scale(0.7);
+  opacity: 0;
+}
+
+@keyframes bugDrift {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-8px);
+  }
 }
 
 .overlay-card {
