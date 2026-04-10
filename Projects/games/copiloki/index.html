@@ -218,6 +218,45 @@
           </div>
         </section>
 
+        <section class="persona-card" aria-labelledby="personalityTitle">
+          <p class="kicker">Personality core</p>
+          <h3 id="personalityTitle">Patch Gremlin</h3>
+          <p id="personalityCopy">
+            A curious little builder who learns fast, loves variety, and gets bored if every
+            toy feels the same.
+          </p>
+          <div class="quest-meta personality-meta">
+            <span id="favoriteGameText">Favorite: Bug Hunt</span>
+            <span id="autonomyText">Autonomy 12%</span>
+          </div>
+
+          <div class="skill-list" aria-label="Training skills">
+            <div class="skill-row">
+              <div class="stat-head">
+                <span>Speed</span>
+                <strong id="speedSkillValue">12%</strong>
+              </div>
+              <div class="meter"><span id="speedSkillMeter" class="meter-fill"></span></div>
+            </div>
+
+            <div class="skill-row">
+              <div class="stat-head">
+                <span>Focus</span>
+                <strong id="focusSkillValue">12%</strong>
+              </div>
+              <div class="meter"><span id="focusSkillMeter" class="meter-fill"></span></div>
+            </div>
+
+            <div class="skill-row">
+              <div class="stat-head">
+                <span>Creativity</span>
+                <strong id="creativitySkillValue">12%</strong>
+              </div>
+              <div class="meter"><span id="creativitySkillMeter" class="meter-fill"></span></div>
+            </div>
+          </div>
+        </section>
+
         <ol class="log-list" id="logList" aria-live="polite"></ol>
       </section>
     </main>
@@ -240,8 +279,16 @@
 
   <div class="overlay hidden mini-overlay" id="miniGameOverlay">
     <div class="overlay-card mini-card">
-      <p class="eyebrow">Bug hunt</p>
-      <h2>Catch the runaway bits</h2>
+      <p class="eyebrow" id="miniEyebrow">Mini arcade</p>
+      <h2 id="miniTitle">Catch the runaway bits</h2>
+      <div class="mini-selector">
+        <button class="mini-mode-btn active" data-mini-mode="bug" type="button">Bug Hunt</button>
+        <button class="mini-mode-btn" data-mini-mode="memory" type="button">Memory Lights</button>
+        <button class="mini-mode-btn" data-mini-mode="dash" type="button">Patch Dash</button>
+      </div>
+      <p class="microcopy mini-mode-hint" id="miniModeHint">
+        Rotate the games to keep Copiloki learning and avoid boredom.
+      </p>
       <p id="miniGameCopy">
         Click the drifting bugs before they escape. The better you do, the more joy
         and sparks Copiloki earns.

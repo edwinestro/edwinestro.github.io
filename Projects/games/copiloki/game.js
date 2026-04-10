@@ -58,8 +58,89 @@
       kind: "play-score",
       target: 6,
       reward: 4
+    },
+    {
+      id: "memory-lights",
+      title: "Memory lights",
+      copy: "Score four points in Memory Lights.",
+      kind: "memory-score",
+      target: 4,
+      reward: 4
+    },
+    {
+      id: "dash-drill",
+      title: "Dash drill",
+      copy: "Score five points in Patch Dash.",
+      kind: "dash-score",
+      target: 5,
+      reward: 4
+    },
+    {
+      id: "variety-loop",
+      title: "Variety loop",
+      copy: "Play two different mini games.",
+      kind: "play-variety",
+      target: 2,
+      reward: 3
     }
   ];
+
+  const PERSONALITY_POOL = [
+    {
+      id: "patch-gremlin",
+      name: "Patch Gremlin",
+      blurb: "Loves quick wins, speed drills, and feeling more efficient every day.",
+      favoriteGame: "dash"
+    },
+    {
+      id: "spark-scout",
+      name: "Spark Scout",
+      blurb: "Curious, playful, and always ready to chase one more shiny surprise.",
+      favoriteGame: "bug"
+    },
+    {
+      id: "dream-mapper",
+      name: "Dream Mapper",
+      blurb: "Soft-hearted and clever. Learns best from patterns, calm focus, and variety.",
+      favoriteGame: "memory"
+    },
+    {
+      id: "cozy-captain",
+      name: "Cozy Captain",
+      blurb: "Balances work and play, but gets grumpy if life becomes too repetitive.",
+      favoriteGame: "memory"
+    }
+  ];
+
+  const MINI_GAME_CONFIG = {
+    bug: {
+      eyebrow: "Bug hunt",
+      title: "Catch the runaway bits",
+      copy: "Click the drifting bugs before they escape. Great for speed and playful confidence.",
+      startText: "Start hunt",
+      runningText: "Hunting...",
+      scoreLabel: "caught",
+      favoriteLabel: "Bug Hunt"
+    },
+    memory: {
+      eyebrow: "Memory lights",
+      title: "Follow the glow pattern",
+      copy: "Repeat the sequence of glowing pads. This trains focus and keeps Copiloki sharp.",
+      startText: "Start memory",
+      runningText: "Remembering...",
+      scoreLabel: "steps",
+      favoriteLabel: "Memory Lights"
+    },
+    dash: {
+      eyebrow: "Patch dash",
+      title: "Ship tiny fixes fast",
+      copy: "Tap the fast deploy bubbles before they fade. It trains speed and efficiency.",
+      startText: "Start dash",
+      runningText: "Dashing...",
+      scoreLabel: "ships",
+      favoriteLabel: "Patch Dash"
+    }
+  };
 
   const EVOLUTION_RULES = [
     { stage: "Seed Egg", age: 0, bond: 0, patches: 0 },
@@ -118,6 +199,16 @@
     goalText: document.getElementById("goalText"),
     evolutionLine: document.getElementById("evolutionLine"),
     evolutionHint: document.getElementById("evolutionHint"),
+    personalityTitle: document.getElementById("personalityTitle"),
+    personalityCopy: document.getElementById("personalityCopy"),
+    favoriteGameText: document.getElementById("favoriteGameText"),
+    autonomyText: document.getElementById("autonomyText"),
+    speedSkillValue: document.getElementById("speedSkillValue"),
+    focusSkillValue: document.getElementById("focusSkillValue"),
+    creativitySkillValue: document.getElementById("creativitySkillValue"),
+    speedSkillMeter: document.getElementById("speedSkillMeter"),
+    focusSkillMeter: document.getElementById("focusSkillMeter"),
+    creativitySkillMeter: document.getElementById("creativitySkillMeter"),
     logList: document.getElementById("logList"),
     ariaLive: document.getElementById("ariaLive"),
     startOverlay: document.getElementById("startOverlay"),
@@ -143,21 +234,30 @@
     boostButtons: Array.from(document.querySelectorAll("[data-boost]")),
     actionButtons: Array.from(document.querySelectorAll("[data-action]")),
     miniGameOverlay: document.getElementById("miniGameOverlay"),
+    miniEyebrow: document.getElementById("miniEyebrow"),
+    miniTitle: document.getElementById("miniTitle"),
     miniGameCopy: document.getElementById("miniGameCopy"),
+    miniModeHint: document.getElementById("miniModeHint"),
     miniTimer: document.getElementById("miniTimer"),
     miniScore: document.getElementById("miniScore"),
     miniArena: document.getElementById("miniArena"),
+    miniModeButtons: Array.from(document.querySelectorAll("[data-mini-mode]")),
     miniGameStart: document.getElementById("miniGameStart"),
     miniGameClose: document.getElementById("miniGameClose")
   };
 
   const miniGame = {
     active: false,
+    mode: "bug",
     score: 0,
     endAt: 0,
     timer: null,
     spawner: null,
-    finishTimeout: null
+    finishTimeout: null,
+    sequence: [],
+    inputIndex: 0,
+    sequenceTimeouts: [],
+    showingSequence: false
   };
 
   function timeStamp() {
@@ -172,6 +272,18 @@
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
+  function pickPersonality() {
+    return PERSONALITY_POOL[randomInt(0, PERSONALITY_POOL.length - 1)];
+  }
+
+  function freshBoredom() {
+    return {
+      bug: 0,
+      memory: 0,
+      dash: 0
+    };
+  }
+
   function pickChallenge(previousId) {
     const pool = CHALLENGE_POOL.filter((challenge) => challenge.id !== previousId);
     const source = pool.length ? pool : CHALLENGE_POOL;
@@ -183,6 +295,8 @@
   }
 
   function freshState() {
+    const personality = pickPersonality();
+
     return {
       started: false,
       gameOver: false,
@@ -200,9 +314,20 @@
       asleep: false,
       napSteps: 0,
       stress: 8,
+      autonomy: 12,
+      speedSkill: 12,
+      focusSkill: 12,
+      creativitySkill: 12,
       petCooldownUntil: 0,
       lastPetAt: 0,
       rapidPetStreak: 0,
+      personalityId: personality.id,
+      personalityName: personality.name,
+      personalityBlurb: personality.blurb,
+      favoriteGame: personality.favoriteGame,
+      lastMiniGameMode: "",
+      recentMiniGames: [],
+      miniGameBoredom: freshBoredom(),
       stage: "Seed Egg",
       face: "( ^_^ )",
       moodKey: "happy",
@@ -259,8 +384,24 @@
     merged.overfed = clamp(Number(merged.overfed || 0), 0, 6);
     merged.napChain = clamp(Number(merged.napChain || 0), 0, 6);
     merged.stress = clamp(Number(merged.stress || 0), 0, 100);
+    merged.autonomy = clamp(Number(merged.autonomy || 0), 0, 100);
+    merged.speedSkill = clamp(Number(merged.speedSkill || 0), 0, 100);
+    merged.focusSkill = clamp(Number(merged.focusSkill || 0), 0, 100);
+    merged.creativitySkill = clamp(Number(merged.creativitySkill || 0), 0, 100);
     merged.lastPetAt = Number(merged.lastPetAt || 0);
     merged.rapidPetStreak = clamp(Number(merged.rapidPetStreak || 0), 0, 12);
+    merged.favoriteGame = MINI_GAME_CONFIG[merged.favoriteGame] ? merged.favoriteGame : base.favoriteGame;
+    merged.lastMiniGameMode = MINI_GAME_CONFIG[merged.lastMiniGameMode] ? merged.lastMiniGameMode : "";
+    merged.recentMiniGames = Array.isArray(merged.recentMiniGames)
+      ? merged.recentMiniGames.filter((mode) => MINI_GAME_CONFIG[mode]).slice(-4)
+      : [];
+    merged.miniGameBoredom = {
+      ...freshBoredom(),
+      ...(raw.miniGameBoredom || {})
+    };
+    Object.keys(merged.miniGameBoredom).forEach((key) => {
+      merged.miniGameBoredom[key] = clamp(Number(merged.miniGameBoredom[key] || 0), 0, 100);
+    });
     return merged;
   }
 
@@ -461,6 +602,149 @@
     };
   }
 
+  function getPersonalityProfile() {
+    return PERSONALITY_POOL.find((profile) => profile.id === state.personalityId) || PERSONALITY_POOL[0];
+  }
+
+  function trainSkill(kind, amount) {
+    const safeAmount = Math.max(0, amount);
+    if (kind === "speed") {
+      state.speedSkill = clamp(state.speedSkill + safeAmount, 0, 100);
+    } else if (kind === "focus") {
+      state.focusSkill = clamp(state.focusSkill + safeAmount, 0, 100);
+    } else if (kind === "creativity") {
+      state.creativitySkill = clamp(state.creativitySkill + safeAmount, 0, 100);
+    }
+
+    state.autonomy = clamp(state.autonomy + Math.max(1, Math.round(safeAmount * 0.75)), 0, 100);
+  }
+
+  function getMiniBoredom(mode) {
+    return Number((state.miniGameBoredom && state.miniGameBoredom[mode]) || 0);
+  }
+
+  function getBoredomHint(mode) {
+    const boredom = getMiniBoredom(mode);
+    const profile = getPersonalityProfile();
+
+    if (boredom >= 60) {
+      return "Copiloki is tired of this routine. Switch games for stronger joy and training gains.";
+    }
+
+    if (boredom >= 32) {
+      return "Still fun, but rotating to another mini game will keep the rewards fresher.";
+    }
+
+    if (profile.favoriteGame === mode) {
+      return profile.name + " naturally likes this mode, but even favorites get stale with too much repetition.";
+    }
+
+    return "Rotate the games to keep Copiloki learning and avoid boredom.";
+  }
+
+  function chooseRecommendedMiniMode() {
+    const profile = getPersonalityProfile();
+    return Object.keys(MINI_GAME_CONFIG)
+      .sort((left, right) => {
+        const leftScore = getMiniBoredom(left) - (profile.favoriteGame === left ? 8 : 0);
+        const rightScore = getMiniBoredom(right) - (profile.favoriteGame === right ? 8 : 0);
+        return leftScore - rightScore;
+      })[0];
+  }
+
+  function setMiniMode(mode) {
+    if (!MINI_GAME_CONFIG[mode] || miniGame.active) {
+      return;
+    }
+
+    miniGame.mode = mode;
+    const meta = MINI_GAME_CONFIG[mode];
+    elements.miniEyebrow.textContent = meta.eyebrow;
+    elements.miniTitle.textContent = meta.title;
+    elements.miniGameCopy.textContent = meta.copy;
+    elements.miniModeHint.textContent = getBoredomHint(mode);
+    elements.miniGameStart.textContent = meta.startText;
+    elements.miniArena.dataset.mode = mode;
+
+    elements.miniModeButtons.forEach((button) => {
+      button.classList.toggle("active", button.dataset.miniMode === mode);
+    });
+  }
+
+  function noteMiniGamePlay(mode) {
+    const previouslyPlayed = state.lastMiniGameMode;
+
+    Object.keys(state.miniGameBoredom).forEach((key) => {
+      if (key === mode) {
+        const boredomGain = previouslyPlayed === mode ? 18 : 8;
+        state.miniGameBoredom[key] = clamp(state.miniGameBoredom[key] + boredomGain, 0, 100);
+      } else {
+        state.miniGameBoredom[key] = clamp(state.miniGameBoredom[key] - 12, 0, 100);
+      }
+    });
+
+    if (previouslyPlayed && previouslyPlayed !== mode) {
+      recordChallenge("play-variety", 1);
+    }
+
+    state.lastMiniGameMode = mode;
+    state.recentMiniGames.push(mode);
+    state.recentMiniGames = state.recentMiniGames.slice(-4);
+
+    const counts = state.recentMiniGames.reduce((memo, item) => {
+      memo[item] = (memo[item] || 0) + 1;
+      return memo;
+    }, {});
+
+    const personalityFavorite = getPersonalityProfile().favoriteGame;
+    state.favoriteGame = Object.keys(MINI_GAME_CONFIG).sort((left, right) => {
+      const leftCount = (counts[left] || 0) + (left === personalityFavorite ? 0.2 : 0);
+      const rightCount = (counts[right] || 0) + (right === personalityFavorite ? 0.2 : 0);
+      return rightCount - leftCount;
+    })[0] || personalityFavorite;
+  }
+
+  function maybeAutonomousRoutine() {
+    if (
+      !state.started ||
+      state.gameOver ||
+      state.stage === "Seed Egg" ||
+      state.autonomy < 18 ||
+      state.stress > 42 ||
+      state.energy < 36
+    ) {
+      return;
+    }
+
+    if (Math.random() >= 0.08 + state.autonomy / 600) {
+      return;
+    }
+
+    const profile = getPersonalityProfile();
+    state.energy = clamp(state.energy - 4, 0, 100);
+    state.joy = clamp(state.joy + 3, 0, 100);
+    state.stress = clamp(state.stress - 4, 0, 100);
+
+    if (profile.favoriteGame === "dash") {
+      trainSkill("speed", 2);
+      trainSkill("focus", 1);
+      pushLog("On its own, Copiloki ran a solo Patch Dash drill and shaved a little time off its builds.");
+    } else if (profile.favoriteGame === "memory") {
+      trainSkill("focus", 2);
+      trainSkill("creativity", 1);
+      pushLog("Copiloki practiced Memory Lights on its own and looked sharper afterward.");
+    } else {
+      trainSkill("speed", 1);
+      trainSkill("creativity", 2);
+      pushLog("Copiloki chased a few spark-bugs by itself and came back more playful.");
+    }
+
+    if (state.focusSkill >= 55 && state.speedSkill >= 45 && Math.random() < 0.25) {
+      state.patches += 1;
+      pushLog("Autonomy bonus! Copiloki quietly shipped a tiny cleanup patch by itself.");
+    }
+  }
+
   function deriveMood() {
     if (state.gameOver) {
       return {
@@ -519,6 +803,16 @@
         expression: "Guarded",
         status: "Copiloki is reading your click rhythm carefully. Gentle timing feels safer than spam taps.",
         goal: "Wait a beat between pats to rebuild trust and lower stress."
+      };
+    }
+
+    if (Math.max(...Object.values(state.miniGameBoredom || freshBoredom())) >= 60 && state.joy < 78) {
+      return {
+        face: "( -_- )",
+        moodKey: "sad",
+        expression: "Needs novelty",
+        status: "Copiloki is a little bored of repeating the same toy and wants a fresher challenge.",
+        goal: "Swap mini game modes to restore curiosity and stronger rewards."
       };
     }
 
@@ -741,6 +1035,9 @@
     state.overfed = Math.max(0, state.overfed - 1);
     state.stress = clamp(state.stress - (quietMs > CALM_RECOVERY_MS ? 8 : 3), 0, 100);
     state.rapidPetStreak = Math.max(0, state.rapidPetStreak - (quietMs > CALM_RECOVERY_MS ? 2 : 1));
+    Object.keys(state.miniGameBoredom).forEach((key) => {
+      state.miniGameBoredom[key] = clamp(state.miniGameBoredom[key] - 2, 0, 100);
+    });
 
     if (state.sickTicks > 0) {
       state.sickTicks = Math.max(0, state.sickTicks - 1);
@@ -787,6 +1084,7 @@
       pushLog("Copiloki Prime strutted around proudly after shipping a clean build.");
     }
 
+    maybeAutonomousRoutine();
     maybeTriggerEvent();
     updateStateFlags();
 
@@ -909,23 +1207,21 @@
     }
 
     elements.miniGameOverlay.classList.remove("hidden");
-    elements.miniGameCopy.textContent =
-      "Click the drifting bugs before they escape. The better you do, the more joy and sparks Copiloki earns.";
     elements.miniArena.innerHTML = "";
     elements.miniTimer.textContent = "9.0s";
-    elements.miniScore.textContent = "0 caught";
-    elements.miniGameStart.textContent = "Start hunt";
     elements.miniGameStart.disabled = false;
+    setMiniMode(chooseRecommendedMiniMode());
+    elements.miniScore.textContent = "0 " + MINI_GAME_CONFIG[miniGame.mode].scoreLabel;
   }
 
   function updateMiniHud() {
     const remaining = Math.max(0, (miniGame.endAt - Date.now()) / 1000);
     elements.miniTimer.textContent = remaining.toFixed(1) + "s";
-    elements.miniScore.textContent = miniGame.score + " caught";
+    elements.miniScore.textContent = miniGame.score + " " + MINI_GAME_CONFIG[miniGame.mode].scoreLabel;
   }
 
   function spawnBug() {
-    if (!miniGame.active) {
+    if (!miniGame.active || miniGame.mode !== "bug") {
       return;
     }
 
@@ -951,14 +1247,136 @@
     setTimeout(() => bug.remove(), 1200);
   }
 
+  function spawnPatchBubble() {
+    if (!miniGame.active || miniGame.mode !== "dash") {
+      return;
+    }
+
+    const patch = document.createElement("button");
+    patch.type = "button";
+    patch.className = "mini-patch";
+    patch.textContent = ["Ship", "Fix", "Lint", "Test"][randomInt(0, 3)];
+    patch.style.left = randomInt(8, 78) + "%";
+    patch.style.top = randomInt(12, 74) + "%";
+
+    patch.addEventListener("click", () => {
+      if (!miniGame.active) {
+        return;
+      }
+
+      miniGame.score += 1;
+      updateMiniHud();
+      patch.classList.add("pop");
+      setTimeout(() => patch.remove(), 120);
+    });
+
+    elements.miniArena.appendChild(patch);
+    setTimeout(() => patch.remove(), 1000);
+  }
+
+  function clearMiniSequenceTimers() {
+    miniGame.sequenceTimeouts.forEach((timeout) => clearTimeout(timeout));
+    miniGame.sequenceTimeouts = [];
+    miniGame.showingSequence = false;
+  }
+
+  function buildMemoryArena() {
+    elements.miniArena.innerHTML = "";
+
+    const grid = document.createElement("div");
+    grid.className = "mini-memory-grid";
+
+    ["Sun", "Moon", "Leaf", "Spark"].forEach((label, index) => {
+      const pad = document.createElement("button");
+      pad.type = "button";
+      pad.className = "memory-pad";
+      pad.textContent = label;
+      pad.addEventListener("click", () => handleMemoryPad(index, pad));
+      grid.appendChild(pad);
+    });
+
+    elements.miniArena.appendChild(grid);
+  }
+
+  function flashMemorySequence() {
+    clearMiniSequenceTimers();
+    miniGame.showingSequence = true;
+
+    const pads = Array.from(elements.miniArena.querySelectorAll(".memory-pad"));
+    pads.forEach((pad) => {
+      pad.disabled = true;
+      pad.classList.remove("correct", "wrong");
+    });
+
+    let delay = 180;
+    miniGame.sequence.forEach((step) => {
+      const onTimeout = setTimeout(() => {
+        pads[step]?.classList.add("flash");
+      }, delay);
+
+      const offTimeout = setTimeout(() => {
+        pads[step]?.classList.remove("flash");
+      }, delay + 260);
+
+      miniGame.sequenceTimeouts.push(onTimeout, offTimeout);
+      delay += 420;
+    });
+
+    const releaseTimeout = setTimeout(() => {
+      miniGame.showingSequence = false;
+      pads.forEach((pad) => {
+        pad.disabled = false;
+      });
+    }, delay + 80);
+
+    miniGame.sequenceTimeouts.push(releaseTimeout);
+  }
+
+  function handleMemoryPad(index, pad) {
+    if (!miniGame.active || miniGame.mode !== "memory" || miniGame.showingSequence) {
+      return;
+    }
+
+    const expected = miniGame.sequence[miniGame.inputIndex];
+    if (index === expected) {
+      miniGame.score += 1;
+      miniGame.inputIndex += 1;
+      pad.classList.add("correct");
+      setTimeout(() => pad.classList.remove("correct"), 180);
+      updateMiniHud();
+
+      if (miniGame.inputIndex >= miniGame.sequence.length) {
+        miniGame.inputIndex = 0;
+        miniGame.sequence.push(randomInt(0, 3));
+        const nextTimeout = setTimeout(flashMemorySequence, 220);
+        miniGame.sequenceTimeouts.push(nextTimeout);
+      }
+    } else {
+      miniGame.score = Math.max(0, miniGame.score - 1);
+      miniGame.inputIndex = 0;
+      pad.classList.add("wrong");
+      updateMiniHud();
+
+      const resetTimeout = setTimeout(() => {
+        pad.classList.remove("wrong");
+        flashMemorySequence();
+      }, 240);
+
+      miniGame.sequenceTimeouts.push(resetTimeout);
+    }
+  }
+
   function clearMiniGame(hideOverlay) {
     clearInterval(miniGame.timer);
     clearInterval(miniGame.spawner);
     clearTimeout(miniGame.finishTimeout);
+    clearMiniSequenceTimers();
     miniGame.active = false;
     miniGame.timer = null;
     miniGame.spawner = null;
     miniGame.finishTimeout = null;
+    miniGame.sequence = [];
+    miniGame.inputIndex = 0;
     elements.miniArena.innerHTML = "";
 
     if (hideOverlay) {
@@ -968,27 +1386,83 @@
 
   function finishMiniGame() {
     const score = miniGame.score;
+    const mode = miniGame.mode;
     clearMiniGame(false);
 
-    const joyBonus = clamp(6 + score * 2, 6, 28);
-    const focusBonus = clamp(3 + score, 3, 16);
-    const sparkBonus = score >= 8 ? 3 : score >= 5 ? 2 : score >= 2 ? 1 : 0;
+    noteMiniGamePlay(mode);
+    const boredomPenalty = getMiniBoredom(mode) >= 60 ? 6 : getMiniBoredom(mode) >= 32 ? 3 : 0;
+    const varietyBonus = state.recentMiniGames.length >= 2 && new Set(state.recentMiniGames).size >= 2 ? 2 : 0;
 
-    state.joy = clamp(state.joy + joyBonus, 0, 100);
+    let joyBonus;
+    let focusBonus;
+    let sparkBonus;
+
+    if (mode === "memory") {
+      joyBonus = clamp(4 + score - boredomPenalty, 4, 20);
+      focusBonus = clamp(6 + score * 2 - boredomPenalty, 4, 26);
+      sparkBonus = score >= 7 ? 3 : score >= 4 ? 2 : score >= 2 ? 1 : 0;
+      trainSkill("focus", Math.max(1, Math.ceil(score / 2)));
+      trainSkill("creativity", Math.max(1, Math.floor(score / 4)));
+    } else if (mode === "dash") {
+      joyBonus = clamp(5 + score - boredomPenalty, 4, 24);
+      focusBonus = clamp(4 + score - boredomPenalty, 3, 20);
+      sparkBonus = score >= 9 ? 3 : score >= 6 ? 2 : score >= 3 ? 1 : 0;
+      trainSkill("speed", Math.max(1, Math.ceil(score / 2)));
+      trainSkill("focus", Math.max(1, Math.floor(score / 3)));
+      if (score >= 6) {
+        state.patches += 1;
+      }
+    } else {
+      joyBonus = clamp(6 + score * 2 - boredomPenalty, 5, 28);
+      focusBonus = clamp(3 + score - boredomPenalty, 3, 16);
+      sparkBonus = score >= 8 ? 3 : score >= 5 ? 2 : score >= 2 ? 1 : 0;
+      trainSkill("speed", Math.max(1, Math.floor(score / 3)));
+      trainSkill("creativity", 1);
+    }
+
+    state.joy = clamp(state.joy + joyBonus + varietyBonus, 0, 100);
     state.focus = clamp(state.focus + focusBonus, 0, 100);
-    state.energy = clamp(state.energy - 5, 0, 100);
-    state.hunger = clamp(state.hunger - 3, 0, 100);
-    state.sparks += sparkBonus;
-    state.bond = clamp(state.bond + Math.max(1, Math.floor(score / 3)), 0, 100);
+    state.energy = clamp(state.energy - (mode === "dash" ? 7 : 5), 0, 100);
+    state.hunger = clamp(state.hunger - (mode === "dash" ? 4 : 3), 0, 100);
+    state.sparks += sparkBonus + (varietyBonus ? 1 : 0);
+    state.bond = clamp(state.bond + Math.max(1, Math.floor(score / 3)) + varietyBonus, 0, 100);
     state.groggyTicks = Math.max(0, state.groggyTicks - 1);
-    state.stress = clamp(state.stress - (score >= 7 ? 12 : 8), 0, 100);
+    state.stress = clamp(state.stress - (score >= 7 ? 12 : 8) - varietyBonus * 2, 0, 100);
 
     recordChallenge("play", 1);
     recordChallenge("play-score", score);
+    if (mode === "memory") {
+      recordChallenge("memory-score", Math.min(score, 5));
+    } else if (mode === "dash") {
+      recordChallenge("dash-score", Math.min(score, 6));
+    }
+
     triggerPetEffect("bounce");
     spawnReaction(score >= 7 ? "spark" : "heart", score >= 7 ? 4 : 3);
 
-    if (score >= 7) {
+    if (mode === "memory") {
+      if (score >= 6) {
+        pushLog("Memory Lights win! Copiloki nailed " + score + " glowing steps and looked much sharper.");
+        elements.miniGameCopy.textContent = "That pattern work really clicked. Copiloki looks proud and focused.";
+      } else if (score >= 3) {
+        pushLog("Nice Memory Lights round. Copiloki remembered " + score + " steps.");
+        elements.miniGameCopy.textContent = "A solid focus drill. Copiloki would happily try a different game next.";
+      } else {
+        pushLog("Memory Lights was a short warm-up, but it still trained Copiloki's brain.");
+        elements.miniGameCopy.textContent = "Even a small sequence helps Copiloki learn.";
+      }
+    } else if (mode === "dash") {
+      if (score >= 7) {
+        pushLog("Patch Dash streak! Copiloki shipped " + score + " tiny fixes at impressive speed.");
+        elements.miniGameCopy.textContent = "That speed drill paid off. Copiloki feels faster and more efficient.";
+      } else if (score >= 3) {
+        pushLog("Good Patch Dash run. Copiloki shipped " + score + " fast fixes.");
+        elements.miniGameCopy.textContent = "Nice pace. Copiloki is learning to build faster.";
+      } else {
+        pushLog("Patch Dash counted as practice, even if it was a tiny round.");
+        elements.miniGameCopy.textContent = "A few fast taps still helped Copiloki train efficiency.";
+      }
+    } else if (score >= 7) {
       pushLog("Bug hunt victory! Copiloki caught " + score + " bits and earned +" + sparkBonus + " sparks.");
       elements.miniGameCopy.textContent = "Amazing round. Copiloki is buzzing with confidence.";
     } else if (score >= 3) {
@@ -999,10 +1473,15 @@
       elements.miniGameCopy.textContent = "A short round still helped Copiloki have fun.";
     }
 
+    if (boredomPenalty > 0) {
+      pushLog("Copiloki is starting to get bored of " + MINI_GAME_CONFIG[mode].favoriteLabel + ". A different game will hit harder.");
+    }
+
     elements.miniTimer.textContent = "Done";
-    elements.miniScore.textContent = score + " caught";
+    elements.miniScore.textContent = score + " " + MINI_GAME_CONFIG[mode].scoreLabel;
     elements.miniGameStart.disabled = false;
-    elements.miniGameStart.textContent = "Play again";
+    elements.miniModeHint.textContent = getBoredomHint(mode);
+    elements.miniGameStart.textContent = MINI_GAME_CONFIG[mode].startText;
 
     updateStateFlags();
     saveState();
@@ -1016,16 +1495,33 @@
 
     miniGame.active = true;
     miniGame.score = 0;
-    miniGame.endAt = Date.now() + MINI_GAME_MS;
+    miniGame.inputIndex = 0;
+    miniGame.endAt = Date.now() + MINI_GAME_MS + (miniGame.mode === "memory" ? 1000 : 0);
     elements.miniGameStart.disabled = true;
-    elements.miniGameStart.textContent = "Hunting...";
+    elements.miniGameStart.textContent = MINI_GAME_CONFIG[miniGame.mode].runningText;
     elements.miniArena.innerHTML = "";
     updateMiniHud();
 
-    spawnBug();
-    miniGame.spawner = setInterval(spawnBug, MINI_SPAWN_MS);
+    if (miniGame.mode === "memory") {
+      buildMemoryArena();
+      miniGame.sequence = [randomInt(0, 3), randomInt(0, 3), randomInt(0, 3)];
+      flashMemorySequence();
+    } else if (miniGame.mode === "dash") {
+      spawnPatchBubble();
+      miniGame.spawner = setInterval(
+        spawnPatchBubble,
+        Math.max(320, MINI_SPAWN_MS - Math.floor(state.speedSkill / 3))
+      );
+    } else {
+      spawnBug();
+      miniGame.spawner = setInterval(
+        spawnBug,
+        Math.max(360, MINI_SPAWN_MS - Math.floor(state.speedSkill / 4))
+      );
+    }
+
     miniGame.timer = setInterval(updateMiniHud, 100);
-    miniGame.finishTimeout = setTimeout(finishMiniGame, MINI_GAME_MS);
+    miniGame.finishTimeout = setTimeout(finishMiniGame, MINI_GAME_MS + (miniGame.mode === "memory" ? 1000 : 0));
   }
 
   function spendBoost(key) {
@@ -1151,19 +1647,28 @@
           state.stress = clamp(state.stress + 6, 0, 100);
           pushLog("Copiloki tried to ship a patch while frazzled. It needs a break first.");
         } else {
-          state.focus = clamp(state.focus + 18, 0, 100);
+          const efficiencyBonus = Math.floor((state.speedSkill + state.focusSkill) / 80);
+          const creativityBonus = Math.floor(state.creativitySkill / 45);
+          const patchBonus = efficiencyBonus > 0 && Math.random() < 0.32 ? 1 : 0;
+
+          state.focus = clamp(state.focus + 18 + creativityBonus, 0, 100);
           state.joy = clamp(state.joy + 8, 0, 100);
-          state.energy = clamp(state.energy - 8, 0, 100);
+          state.energy = clamp(state.energy - Math.max(5, 8 - efficiencyBonus), 0, 100);
           state.hunger = clamp(state.hunger - 5, 0, 100);
-          state.patches += 1;
+          state.patches += 1 + patchBonus;
           state.bond = clamp(state.bond + 2, 0, 100);
           state.groggyTicks = Math.max(0, state.groggyTicks - 1);
           state.stress = clamp(state.stress - 4, 0, 100);
+          trainSkill("focus", 1);
+          trainSkill("creativity", 1);
           pushLog(
             state.groggyTicks > 0
               ? "A gentle patch helped Copiloki shake off some of the modorro fog."
               : "Patch shipped. Copiloki is proud of that tiny clean deploy."
           );
+          if (patchBonus > 0) {
+            pushLog("Efficiency bonus! Practice paid off and Copiloki slipped in an extra tiny fix.");
+          }
           recordChallenge("code", 1);
           triggerPetEffect("bounce");
           spawnReaction("spark", 3);
@@ -1190,7 +1695,11 @@
 
     state.started = true;
     state.gameOver = false;
-    pushLog("Copiloki hopped out of the egg. Age, bond, and shipped patches now shape each evolution.");
+    pushLog(
+      "Copiloki hopped out of the egg as a " +
+        getPersonalityProfile().name +
+        ". Age, bond, training, and shipped patches now shape each evolution."
+    );
     updateStateFlags();
     saveState();
     render();
@@ -1238,6 +1747,7 @@
 
   function render() {
     const evolution = buildEvolutionHint(getNextEvolution(state.stage));
+    const personality = getPersonalityProfile();
 
     elements.stageChip.textContent = state.stage;
     elements.ageChip.textContent = "Age " + state.ageDays.toFixed(1) + "d";
@@ -1289,12 +1799,19 @@
     elements.goalText.textContent = state.goal;
     elements.evolutionLine.textContent = evolution.title;
     elements.evolutionHint.textContent = evolution.hint;
+    elements.personalityTitle.textContent = personality.name;
+    elements.personalityCopy.textContent = personality.blurb;
+    elements.favoriteGameText.textContent = "Favorite: " + MINI_GAME_CONFIG[state.favoriteGame].favoriteLabel;
+    elements.autonomyText.textContent = "Autonomy " + Math.round(state.autonomy) + "%";
 
     setMeter(elements.hungerMeter, elements.hungerValue, state.hunger);
     setMeter(elements.joyMeter, elements.joyValue, state.joy);
     setMeter(elements.energyMeter, elements.energyValue, state.energy);
     setMeter(elements.hygieneMeter, elements.hygieneValue, state.hygiene);
     setMeter(elements.focusMeter, elements.focusValue, state.focus);
+    setMeter(elements.speedSkillMeter, elements.speedSkillValue, state.speedSkill);
+    setMeter(elements.focusSkillMeter, elements.focusSkillValue, state.focusSkill);
+    setMeter(elements.creativitySkillMeter, elements.creativitySkillValue, state.creativitySkill);
     renderQuest();
 
     elements.startOverlay.classList.toggle("hidden", state.started && !state.gameOver);
@@ -1324,6 +1841,10 @@
 
     elements.boostButtons.forEach((button) => {
       button.addEventListener("click", () => spendBoost(button.dataset.boost));
+    });
+
+    elements.miniModeButtons.forEach((button) => {
+      button.addEventListener("click", () => setMiniMode(button.dataset.miniMode));
     });
 
     elements.startBtn.addEventListener("click", startGame);
@@ -1369,6 +1890,7 @@
 
   applyOfflineProgress();
   updateStateFlags();
+  setMiniMode(chooseRecommendedMiniMode());
   attachEvents();
   render();
 

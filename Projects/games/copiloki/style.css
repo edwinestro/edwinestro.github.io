@@ -1098,7 +1098,8 @@ button {
 }
 
 .quest-card,
-.boost-panel {
+.boost-panel,
+.persona-card {
   margin-top: 14px;
   padding: 12px 14px;
   border-radius: 18px;
@@ -1107,13 +1108,15 @@ button {
 }
 
 .quest-card h3,
-.boost-panel h3 {
+.boost-panel h3,
+.persona-card h3 {
   margin: 0 0 0.35rem;
   font-size: 1rem;
 }
 
 .quest-card p,
-.boost-panel p {
+.boost-panel p,
+.persona-card p {
   margin-top: 0;
 }
 
@@ -1134,6 +1137,21 @@ button {
 .boost-grid {
   display: grid;
   gap: 8px;
+}
+
+.personality-meta {
+  margin-top: 0.8rem;
+}
+
+.skill-list {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.8rem;
+}
+
+.skill-row {
+  display: grid;
+  gap: 0.35rem;
 }
 
 .boost-btn {
@@ -1209,6 +1227,37 @@ button {
   width: min(100%, 620px);
 }
 
+.mini-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 8px;
+}
+
+.mini-mode-btn {
+  border: 1px solid rgba(116, 234, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  padding: 0.45rem 0.75rem;
+  cursor: pointer;
+  transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+}
+
+.mini-mode-btn:hover {
+  transform: translateY(-1px);
+  background: rgba(116, 234, 255, 0.1);
+}
+
+.mini-mode-btn.active {
+  background: linear-gradient(135deg, rgba(116, 234, 255, 0.22), rgba(155, 140, 255, 0.22));
+  border-color: rgba(116, 234, 255, 0.28);
+}
+
+.mini-mode-hint {
+  margin: 0 0 12px;
+}
+
 .mini-meta {
   display: flex;
   gap: 8px;
@@ -1237,6 +1286,14 @@ button {
   text-transform: uppercase;
 }
 
+.mini-arena[data-mode="memory"]::after {
+  content: "Repeat the glowing pattern";
+}
+
+.mini-arena[data-mode="dash"]::after {
+  content: "Tap the fast deploy bubbles";
+}
+
 .mini-bug {
   position: absolute;
   display: grid;
@@ -1254,7 +1311,8 @@ button {
   animation: bugDrift 1s ease-in-out infinite alternate;
 }
 
-.mini-bug.pop {
+.mini-bug.pop,
+.mini-patch.pop {
   transform: scale(0.7);
   opacity: 0;
 }
@@ -1265,6 +1323,85 @@ button {
   }
   to {
     transform: translateY(-8px);
+  }
+}
+
+.mini-patch {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  min-width: 66px;
+  height: 38px;
+  padding: 0 0.7rem;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(138, 240, 194, 0.96), rgba(116, 234, 255, 0.92));
+  color: #06141b;
+  font-size: 0.82rem;
+  font-weight: 900;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
+  cursor: pointer;
+  animation: patchDrift 0.8s ease-in-out infinite alternate;
+}
+
+.mini-memory-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  padding: 18px;
+  min-height: 280px;
+  align-content: center;
+}
+
+.memory-pad {
+  position: relative;
+  min-height: 88px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.16s ease, filter 0.16s ease, box-shadow 0.16s ease;
+}
+
+.memory-pad:nth-child(1) {
+  background: linear-gradient(135deg, rgba(155, 140, 255, 0.24), rgba(82, 98, 214, 0.16));
+}
+
+.memory-pad:nth-child(2) {
+  background: linear-gradient(135deg, rgba(116, 234, 255, 0.24), rgba(77, 154, 223, 0.16));
+}
+
+.memory-pad:nth-child(3) {
+  background: linear-gradient(135deg, rgba(138, 240, 194, 0.24), rgba(68, 174, 130, 0.16));
+}
+
+.memory-pad:nth-child(4) {
+  background: linear-gradient(135deg, rgba(255, 211, 127, 0.24), rgba(201, 135, 66, 0.16));
+}
+
+.memory-pad.flash,
+.memory-pad:hover {
+  transform: translateY(-1px) scale(1.01);
+  filter: saturate(1.16) brightness(1.1);
+  box-shadow: 0 12px 22px rgba(0, 0, 0, 0.18);
+}
+
+.memory-pad.correct {
+  box-shadow: 0 0 0 2px rgba(138, 240, 194, 0.3);
+}
+
+.memory-pad.wrong {
+  box-shadow: 0 0 0 2px rgba(255, 143, 159, 0.32);
+}
+
+@keyframes patchDrift {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-6px);
   }
 }
 
