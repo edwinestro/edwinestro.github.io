@@ -197,6 +197,11 @@ button {
   border-color: rgba(255, 210, 126, 0.24);
 }
 
+.chip.good {
+  background: rgba(138, 240, 194, 0.14);
+  border-color: rgba(138, 240, 194, 0.24);
+}
+
 .pet-display {
   display: grid;
   place-items: center;
@@ -279,6 +284,20 @@ button {
 
 .pet-shell[data-scene="night"]::before {
   opacity: 0.62;
+}
+
+.pet-shell[data-touch="trust"] {
+  border-color: rgba(138, 240, 194, 0.34);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.24), 0 0 0 2px rgba(138, 240, 194, 0.12);
+}
+
+.pet-shell[data-touch="guarded"] {
+  border-color: rgba(255, 210, 126, 0.28);
+}
+
+.pet-shell[data-touch="overdrive"] {
+  border-color: rgba(255, 143, 159, 0.42);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28), 0 0 0 2px rgba(255, 143, 159, 0.12);
 }
 
 .pet-body-glow {
@@ -643,6 +662,22 @@ button {
   background: rgba(255, 133, 150, 0.46);
 }
 
+.pet-shell[data-touch="guarded"] .pet-ear-left {
+  transform: rotate(-10deg);
+}
+
+.pet-shell[data-touch="guarded"] .pet-ear-right {
+  transform: rotate(10deg);
+}
+
+.pet-shell[data-touch="overdrive"] .pet-creature {
+  animation-duration: 2s;
+}
+
+.pet-shell[data-touch="overdrive"] .pet-tail {
+  animation-duration: 0.9s;
+}
+
 .pet-shell[data-condition="sick"] .pet-body {
   background:
     radial-gradient(circle at 34% 24%, rgba(255, 255, 255, 0.7), transparent 0 18%),
@@ -668,12 +703,26 @@ button {
   filter: saturate(0.82);
 }
 
+.pet-shell[data-condition="guarded"] .pet-expression {
+  background: rgba(76, 58, 24, 0.72);
+  color: #ffe9b0;
+}
+
+.pet-shell[data-condition="stressed"] .pet-expression {
+  background: rgba(77, 20, 29, 0.78);
+  color: #ffdbe3;
+}
+
 .pet-shell.effect-bounce .pet-creature {
   animation: happyBounce 0.45s ease;
 }
 
 .pet-shell.effect-glow .pet-body-glow {
   filter: blur(0) saturate(1.15);
+}
+
+.pet-shell.effect-shiver .pet-creature {
+  animation: petShiver 0.34s linear 2;
 }
 
 @keyframes creatureBreathe {
@@ -742,6 +791,19 @@ button {
   }
   100% {
     transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+@keyframes petShiver {
+  0%,
+  100% {
+    transform: translateX(-50%) rotate(0deg);
+  }
+  25% {
+    transform: translateX(calc(-50% - 4px)) rotate(-1deg);
+  }
+  75% {
+    transform: translateX(calc(-50% + 4px)) rotate(1deg);
   }
 }
 

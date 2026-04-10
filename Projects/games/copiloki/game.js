@@ -3,7 +3,10 @@
   const TICK_MS = 12000;
   const MAX_OFFLINE_STEPS = 18;
   const MAX_LOG = 8;
-  const PET_COOLDOWN_MS = 7000;
+  const PET_COOLDOWN_MS = 1600;
+  const GENTLE_PET_MS = 2200;
+  const RAPID_PET_MS = 450;
+  const CALM_RECOVERY_MS = 8000;
   const MINI_GAME_MS = 9000;
   const MINI_SPAWN_MS = 650;
 
@@ -103,6 +106,8 @@
     sparkChip: document.getElementById("sparkChip"),
     streakChip: document.getElementById("streakChip"),
     bondChip: document.getElementById("bondChip"),
+    touchChip: document.getElementById("touchChip"),
+    stressChip: document.getElementById("stressChip"),
     conditionChip: document.getElementById("conditionChip"),
     healthChip: document.getElementById("healthChip"),
     petShell: document.getElementById("petShell"),
@@ -194,10 +199,15 @@
       focus: 60,
       asleep: false,
       napSteps: 0,
+      stress: 8,
       petCooldownUntil: 0,
+      lastPetAt: 0,
+      rapidPetStreak: 0,
       stage: "Seed Egg",
       face: "( ^_^ )",
       moodKey: "happy",
+      touchStyleKey: "gentle",
+      touchStyleLabel: "Touch Gentle",
       conditionKey: "cozy",
       conditionLabel: "Condition Cozy",
       sceneMode: "day",
@@ -248,6 +258,9 @@
     merged.groggyTicks = clamp(Number(merged.groggyTicks || 0), 0, 6);
     merged.overfed = clamp(Number(merged.overfed || 0), 0, 6);
     merged.napChain = clamp(Number(merged.napChain || 0), 0, 6);
+    merged.stress = clamp(Number(merged.stress || 0), 0, 100);
+    merged.lastPetAt = Number(merged.lastPetAt || 0);
+    merged.rapidPetStreak = clamp(Number(merged.rapidPetStreak || 0), 0, 12);
     return merged;
   }
 
@@ -343,7 +356,7 @@
   }
 
   function triggerPetEffect(name) {
-    const classes = ["effect-bounce", "effect-glow"];
+    const classes = ["effect-bounce", "effect-glow", "effect-shiver"];
     elements.petShell.classList.remove(...classes);
 
     if (!name) {
@@ -413,6 +426,41 @@
     };
   }
 
+  function deriveTouchStyle() {
+    if (state.stress >= 72) {
+      return {
+        key: "overdrive",
+        label: "Touch Overdrive"
+      };
+    }
+
+    if (state.stress >= 46) {
+      return {
+        key: "guarded",
+        label: "Touch Careful"
+      };
+    }
+
+    if (state.bond >= 72 && state.stress <= 16) {
+      return {
+        key: "trust",
+        label: "Touch Near-Field Trust"
+      };
+    }
+
+    if (state.rapidPetStreak >= 2) {
+      return {
+        key: "rhythmic",
+        label: "Touch Rhythmic"
+      };
+    }
+
+    return {
+      key: "gentle",
+      label: "Touch Gentle"
+    };
+  }
+
   function deriveMood() {
     if (state.gameOver) {
       return {
@@ -451,6 +499,26 @@
         expression: "Soft snores",
         status: "Copiloki is taking a power nap and quietly recharging.",
         goal: "Let the nap finish, then stack a quick quest for bonus sparks."
+      };
+    }
+
+    if (state.stress >= 72) {
+      return {
+        face: "( >_< )!",
+        moodKey: "critical",
+        expression: "Too much!",
+        status: "Rapid clicking overstimulated Copiloki, and it wants a little breathing room.",
+        goal: "Pause the petting, then calm it with space, cleaning, or a soft play loop."
+      };
+    }
+
+    if (state.stress >= 46) {
+      return {
+        face: "( o_o )",
+        moodKey: "alert",
+        expression: "Guarded",
+        status: "Copiloki is reading your click rhythm carefully. Gentle timing feels safer than spam taps.",
+        goal: "Wait a beat between pats to rebuild trust and lower stress."
       };
     }
 
@@ -624,12 +692,15 @@
     }
 
     const mood = deriveMood();
+    const touchStyle = deriveTouchStyle();
     state.face = mood.face;
     state.moodKey = mood.moodKey;
     state.expression = mood.expression;
     state.sceneMode = deriveSceneMode();
     state.status = mood.status;
     state.goal = mood.goal;
+    state.touchStyleKey = touchStyle.key;
+    state.touchStyleLabel = touchStyle.label;
 
     if (state.sickTicks > 0) {
       state.conditionKey = "sick";
@@ -637,6 +708,12 @@
     } else if (state.groggyTicks > 0 && !state.asleep) {
       state.conditionKey = "groggy";
       state.conditionLabel = "Condition Modorro";
+    } else if (state.stress >= 72) {
+      state.conditionKey = "stressed";
+      state.conditionLabel = "Condition Overstimulated";
+    } else if (state.stress >= 46) {
+      state.conditionKey = "guarded";
+      state.conditionLabel = "Condition Guarded";
     } else if (state.asleep) {
       state.conditionKey = "sleepy";
       state.conditionLabel = "Condition Snoozing";
@@ -654,12 +731,16 @@
       return;
     }
 
+    const quietMs = Date.now() - (state.lastPetAt || 0);
+
     state.ageDays = Number((state.ageDays + 0.2).toFixed(1));
     state.hunger = clamp(state.hunger - randomInt(2, 4), 0, 100);
     state.joy = clamp(state.joy - randomInt(1, 3), 0, 100);
     state.hygiene = clamp(state.hygiene - randomInt(1, 3), 0, 100);
     state.focus = clamp(state.focus - randomInt(1, 2), 0, 100);
     state.overfed = Math.max(0, state.overfed - 1);
+    state.stress = clamp(state.stress - (quietMs > CALM_RECOVERY_MS ? 8 : 3), 0, 100);
+    state.rapidPetStreak = Math.max(0, state.rapidPetStreak - (quietMs > CALM_RECOVERY_MS ? 2 : 1));
 
     if (state.sickTicks > 0) {
       state.sickTicks = Math.max(0, state.sickTicks - 1);
@@ -673,8 +754,19 @@
       state.joy = clamp(state.joy - 1, 0, 100);
     }
 
+    if (state.stress >= 72) {
+      state.joy = clamp(state.joy - 4, 0, 100);
+      state.focus = clamp(state.focus - 3, 0, 100);
+      if (Math.random() < 0.18) {
+        pushLog("Copiloki puffed up from too much attention and needs a quieter minute.");
+      }
+    } else if (state.stress >= 46 && Math.random() < 0.12) {
+      pushLog("Copiloki side-eyed the cursor. A softer rhythm helps it feel safe again.");
+    }
+
     if (state.asleep) {
       state.energy = clamp(state.energy + randomInt(7, 11), 0, 100);
+      state.stress = clamp(state.stress - 6, 0, 100);
       state.napSteps = Math.max(0, state.napSteps - 1);
       if (state.napSteps === 0 || state.energy >= 92) {
         state.asleep = false;
@@ -723,21 +815,85 @@
     }
 
     const now = Date.now();
-    if (now < (state.petCooldownUntil || 0)) {
-      pushLog("Copiloki is already purring from the last head pat.");
+    const previousPetAt = state.lastPetAt || 0;
+    const delta = previousPetAt ? now - previousPetAt : Infinity;
+    const tooFast = delta < RAPID_PET_MS;
+    const stillCoolingDown = now < (state.petCooldownUntil || 0);
+
+    state.lastPetAt = now;
+
+    if (delta > GENTLE_PET_MS) {
+      state.rapidPetStreak = 0;
+      state.stress = clamp(state.stress - 10, 0, 100);
+    } else if (tooFast) {
+      state.rapidPetStreak = clamp(state.rapidPetStreak + 1, 0, 12);
+      state.stress = clamp(state.stress + 14 + state.rapidPetStreak * 4, 0, 100);
+    } else {
+      state.rapidPetStreak = Math.max(0, state.rapidPetStreak - 1);
+      state.stress = clamp(state.stress + 2, 0, 100);
+    }
+
+    if (tooFast && (state.rapidPetStreak >= 2 || state.stress >= 65)) {
+      const protest = [
+        "Too many rapid pats stressed Copiloki out. It scooted back and puffed up.",
+        "Copiloki huffed at the click storm and asked for a calmer rhythm.",
+        "Overdrive petting triggered a tiny protest wobble. Give Copiloki a breather."
+      ];
+
+      state.petCooldownUntil = now + PET_COOLDOWN_MS * 2;
+      state.joy = clamp(state.joy - 6, 0, 100);
+      state.focus = clamp(state.focus - 4, 0, 100);
+      state.bond = clamp(state.bond - 3, 0, 100);
+      pushLog(protest[randomInt(0, protest.length - 1)]);
+      triggerPetEffect("shiver");
+      spawnReaction("spark", 3);
+      updateStateFlags();
+      saveState();
+      render();
+      return;
+    }
+
+    if (stillCoolingDown) {
+      state.stress = clamp(state.stress + 4, 0, 100);
+      state.joy = clamp(state.joy - 1, 0, 100);
+      pushLog("Copiloki is already purring. A softer rhythm builds more trust.");
+      triggerPetEffect("bounce");
+      updateStateFlags();
+      saveState();
       render();
       return;
     }
 
     state.petCooldownUntil = now + PET_COOLDOWN_MS;
-    state.joy = clamp(state.joy + 5, 0, 100);
-    state.focus = clamp(state.focus + 2, 0, 100);
-    state.bond = clamp(state.bond + 3, 0, 100);
     state.groggyTicks = Math.max(0, state.groggyTicks - 1);
-    pushLog("You gave Copiloki a gentle head pat. Tiny purr unlocked.");
+
+    if (delta > GENTLE_PET_MS) {
+      state.joy = clamp(state.joy + 6, 0, 100);
+      state.focus = clamp(state.focus + 2, 0, 100);
+      state.bond = clamp(state.bond + 4, 0, 100);
+      pushLog("Copiloki leaned into the gentle pat. That slower rhythm feels safe.");
+      spawnReaction("heart", 3);
+    } else if (delta < PET_COOLDOWN_MS) {
+      state.joy = clamp(state.joy + 3, 0, 100);
+      state.focus = clamp(state.focus + 1, 0, 100);
+      state.bond = clamp(state.bond + 1, 0, 100);
+      pushLog("Copiloki chirped, but it prefers a gentler tempo.");
+      spawnReaction("heart", 2);
+    } else {
+      state.joy = clamp(state.joy + 5, 0, 100);
+      state.focus = clamp(state.focus + 2, 0, 100);
+      state.bond = clamp(state.bond + 3, 0, 100);
+      pushLog("You gave Copiloki a gentle head pat. Tiny purr unlocked.");
+      spawnReaction("heart", 3);
+    }
+
+    if (state.stress <= 16 && state.bond >= 65 && Math.random() < 0.35) {
+      state.sparks += 1;
+      pushLog("Near-field trust bonus! Copiloki felt especially safe and made +1 spark.");
+    }
+
     recordChallenge("pet", 1);
     triggerPetEffect("glow");
-    spawnReaction("heart", 3);
     updateStateFlags();
     saveState();
     render();
@@ -825,6 +981,7 @@
     state.sparks += sparkBonus;
     state.bond = clamp(state.bond + Math.max(1, Math.floor(score / 3)), 0, 100);
     state.groggyTicks = Math.max(0, state.groggyTicks - 1);
+    state.stress = clamp(state.stress - (score >= 7 ? 12 : 8), 0, 100);
 
     recordChallenge("play", 1);
     recordChallenge("play-score", score);
@@ -890,6 +1047,7 @@
     state.sparks -= boost.cost;
     boost.apply();
     state.bond = clamp(state.bond + 2, 0, 100);
+    state.stress = clamp(state.stress - (key === "bath" ? 12 : 8), 0, 100);
     triggerPetEffect("glow");
     spawnReaction(key === "bath" ? "bubble" : "spark", 3);
     updateStateFlags();
@@ -924,6 +1082,7 @@
         state.energy = clamp(state.energy + 2, 0, 100);
         state.hygiene = clamp(state.hygiene - 2, 0, 100);
         state.bond = clamp(state.bond + 2, 0, 100);
+        state.stress = clamp(state.stress - 2, 0, 100);
         state.napChain = Math.max(0, state.napChain - 1);
 
         if (state.overfed >= 3) {
@@ -952,6 +1111,7 @@
         state.bond = clamp(state.bond + 1, 0, 100);
         state.sickTicks = Math.max(0, state.sickTicks - 1);
         state.overfed = Math.max(0, state.overfed - 1);
+        state.stress = clamp(state.stress - 10, 0, 100);
         pushLog("The nest is spotless again and Copiloki smells like fresh static.");
         recordChallenge("clean", 1);
         triggerPetEffect("glow");
@@ -965,6 +1125,7 @@
         state.napSteps = wasAlreadyRested ? 3 : 2;
         state.energy = clamp(state.energy + (state.napSteps > 2 ? 8 : 12), 0, 100);
         state.bond = clamp(state.bond + 1, 0, 100);
+        state.stress = clamp(state.stress - 12, 0, 100);
 
         if (wasAlreadyRested) {
           state.groggyTicks = Math.max(state.groggyTicks, 3);
@@ -982,10 +1143,12 @@
         if (state.sickTicks > 0) {
           state.energy = clamp(state.energy - 5, 0, 100);
           state.focus = clamp(state.focus - 2, 0, 100);
+          state.stress = clamp(state.stress + 4, 0, 100);
           pushLog("Copiloki tried to code through a tummy ache. Better let it settle first.");
         } else if (state.energy < 28 || state.focus < 28) {
           state.joy = clamp(state.joy - 6, 0, 100);
           state.energy = clamp(state.energy - 4, 0, 100);
+          state.stress = clamp(state.stress + 6, 0, 100);
           pushLog("Copiloki tried to ship a patch while frazzled. It needs a break first.");
         } else {
           state.focus = clamp(state.focus + 18, 0, 100);
@@ -995,6 +1158,7 @@
           state.patches += 1;
           state.bond = clamp(state.bond + 2, 0, 100);
           state.groggyTicks = Math.max(0, state.groggyTicks - 1);
+          state.stress = clamp(state.stress - 4, 0, 100);
           pushLog(
             state.groggyTicks > 0
               ? "A gentle patch helped Copiloki shake off some of the modorro fog."
@@ -1081,12 +1245,32 @@
     elements.sparkChip.textContent = "Sparks " + state.sparks;
     elements.streakChip.textContent = "Streak " + state.streak;
     elements.bondChip.textContent = "Bond " + Math.round(state.bond) + "%";
+    elements.touchChip.textContent = state.touchStyleLabel;
+    elements.touchChip.className = "chip";
+    if (state.touchStyleKey === "trust") {
+      elements.touchChip.classList.add("good");
+    } else if (state.touchStyleKey === "guarded") {
+      elements.touchChip.classList.add("warn");
+    } else if (state.touchStyleKey === "overdrive") {
+      elements.touchChip.classList.add("danger");
+    }
+    elements.stressChip.textContent = "Stress " + Math.round(state.stress) + "%";
+    elements.stressChip.className = "chip";
+    if (state.stress >= 72) {
+      elements.stressChip.classList.add("danger");
+    } else if (state.stress >= 46) {
+      elements.stressChip.classList.add("warn");
+    } else if (state.stress <= 16) {
+      elements.stressChip.classList.add("good");
+    }
     elements.conditionChip.textContent = state.conditionLabel;
     elements.conditionChip.className = "chip";
-    if (state.conditionKey === "sick") {
+    if (state.conditionKey === "sick" || state.conditionKey === "stressed") {
       elements.conditionChip.classList.add("danger");
-    } else if (state.conditionKey === "groggy") {
+    } else if (state.conditionKey === "groggy" || state.conditionKey === "guarded") {
       elements.conditionChip.classList.add("warn");
+    } else if (state.conditionKey === "cozy") {
+      elements.conditionChip.classList.add("good");
     }
     elements.healthChip.textContent = "Health " + state.health + "/5";
     elements.petFace.textContent = state.expression;
@@ -1094,9 +1278,13 @@
     elements.petShell.dataset.mood = state.moodKey;
     elements.petShell.dataset.scene = state.sceneMode;
     elements.petShell.dataset.stage = stageToDataset(state.stage);
+    elements.petShell.dataset.touch = state.touchStyleKey;
     elements.petShell.dataset.condition = state.conditionKey;
     elements.petShell.style.setProperty("--bond-glow", (0.12 + state.bond / 100 * 0.24).toFixed(2));
-    elements.petShell.setAttribute("aria-label", "Copiloki the " + state.stage + ". " + state.status);
+    elements.petShell.setAttribute(
+      "aria-label",
+      "Copiloki the " + state.stage + ". " + state.status + " " + state.touchStyleLabel + "."
+    );
     elements.statusLine.textContent = state.status;
     elements.goalText.textContent = state.goal;
     elements.evolutionLine.textContent = evolution.title;
