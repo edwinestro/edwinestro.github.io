@@ -205,7 +205,7 @@ button {
 .pet-display {
   display: grid;
   place-items: center;
-  padding: 20px 0 12px;
+  padding: 18px 0 14px;
 }
 
 .pet-shell {
@@ -215,11 +215,12 @@ button {
   position: relative;
   display: grid;
   place-items: center;
-  width: min(100%, 290px);
+  width: min(100%, 300px);
   aspect-ratio: 1 / 1;
-  border-radius: 34px;
+  border-radius: 36px;
   background:
-    radial-gradient(circle at 30% 18%, rgba(255, 255, 255, 0.22), transparent 0 22%),
+    radial-gradient(circle at 26% 16%, rgba(255, 255, 255, 0.24), transparent 0 22%),
+    radial-gradient(circle at 74% 24%, rgba(255, 233, 173, 0.08), transparent 0 20%),
     linear-gradient(180deg, var(--scene-top), var(--scene-bottom));
   border: 1px solid rgba(116, 234, 255, 0.18);
   overflow: hidden;
@@ -246,7 +247,9 @@ button {
 }
 
 .pet-shell::after {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 34%, rgba(7, 15, 28, 0.12));
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 34%, rgba(7, 15, 28, 0.12)),
+    radial-gradient(circle at 50% 100%, rgba(7, 15, 28, 0.22), transparent 0 36%);
 }
 
 .pet-shell:hover,
@@ -367,16 +370,44 @@ button {
     radial-gradient(circle at 10% 14%, rgba(255, 255, 255, 0.16), transparent 0 16%),
     linear-gradient(180deg, rgba(77, 122, 102, 0.92), rgba(39, 80, 66, 0.96));
   border: 1px solid rgba(138, 240, 194, 0.16);
+  overflow: hidden;
+  box-shadow: inset 0 8px 14px rgba(255, 255, 255, 0.06), 0 -6px 16px rgba(7, 15, 28, 0.18);
+}
+
+.scene-ground::before,
+.scene-ground::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+}
+
+.scene-ground::before {
+  height: 22px;
+  background:
+    radial-gradient(circle at 12% 70%, rgba(165, 255, 211, 0.28) 0 2px, transparent 3px),
+    radial-gradient(circle at 24% 62%, rgba(165, 255, 211, 0.22) 0 2px, transparent 3px),
+    radial-gradient(circle at 78% 68%, rgba(165, 255, 211, 0.24) 0 2px, transparent 3px),
+    linear-gradient(180deg, rgba(83, 140, 111, 0.1), rgba(34, 68, 53, 0.34));
+}
+
+.scene-ground::after {
+  left: 16px;
+  right: 16px;
+  bottom: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(17, 40, 30, 0.26);
 }
 
 .pet-shadow {
   left: 50%;
-  bottom: 42px;
-  width: 138px;
-  height: 28px;
+  bottom: 38px;
+  width: 150px;
+  height: 34px;
   transform: translateX(-50%);
   border-radius: 999px;
-  background: radial-gradient(circle, rgba(3, 8, 15, 0.44), transparent 70%);
+  background: radial-gradient(circle, rgba(3, 8, 15, 0.42), transparent 72%);
+  filter: blur(2px);
 }
 
 .reaction-layer {
@@ -409,11 +440,12 @@ button {
 
 .pet-creature {
   left: 50%;
-  bottom: 44px;
-  width: 180px;
-  height: 180px;
+  bottom: 40px;
+  width: 188px;
+  height: 186px;
   transform: translateX(-50%);
   animation: creatureBreathe 3.1s ease-in-out infinite;
+  filter: drop-shadow(0 12px 22px rgba(5, 12, 22, 0.18));
 }
 
 .pet-shell[data-stage="byte-pup"] .pet-creature {
@@ -454,80 +486,130 @@ button {
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
 }
 
+.pet-tuft {
+  position: absolute;
+  top: 18px;
+  left: 54px;
+  width: 56px;
+  height: 28px;
+  border-radius: 60% 40% 70% 30%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(210, 233, 247, 0.92));
+  box-shadow: inset 0 -4px 8px rgba(94, 131, 152, 0.14);
+  transform: rotate(-10deg);
+  z-index: 3;
+}
+
 .pet-tail {
-  right: 4px;
+  right: -2px;
   bottom: 58px;
-  width: 54px;
-  height: 20px;
-  border-radius: 999px 16px 16px 999px;
-  background: linear-gradient(90deg, #8ecae4, #bfdfee);
+  width: 62px;
+  height: 34px;
+  border-radius: 55% 65% 60% 70%;
+  background:
+    radial-gradient(circle at 28% 35%, rgba(255, 255, 255, 0.92), transparent 0 26%),
+    linear-gradient(135deg, #dff3ff, #b5d9ea 58%, #99c7db);
   transform-origin: left center;
   animation: tailWag 2.1s ease-in-out infinite;
-  box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 -5px 10px rgba(62, 104, 124, 0.12);
+  z-index: 0;
 }
 
 .pet-ear {
-  top: 10px;
-  width: 54px;
-  height: 74px;
+  top: 12px;
+  width: 48px;
+  height: 86px;
   border-radius: 58% 58% 42% 42%;
-  background: linear-gradient(180deg, #dff3ff, #a8d7ea);
-  box-shadow: inset 0 -8px 12px rgba(20, 61, 88, 0.12);
+  background: linear-gradient(180deg, #f8fdff, #d8edf8 58%, #b7d7e8);
+  box-shadow: inset 0 -8px 12px rgba(20, 61, 88, 0.12), 0 6px 12px rgba(8, 18, 34, 0.12);
+  z-index: 1;
 }
 
 .pet-ear::after {
   content: "";
   position: absolute;
-  inset: 12px 10px 10px;
+  inset: 12px 10px 12px;
   border-radius: 60% 60% 44% 44%;
-  background: linear-gradient(180deg, rgba(255, 179, 196, 0.52), rgba(255, 210, 220, 0.2));
+  background: linear-gradient(180deg, rgba(255, 191, 208, 0.64), rgba(255, 221, 231, 0.22));
 }
 
 .pet-ear-left {
-  left: 20px;
-  transform: rotate(-18deg);
+  left: 18px;
+  transform: rotate(-22deg);
+  animation: earWiggleLeft 4.4s ease-in-out infinite;
 }
 
 .pet-ear-right {
   right: 20px;
-  transform: rotate(18deg);
+  transform: rotate(16deg);
+  animation: earWiggleRight 4.8s ease-in-out infinite;
 }
 
 .pet-body {
   position: absolute;
-  left: 26px;
-  bottom: 22px;
-  width: 128px;
-  height: 118px;
-  border-radius: 52% 48% 46% 46% / 48% 48% 52% 52%;
+  left: 22px;
+  bottom: 18px;
+  width: 138px;
+  height: 126px;
+  border-radius: 54% 46% 46% 46% / 56% 56% 42% 42%;
   background:
-    radial-gradient(circle at 34% 24%, rgba(255, 255, 255, 0.82), transparent 0 18%),
-    linear-gradient(180deg, #f9fdff, #d3edf8 60%, #b1d6e6 100%);
+    radial-gradient(circle at 38% 22%, rgba(255, 255, 255, 0.92), transparent 0 16%),
+    radial-gradient(circle at 62% 70%, rgba(255, 225, 235, 0.24), transparent 0 22%),
+    linear-gradient(180deg, #fbfeff, #dff1f9 58%, #b8d8e6 100%);
   box-shadow:
-    0 14px 24px rgba(0, 0, 0, 0.18),
+    0 14px 24px rgba(0, 0, 0, 0.16),
     inset 0 -8px 16px rgba(62, 104, 124, 0.16);
+}
+
+.pet-body::after {
+  content: "";
+  position: absolute;
+  inset: 12px 16px 26px;
+  border-radius: 50% 50% 44% 44%;
+  background: radial-gradient(circle at 50% 16%, rgba(255, 255, 255, 0.28), transparent 0 48%);
+  pointer-events: none;
 }
 
 .pet-belly {
   position: absolute;
-  left: 25px;
-  bottom: 14px;
-  width: 78px;
-  height: 66px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 40% 28%, rgba(255, 255, 255, 0.9), rgba(248, 234, 229, 0.92) 60%, rgba(235, 214, 206, 0.82) 100%);
-  opacity: 0.9;
+  left: 31px;
+  bottom: 18px;
+  width: 72px;
+  height: 58px;
+  border-radius: 50% 50% 46% 46%;
+  background: radial-gradient(circle at 40% 28%, rgba(255, 255, 255, 0.94), rgba(250, 237, 231, 0.94) 58%, rgba(237, 216, 206, 0.8) 100%);
+  opacity: 0.92;
+}
+
+.pet-arm {
+  position: absolute;
+  bottom: 18px;
+  width: 24px;
+  height: 48px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #f7fdff, #c8e2ee 68%, #afcfdf 100%);
+  box-shadow: inset 0 -4px 8px rgba(62, 104, 124, 0.12);
+  z-index: 2;
+}
+
+.pet-arm-left {
+  left: 16px;
+  transform: rotate(12deg);
+}
+
+.pet-arm-right {
+  right: 16px;
+  transform: rotate(-12deg);
 }
 
 .pet-eye {
   position: absolute;
   top: 34px;
-  width: 22px;
-  height: 28px;
-  border-radius: 46% 46% 52% 52%;
-  background: #112132;
+  width: 20px;
+  height: 24px;
+  border-radius: 46% 46% 58% 58%;
+  background: linear-gradient(180deg, #182738, #09111a);
   overflow: hidden;
-  box-shadow: inset 0 -2px 4px rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 -2px 4px rgba(255, 255, 255, 0.12), 0 1px 1px rgba(255, 255, 255, 0.12);
 }
 
 .pet-eye::after {
@@ -540,19 +622,19 @@ button {
 }
 
 .pet-eye-left {
-  left: 33px;
+  left: 36px;
 }
 
 .pet-eye-right {
-  right: 33px;
+  right: 36px;
 }
 
 .pupil {
   position: absolute;
-  left: 7px;
-  top: 8px;
-  width: 8px;
-  height: 12px;
+  left: 6px;
+  top: 6px;
+  width: 9px;
+  height: 13px;
   border-radius: 999px;
   background: #06121b;
   box-shadow: -2px -3px 0 0 rgba(255, 255, 255, 0.72);
@@ -563,31 +645,52 @@ button {
   position: absolute;
   top: 56px;
   left: 50%;
-  width: 12px;
-  height: 8px;
-  margin-left: -6px;
+  width: 14px;
+  height: 9px;
+  margin-left: -7px;
   border-radius: 48% 48% 62% 62%;
-  background: #7f9fb1;
+  background: linear-gradient(180deg, #86a8b8, #6f8ea0);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.28);
 }
 
 .pet-mouth {
   position: absolute;
-  top: 70px;
+  top: 72px;
   left: 50%;
-  width: 28px;
-  height: 14px;
-  margin-left: -14px;
-  border-bottom: 4px solid #3a6274;
+  width: 30px;
+  height: 15px;
+  margin-left: -15px;
+  border-bottom: 4px solid #3f6678;
   border-radius: 0 0 14px 14px;
+}
+
+.pet-whiskers {
+  position: absolute;
+  top: 62px;
+  width: 18px;
+  height: 2px;
+  background: rgba(87, 113, 129, 0.34);
+  box-shadow: 0 6px 0 rgba(87, 113, 129, 0.28);
+  border-radius: 999px;
+}
+
+.pet-whiskers-left {
+  left: 10px;
+  transform: rotate(12deg);
+}
+
+.pet-whiskers-right {
+  right: 10px;
+  transform: rotate(-12deg);
 }
 
 .pet-cheek {
   position: absolute;
-  top: 58px;
-  width: 18px;
-  height: 12px;
+  top: 60px;
+  width: 19px;
+  height: 13px;
   border-radius: 999px;
-  background: rgba(255, 164, 186, 0.5);
+  background: rgba(255, 170, 192, 0.56);
   filter: blur(1px);
 }
 
@@ -601,12 +704,26 @@ button {
 
 .pet-paw {
   position: absolute;
-  bottom: 10px;
-  width: 34px;
-  height: 22px;
+  bottom: 8px;
+  width: 36px;
+  height: 24px;
   border-radius: 999px;
-  background: linear-gradient(180deg, #eff8ff, #b9dbea);
+  background: linear-gradient(180deg, #f6fdff, #c7e0ec);
   box-shadow: inset 0 -5px 10px rgba(62, 104, 124, 0.14);
+}
+
+.pet-paw::after {
+  content: "";
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: 9px;
+  height: 6px;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 18% 50%, rgba(255, 201, 214, 0.68) 0 2px, transparent 3px),
+    radial-gradient(circle at 50% 50%, rgba(255, 201, 214, 0.68) 0 2px, transparent 3px),
+    radial-gradient(circle at 82% 50%, rgba(255, 201, 214, 0.68) 0 2px, transparent 3px);
 }
 
 .pet-paw-left {
@@ -620,15 +737,17 @@ button {
 .pet-expression {
   top: 14px;
   left: 14px;
-  padding: 0.38rem 0.6rem;
+  padding: 0.42rem 0.72rem;
   border-radius: 999px;
-  background: rgba(5, 14, 25, 0.62);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #eef6ff;
+  background: linear-gradient(180deg, rgba(58, 56, 73, 0.8), rgba(39, 34, 54, 0.72));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff0ca;
   font-size: 0.74rem;
   font-weight: 800;
   letter-spacing: 0.04em;
   z-index: 2;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(8px);
 }
 
 .pet-shell[data-mood="sleepy"] .pet-eye {
@@ -646,6 +765,11 @@ button {
   margin-left: -9px;
 }
 
+.pet-shell[data-mood="happy"] .pet-mouth {
+  width: 32px;
+  margin-left: -16px;
+}
+
 .pet-shell[data-mood="sad"] .pet-mouth,
 .pet-shell[data-mood="critical"] .pet-mouth {
   top: 76px;
@@ -660,6 +784,10 @@ button {
 
 .pet-shell[data-mood="critical"] .pet-cheek {
   background: rgba(255, 133, 150, 0.46);
+}
+
+.pet-shell[data-condition="cozy"] .pet-cheek {
+  background: rgba(255, 178, 200, 0.7);
 }
 
 .pet-shell[data-touch="guarded"] .pet-ear-left {
@@ -713,6 +841,10 @@ button {
   color: #ffdbe3;
 }
 
+.pet-shell[data-condition="stressed"] .pet-whiskers {
+  opacity: 0.85;
+}
+
 .pet-shell.effect-bounce .pet-creature {
   animation: happyBounce 0.45s ease;
 }
@@ -742,6 +874,26 @@ button {
   }
   50% {
     transform: rotate(-12deg);
+  }
+}
+
+@keyframes earWiggleLeft {
+  0%,
+  100% {
+    transform: rotate(-22deg);
+  }
+  50% {
+    transform: rotate(-18deg) translateY(-1px);
+  }
+}
+
+@keyframes earWiggleRight {
+  0%,
+  100% {
+    transform: rotate(16deg);
+  }
+  50% {
+    transform: rotate(12deg) translateY(-1px);
   }
 }
 
