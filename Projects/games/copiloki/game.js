@@ -58,12 +58,21 @@
     }
   ];
 
+  const EVOLUTION_RULES = [
+    { stage: "Seed Egg", age: 0, bond: 0, patches: 0 },
+    { stage: "Byte Pup", age: 1, bond: 18, patches: 0 },
+    { stage: "Copiloki", age: 3, bond: 38, patches: 2 },
+    { stage: "Copiloki Pro", age: 6, bond: 58, patches: 5 },
+    { stage: "Copiloki Prime", age: 9, bond: 78, patches: 9 }
+  ];
+
   const BOOSTS = {
     snack: {
       cost: 2,
       apply() {
         state.hunger = clamp(state.hunger + 18, 0, 100);
         state.joy = clamp(state.joy + 8, 0, 100);
+        state.overfed = clamp(state.overfed + (state.hunger > 84 ? 1 : 0), 0, 6);
         pushLog("Snack crate opened. Copiloki is fueled and cheerful.");
       }
     },
@@ -72,6 +81,7 @@
       apply() {
         state.hygiene = clamp(state.hygiene + 24, 0, 100);
         state.health = clamp(state.health + 1, 0, 5);
+        state.sickTicks = Math.max(0, state.sickTicks - 1);
         pushLog("Bubble bath complete. The nest is sparkling again.");
       }
     },
@@ -80,6 +90,7 @@
       apply() {
         state.focus = clamp(state.focus + 18, 0, 100);
         state.energy = clamp(state.energy + 12, 0, 100);
+        state.groggyTicks = Math.max(0, state.groggyTicks - 2);
         pushLog("Debug kit deployed. Copiloki feels sharp and ready to build.");
       }
     }
@@ -92,12 +103,16 @@
     sparkChip: document.getElementById("sparkChip"),
     streakChip: document.getElementById("streakChip"),
     bondChip: document.getElementById("bondChip"),
+    conditionChip: document.getElementById("conditionChip"),
     healthChip: document.getElementById("healthChip"),
     petShell: document.getElementById("petShell"),
     petFace: document.getElementById("petFace"),
     petExpression: document.getElementById("petExpression"),
+    reactionLayer: document.getElementById("reactionLayer"),
     statusLine: document.getElementById("statusLine"),
     goalText: document.getElementById("goalText"),
+    evolutionLine: document.getElementById("evolutionLine"),
+    evolutionHint: document.getElementById("evolutionHint"),
     logList: document.getElementById("logList"),
     ariaLive: document.getElementById("ariaLive"),
     startOverlay: document.getElementById("startOverlay"),
@@ -183,10 +198,16 @@
       stage: "Seed Egg",
       face: "( ^_^ )",
       moodKey: "happy",
+      conditionKey: "cozy",
+      conditionLabel: "Condition Cozy",
       sceneMode: "day",
       expression: "Soft chirp",
       status: "Copiloki is blinking awake and ready for its first snack.",
       goal: "Keep every stat above 40 to help Copiloki grow.",
+      sickTicks: 0,
+      groggyTicks: 0,
+      overfed: 0,
+      napChain: 0,
       challenge: pickChallenge(),
       log: [
         {
@@ -223,6 +244,10 @@
     }
 
     merged.lastUpdated = Date.now();
+    merged.sickTicks = clamp(Number(merged.sickTicks || 0), 0, 6);
+    merged.groggyTicks = clamp(Number(merged.groggyTicks || 0), 0, 6);
+    merged.overfed = clamp(Number(merged.overfed || 0), 0, 6);
+    merged.napChain = clamp(Number(merged.napChain || 0), 0, 6);
     return merged;
   }
 
@@ -271,6 +296,30 @@
       .replace(/^-|-$/g, "");
   }
 
+  function spawnReaction(kind, count) {
+    if (!elements.reactionLayer) {
+      return;
+    }
+
+    const symbolPool = {
+      heart: ["<3", "*", "+"],
+      spark: ["*", "+", "o"],
+      bubble: ["o", "O", "~"]
+    };
+    const symbols = symbolPool[kind] || symbolPool.spark;
+
+    for (let index = 0; index < count; index += 1) {
+      const particle = document.createElement("span");
+      particle.className = "reaction-particle " + kind;
+      particle.textContent = symbols[randomInt(0, symbols.length - 1)];
+      particle.style.left = randomInt(34, 66) + "%";
+      particle.style.setProperty("--drift-x", randomInt(-28, 28) + "px");
+      particle.style.animationDelay = (index * 0.04).toFixed(2) + "s";
+      elements.reactionLayer.appendChild(particle);
+      setTimeout(() => particle.remove(), 1200);
+    }
+  }
+
   function deriveSceneMode() {
     const hour = new Date().getHours();
 
@@ -311,11 +360,57 @@
   }
 
   function deriveStage(ageDays) {
-    if (ageDays >= 9) return "Copiloki Prime";
-    if (ageDays >= 6) return "Copiloki Pro";
-    if (ageDays >= 3) return "Copiloki";
-    if (ageDays >= 1) return "Byte Pup";
-    return "Seed Egg";
+    let currentIndex = Math.max(
+      0,
+      EVOLUTION_RULES.findIndex((rule) => rule.stage === state.stage)
+    );
+
+    EVOLUTION_RULES.forEach((rule, index) => {
+      if (ageDays >= rule.age && state.bond >= rule.bond && state.patches >= rule.patches) {
+        currentIndex = Math.max(currentIndex, index);
+      }
+    });
+
+    return EVOLUTION_RULES[currentIndex].stage;
+  }
+
+  function getNextEvolution(stage) {
+    const currentIndex = EVOLUTION_RULES.findIndex((rule) => rule.stage === stage);
+    if (currentIndex < 0 || currentIndex >= EVOLUTION_RULES.length - 1) {
+      return null;
+    }
+
+    return EVOLUTION_RULES[currentIndex + 1];
+  }
+
+  function buildEvolutionHint(nextRule) {
+    if (!nextRule) {
+      return {
+        title: "Final evolution reached",
+        hint: "Copiloki Prime is fully grown. Keep it cozy to maintain the glow."
+      };
+    }
+
+    const requirements = [];
+
+    if (state.ageDays < nextRule.age) {
+      requirements.push((nextRule.age - state.ageDays).toFixed(1) + " more days");
+    }
+
+    if (state.bond < nextRule.bond) {
+      requirements.push(Math.max(0, nextRule.bond - Math.round(state.bond)) + " more bond");
+    }
+
+    if (state.patches < nextRule.patches) {
+      requirements.push((nextRule.patches - state.patches) + " more patches");
+    }
+
+    return {
+      title: "Next evolution: " + nextRule.stage,
+      hint: requirements.length
+        ? "Needs " + requirements.join(", ") + "."
+        : "All requirements are met. Keep caring and the next pulse will hatch it."
+    };
   }
 
   function deriveMood() {
@@ -326,6 +421,26 @@
         expression: "System hush",
         status: "Copiloki blue-screened from neglect. Hatch a new egg to try again.",
         goal: "Use Clear save to reboot a fresh Copiloki egg."
+      };
+    }
+
+    if (state.sickTicks > 0) {
+      return {
+        face: "( @_@ )",
+        moodKey: "sad",
+        expression: "Tummy ache",
+        status: "Too many snacks gave Copiloki a tiny tummy ache.",
+        goal: "Skip more snacks for a bit and clean or rest until the sick feeling fades."
+      };
+    }
+
+    if (state.groggyTicks > 0 && !state.asleep) {
+      return {
+        face: "( -o- )",
+        moodKey: "sleepy",
+        expression: "Modorro...",
+        status: "Copiloki overslept and woke up delightfully but noticeably modorro.",
+        goal: "Wake it up with play, petting, or a small patch streak."
       };
     }
 
@@ -471,7 +586,15 @@
   }
 
   function updateStateFlags() {
+    const previousStage = state.stage;
     state.stage = deriveStage(state.ageDays);
+
+    if (state.started && previousStage !== state.stage) {
+      state.sparks += 1;
+      pushLog("Evolution unlocked! Copiloki grew into " + state.stage + " and popped out a celebration spark.");
+      spawnReaction("spark", 4);
+      triggerPetEffect("bounce");
+    }
 
     const weakStats = [state.hunger, state.joy, state.energy, state.hygiene, state.focus].filter(
       (value) => value < 25
@@ -507,6 +630,23 @@
     state.sceneMode = deriveSceneMode();
     state.status = mood.status;
     state.goal = mood.goal;
+
+    if (state.sickTicks > 0) {
+      state.conditionKey = "sick";
+      state.conditionLabel = "Condition Sick tummy";
+    } else if (state.groggyTicks > 0 && !state.asleep) {
+      state.conditionKey = "groggy";
+      state.conditionLabel = "Condition Modorro";
+    } else if (state.asleep) {
+      state.conditionKey = "sleepy";
+      state.conditionLabel = "Condition Snoozing";
+    } else if (state.bond >= 72) {
+      state.conditionKey = "cozy";
+      state.conditionLabel = "Condition Cozy";
+    } else {
+      state.conditionKey = "cozy";
+      state.conditionLabel = "Condition Curious";
+    }
   }
 
   function applyTickStep() {
@@ -519,16 +659,30 @@
     state.joy = clamp(state.joy - randomInt(1, 3), 0, 100);
     state.hygiene = clamp(state.hygiene - randomInt(1, 3), 0, 100);
     state.focus = clamp(state.focus - randomInt(1, 2), 0, 100);
+    state.overfed = Math.max(0, state.overfed - 1);
+
+    if (state.sickTicks > 0) {
+      state.sickTicks = Math.max(0, state.sickTicks - 1);
+      state.joy = clamp(state.joy - randomInt(2, 4), 0, 100);
+      state.focus = clamp(state.focus - randomInt(2, 4), 0, 100);
+    }
+
+    if (state.groggyTicks > 0 && !state.asleep) {
+      state.groggyTicks = Math.max(0, state.groggyTicks - 1);
+      state.focus = clamp(state.focus - randomInt(2, 3), 0, 100);
+      state.joy = clamp(state.joy - 1, 0, 100);
+    }
 
     if (state.asleep) {
       state.energy = clamp(state.energy + randomInt(7, 11), 0, 100);
       state.napSteps = Math.max(0, state.napSteps - 1);
       if (state.napSteps === 0 || state.energy >= 92) {
         state.asleep = false;
-        pushLog("Copiloki woke up refreshed and extra shiny.");
+        pushLog(state.groggyTicks > 0 ? "Copiloki woke up a little modorro." : "Copiloki woke up refreshed and extra shiny.");
       }
     } else {
       state.energy = clamp(state.energy - randomInt(2, 4), 0, 100);
+      state.napChain = Math.max(0, state.napChain - 1);
     }
 
     if (Math.random() < 0.22) {
@@ -579,9 +733,11 @@
     state.joy = clamp(state.joy + 5, 0, 100);
     state.focus = clamp(state.focus + 2, 0, 100);
     state.bond = clamp(state.bond + 3, 0, 100);
+    state.groggyTicks = Math.max(0, state.groggyTicks - 1);
     pushLog("You gave Copiloki a gentle head pat. Tiny purr unlocked.");
     recordChallenge("pet", 1);
     triggerPetEffect("glow");
+    spawnReaction("heart", 3);
     updateStateFlags();
     saveState();
     render();
@@ -668,10 +824,12 @@
     state.hunger = clamp(state.hunger - 3, 0, 100);
     state.sparks += sparkBonus;
     state.bond = clamp(state.bond + Math.max(1, Math.floor(score / 3)), 0, 100);
+    state.groggyTicks = Math.max(0, state.groggyTicks - 1);
 
     recordChallenge("play", 1);
     recordChallenge("play-score", score);
     triggerPetEffect("bounce");
+    spawnReaction(score >= 7 ? "spark" : "heart", score >= 7 ? 4 : 3);
 
     if (score >= 7) {
       pushLog("Bug hunt victory! Copiloki caught " + score + " bits and earned +" + sparkBonus + " sparks.");
@@ -733,6 +891,7 @@
     boost.apply();
     state.bond = clamp(state.bond + 2, 0, 100);
     triggerPetEffect("glow");
+    spawnReaction(key === "bath" ? "bubble" : "spark", 3);
     updateStateFlags();
     saveState();
     render();
@@ -752,12 +911,35 @@
 
     switch (action) {
       case "feed":
+        const wasAlreadyFull = state.hunger >= 82;
+
+        if (wasAlreadyFull) {
+          state.overfed = clamp(state.overfed + 2, 0, 6);
+        } else {
+          state.overfed = Math.max(0, state.overfed - 1);
+        }
+
         state.hunger = clamp(state.hunger + 20, 0, 100);
         state.joy = clamp(state.joy + 4, 0, 100);
         state.energy = clamp(state.energy + 2, 0, 100);
         state.hygiene = clamp(state.hygiene - 2, 0, 100);
         state.bond = clamp(state.bond + 2, 0, 100);
-        pushLog("Copiloki munched a glowing snack and is no longer hangry.");
+        state.napChain = Math.max(0, state.napChain - 1);
+
+        if (state.overfed >= 3) {
+          state.sickTicks = Math.max(state.sickTicks, 3);
+          state.joy = clamp(state.joy - 5, 0, 100);
+          state.focus = clamp(state.focus - 6, 0, 100);
+          pushLog("Too many snacks too fast gave Copiloki a tiny tummy ache.");
+          spawnReaction("bubble", 3);
+        } else if (wasAlreadyFull) {
+          pushLog("Copiloki nibbled politely, but that belly is getting very full.");
+          spawnReaction("heart", 2);
+        } else {
+          pushLog("Copiloki munched a glowing snack and is no longer hangry.");
+          spawnReaction("heart", 3);
+        }
+
         recordChallenge("feed", 1);
         triggerPetEffect("glow");
         break;
@@ -768,21 +950,40 @@
         state.hygiene = clamp(state.hygiene + 24, 0, 100);
         state.health = clamp(state.health + 1, 0, 5);
         state.bond = clamp(state.bond + 1, 0, 100);
+        state.sickTicks = Math.max(0, state.sickTicks - 1);
+        state.overfed = Math.max(0, state.overfed - 1);
         pushLog("The nest is spotless again and Copiloki smells like fresh static.");
         recordChallenge("clean", 1);
         triggerPetEffect("glow");
+        spawnReaction("bubble", 3);
         break;
       case "nap":
+        const wasAlreadyRested = state.energy > 84 || state.napChain >= 1;
+
+        state.napChain = clamp(state.napChain + 1, 0, 6);
         state.asleep = true;
-        state.napSteps = 2;
-        state.energy = clamp(state.energy + 12, 0, 100);
+        state.napSteps = wasAlreadyRested ? 3 : 2;
+        state.energy = clamp(state.energy + (state.napSteps > 2 ? 8 : 12), 0, 100);
         state.bond = clamp(state.bond + 1, 0, 100);
-        pushLog("Copiloki curled up for a power nap under a warm monitor glow.");
+
+        if (wasAlreadyRested) {
+          state.groggyTicks = Math.max(state.groggyTicks, 3);
+          state.focus = clamp(state.focus - 6, 0, 100);
+          pushLog("That extra nap may send Copiloki into full modorro mode when it wakes up.");
+        } else {
+          pushLog("Copiloki curled up for a power nap under a warm monitor glow.");
+        }
+
         recordChallenge("nap", 1);
         triggerPetEffect("bounce");
+        spawnReaction("bubble", 2);
         break;
       case "code":
-        if (state.energy < 28 || state.focus < 28) {
+        if (state.sickTicks > 0) {
+          state.energy = clamp(state.energy - 5, 0, 100);
+          state.focus = clamp(state.focus - 2, 0, 100);
+          pushLog("Copiloki tried to code through a tummy ache. Better let it settle first.");
+        } else if (state.energy < 28 || state.focus < 28) {
           state.joy = clamp(state.joy - 6, 0, 100);
           state.energy = clamp(state.energy - 4, 0, 100);
           pushLog("Copiloki tried to ship a patch while frazzled. It needs a break first.");
@@ -793,9 +994,15 @@
           state.hunger = clamp(state.hunger - 5, 0, 100);
           state.patches += 1;
           state.bond = clamp(state.bond + 2, 0, 100);
-          pushLog("Patch shipped. Copiloki is proud of that tiny clean deploy.");
+          state.groggyTicks = Math.max(0, state.groggyTicks - 1);
+          pushLog(
+            state.groggyTicks > 0
+              ? "A gentle patch helped Copiloki shake off some of the modorro fog."
+              : "Patch shipped. Copiloki is proud of that tiny clean deploy."
+          );
           recordChallenge("code", 1);
           triggerPetEffect("bounce");
+          spawnReaction("spark", 3);
 
           if (state.patches % 3 === 0) {
             state.sparks += 1;
@@ -819,7 +1026,7 @@
 
     state.started = true;
     state.gameOver = false;
-    pushLog("Copiloki hopped out of the egg and is ready to play.");
+    pushLog("Copiloki hopped out of the egg. Age, bond, and shipped patches now shape each evolution.");
     updateStateFlags();
     saveState();
     render();
@@ -866,22 +1073,34 @@
   }
 
   function render() {
+    const evolution = buildEvolutionHint(getNextEvolution(state.stage));
+
     elements.stageChip.textContent = state.stage;
     elements.ageChip.textContent = "Age " + state.ageDays.toFixed(1) + "d";
     elements.patchChip.textContent = "Patches " + state.patches;
     elements.sparkChip.textContent = "Sparks " + state.sparks;
     elements.streakChip.textContent = "Streak " + state.streak;
     elements.bondChip.textContent = "Bond " + Math.round(state.bond) + "%";
+    elements.conditionChip.textContent = state.conditionLabel;
+    elements.conditionChip.className = "chip";
+    if (state.conditionKey === "sick") {
+      elements.conditionChip.classList.add("danger");
+    } else if (state.conditionKey === "groggy") {
+      elements.conditionChip.classList.add("warn");
+    }
     elements.healthChip.textContent = "Health " + state.health + "/5";
     elements.petFace.textContent = state.expression;
     elements.petExpression.textContent = state.expression;
     elements.petShell.dataset.mood = state.moodKey;
     elements.petShell.dataset.scene = state.sceneMode;
     elements.petShell.dataset.stage = stageToDataset(state.stage);
+    elements.petShell.dataset.condition = state.conditionKey;
     elements.petShell.style.setProperty("--bond-glow", (0.12 + state.bond / 100 * 0.24).toFixed(2));
     elements.petShell.setAttribute("aria-label", "Copiloki the " + state.stage + ". " + state.status);
     elements.statusLine.textContent = state.status;
     elements.goalText.textContent = state.goal;
+    elements.evolutionLine.textContent = evolution.title;
+    elements.evolutionHint.textContent = evolution.hint;
 
     setMeter(elements.hungerMeter, elements.hungerValue, state.hunger);
     setMeter(elements.joyMeter, elements.joyValue, state.joy);
