@@ -116,7 +116,7 @@
     bug: {
       eyebrow: "Bug hunt",
       title: "Catch the runaway bits",
-      copy: "Click the drifting bugs before they escape. Great for speed and playful confidence.",
+      copy: "Watch Copiloki chase the drifting bugs on its own. Great for speed and playful confidence.",
       startText: "Start hunt",
       runningText: "Hunting...",
       scoreLabel: "caught",
@@ -125,7 +125,7 @@
     memory: {
       eyebrow: "Memory lights",
       title: "Follow the glow pattern",
-      copy: "Repeat the sequence of glowing pads. This trains focus and keeps Copiloki sharp.",
+      copy: "Watch Copiloki study and replay the glowing pattern. This trains focus and keeps it sharp.",
       startText: "Start memory",
       runningText: "Remembering...",
       scoreLabel: "steps",
@@ -134,7 +134,7 @@
     dash: {
       eyebrow: "Patch dash",
       title: "Ship tiny fixes fast",
-      copy: "Tap the fast deploy bubbles before they fade. It trains speed and efficiency.",
+      copy: "Watch Copiloki sprint after tiny deploy bubbles before they fade. It trains speed and efficiency.",
       startText: "Start dash",
       runningText: "Dashing...",
       scoreLabel: "ships",
@@ -254,10 +254,12 @@
     timer: null,
     spawner: null,
     finishTimeout: null,
+    aiTimer: null,
     sequence: [],
     inputIndex: 0,
     sequenceTimeouts: [],
-    showingSequence: false
+    showingSequence: false,
+    pet: null
   };
 
   function timeStamp() {
@@ -652,6 +654,224 @@
       })[0];
   }
 
+  function getMiniPetStats(mode) {
+    const profile = getPersonalityProfile();
+    const stageScaleMap = {
+      "Seed Egg": 0.76,
+      "Byte Pup": 0.88,
+      "Copiloki": 1,
+      "Copiloki Pro": 1.1,
+      "Copiloki Prime": 1.18
+    };
+
+    const stageScale = stageScaleMap[state.stage] || 1;
+    const affinityBonus = profile.favoriteGame === mode ? 0.08 : 0;
+    const size = clamp(stageScale + state.bond / 320 + state.autonomy / 520 + affinityBonus, 0.72, 1.55);
+    const speed = Math.max(
+      4.8,
+      7 + stageScale * 3.5 + state.speedSkill * 0.11 + state.focusSkill * 0.05 + state.autonomy * 0.05 + (profile.favoriteGame === mode ? 1.8 : 0) - getMiniBoredom(mode) / 34
+    );
+    const accuracy = clamp(
+      0.52 + state.focusSkill / 140 + state.creativitySkill / 220 + (profile.favoriteGame === mode ? 0.08 : 0) - getMiniBoredom(mode) / 220,
+      0.36,
+      0.97
+    );
+
+    return {
+      size,
+      speed,
+      reach: 16 + size * 16,
+      accuracy
+    };
+  }
+
+  function getMiniPetFace() {
+    if (state.conditionKey === "stressed") return ">_<";
+    if (state.conditionKey === "groggy") return "-.-";
+    if (state.moodKey === "sad") return "._.";
+    if (state.moodKey === "alert") return "o_o";
+    return "^_^";
+  }
+
+  function ensureMiniPet() {
+    let node = elements.miniArena.querySelector(".mini-pet-runner");
+    if (!node) {
+      node = document.createElement("div");
+      node.className = "mini-pet-runner";
+      node.innerHTML = [
+        '<div class="mini-pet-shadow"></div>',
+        '<div class="mini-pet-creature">',
+        '<div class="mini-pet-ear mini-pet-ear-left"></div>',
+        '<div class="mini-pet-ear mini-pet-ear-right"></div>',
+        '<div class="mini-pet-body"><span class="mini-pet-face"></span></div>',
+        "</div>",
+        '<div class="mini-pet-tag">AUTO</div>'
+      ].join("");
+      elements.miniArena.appendChild(node);
+    }
+
+    const stats = getMiniPetStats(miniGame.mode);
+    node.style.setProperty("--mini-scale", stats.size.toFixed(2));
+    const face = node.querySelector(".mini-pet-face");
+    if (face) {
+      face.textContent = getMiniPetFace();
+    }
+
+    if (!miniGame.pet) {
+      miniGame.pet = {
+        node,
+        x: 56,
+        y: 222,
+        targetX: 56,
+        targetY: 222,
+        idleAt: 0
+      };
+    } else {
+      miniGame.pet.node = node;
+    }
+
+    positionMiniPet(miniGame.pet.x, miniGame.pet.y);
+    return node;
+  }
+
+  function positionMiniPet(x, y) {
+    if (!miniGame.pet || !miniGame.pet.node) {
+      return;
+    }
+
+    const arenaWidth = elements.miniArena.clientWidth || 520;
+    const arenaHeight = elements.miniArena.clientHeight || 280;
+    const safeX = clamp(x, 28, arenaWidth - 28);
+    const safeY = clamp(y, 34, arenaHeight - 34);
+
+    miniGame.pet.x = safeX;
+    miniGame.pet.y = safeY;
+    miniGame.pet.node.style.left = safeX + "px";
+    miniGame.pet.node.style.top = safeY + "px";
+  }
+
+  function setMiniPetTargetToNode(node) {
+    if (!miniGame.pet || !node) {
+      return;
+    }
+
+    miniGame.pet.targetX = node.offsetLeft + node.offsetWidth / 2;
+    miniGame.pet.targetY = node.offsetTop + node.offsetHeight / 2;
+  }
+
+  function collectMiniTarget(target) {
+    if (!miniGame.active || !target || target.dataset.caught === "true") {
+      return;
+    }
+
+    target.dataset.caught = "true";
+    miniGame.score += 1;
+    updateMiniHud();
+    target.classList.add("pop");
+    setTimeout(() => target.remove(), 120);
+  }
+
+  function tickMiniPetAI() {
+    if (!miniGame.active) {
+      return;
+    }
+
+    ensureMiniPet();
+    const stats = getMiniPetStats(miniGame.mode);
+    miniGame.pet.node.style.setProperty("--mini-scale", stats.size.toFixed(2));
+
+    let chosenTarget = null;
+    let chosenDistance = Number.POSITIVE_INFINITY;
+
+    if (miniGame.mode !== "memory") {
+      const selector = miniGame.mode === "dash" ? ".mini-patch" : ".mini-bug";
+      const targets = Array.from(elements.miniArena.querySelectorAll(selector)).filter(
+        (node) => node.dataset.caught !== "true"
+      );
+
+      targets.forEach((node) => {
+        const targetX = node.offsetLeft + node.offsetWidth / 2;
+        const targetY = node.offsetTop + node.offsetHeight / 2;
+        const distance = Math.hypot(targetX - miniGame.pet.x, targetY - miniGame.pet.y);
+        if (distance < chosenDistance) {
+          chosenDistance = distance;
+          chosenTarget = node;
+        }
+      });
+
+      if (chosenTarget) {
+        miniGame.pet.targetX = chosenTarget.offsetLeft + chosenTarget.offsetWidth / 2;
+        miniGame.pet.targetY = chosenTarget.offsetTop + chosenTarget.offsetHeight / 2;
+      } else if (Date.now() > miniGame.pet.idleAt) {
+        miniGame.pet.targetX = randomInt(48, Math.max(52, (elements.miniArena.clientWidth || 520) - 48));
+        miniGame.pet.targetY = randomInt(58, Math.max(64, (elements.miniArena.clientHeight || 280) - 48));
+        miniGame.pet.idleAt = Date.now() + 700;
+      }
+    }
+
+    const dx = miniGame.pet.targetX - miniGame.pet.x;
+    const dy = miniGame.pet.targetY - miniGame.pet.y;
+    const distance = Math.hypot(dx, dy);
+    if (distance > 0.1) {
+      const step = Math.min(stats.speed, distance);
+      positionMiniPet(miniGame.pet.x + (dx / distance) * step, miniGame.pet.y + (dy / distance) * step);
+    }
+
+    if (chosenTarget && chosenDistance <= stats.reach) {
+      collectMiniTarget(chosenTarget);
+    }
+  }
+
+  function stopMiniPetAI() {
+    clearInterval(miniGame.aiTimer);
+    miniGame.aiTimer = null;
+  }
+
+  function startMiniPetAI() {
+    stopMiniPetAI();
+    ensureMiniPet();
+    miniGame.aiTimer = setInterval(tickMiniPetAI, 60);
+  }
+
+  function startAutonomousMemoryAttempt() {
+    if (!miniGame.active || miniGame.mode !== "memory") {
+      return;
+    }
+
+    const pads = Array.from(elements.miniArena.querySelectorAll(".memory-pad"));
+    if (!pads.length) {
+      return;
+    }
+
+    const stats = getMiniPetStats("memory");
+    const mistakeIndex = Math.random() > stats.accuracy ? Math.max(0, miniGame.sequence.length - 1) : -1;
+    let delay = 180;
+    const stepDelay = Math.max(280, 520 - Math.floor(stats.speed * 16));
+
+    miniGame.sequence.forEach((expected, index) => {
+      const chosen = index === mistakeIndex ? (expected + randomInt(1, 3)) % pads.length : expected;
+
+      const moveTimeout = setTimeout(() => {
+        if (!miniGame.active) {
+          return;
+        }
+
+        setMiniPetTargetToNode(pads[chosen]);
+      }, delay);
+
+      const tapTimeout = setTimeout(() => {
+        if (!miniGame.active) {
+          return;
+        }
+
+        handleMemoryPad(chosen, pads[chosen]);
+      }, delay + Math.min(220, Math.floor(stepDelay * 0.55)));
+
+      miniGame.sequenceTimeouts.push(moveTimeout, tapTimeout);
+      delay += stepDelay;
+    });
+  }
+
   function setMiniMode(mode) {
     if (!MINI_GAME_CONFIG[mode] || miniGame.active) {
       return;
@@ -662,13 +882,18 @@
     elements.miniEyebrow.textContent = meta.eyebrow;
     elements.miniTitle.textContent = meta.title;
     elements.miniGameCopy.textContent = meta.copy;
-    elements.miniModeHint.textContent = getBoredomHint(mode);
+    elements.miniModeHint.textContent =
+      getBoredomHint(mode) + " Watching speed " + Math.round(getMiniPetStats(mode).speed * 7) + "%.";
     elements.miniGameStart.textContent = meta.startText;
     elements.miniArena.dataset.mode = mode;
 
     elements.miniModeButtons.forEach((button) => {
       button.classList.toggle("active", button.dataset.miniMode === mode);
     });
+
+    if (!elements.miniGameOverlay.classList.contains("hidden")) {
+      ensureMiniPet();
+    }
   }
 
   function noteMiniGamePlay(mode) {
@@ -1212,6 +1437,7 @@
     elements.miniGameStart.disabled = false;
     setMiniMode(chooseRecommendedMiniMode());
     elements.miniScore.textContent = "0 " + MINI_GAME_CONFIG[miniGame.mode].scoreLabel;
+    ensureMiniPet();
   }
 
   function updateMiniHud() {
@@ -1237,10 +1463,7 @@
         return;
       }
 
-      miniGame.score += 1;
-      updateMiniHud();
-      bug.classList.add("pop");
-      setTimeout(() => bug.remove(), 120);
+      collectMiniTarget(bug);
     });
 
     elements.miniArena.appendChild(bug);
@@ -1264,10 +1487,7 @@
         return;
       }
 
-      miniGame.score += 1;
-      updateMiniHud();
-      patch.classList.add("pop");
-      setTimeout(() => patch.remove(), 120);
+      collectMiniTarget(patch);
     });
 
     elements.miniArena.appendChild(patch);
@@ -1296,6 +1516,7 @@
     });
 
     elements.miniArena.appendChild(grid);
+    ensureMiniPet();
   }
 
   function flashMemorySequence() {
@@ -1327,6 +1548,7 @@
       pads.forEach((pad) => {
         pad.disabled = false;
       });
+      startAutonomousMemoryAttempt();
     }, delay + 80);
 
     miniGame.sequenceTimeouts.push(releaseTimeout);
@@ -1371,12 +1593,14 @@
     clearInterval(miniGame.spawner);
     clearTimeout(miniGame.finishTimeout);
     clearMiniSequenceTimers();
+    stopMiniPetAI();
     miniGame.active = false;
     miniGame.timer = null;
     miniGame.spawner = null;
     miniGame.finishTimeout = null;
     miniGame.sequence = [];
     miniGame.inputIndex = 0;
+    miniGame.pet = null;
     elements.miniArena.innerHTML = "";
 
     if (hideOverlay) {
@@ -1500,7 +1724,10 @@
     elements.miniGameStart.disabled = true;
     elements.miniGameStart.textContent = MINI_GAME_CONFIG[miniGame.mode].runningText;
     elements.miniArena.innerHTML = "";
+    miniGame.pet = null;
     updateMiniHud();
+    ensureMiniPet();
+    startMiniPetAI();
 
     if (miniGame.mode === "memory") {
       buildMemoryArena();
