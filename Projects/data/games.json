@@ -133,6 +133,22 @@
       "updatedAt": "2026-03-13T00:00:00.000Z"
     },
     {
+      "id": "copiloki",
+      "title": "Copiloki",
+      "desc": "Raise a tiny code gremlin Tamagotchi: feed it, clean its nest, let it nap, and ship patches to help it evolve.",
+      "href": "../../games/copiloki/index.html",
+      "thumbnail": "assets/copiloki-1600x900.svg",
+      "badges": [
+        "Cozy",
+        "Simulation",
+        "New"
+      ],
+      "counted": true,
+      "sourcePath": "Projects/games/copiloki",
+      "createdAt": "2026-04-10T00:00:00.000Z",
+      "updatedAt": "2026-04-10T00:00:00.000Z"
+    },
+    {
       "id": "protein-interactions",
       "title": "Protein Interactions",
       "desc": "3D molecular dynamics: watch antibodies dock antigens, drugs inhibit enzymes, and ions flow through membranes.",

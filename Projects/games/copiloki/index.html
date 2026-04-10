@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Copiloki | Pocket Tamagotchi</title>
+  <meta
+    name="description"
+    content="Raise Copiloki, a tiny code gremlin Tamagotchi. Feed it, clean it, let it nap, and ship patches to help it grow."
+  />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <a class="skip-link" href="#gameShell">Skip to game</a>
+
+  <div class="shell" id="gameShell">
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Pocket AI Pet</p>
+        <h1>Copiloki</h1>
+        <p class="intro">
+          A cozy Tamagotchi for your favorite little code gremlin. Keep Copiloki fed,
+          rested, clean, and curious long enough to evolve into a tiny legend.
+        </p>
+      </div>
+
+      <div class="hero-actions" aria-label="Page actions">
+        <a class="ghost" href="../../../index.html">Back home</a>
+        <button class="primary" id="startBtn" type="button">Start caring</button>
+        <button class="ghost" id="freshStartBtn" type="button">Clear save</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel pet-panel" aria-labelledby="petPanelTitle">
+        <div class="panel-head">
+          <div>
+            <p class="kicker">Pet Console</p>
+            <h2 id="petPanelTitle">Your tiny teammate</h2>
+          </div>
+          <div class="chip-row" aria-live="polite">
+            <span class="chip" id="stageChip">Seed Egg</span>
+            <span class="chip" id="ageChip">Age 0.0d</span>
+            <span class="chip" id="patchChip">Patches 0</span>
+            <span class="chip danger" id="healthChip">Health 5/5</span>
+          </div>
+        </div>
+
+        <div class="pet-display">
+          <div class="pet-shell" id="petShell" data-mood="happy" aria-hidden="true">
+            <div class="pet-body-glow"></div>
+            <div class="pet-face" id="petFace">( ^_^ )</div>
+          </div>
+        </div>
+
+        <p class="status-line" id="statusLine" aria-live="polite">
+          Copiloki is blinking awake and ready for its first snack.
+        </p>
+
+        <div class="mission-card">
+          <p class="kicker">Current mission</p>
+          <p id="goalText">Keep every stat above 40 to help Copiloki grow.</p>
+        </div>
+      </section>
+
+      <section class="panel care-panel" aria-labelledby="carePanelTitle">
+        <div class="panel-head">
+          <div>
+            <p class="kicker">Care Loop</p>
+            <h2 id="carePanelTitle">Needs and actions</h2>
+          </div>
+          <p class="microcopy">Tip: keys 1-5 trigger the care actions.</p>
+        </div>
+
+        <div class="stats-grid" id="statsGrid">
+          <article class="stat-card">
+            <div class="stat-head">
+              <span>Hunger</span>
+              <strong id="hungerValue">72%</strong>
+            </div>
+            <div class="meter"><span id="hungerMeter" class="meter-fill"></span></div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-head">
+              <span>Joy</span>
+              <strong id="joyValue">82%</strong>
+            </div>
+            <div class="meter"><span id="joyMeter" class="meter-fill"></span></div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-head">
+              <span>Energy</span>
+              <strong id="energyValue">76%</strong>
+            </div>
+            <div class="meter"><span id="energyMeter" class="meter-fill"></span></div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-head">
+              <span>Hygiene</span>
+              <strong id="hygieneValue">70%</strong>
+            </div>
+            <div class="meter"><span id="hygieneMeter" class="meter-fill"></span></div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-head">
+              <span>Focus</span>
+              <strong id="focusValue">60%</strong>
+            </div>
+            <div class="meter"><span id="focusMeter" class="meter-fill"></span></div>
+          </article>
+        </div>
+
+        <div class="actions-grid">
+          <button class="action-btn primary" data-action="feed" type="button">1. Feed snack</button>
+          <button class="action-btn" data-action="play" type="button">2. Play mini game</button>
+          <button class="action-btn" data-action="clean" type="button">3. Clean up</button>
+          <button class="action-btn" data-action="nap" type="button">4. Power nap</button>
+          <button class="action-btn" data-action="code" type="button">5. Ship patch</button>
+        </div>
+      </section>
+
+      <section class="panel log-panel" aria-labelledby="logPanelTitle">
+        <div class="panel-head">
+          <div>
+            <p class="kicker">Activity Feed</p>
+            <h2 id="logPanelTitle">Copiloki log</h2>
+          </div>
+        </div>
+
+        <div class="tip-card">
+          <strong>How to win:</strong> keep Copiloki healthy long enough to reach
+          <em>Copiloki Prime</em>. If health hits zero, your pet blue-screens and
+          needs a fresh hatch.
+        </div>
+
+        <ol class="log-list" id="logList" aria-live="polite"></ol>
+      </section>
+    </main>
+  </div>
+
+  <div class="overlay" id="startOverlay">
+    <div class="overlay-card">
+      <p class="eyebrow">Fresh boot sequence</p>
+      <h2>Raise Copiloki</h2>
+      <p>
+        Start a new day with your tiny AI pet. Feed it, play with it, clean its
+        little chaos nest, and keep its health alive as the hours roll by.
+      </p>
+      <div class="overlay-actions">
+        <button class="primary" id="overlayStart" type="button">Start game</button>
+        <button class="ghost" id="overlayFresh" type="button">Clear save and hatch new egg</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sr-only" id="ariaLive" aria-live="polite"></div>
+
+  <script src="./game.js"></script>
+</body>
+</html>
