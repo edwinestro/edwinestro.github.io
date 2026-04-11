@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Copiloki Academy</title>
+  <desc id="desc">A polished thumbnail showing Copiloki training in an academy simulator with skill meters and a glowing practice arena.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#13264c"/>
+      <stop offset="100%" stop-color="#07111f"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1d355f"/>
+      <stop offset="100%" stop-color="#10203c"/>
+    </linearGradient>
+    <linearGradient id="mint" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8ce8ff"/>
+      <stop offset="100%" stop-color="#8ef5c9"/>
+    </linearGradient>
+    <radialGradient id="orb" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fff9d4"/>
+      <stop offset="60%" stop-color="#f1dc95"/>
+      <stop offset="100%" stop-color="rgba(241,220,149,0)"/>
+    </radialGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#04101d" flood-opacity="0.32"/>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <circle cx="1220" cy="170" r="80" fill="url(#orb)"/>
+  <rect x="90" y="90" width="1420" height="720" rx="44" fill="url(#panel)" stroke="#36558a" stroke-width="3"/>
+
+  <g opacity="0.8">
+    <rect x="140" y="140" width="540" height="96" rx="24" fill="#0b1830" stroke="#274a7a"/>
+    <text x="176" y="196" fill="#eef6ff" font-family="Segoe UI, Arial, sans-serif" font-size="48" font-weight="700">Copiloki Academy</text>
+    <text x="176" y="225" fill="#8ce8ff" font-family="Segoe UI, Arial, sans-serif" font-size="18" letter-spacing="2">AUTONOMOUS PET TRAINING SIM</text>
+  </g>
+
+  <g>
+    <rect x="140" y="286" width="410" height="410" rx="34" fill="#0d1830" stroke="#274a7a"/>
+    <rect x="170" y="582" width="350" height="80" rx="24" fill="#335d4d"/>
+    <ellipse cx="344" cy="592" rx="108" ry="24" fill="#143125" opacity="0.45"/>
+
+    <ellipse cx="350" cy="524" rx="132" ry="116" fill="#f3fbff" filter="url(#shadow)"/>
+    <ellipse cx="274" cy="432" rx="36" ry="80" transform="rotate(-20 274 432)" fill="#edf8ff"/>
+    <ellipse cx="425" cy="428" rx="36" ry="80" transform="rotate(18 425 428)" fill="#edf8ff"/>
+    <ellipse cx="274" cy="441" rx="22" ry="58" transform="rotate(-20 274 441)" fill="#ffdbe4" opacity="0.7"/>
+    <ellipse cx="425" cy="437" rx="22" ry="58" transform="rotate(18 425 437)" fill="#ffdbe4" opacity="0.7"/>
+    <ellipse cx="308" cy="621" rx="38" ry="24" fill="#e6f5ff"/>
+    <ellipse cx="392" cy="621" rx="38" ry="24" fill="#e6f5ff"/>
+    <rect x="300" y="470" width="30" height="16" rx="8" fill="#203547"/>
+    <rect x="370" y="470" width="30" height="16" rx="8" fill="#203547"/>
+    <path d="M332 540 Q350 560 368 540" fill="none" stroke="#537588" stroke-width="8" stroke-linecap="round"/>
+    <ellipse cx="286" cy="520" rx="22" ry="14" fill="#ffb6c8" opacity="0.6"/>
+    <ellipse cx="414" cy="520" rx="22" ry="14" fill="#ffb6c8" opacity="0.6"/>
+    <rect x="182" y="160" width="130" height="48" rx="20" fill="#544b3a" opacity="0.88"/>
+    <text x="205" y="192" fill="#fff0ca" font-family="Consolas, monospace" font-size="26" font-weight="700">Prime</text>
+  </g>
+
+  <g>
+    <rect x="622" y="286" width="828" height="410" rx="34" fill="#0b1830" stroke="#274a7a"/>
+    <text x="666" y="340" fill="#eef6ff" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700">Academy Systems</text>
+
+    <g transform="translate(666 390)">
+      <text x="0" y="0" fill="#a8bdd6" font-family="Segoe UI, Arial, sans-serif" font-size="20">Personalities</text>
+      <rect x="0" y="18" width="240" height="22" rx="11" fill="#102642"/>
+      <rect x="0" y="18" width="170" height="22" rx="11" fill="url(#mint)"/>
+
+      <text x="0" y="92" fill="#a8bdd6" font-family="Segoe UI, Arial, sans-serif" font-size="20">Autonomy</text>
+      <rect x="0" y="110" width="240" height="22" rx="11" fill="#102642"/>
+      <rect x="0" y="110" width="190" height="22" rx="11" fill="#ffd27d"/>
+
+      <text x="0" y="184" fill="#a8bdd6" font-family="Segoe UI, Arial, sans-serif" font-size="20">Variety reward</text>
+      <rect x="0" y="202" width="240" height="22" rx="11" fill="#102642"/>
+      <rect x="0" y="202" width="210" height="22" rx="11" fill="#9f8dff"/>
+    </g>
+
+    <g transform="translate(1008 378)">
+      <rect x="0" y="0" width="356" height="250" rx="24" fill="#11233d" stroke="#2d4f81"/>
+      <text x="26" y="40" fill="#eef6ff" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700">Watch Copiloki train</text>
+      <circle cx="88" cy="140" r="26" fill="#8ce8ff"/>
+      <circle cx="172" cy="102" r="22" fill="#8ef5c9"/>
+      <rect x="230" y="132" width="62" height="34" rx="10" fill="#ffd27d"/>
+      <path d="M88 140 Q122 98 172 102" fill="none" stroke="#eef6ff" stroke-width="5" opacity="0.75"/>
+      <path d="M172 102 Q208 118 244 149" fill="none" stroke="#eef6ff" stroke-width="5" opacity="0.75"/>
+      <text x="26" y="212" fill="#a8bdd6" font-family="Segoe UI, Arial, sans-serif" font-size="20">Bug Hunt • Memory Lights • Patch Dash</text>
+    </g>
+  </g>
+</svg>

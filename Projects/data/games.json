@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-03-11T00:00:00.000Z",
+  "generatedAt": "2026-04-10T23:55:00.000Z",
   "games": [
     {
       "id": "finance-insight-hourglass",
@@ -35,7 +35,7 @@
       "sourcePath": "Projects/games/taskrunner",
       "createdAt": "2026-03-21T00:00:00.000Z",
       "updatedAt": "2026-03-21T00:00:00.000Z"
-    }
+    },
     {
       "id": "unsupervised-agi-3d",
       "title": "Unsupervised AGI 3D Classic",
@@ -145,6 +145,38 @@
       ],
       "counted": true,
       "sourcePath": "Projects/games/copiloki",
+      "createdAt": "2026-04-10T00:00:00.000Z",
+      "updatedAt": "2026-04-10T00:00:00.000Z"
+    },
+    {
+      "id": "copiloki-academy",
+      "title": "Copiloki Academy",
+      "desc": "Coach a tiny AI trainee through personalities, autonomous drills, boredom-aware mini games, skill growth, and evolutions that reward balanced care.",
+      "href": "../../games/copiloki-academy/index.html",
+      "thumbnail": "assets/copiloki-academy-1600x900.svg",
+      "badges": [
+        "Cozy",
+        "Training Sim",
+        "New"
+      ],
+      "counted": true,
+      "sourcePath": "Projects/games/copiloki-academy",
+      "createdAt": "2026-04-10T00:00:00.000Z",
+      "updatedAt": "2026-04-10T00:00:00.000Z"
+    },
+    {
+      "id": "onlyfied",
+      "title": "Onlyfied",
+      "desc": "Meta crossover strategy run that pulls live inspiration from the repo's games, then challenges you to ship hype without losing clarity or trust.",
+      "href": "../../games/onlyfied/index.html",
+      "thumbnail": "assets/onlyfied-1600x900.svg",
+      "badges": [
+        "Strategy",
+        "Arcade",
+        "New"
+      ],
+      "counted": true,
+      "sourcePath": "Projects/games/onlyfied",
       "createdAt": "2026-04-10T00:00:00.000Z",
       "updatedAt": "2026-04-10T00:00:00.000Z"
     },

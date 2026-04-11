@@ -1,6 +1,8 @@
 (() => {
   const canvas = document.getElementById('game');
-  const ctx = canvas.getContext('2d');
+  const ctx =
+    canvas.getContext('2d', { alpha: false, desynchronized: true }) ||
+    canvas.getContext('2d');
 
   const elSpeed = document.getElementById('speed');
   const elDistance = document.getElementById('distance');
@@ -83,6 +85,7 @@
 
   const hiKey = 'td-best-distance';
   let best = parseFloat(localStorage.getItem(hiKey) || '0') || 0;
+  let autoPaused = false;
 
   // --- Sound (WebAudio) ---
   const sound = (() => {
@@ -600,6 +603,7 @@
     state.started = true;
     state.paused = false;
     state.over = false;
+    autoPaused = false;
     hideOverlay();
 
     // Optional fullscreen (gesture chain) — ignore failures.
@@ -1461,6 +1465,11 @@
 
   let last = performance.now();
   function frame(now){
+    if(document.hidden){
+      last = now;
+      requestAnimationFrame(frame);
+      return;
+    }
     const dt = Math.min(0.04, (now - last) / 1000);
     last = now;
     update(dt);
@@ -1495,6 +1504,33 @@
     }
   });
   window.addEventListener('keyup', (e)=>{ keys[e.key] = false; });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (state.started && !state.over && !state.paused) {
+        autoPaused = true;
+        togglePause();
+      }
+      return;
+    }
+    if (autoPaused && state.started && !state.over && state.paused) {
+      autoPaused = false;
+      last = performance.now();
+      togglePause();
+    }
+  }, { passive: true });
+  window.addEventListener('blur', () => {
+    if (!document.hidden && state.started && !state.over && !state.paused) {
+      autoPaused = true;
+      togglePause();
+    }
+  }, { passive: true });
+  window.addEventListener('focus', () => {
+    if (autoPaused && !document.hidden && state.started && !state.over && state.paused) {
+      autoPaused = false;
+      last = performance.now();
+      togglePause();
+    }
+  }, { passive: true });
 
   btnStart?.addEventListener('click', startGame);
   btnHow?.addEventListener('click', ()=>{

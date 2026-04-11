@@ -1,6 +1,8 @@
 (() => {
   const canvas = document.getElementById('game');
-  const ctx = canvas.getContext('2d');
+  const ctx =
+    canvas.getContext('2d', { alpha: false, desynchronized: true }) ||
+    canvas.getContext('2d');
 
   const statShards = document.getElementById('statShards');
   const statHealth = document.getElementById('statHealth');
@@ -146,6 +148,16 @@
     hazards: [],
     particles: [],
   };
+  let autoPaused = false;
+
+  function togglePause(force, reason = 'manual') {
+    if (!state.running || state.ended) return;
+    const next = typeof force === 'boolean' ? force : !state.paused;
+    if (state.paused === next) return;
+    state.paused = next;
+    autoPaused = next && reason === 'auto';
+    btnPause.textContent = state.paused ? 'Resume' : 'Pause';
+  }
 
   function resize() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -208,6 +220,7 @@
     state.running = true;
     state.paused = false;
     state.ended = false;
+    autoPaused = false;
     overlay.hidden = true;
     state.time = performance.now();
     if (window.uetEvent) window.uetEvent('game_start', { game: 'frost-signal' });
@@ -217,6 +230,7 @@
     state.running = false;
     state.paused = false;
     state.ended = true;
+    autoPaused = false;
     if (window.uetEvent) window.uetEvent('game_end', { game: 'frost-signal', result: win ? 'win' : 'lose' });
 
     try {
@@ -538,6 +552,12 @@
 
   let last = performance.now();
   function loop(now) {
+    if (document.hidden) {
+      last = now;
+      requestAnimationFrame(loop);
+      return;
+    }
+
     const dt = Math.min(0.04, (now - last) / 1000);
     last = now;
 
@@ -548,20 +568,40 @@
   }
 
   // Events
-  window.addEventListener('resize', resize);
+  window.addEventListener('resize', resize, { passive: true });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (state.running && !state.paused) togglePause(true, 'auto');
+      return;
+    }
+    if (state.running && state.paused && autoPaused) {
+      last = performance.now();
+      togglePause(false, 'auto-resume');
+    }
+  }, { passive: true });
+  window.addEventListener('blur', () => {
+    if (!document.hidden && state.running && !state.paused) togglePause(true, 'auto');
+  }, { passive: true });
+  window.addEventListener('focus', () => {
+    if (!document.hidden && state.running && state.paused && autoPaused) {
+      last = performance.now();
+      togglePause(false, 'auto-resume');
+    }
+  }, { passive: true });
 
   window.addEventListener('keydown', (e) => {
     const k = e.key;
     keys[k] = true;
 
-    if (k === 'r' || k === 'R') resetRound();
-    if (k === 'Enter' && !state.running && !state.ended) startRound();
+    if (k === 'ArrowUp' || k === 'ArrowDown' || k === 'ArrowLeft' || k === 'ArrowRight' || k === ' ') {
+      e.preventDefault();
+    }
 
-    if (k === 'Escape') {
-      if (state.running) {
-        state.paused = !state.paused;
-        btnPause.textContent = state.paused ? 'Resume' : 'Pause';
-      }
+    if (k === 'r' || k === 'R') resetRound();
+    if ((k === 'Enter' || k === ' ') && !state.running && !state.ended) startRound();
+
+    if (k === 'Escape' && state.running) {
+      togglePause();
     }
   });
 
@@ -574,8 +614,7 @@
 
   btnPause.addEventListener('click', () => {
     if (!state.running) return;
-    state.paused = !state.paused;
-    btnPause.textContent = state.paused ? 'Resume' : 'Pause';
+    togglePause();
   });
 
   btnReset.addEventListener('click', resetRound);

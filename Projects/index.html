@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Projects — Edwin Estro</title>
+  <meta name="description" content="Browse the Projects folder: playable games, science hubs, and docs." />
+  <meta name="theme-color" content="#07110d" />
+  <style>
+    :root{
+      --bg:#07110d;
+      --surface:rgba(8,20,16,.78);
+      --surface-2:rgba(10,24,20,.92);
+      --border:rgba(36,191,165,.16);
+      --text:rgba(232,247,241,.94);
+      --muted:rgba(176,210,199,.7);
+      --accent:#24bfa5;
+      --accent-soft:rgba(36,191,165,.12);
+      --radius:16px;
+      --shadow:0 20px 50px rgba(0,0,0,.28);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:radial-gradient(circle at top,#0b1914 0%,var(--bg) 58%);color:var(--text);font-family:"Segoe UI",system-ui,sans-serif}
+    a{color:inherit}
+    .shell{max-width:1120px;margin:0 auto;padding:24px 16px 56px}
+    .hero{display:grid;gap:16px;padding:20px;border:1px solid var(--border);border-radius:24px;background:linear-gradient(135deg,rgba(12,28,24,.92),rgba(8,16,14,.94));box-shadow:var(--shadow)}
+    .eyebrow{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:800}
+    h1{margin:0;font-size:clamp(1.8rem,3vw,2.6rem);line-height:1.05}
+    .hero p{margin:0;color:var(--muted);max-width:72ch;line-height:1.55}
+    .cta-row,.quick-links{display:flex;flex-wrap:wrap;gap:10px}
+    .btn,.chip{
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;
+      padding:10px 14px;border-radius:999px;text-decoration:none;border:1px solid var(--border);
+      background:rgba(255,255,255,.02);transition:.18s ease;
+    }
+    .btn.primary{background:var(--accent);color:#03110d;border-color:transparent;font-weight:800}
+    .btn:hover,.chip:hover{transform:translateY(-1px);border-color:rgba(36,191,165,.34);text-decoration:none}
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:18px}
+    .stat{padding:14px;border-radius:14px;background:var(--surface);border:1px solid var(--border)}
+    .stat strong{display:block;font-size:1.4rem;color:var(--accent)}
+    .stat span{font-size:.8rem;color:var(--muted)}
+    .section{margin-top:24px}
+    .section-head{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+    .section-head h2{margin:0;font-size:1.15rem}
+    .section-head p{margin:0;color:var(--muted);font-size:.88rem}
+    .quick-links .chip{background:var(--surface);text-decoration:none}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+    .card{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:16px;background:var(--surface-2);border:1px solid var(--border);text-decoration:none;box-shadow:var(--shadow)}
+    .card:hover{border-color:rgba(36,191,165,.34);transform:translateY(-2px)}
+    .card-title{font-weight:800;font-size:1rem}
+    .card-desc{color:var(--muted);font-size:.9rem;line-height:1.45;min-height:3.8em}
+    .badges{display:flex;flex-wrap:wrap;gap:6px}
+    .badge{padding:4px 8px;border-radius:999px;background:var(--accent-soft);border:1px solid rgba(36,191,165,.18);font-size:.68rem;font-weight:700;color:#9de8dc}
+    .meta{display:flex;justify-content:space-between;gap:8px;align-items:center;color:var(--muted);font-size:.78rem}
+    .empty{padding:18px;border-radius:16px;border:1px dashed var(--border);background:rgba(255,255,255,.02);color:var(--muted)}
+    footer{margin-top:28px;color:var(--muted);font-size:.8rem;text-align:center}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero" aria-labelledby="projects-title">
+      <div class="eyebrow">Projects folder</div>
+      <h1 id="projects-title">Games are now surfaced directly inside <code>/Projects</code>.</h1>
+      <p>
+        This landing page fixes the missing folder index by loading the live registry from <code>Projects/data/games.json</code>
+        and exposing the current playable builds, hubs, and docs from one place.
+      </p>
+      <div class="cta-row">
+        <a class="btn primary" href="../portal.html">Open full portal</a>
+        <a class="btn" href="games/">Browse games folder</a>
+        <a class="btn" href="hubs/science-lab/index.html">Open science hub</a>
+        <a class="btn" href="docs/index.html">Open docs</a>
+      </div>
+      <div class="stats" aria-label="Project stats">
+        <div class="stat"><strong id="stat-games">—</strong><span>Games listed</span></div>
+        <div class="stat"><strong id="stat-featured">—</strong><span>Featured build</span></div>
+        <div class="stat"><strong id="stat-latest">—</strong><span>Latest update</span></div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="links-title">
+      <div class="section-head">
+        <h2 id="links-title">Quick links</h2>
+        <p>Core folders in this project area.</p>
+      </div>
+      <div class="quick-links">
+        <a class="chip" href="games/">`Projects/games/`</a>
+        <a class="chip" href="hubs/science-lab/index.html">`Projects/hubs/`</a>
+        <a class="chip" href="docs/index.html">`Projects/docs/`</a>
+        <a class="chip" href="../legacy/stringball-endpoint/games.html">Legacy lab</a>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="games-title">
+      <div class="section-head">
+        <h2 id="games-title">Playable games</h2>
+        <p>Auto-loaded from the shared registry.</p>
+      </div>
+      <div id="games-grid" class="grid" aria-live="polite"></div>
+      <div id="empty-state" class="empty" hidden>
+        The game registry could not be loaded here. You can still use <a href="../portal.html">the full portal</a>.
+      </div>
+    </section>
+
+    <footer>
+      <p>Static, build-free landing page for the `Projects` directory.</p>
+    </footer>
+  </main>
+
+  <script>
+    const grid = document.getElementById('games-grid');
+    const empty = document.getElementById('empty-state');
+
+    function normalizeHref(href = '') {
+      if (href === 'index.html') return '../index.html';
+      return href
+        .replace('../../games/', 'games/')
+        .replace('../../../legacy/', '../legacy/');
+    }
+
+    function sortGames(games) {
+      return [...games].sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''));
+    }
+
+    function renderCard(game) {
+      const badges = (game.badges || []).map((badge) => `<span class="badge">${badge}</span>`).join('');
+      const updated = game.updatedAt ? new Date(game.updatedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : 'Unknown';
+      return `
+        <a class="card" href="${normalizeHref(game.href)}">
+          <div class="card-title">${game.title || 'Untitled'}</div>
+          <div class="card-desc">${game.desc || 'No description available yet.'}</div>
+          <div class="badges">${badges}</div>
+          <div class="meta">
+            <span>${game.counted ? 'Listed build' : 'Archive'}</span>
+            <span>Updated ${updated}</span>
+          </div>
+        </a>`;
+    }
+
+    async function loadGames() {
+      try {
+        const res = await fetch('data/games.json');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        const games = sortGames(data.games || []);
+
+        grid.innerHTML = games.map(renderCard).join('');
+        document.getElementById('stat-games').textContent = String(games.length);
+        document.getElementById('stat-featured').textContent = games[0]?.title || '—';
+        document.getElementById('stat-latest').textContent = games[0]?.updatedAt ? new Date(games[0].updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+      } catch (error) {
+        console.warn('Could not load Projects/data/games.json', error);
+        empty.hidden = false;
+        document.getElementById('stat-games').textContent = '0';
+        document.getElementById('stat-featured').textContent = 'Unavailable';
+        document.getElementById('stat-latest').textContent = 'Unavailable';
+      }
+    }
+
+    loadGames();
+  </script>
+</body>
+</html>

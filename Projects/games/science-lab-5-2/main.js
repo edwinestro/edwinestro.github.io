@@ -6,10 +6,14 @@ import { getQuizForElement } from './quiz.js';
 const $ = (s) => document.querySelector(s);
 
 const canvas = $('#view');
-const ctx = canvas.getContext('2d');
+const ctx =
+  canvas.getContext('2d', { alpha: false, desynchronized: true }) ||
+  canvas.getContext('2d');
 
 const bg = $('#bg');
-const bgCtx = bg.getContext('2d');
+const bgCtx =
+  bg.getContext('2d', { alpha: false, desynchronized: true }) ||
+  bg.getContext('2d');
 
 const roomList = $('#roomList');
 const search = $('#search');
@@ -1163,6 +1167,11 @@ function project(p, cx, cy, dist) {
 }
 
 function draw(t) {
+  if (document.hidden || !state.running) {
+    requestAnimationFrame(draw);
+    return;
+  }
+
   state.time = t;
 
   // fade teleport
@@ -1423,5 +1432,14 @@ function boot() {
   requestAnimationFrame(draw);
 }
 
-window.addEventListener('resize', resize);
+window.addEventListener('resize', resize, { passive: true });
+document.addEventListener('visibilitychange', () => {
+  state.running = !document.hidden;
+}, { passive: true });
+window.addEventListener('blur', () => {
+  state.running = false;
+}, { passive: true });
+window.addEventListener('focus', () => {
+  state.running = !document.hidden;
+}, { passive: true });
 boot();

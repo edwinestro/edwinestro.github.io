@@ -683,7 +683,9 @@ function makeTile(id, revealColor, x, z) {
   // "?" label (sprite)
   const canvas = document.createElement('canvas');
   canvas.width = canvas.height = 64;
-  const ctx = canvas.getContext('2d');
+  const ctx =
+    canvas.getContext('2d', { alpha: false, desynchronized: true }) ||
+    canvas.getContext('2d');
   ctx.fillStyle = 'rgba(123,97,255,0.5)';
   ctx.font = 'bold 48px system-ui';
   ctx.textAlign = 'center';

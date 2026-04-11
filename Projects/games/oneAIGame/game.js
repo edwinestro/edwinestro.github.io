@@ -1,6 +1,8 @@
 (() => {
   const canvas = document.getElementById('game');
-  const ctx = canvas.getContext('2d');
+  const ctx =
+    canvas.getContext('2d', { alpha: false, desynchronized: true }) ||
+    canvas.getContext('2d');
 
   const statPhase = document.getElementById('statPhase');
   const statScore = document.getElementById('statScore');
@@ -91,6 +93,16 @@
     resolveFlash: 0,
     knowledgeLog: [],
   };
+  let autoPaused = false;
+
+  function togglePause(force, reason = 'manual') {
+    if (!state.running || state.ended) return;
+    const next = typeof force === 'boolean' ? force : !state.paused;
+    if (state.paused === next) return;
+    state.paused = next;
+    autoPaused = next && reason === 'auto';
+    btnPause.textContent = state.paused ? 'Resume' : 'Pause';
+  }
 
   const keys = Object.create(null);
 
@@ -176,6 +188,7 @@
     state.running = true;
     state.paused = false;
     state.ended = false;
+    autoPaused = false;
     state.phase = 'decide';
     state.totalLeft = state.totalTime;
     state.round = 1;
@@ -271,6 +284,7 @@
     state.running = false;
     state.paused = false;
     state.ended = true;
+    autoPaused = false;
     btnPause.textContent = 'Pause';
 
     try {
@@ -532,6 +546,12 @@
 
   let last = performance.now();
   function loop(now) {
+    if (document.hidden) {
+      last = now;
+      requestAnimationFrame(loop);
+      return;
+    }
+
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
 
@@ -557,12 +577,13 @@
     const k = e.key;
     keys[k] = true;
 
+    if (k === ' ' || k === 'Enter') {
+      e.preventDefault();
+    }
+
     if (k === 'r' || k === 'R') resetGame();
-    if (k === 'Escape') {
-      if (state.running) {
-        state.paused = !state.paused;
-        btnPause.textContent = state.paused ? 'Resume' : 'Pause';
-      }
+    if (k === 'Escape' && state.running) {
+      togglePause();
     }
 
     if (!state.running && (k === 'Enter' || k === ' ')) {
@@ -586,8 +607,7 @@
   btnStart.addEventListener('click', startGame);
   btnPause.addEventListener('click', () => {
     if (!state.running) return;
-    state.paused = !state.paused;
-    btnPause.textContent = state.paused ? 'Resume' : 'Pause';
+    togglePause();
   });
   btnReset.addEventListener('click', resetGame);
 
@@ -603,7 +623,26 @@
     });
   });
 
-  window.addEventListener('resize', resize);
+  window.addEventListener('resize', resize, { passive: true });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (state.running && !state.paused) togglePause(true, 'auto');
+      return;
+    }
+    if (state.running && state.paused && autoPaused) {
+      last = performance.now();
+      togglePause(false, 'auto-resume');
+    }
+  }, { passive: true });
+  window.addEventListener('blur', () => {
+    if (!document.hidden && state.running && !state.paused) togglePause(true, 'auto');
+  }, { passive: true });
+  window.addEventListener('focus', () => {
+    if (!document.hidden && state.running && state.paused && autoPaused) {
+      last = performance.now();
+      togglePause(false, 'auto-resume');
+    }
+  }, { passive: true });
 
   resize();
   resetGame();

@@ -22,14 +22,19 @@ export function randRange(lo, hi) { return lo + Math.random() * (hi - lo); }
 // ─── CANVAS SETUP ───────────────────────────────────────
 export function setupCanvas(canvasId, opts = {}) {
   const cvs = typeof canvasId === 'string' ? document.getElementById(canvasId) : canvasId;
-  const ctx = cvs.getContext('2d', { alpha: false });
+  const get2dContext = (target) =>
+    target.getContext('2d', { alpha: false, desynchronized: true }) ||
+    target.getContext('2d', { alpha: false }) ||
+    target.getContext('2d');
+  const ctx = get2dContext(cvs);
   const dblBuf = opts.doubleBuffer !== false;
   let buf, bctx;
   if (dblBuf) {
     buf = document.createElement('canvas');
-    bctx = buf.getContext('2d', { alpha: false });
+    bctx = get2dContext(buf);
   }
   let W = 0, H = 0;
+  let resizeQueued = false;
 
   function resize() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -42,7 +47,15 @@ export function setupCanvas(canvasId, opts = {}) {
       bctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
   }
-  window.addEventListener('resize', resize);
+  function queueResize() {
+    if (resizeQueued) return;
+    resizeQueued = true;
+    requestAnimationFrame(() => {
+      resizeQueued = false;
+      resize();
+    });
+  }
+  window.addEventListener('resize', queueResize, { passive: true });
   resize();
 
   return {
@@ -90,10 +103,15 @@ export function createGameLoop(updateFn, dtCap = 0.05) {
   let lastTime = performance.now();
   let gameTime = 0;
   let running = true;
+  let rafId = 0;
 
   function loop(timestamp) {
     if (!running) return;
-    requestAnimationFrame(loop);
+    rafId = requestAnimationFrame(loop);
+    if (document.hidden) {
+      lastTime = timestamp;
+      return;
+    }
     const rawDt = (timestamp - lastTime) / 1000;
     lastTime = timestamp;
     const dt = Math.min(rawDt, dtCap);
@@ -101,12 +119,29 @@ export function createGameLoop(updateFn, dtCap = 0.05) {
     updateFn(dt, gameTime);
   }
 
-  requestAnimationFrame(loop);
+  const handleVisibilityChange = () => {
+    if (!running || document.hidden) return;
+    lastTime = performance.now();
+  };
+
+  document.addEventListener('visibilitychange', handleVisibilityChange, { passive: true });
+  rafId = requestAnimationFrame(loop);
 
   return {
     get time() { return gameTime; },
-    stop() { running = false; },
-    start() { if (!running) { running = true; lastTime = performance.now(); requestAnimationFrame(loop); } },
+    stop() { running = false; if (rafId) cancelAnimationFrame(rafId); },
+    start() {
+      if (!running) {
+        running = true;
+        lastTime = performance.now();
+        rafId = requestAnimationFrame(loop);
+      }
+    },
+    destroy() {
+      running = false;
+      if (rafId) cancelAnimationFrame(rafId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    },
   };
 }
 

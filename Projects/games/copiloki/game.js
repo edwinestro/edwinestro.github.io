@@ -1,5 +1,5 @@
 (function () {
-  const STORAGE_KEY = "copiloki-save-v1";
+  const STORAGE_KEY = window.COPILOKI_STORAGE_KEY || "copiloki-save-v1";
   const TICK_MS = 12000;
   const MAX_OFFLINE_STEPS = 18;
   const MAX_LOG = 8;

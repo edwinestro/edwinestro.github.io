@@ -65,7 +65,7 @@
     },
     {
       "route": "/api/vote",
-      "allowedRoles": ["authenticated"]
+      "allowedRoles": ["anonymous", "authenticated"]
     },
     {
       "route": "/assets/*",

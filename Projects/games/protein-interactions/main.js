@@ -168,7 +168,9 @@ function clearLabels() {
 
 function makeLabel(text, position, color) {
   const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
+  const ctx =
+    canvas.getContext("2d", { alpha: false, desynchronized: true }) ||
+    canvas.getContext("2d");
   canvas.width = 256; canvas.height = 64;
   ctx.fillStyle = "transparent"; ctx.fillRect(0, 0, 256, 64);
   ctx.font = "bold 28px system-ui";

@@ -48,7 +48,7 @@
       </div>
       <div id="auth-loading" class="loading-state">Checking session&hellip;</div>
       <div id="auth-login" style="display:none">
-        <a href="/.auth/login/aad?post_login_redirect_uri=/" class="cta-btn">
+        <a href="/.auth/login/aad?post_login_redirect_uri=/portal.html" class="cta-btn">
           <svg class="ms-icon" viewBox="0 0 21 21" fill="none" aria-hidden="true"><rect width="9" height="9" fill="#f25022"/><rect x="11" width="9" height="9" fill="#7fba00"/><rect y="11" width="9" height="9" fill="#00a4ef"/><rect x="11" y="11" width="9" height="9" fill="#ffb900"/></svg>
           Sign in with Microsoft
         </a>
@@ -79,11 +79,27 @@
       ld.style.display='none';
     })();
     (async function(){
-      try{var r=await fetch('Projects/data/games.json'),d=await r.json(),g=d.games.filter(function(x){return x.counted});
-      document.getElementById('stat-games').textContent=g.length;
-      document.getElementById('stat-exp').textContent=g.filter(function(x){return x.badges&&(x.badges.includes('3D')||x.badges.includes('Experience'))}).length;
-      document.getElementById('stat-new').textContent=g.filter(function(x){return x.badges&&x.badges.includes('New')}).length;
-      }catch(e){}
+      var fallbackStats={games:21,experiences:6,newCount:14};
+      function setStats(stats){
+        document.getElementById('stat-games').textContent=String(stats.games);
+        document.getElementById('stat-exp').textContent=String(stats.experiences);
+        document.getElementById('stat-new').textContent=String(stats.newCount);
+      }
+      try{
+        var r=await fetch('Projects/data/games.json',{cache:'no-store'});
+        if(!r.ok) throw new Error('HTTP '+r.status);
+        var d=await r.json();
+        if(!d||!Array.isArray(d.games)) throw new Error('Missing games array');
+        var g=d.games.filter(function(x){return x&&x.counted});
+        setStats({
+          games:g.length,
+          experiences:g.filter(function(x){return x.badges&&(x.badges.includes('3D')||x.badges.includes('Experience'))}).length,
+          newCount:g.filter(function(x){return x.badges&&x.badges.includes('New')}).length
+        });
+      }catch(e){
+        console.warn('Could not load homepage game counters:',e);
+        setStats(fallbackStats);
+      }
     })();
     var cvs=document.getElementById('bg'),ctx=cvs.getContext('2d',{alpha:false}),W=0,H=0;
     function resize(){var dpr=Math.min(window.devicePixelRatio||1,2);W=window.innerWidth;H=window.innerHeight;cvs.width=W*dpr;cvs.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);}

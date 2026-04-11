@@ -50,10 +50,16 @@
   window.uetEvent = function (action, params) {
     window.uetq = window.uetq || [];
     const evt = { ea: action, ec: 'game' };
-    if (params) {
-      if (params.game) evt.el = params.game;
-      if (params.result) evt.ev = params.result;
-      if (params.revenue) evt.gv = params.revenue;
+    if (params && typeof params === 'object') {
+      const labels = [];
+      if (params.game) labels.push(String(params.game));
+      if (params.result) labels.push(String(params.result));
+      if (labels.length) evt.el = labels.join(':');
+
+      if (Number.isFinite(params.ev)) evt.ev = Number(params.ev);
+      else if (Number.isFinite(params.value)) evt.ev = Number(params.value);
+
+      if (Number.isFinite(params.revenue)) evt.gv = Number(params.revenue);
     }
     window.uetq.push(evt);
   };

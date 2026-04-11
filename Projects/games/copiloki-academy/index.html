@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Copiloki Academy | Autonomous Training Sim</title>
+  <meta
+    name="description"
+    content="Coach a tiny AI trainee through personalities, evolving care loops, autonomous mini games, and boredom-aware skill drills in Copiloki Academy."
+  />
+  <link rel="stylesheet" href="../copiloki/style.css" />
+  <style>
+    :root {
+      --accent: #8ce8ff;
+      --accent-2: #ffd27d;
+      --accent-3: #8ef5c9;
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#gameShell">Skip to game</a>
+
+  <div class="shell" id="gameShell">
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Autonomous Pet Academy</p>
+        <h1>Copiloki Academy</h1>
+        <p class="intro">
+          Coach a tiny AI trainee through care, personalities, evolving routines, and
+          autonomous mini games. Rotate drills, prevent boredom, and help Copiloki
+          graduate into a polished little legend.
+        </p>
+      </div>
+
+      <div class="hero-actions" aria-label="Page actions">
+        <a class="ghost" href="../../../index.html">Back home</a>
+        <button class="primary" id="startBtn" type="button">Start academy</button>
+        <button class="ghost" id="freshStartBtn" type="button">Clear save</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel pet-panel" aria-labelledby="petPanelTitle">
+        <div class="panel-head">
+          <div>
+            <p class="kicker">Academy console</p>
+            <h2 id="petPanelTitle">Your current trainee</h2>
+          </div>
+          <div class="chip-row" aria-live="polite">
+            <span class="chip" id="stageChip">Seed Egg</span>
+            <span class="chip" id="ageChip">Age 0.0d</span>
+            <span class="chip" id="patchChip">Patches 0</span>
+            <span class="chip" id="sparkChip">Sparks 0</span>
+            <span class="chip" id="streakChip">Streak 0</span>
+            <span class="chip" id="bondChip">Bond 20%</span>
+            <span class="chip" id="touchChip">Touch Gentle</span>
+            <span class="chip" id="stressChip">Stress 8%</span>
+            <span class="chip" id="conditionChip">Condition Cozy</span>
+            <span class="chip danger" id="healthChip">Health 5/5</span>
+          </div>
+        </div>
+
+        <div class="pet-display">
+          <div
+            class="pet-shell"
+            id="petShell"
+            data-mood="happy"
+            tabindex="0"
+            role="button"
+            aria-label="Pet Copiloki for a small comfort boost"
+          >
+            <div class="pet-body-glow"></div>
+            <div class="scene-orb"></div>
+            <div class="scene-cloud cloud-a"></div>
+            <div class="scene-cloud cloud-b"></div>
+            <div class="scene-ground"></div>
+            <div class="pet-shadow"></div>
+            <div class="reaction-layer" id="reactionLayer" aria-hidden="true"></div>
+
+            <div class="pet-creature">
+              <div class="pet-tuft"></div>
+              <div class="pet-tail"></div>
+              <div class="pet-ear pet-ear-left"></div>
+              <div class="pet-ear pet-ear-right"></div>
+
+              <div class="pet-body">
+                <div class="pet-belly"></div>
+                <div class="pet-arm pet-arm-left"></div>
+                <div class="pet-arm pet-arm-right"></div>
+                <div class="pet-eye pet-eye-left"><span class="pupil"></span></div>
+                <div class="pet-eye pet-eye-right"><span class="pupil"></span></div>
+                <div class="pet-nose"></div>
+                <div class="pet-mouth"></div>
+                <div class="pet-whiskers pet-whiskers-left"></div>
+                <div class="pet-whiskers pet-whiskers-right"></div>
+                <div class="pet-cheek pet-cheek-left"></div>
+                <div class="pet-cheek pet-cheek-right"></div>
+              </div>
+
+              <div class="pet-paw pet-paw-left"></div>
+              <div class="pet-paw pet-paw-right"></div>
+            </div>
+
+            <div class="pet-expression" id="petExpression">Soft chirp</div>
+            <div class="pet-face sr-only" id="petFace">Happy Copiloki</div>
+          </div>
+        </div>
+
+        <p class="pet-hint">Coach gently, rotate drills, and watch Copiloki learn on its own.</p>
+
+        <p class="status-line" id="statusLine" aria-live="polite">
+          Copiloki is blinking awake and ready for its first academy lesson.
+        </p>
+
+        <div class="mission-card">
+          <p class="kicker">Today's briefing</p>
+          <p id="goalText">Balance care, training, and variety to help Copiloki graduate.</p>
+          <div class="evolution-note">
+            <strong id="evolutionLine">Next evolution: Byte Pup</strong>
+            <span id="evolutionHint">Reach age 1.0 days to hatch.</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel care-panel" aria-labelledby="carePanelTitle">
+        <div class="panel-head">
+          <div>
+            <p class="kicker">Training loop</p>
+            <h2 id="carePanelTitle">Needs and coaching</h2>
+          </div>
+          <p class="microcopy">Tip: keys 1-5 still trigger the academy actions.</p>
+        </div>
+
+        <div class="stats-grid" id="statsGrid">
+          <article class="stat-card">
+            <div class="stat-head">
+              <span>Hunger</span>
+              <strong id="hungerValue">72%</strong>
+            </div>
+            <div class="meter"><span id="hungerMeter" class="meter-fill"></span></div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-head">
+              <span>Joy</span>
+              <strong id="joyValue">82%</strong>
+            </div>
+            <div class="meter"><span id="joyMeter" class="meter-fill"></span></div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-head">
+              <span>Energy</span>
+              <strong id="energyValue">76%</strong>
+            </div>
+            <div class="meter"><span id="energyMeter" class="meter-fill"></span></div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-head">
+              <span>Hygiene</span>
+              <strong id="hygieneValue">70%</strong>
+            </div>
+            <div class="meter"><span id="hygieneMeter" class="meter-fill"></span></div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-head">
+              <span>Focus</span>
+              <strong id="focusValue">60%</strong>
+            </div>
+            <div class="meter"><span id="focusMeter" class="meter-fill"></span></div>
+          </article>
+        </div>
+
+        <div class="actions-grid">
+          <button class="action-btn primary" data-action="feed" type="button">1. Feed snack</button>
+          <button class="action-btn" data-action="play" type="button">2. Open training sim</button>
+          <button class="action-btn" data-action="clean" type="button">3. Clean up</button>
+          <button class="action-btn" data-action="nap" type="button">4. Power nap</button>
+          <button class="action-btn" data-action="code" type="button">5. Ship patch</button>
+        </div>
+      </section>
+
+      <section class="panel log-panel" aria-labelledby="logPanelTitle">
+        <div class="panel-head">
+          <div>
+            <p class="kicker">Academy feed</p>
+            <h2 id="logPanelTitle">Training log</h2>
+          </div>
+        </div>
+
+        <div class="tip-card">
+          <strong>How to win:</strong> help Copiloki stay healthy, curious, and varied enough to
+          reach <em>Copiloki Prime</em> without burning out on repetitive drills.
+        </div>
+
+        <section class="quest-card" aria-labelledby="questTitle">
+          <p class="kicker">Quick assignment</p>
+          <h3 id="questTitle">Tiny task</h3>
+          <p id="questCopy">Feed Copiloki twice to build trust.</p>
+          <div class="meter quest-meter"><span id="questMeter" class="meter-fill"></span></div>
+          <div class="quest-meta">
+            <span id="questProgress">0 / 2</span>
+            <span id="questReward">+2 sparks</span>
+          </div>
+        </section>
+
+        <section class="boost-panel" aria-labelledby="boostTitle">
+          <p class="kicker">Supply cart</p>
+          <h3 id="boostTitle">Spend sparks</h3>
+          <div class="boost-grid">
+            <button class="boost-btn" id="boostSnackBtn" data-boost="snack" type="button">
+              <strong>Snack crate</strong>
+              <span>2 sparks • hunger + joy</span>
+            </button>
+            <button class="boost-btn" id="boostBathBtn" data-boost="bath" type="button">
+              <strong>Bubble bath</strong>
+              <span>3 sparks • hygiene + health</span>
+            </button>
+            <button class="boost-btn" id="boostFocusBtn" data-boost="focus" type="button">
+              <strong>Debug kit</strong>
+              <span>4 sparks • focus + energy</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="persona-card" aria-labelledby="personalityTitle">
+          <p class="kicker">Academy profile</p>
+          <h3 id="personalityTitle">Patch Gremlin</h3>
+          <p id="personalityCopy">
+            A curious little builder who learns fast, loves variety, and gets bored if every
+            toy feels the same.
+          </p>
+          <div class="quest-meta personality-meta">
+            <span id="favoriteGameText">Favorite: Bug Hunt</span>
+            <span id="autonomyText">Autonomy 12%</span>
+          </div>
+
+          <div class="skill-list" aria-label="Training skills">
+            <div class="skill-row">
+              <div class="stat-head">
+                <span>Speed</span>
+                <strong id="speedSkillValue">12%</strong>
+              </div>
+              <div class="meter"><span id="speedSkillMeter" class="meter-fill"></span></div>
+            </div>
+
+            <div class="skill-row">
+              <div class="stat-head">
+                <span>Focus</span>
+                <strong id="focusSkillValue">12%</strong>
+              </div>
+              <div class="meter"><span id="focusSkillMeter" class="meter-fill"></span></div>
+            </div>
+
+            <div class="skill-row">
+              <div class="stat-head">
+                <span>Creativity</span>
+                <strong id="creativitySkillValue">12%</strong>
+              </div>
+              <div class="meter"><span id="creativitySkillMeter" class="meter-fill"></span></div>
+            </div>
+          </div>
+        </section>
+
+        <ol class="log-list" id="logList" aria-live="polite"></ol>
+      </section>
+    </main>
+  </div>
+
+  <div class="overlay" id="startOverlay">
+    <div class="overlay-card">
+      <p class="eyebrow">Fresh academy intake</p>
+      <h2>Train Copiloki</h2>
+      <p>
+        Start a new academy cycle with your tiny AI trainee. Feed it, care for it,
+        rotate drills, and watch it slowly become smarter, faster, and more autonomous.
+      </p>
+      <div class="overlay-actions">
+        <button class="primary" id="overlayStart" type="button">Start academy</button>
+        <button class="ghost" id="overlayFresh" type="button">Clear save and hatch new trainee</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay hidden mini-overlay" id="miniGameOverlay">
+    <div class="overlay-card mini-card">
+      <p class="eyebrow" id="miniEyebrow">Mini arcade</p>
+      <h2 id="miniTitle">Catch the runaway bits</h2>
+      <div class="mini-selector">
+        <button class="mini-mode-btn active" data-mini-mode="bug" type="button">Bug Hunt</button>
+        <button class="mini-mode-btn" data-mini-mode="memory" type="button">Memory Lights</button>
+        <button class="mini-mode-btn" data-mini-mode="dash" type="button">Patch Dash</button>
+      </div>
+      <p class="microcopy mini-mode-hint" id="miniModeHint">
+        Rotate the games to keep Copiloki learning and avoid boredom.
+      </p>
+      <p id="miniGameCopy">
+        Watch Copiloki chase the drifting bugs on its own. Great for speed and playful confidence.
+      </p>
+
+      <div class="mini-meta">
+        <span class="chip" id="miniTimer">9.0s</span>
+        <span class="chip" id="miniScore">0 caught</span>
+      </div>
+
+      <div class="mini-arena" id="miniArena" aria-label="Autonomous training arena"></div>
+
+      <div class="overlay-actions">
+        <button class="primary" id="miniGameStart" type="button">Start hunt</button>
+        <button class="ghost" id="miniGameClose" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sr-only" aria-live="polite" id="ariaLive"></div>
+
+  <script>
+    window.COPILOKI_STORAGE_KEY = "copiloki-academy-save-v1";
+  </script>
+  <script src="../copiloki/game.js"></script>
+</body>
+</html>

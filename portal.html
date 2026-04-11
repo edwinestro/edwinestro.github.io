@@ -262,6 +262,24 @@ const toolEntries = [
   { title: 'Legacy Game Lab', desc: 'Original stringball endpoint with maze, games, and CV.', href: 'legacy/stringball-endpoint/index.html', badges: ['Legacy'], category: 'tools' },
 ];
 
+const fallbackGameEntries = [
+  { id: 'unsupervised-agi-3d-2', title: 'Unsupervised AGI 3D2', desc: 'Live sequel focused on teaching AGI autonomy with runtime diagnostics and release trials.', href: 'index.html', badges: ['3D', 'Live', 'Auth'], counted: true },
+  { id: 'onlyfied', title: 'Onlyfied', desc: 'Meta crossover run that remixes insights from the repo into one playable strategy loop.', href: 'Projects/games/onlyfied/index.html', badges: ['Strategy', 'Arcade', 'New'], counted: true },
+  { id: 'copiloki-academy', title: 'Copiloki Academy', desc: 'Coach a tiny AI trainee with evolving care loops and boredom-aware drills.', href: 'Projects/games/copiloki-academy/index.html', badges: ['Cozy', 'Training Sim', 'New'], counted: true },
+  { id: 'science-lab-5-2', title: 'Science Lab 5.2', desc: 'Explore 118 element rooms with interactive orbital and probability-density visuals.', href: 'Projects/games/science-lab-5-2/index.html', badges: ['Science', 'New', 'MVP'], counted: true },
+  { id: 'frost-signal', title: 'Frost Signal', desc: 'Fast arcade trust-shard run with crisp win/lose feedback and rapid restart flow.', href: 'Projects/games/frost-signal/index.html', badges: ['Arcade', 'MVP'], counted: true },
+  { id: 'memory-sequence', title: 'Memory Sequence', desc: 'Legacy cognitive challenge focused on pattern recall and clean escalation.', href: 'legacy/stringball-endpoint/games.html#memory-sequence', badges: ['Cognitive'], counted: true },
+];
+
+const PORTAL_VIEW_KEY = 'portal.preferredView';
+
+function normalizeGameHref(href = '') {
+  return String(href || '#')
+    .replace('../../games/', 'Projects/games/')
+    .replace('../../../legacy/', 'legacy/')
+    .replace('../../Projects/', 'Projects/');
+}
+
 // ─── Category mapping for games.json entries ───
 function categorize(game) {
   const b = (game.badges || []).map(s => s.toLowerCase());
@@ -278,7 +296,7 @@ function renderCard(item, isGame) {
     const cls = b === 'New' ? 'green' : b === 'MVP' ? 'purple' : '';
     return `<span class="badge ${cls}">${b}</span>`;
   }).join('');
-  const href = isGame ? item.href.replace('../../games/', 'Projects/games/').replace('../../../legacy/', 'legacy/') : item.href;
+  const href = isGame ? normalizeGameHref(item.href) : item.href;
   const gid = item.id || '';
   const voteData = voteTallies[gid] || { up: 0, down: 0 };
   const userV = userVotes[gid] || null;
@@ -289,7 +307,7 @@ function renderCard(item, isGame) {
       <span class="vote-net">${net >= 0 ? '+' : ''}${net}</span>
       <button class="vote-btn vote-down${userV === 'down' ? ' active' : ''}" data-game="${gid}" data-dir="down" title="Downvote" type="button">▼ ${voteData.down}</button>
     </div>` : '';
-  return `<div class="card-wrap" data-score="${net}">
+  return `<div class="card-wrap" data-game="${gid}" data-score="${net}">
     <a class="card" href="${href}">
       <div class="card-title">${item.title}</div>
       <div class="card-desc">${item.desc}</div>
@@ -314,17 +332,68 @@ async function checkAuth() {
 async function loadVotes() {
   try {
     const res = await fetch('/api/vote?game=all');
-    if (res.ok) { const d = await res.json(); if (d.ok) voteTallies = d.tallies || {}; }
+    if (res.ok) {
+      const d = await res.json();
+      if (d.ok) voteTallies = d.tallies || {};
+    }
   } catch { /* offline fallback */ }
-  // Load user's own votes for each game (to show active state + enable toggle)
+
   if (isAuthenticated) {
     for (const gid of Object.keys(voteTallies)) {
       try {
         const r = await fetch(`/api/vote?game=${gid}`);
-        if (r.ok) { const d = await r.json(); if (d.ok && d.userVote) userVotes[gid] = d.userVote.vote; }
+        if (r.ok) {
+          const d = await r.json();
+          if (d.ok && d.userVote) userVotes[gid] = d.userVote.vote;
+        }
       } catch {}
     }
   }
+
+  refreshVoteUi();
+  sortVisibleGridsByScore();
+}
+
+function refreshVoteUi() {
+  document.querySelectorAll('.vote-row[data-game]').forEach((row) => {
+    const gid = row.dataset.game;
+    const tally = voteTallies[gid] || { up: 0, down: 0 };
+    const net = tally.up - tally.down;
+    row.closest('.card-wrap')?.setAttribute('data-score', String(net));
+
+    const upBtn = row.querySelector('.vote-up');
+    const downBtn = row.querySelector('.vote-down');
+    const netEl = row.querySelector('.vote-net');
+
+    if (upBtn) {
+      upBtn.textContent = `▲ ${tally.up}`;
+      upBtn.classList.toggle('active', userVotes[gid] === 'up');
+    }
+    if (downBtn) {
+      downBtn.textContent = `▼ ${tally.down}`;
+      downBtn.classList.toggle('active', userVotes[gid] === 'down');
+    }
+    if (netEl) netEl.textContent = `${net >= 0 ? '+' : ''}${net}`;
+  });
+}
+
+function sortGridByScore(grid) {
+  if (!grid) return;
+  const wraps = Array.from(grid.querySelectorAll(':scope > .card-wrap'));
+  wraps.sort((a, b) => {
+    const scoreDiff = Number(b.dataset.score || 0) - Number(a.dataset.score || 0);
+    if (scoreDiff !== 0) return scoreDiff;
+    const aTitle = a.querySelector('.card-title')?.textContent || '';
+    const bTitle = b.querySelector('.card-title')?.textContent || '';
+    return aTitle.localeCompare(bTitle);
+  });
+  wraps.forEach((wrap) => grid.appendChild(wrap));
+}
+
+function sortVisibleGridsByScore() {
+  ['gridSpotlight', 'gridAll', 'gridExperiences', 'gridScience', 'gridStrategy', 'gridCognitive'].forEach((id) => {
+    sortGridByScore(document.getElementById(id));
+  });
 }
 
 async function init() {
@@ -337,9 +406,14 @@ async function init() {
   let games = [];
   try {
     const res = await fetch('Projects/data/games.json');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     games = data.games || [];
-  } catch { console.warn('Could not load games.json'); }
+  } catch (err) {
+    console.error('Could not load games.json:', err);
+    games = fallbackGameEntries.map((game) => ({ ...game }));
+    gridAll.insertAdjacentHTML('beforebegin', '<p style="color:var(--dim);padding:0 0 16px;text-align:center">Using the built-in fallback catalog while <code>games.json</code> reloads.</p>');
+  }
 
   // Sort by updatedAt descending, then by vote score
   games.sort((a, b) => {
@@ -379,6 +453,9 @@ async function init() {
     grids.tools.insertAdjacentHTML('beforeend', renderCard(tool, false));
     counts.tools++;
   }
+
+  refreshVoteUi();
+  sortVisibleGridsByScore();
 
   // Animated stat counters
   function animateCount(el, target) {
@@ -461,19 +538,26 @@ async function init() {
     function showVotesView() {
       sortVotesBtn.classList.add('active');
       sortCatBtn.classList.remove('active');
+      sortVotesBtn.setAttribute('aria-pressed', 'true');
+      sortCatBtn.setAttribute('aria-pressed', 'false');
       allSection.style.display = '';
       categorySections.forEach(s => { if (s) s.style.display = 'none'; });
+      localStorage.setItem(PORTAL_VIEW_KEY, 'votes');
     }
     function showCategoryView() {
       sortCatBtn.classList.add('active');
       sortVotesBtn.classList.remove('active');
+      sortCatBtn.setAttribute('aria-pressed', 'true');
+      sortVotesBtn.setAttribute('aria-pressed', 'false');
       allSection.style.display = 'none';
       categorySections.forEach(s => { if (s) s.style.display = ''; });
+      localStorage.setItem(PORTAL_VIEW_KEY, 'category');
     }
     sortVotesBtn.addEventListener('click', showVotesView);
     sortCatBtn.addEventListener('click', showCategoryView);
-    // Default to votes view
-    showVotesView();
+    const preferredView = localStorage.getItem(PORTAL_VIEW_KEY);
+    if (preferredView === 'votes') showVotesView();
+    else showCategoryView();
   }
 }
 
@@ -533,14 +617,8 @@ async function castVote(gameId, direction, reason) {
       voteTallies[gameId] = d.tally;
       userVotes[gameId] = direction;
       // Update ALL matching buttons (may appear in both grids)
-      document.querySelectorAll(`.vote-row[data-game="${gameId}"]`).forEach(row => {
-        const net = d.tally.up - d.tally.down;
-        row.querySelector('.vote-up').textContent = '\u25B2 ' + d.tally.up;
-        row.querySelector('.vote-down').textContent = '\u25BC ' + d.tally.down;
-        row.querySelector('.vote-net').textContent = (net >= 0 ? '+' : '') + net;
-        row.querySelector('.vote-up').classList.toggle('active', direction === 'up');
-        row.querySelector('.vote-down').classList.toggle('active', direction === 'down');
-      });
+      refreshVoteUi();
+      sortVisibleGridsByScore();
     }
   } catch (e) { console.warn('Vote failed:', e); }
 }
@@ -560,22 +638,16 @@ async function removeVote(gameId) {
       if (fd.ok) {
         voteTallies[gameId] = fd.tally;
         delete userVotes[gameId];
-        document.querySelectorAll(`.vote-row[data-game="${gameId}"]`).forEach(row => {
-          const net = fd.tally.up - fd.tally.down;
-          row.querySelector('.vote-up').textContent = '\u25B2 ' + fd.tally.up;
-          row.querySelector('.vote-down').textContent = '\u25BC ' + fd.tally.down;
-          row.querySelector('.vote-net').textContent = (net >= 0 ? '+' : '') + net;
-          row.querySelector('.vote-up').classList.remove('active');
-          row.querySelector('.vote-down').classList.remove('active');
-        });
+        refreshVoteUi();
+        sortVisibleGridsByScore();
       }
     }
   } catch (e) { console.warn('Remove vote failed:', e); }
 }
 
-await checkAuth();
-await loadVotes();
+// Render games immediately — auth/voting loads in background
 init();
+checkAuth().then(loadVotes).catch(() => {});
 </script>
 </body>
 </html>

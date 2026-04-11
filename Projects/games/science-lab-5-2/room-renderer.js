@@ -7,8 +7,12 @@ export function makeTextures() {
   floor.width = floor.height = 256;
   ceil.width = ceil.height = 256;
 
-  const f = floor.getContext('2d');
-  const c = ceil.getContext('2d');
+  const f =
+    floor.getContext('2d', { alpha: false, desynchronized: true }) ||
+    floor.getContext('2d');
+  const c =
+    ceil.getContext('2d', { alpha: false, desynchronized: true }) ||
+    ceil.getContext('2d');
 
   // Floor: neon circuit grid
   f.fillStyle = '#050a12';

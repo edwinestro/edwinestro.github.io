@@ -1,7 +1,9 @@
 (() => {
   const canvas = document.getElementById('scene');
   if (!canvas) return;
-  const ctx = canvas.getContext('2d');
+  const ctx =
+    canvas.getContext('2d', { alpha: false, desynchronized: true }) ||
+    canvas.getContext('2d');
 
   const prompt = document.getElementById('prompt');
   const promptTitle = document.getElementById('promptTitle');
@@ -404,7 +406,9 @@
       densityCanvas = document.createElement('canvas');
       densityCanvas.width = FIELD_W;
       densityCanvas.height = FIELD_H;
-      densityCtx = densityCanvas.getContext('2d');
+      densityCtx =
+        densityCanvas.getContext('2d', { alpha: true, desynchronized: true }) ||
+        densityCanvas.getContext('2d');
     }
     densityImageData = densityCtx.createImageData(FIELD_W, FIELD_H);
     const perCell = TOTAL_MOLECULES / (FIELD_W * FIELD_H);
